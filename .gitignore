@@ -1,0 +1,17 @@
+#IDEs and text editor config files
+.idea
+.vscode
+
+# golang output binary directory
+bin
+
+# golang vendor (dependencies) directory
+vendor
+
+#secrets and keys
+secrets
+
+#development scripts
+runner.conf
+
+config.yml
