@@ -4,27 +4,27 @@ import (
 	"context"
 )
 
-//AuthenticationService defines the authentication API.
-type AuthenticationService interface {
-	GetAuthToken(ctx *context.Context, r *GetAuthTokenRequest) (GetAuthTokenResponse, error)
-	RenewAuthToken(ctx *context.Context, r *RenewAuthTokenRequest) (RenewAuthTokenResponse, error)
-	RevokeAuthToken(ctx *context.Context, r *RevokeAuthTokenRequest) (RevokeAuthTokenResponse, error)
+//AuthService defines the authentication API.
+type AuthService interface {
+	GetAuthToken(ctx *context.Context, r *GetTokenReq) (GetTokenResp, error)
+	RenewAuthToken(ctx *context.Context, r *RenewTokenReq) (RenewTokenResp, error)
+	RevokeAuthToken(ctx *context.Context, r *RevokeTokenReq) (RevokeTokenResp, error)
 }
 
-//GetAuthTokenRequest defines a request to the GetAuthToken Endpoint.
-type GetAuthTokenRequest struct{}
+//GetTokenReq defines a request to the GetAuthToken Endpoint.
+type GetTokenReq struct{}
 
-//RenewAuthTokenRequest defines a request to the RenewAuthToken Endpoint.
-type RenewAuthTokenRequest struct{}
+//RenewTokenReq defines a request to the RenewAuthToken Endpoint.
+type RenewTokenReq struct{}
 
-//RevokeAuthTokenRequest defines a request to the RevokeAuthToken Endpoint.
-type RevokeAuthTokenRequest struct{}
+//RevokeTokenReq defines a request to the RevokeAuthToken Endpoint.
+type RevokeTokenReq struct{}
 
-//GetAuthTokenResponse defines a response to the GetAuthToken Endpoint.
-type GetAuthTokenResponse struct{}
+//GetTokenResp defines a response to the GetAuthToken Endpoint.
+type GetTokenResp struct{}
 
-//RenewAuthTokenResponse defines a response to the GetAuthToken Endpoint.
-type RenewAuthTokenResponse struct{}
+//RenewTokenResp defines a response to the GetAuthToken Endpoint.
+type RenewTokenResp struct{}
 
-//RevokeAuthTokenResponse defines a response to RevokeAuthToken Endpoint
-type RevokeAuthTokenResponse struct{}
+//RevokeTokenResp defines a response to RevokeAuthToken Endpoint
+type RevokeTokenResp struct{}
