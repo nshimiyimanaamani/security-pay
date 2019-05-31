@@ -10,16 +10,16 @@ import (
 type Application struct{}
 
 //GetAuthToken receives an authentication request and returns a jwt token.
-func (app *Application) GetAuthToken(ctx *context.Context) error {
+func (app *Application) GetAuthToken(ctx *context.Context, r *GetAuthTokenRequest) error {
 	return nil
 }
 
 //RenewAuthToken receives an authentication request and returns a renewed jwt.
-func (app *Application) RenewAuthToken(ctx *context.Context) error {
+func (app *Application) RenewAuthToken(ctx *context.Context, r *RenewAuthTokenRequest) error {
 	return nil
 }
 
 //RevokeAuthToken receives an revokation request and revokes the given token.
-func (app *Application) RevokeAuthToken(ctx *context.Context) error {
+func (app *Application) RevokeAuthToken(ctx *context.Context, r *RevokeAuthTokenRequest) error {
 	return nil
 }
