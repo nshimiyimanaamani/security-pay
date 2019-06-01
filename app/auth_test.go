@@ -76,7 +76,7 @@ func TestGetAuthToken(t *testing.T){
 	}
 }
 
-func TestRenewAuthToken(t *testing.T){
+func TestRovken(t *testing.T){
 	app:= &App{}
 
 	testcases:= []struct{
