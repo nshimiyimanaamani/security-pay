@@ -53,30 +53,36 @@ func TestRenewAuthToken(t *testing.T){
 	app:= &Application{}
 
 	testcases:= []struct{
+		name    string
 		request *RenewTokenReq
+		token   bool
 		err     error
 	}{
-		{request: &RenewTokenReq{ID: "1"}, err:nil},
+		{name:"request lacks a 'token field'", request: &RenewTokenReq{ID: "1"}, token:false, err:ErrorInvalidRequest},
+
+		{name:"request has 'all the fields'", request: &RenewTokenReq{ID: "1", Token:[]byte("old token")}, token:true, err:nil},
 	}
 
 	for _,tc:= range testcases{
-		ctx:= context.Background()
+		t.Run(tc.name, func(t *testing.T){
+			ctx:= context.Background()
 
-		res, err:= app.RenewAuthToken(&ctx, tc.request)
+			res, err:= app.RenewAuthToken(&ctx, tc.request)
 
-		if err!=tc.err{
-			t.Errorf("expected error to be nil")
-		}
+			if err!=tc.err{
+				t.Errorf("expected error message to be '%v' got '%v'", tc.err, err)
+			}
 
-		//request and response must have the same id.
-		if res.ID != tc.request.ID{
-			t.Errorf("expected response and request to have the same id found-> req:%s | res:%s", tc.request.ID, res.ID)
-		}
+			//request and response must have the same id.
+			if res.ID != tc.request.ID{
+				t.Errorf("expected response and request to have the same id found-> req:%s | res:%s", tc.request.ID, res.ID)
+			}
 
-		//the response must have a token field
-		if len(res.Token)< 1{
-			t.Errorf("the token field must not be empty")
-		}
+			//the response must have a token field if there is no error
+			if tc.token == true && len(res.Token)< 1{
+				t.Errorf("the token field must not be empty")
+			}
+		})
 	}
 }
 

@@ -24,6 +24,11 @@ func (app *Application) GetAuthToken(ctx *context.Context, r *GetTokenReq) (GetT
 
 //RenewAuthToken receives an authentication request and returns a renewed jwt.
 func (app *Application) RenewAuthToken(ctx *context.Context, r *RenewTokenReq) (RenewTokenResp, error) {
+	if len(r.Token) < 1 {
+		return RenewTokenResp{
+			ID: r.ID,
+		}, ErrorInvalidRequest
+	}
 	return RenewTokenResp{
 		ID:    r.ID,
 		Token: []byte("new token"),

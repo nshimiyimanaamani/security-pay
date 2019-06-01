@@ -26,7 +26,8 @@ type GetTokenReq struct {
 
 //RenewTokenReq defines a request to the RenewAuthToken Endpoint.
 type RenewTokenReq struct {
-	ID string `json:"id"`
+	ID    string `json:"id"`
+	Token []byte `json:"token"`
 }
 
 //RevokeTokenReq defines a request to the RevokeAuthToken Endpoint.
