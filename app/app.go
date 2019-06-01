@@ -11,12 +11,7 @@ type Application struct{}
 
 //GetAuthToken receives an authentication request and returns a jwt token.
 func (app *Application) GetAuthToken(ctx *context.Context, r *GetTokenReq) (GetTokenResp, error) {
-	if len(r.Email) < 1 {
-		return GetTokenResp{
-			ID: r.ID,
-		}, ErrorInvalidRequest
-	}
-	if len(r.Password) < 1 {
+	if len(r.Email) < 1 || len(r.Password) < 1 {
 		return GetTokenResp{
 			ID: r.ID,
 		}, ErrorInvalidRequest
