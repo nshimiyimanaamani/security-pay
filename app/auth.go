@@ -28,12 +28,14 @@ type RevokeTokenReq struct{
 
 //GetTokenResp defines a response to the GetAuthToken Endpoint.
 type GetTokenResp struct {
-	ID string `json:"id"`
+	ID		string `json:"id"`
+	Token 	[]byte `json:"token"`
 }
 
 //RenewTokenResp defines a response to the GetAuthToken Endpoint.
 type RenewTokenResp struct {
 	ID string `json:"id"`
+	Token 	[]byte `json:"token"`
 }
 
 //RevokeTokenResp defines a response to RevokeAuthToken Endpoint

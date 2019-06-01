@@ -11,12 +11,18 @@ type Application struct{}
 
 //GetAuthToken receives an authentication request and returns a jwt token.
 func (app *Application) GetAuthToken(ctx *context.Context, r *GetTokenReq) (GetTokenResp, error) {
-	return GetTokenResp{ID: r.ID}, nil
+	return GetTokenResp{
+		ID:    r.ID,
+		Token: []byte("token"),
+	}, nil
 }
 
 //RenewAuthToken receives an authentication request and returns a renewed jwt.
 func (app *Application) RenewAuthToken(ctx *context.Context, r *RenewTokenReq) (RenewTokenResp, error) {
-	return RenewTokenResp{ID: r.ID}, nil
+	return RenewTokenResp{
+		ID:    r.ID,
+		Token: []byte("new token"),
+	}, nil
 }
 
 //RevokeAuthToken receives an revokation request and revokes the given token.

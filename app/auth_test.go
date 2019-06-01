@@ -22,6 +22,11 @@ func TestGetAuthToken(t *testing.T){
 	if res.ID != req.ID{
 		t.Errorf("expected response and request to have the same id found-> req:%s | res:%s", req.ID, res.ID)
 	} 
+	
+	//the response must have a token field
+	if len(res.Token)< 1{
+		t.Errorf("the token field must not be empty")
+	}
 }
 
 func TestRenewAuthToken(t *testing.T){
@@ -40,7 +45,12 @@ func TestRenewAuthToken(t *testing.T){
 	//request and response must have the same id.
 	if res.ID != req.ID{
 		t.Errorf("expected response and request to have the same id found-> req:%s | res:%s", req.ID, res.ID)
-	} 
+	}
+
+	//the response must have a token field
+	if len(res.Token)< 1{
+		t.Errorf("the token field must not be empty")
+	}
 }
 
 func TestRevokeAuthToken(t *testing.T){
