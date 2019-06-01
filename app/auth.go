@@ -2,6 +2,12 @@ package app
 
 import (
 	"context"
+	"errors"
+)
+
+//API wide error definitions
+var (
+	ErrorInvalidRequest = errors.New("invalid request")
 )
 
 //AuthService defines the authentication API.
@@ -12,30 +18,32 @@ type AuthService interface {
 }
 
 //GetTokenReq defines a request to the GetAuthToken Endpoint.
-type GetTokenReq struct{
-	ID string `json:"id"`
+type GetTokenReq struct {
+	ID       string `json:"id"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 //RenewTokenReq defines a request to the RenewAuthToken Endpoint.
-type RenewTokenReq struct{
+type RenewTokenReq struct {
 	ID string `json:"id"`
 }
 
 //RevokeTokenReq defines a request to the RevokeAuthToken Endpoint.
-type RevokeTokenReq struct{
+type RevokeTokenReq struct {
 	ID string `json:"id"`
 }
 
 //GetTokenResp defines a response to the GetAuthToken Endpoint.
 type GetTokenResp struct {
-	ID		string `json:"id"`
-	Token 	[]byte `json:"token"`
+	ID    string `json:"id"`
+	Token []byte `json:"token"`
 }
 
 //RenewTokenResp defines a response to the GetAuthToken Endpoint.
 type RenewTokenResp struct {
-	ID string `json:"id"`
-	Token 	[]byte `json:"token"`
+	ID    string `json:"id"`
+	Token []byte `json:"token"`
 }
 
 //RevokeTokenResp defines a response to RevokeAuthToken Endpoint
