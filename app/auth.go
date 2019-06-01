@@ -50,6 +50,13 @@ type RevokeTokenReq struct {
 	ID string `json:"id"`
 }
 
+func (r *RevokeTokenReq) validate() error {
+	if len(r.ID) < 1 {
+		return ErrorInvalidRequest
+	}
+	return nil
+}
+
 //GetTokenResp defines a response to the GetAuthToken Endpoint.
 type GetTokenResp struct {
 	ID    string `json:"id"`

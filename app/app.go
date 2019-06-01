@@ -33,5 +33,8 @@ func (app *App) RenewAuthToken(ctx *context.Context, r *RenewTokenReq) (RenewTok
 
 //RevokeAuthToken receives an revokation request and revokes the given token.
 func (app *App) RevokeAuthToken(ctx *context.Context, r *RevokeTokenReq) (RevokeTokenResp, error) {
+	if err := r.validate(); err != nil {
+		return RevokeTokenResp{ID: r.ID}, err
+	}
 	return RevokeTokenResp{ID: r.ID}, nil
 }

@@ -136,24 +136,29 @@ func TestRevokeAuthToken(t *testing.T){
 	app:= &App{}
 
 	testcases:= []struct{
+		name 	string
 		request *RevokeTokenReq
 		err     error
 	}{
-		{request: &RevokeTokenReq{ID: "1"}, err:nil},
+		{name:"valid request", request: &RevokeTokenReq{ID: "1"}, err:nil},
+
+		{name:"request lacks 'id'", request: &RevokeTokenReq{}, err:ErrorInvalidRequest},
 	}
 
 	for _,tc:= range testcases{
-		ctx:= context.Background()
+		t.Run(tc.name, func(t *testing.T){
+			ctx:= context.Background()
 
-		res,err:= app.RevokeAuthToken(&ctx, tc.request)
+			res,err:= app.RevokeAuthToken(&ctx, tc.request)
 		
-		if err!=nil{
-			t.Errorf("expected error to be nil")
-		}
+			if err!=tc.err{
+				t.Errorf("expected error message to be '%v' got '%v'", tc.err, err)
+			}
 
-		//request and response must have the same id.
-		if res.ID != tc.request.ID{
-			t.Errorf("expected response and request to have the same id found-> req:%s | res:%s", tc.request.ID, res.ID)
-		} 
+			//request and response must have the same id.
+			if res.ID != tc.request.ID{
+				t.Errorf("expected response and request to have the same id found-> req:%s | res:%s", tc.request.ID, res.ID)
+			} 
+		})
 	}
 }
