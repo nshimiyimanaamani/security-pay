@@ -14,7 +14,10 @@ func TestGetAuthToken(t *testing.T){
 		token       bool
 		err 		error
 		
-	}{
+	}{	
+
+		////there shoud be an error if the request doesn't the request id
+		{name:"request lacks 'a request id'", request: &GetTokenReq{Email: "example", Password:"pass"}, token:false, err: ErrorInvalidRequest},
 		////there shoud be an error if the request doesn't have any of the required fields
 		{name:"request lacks 'all the fields'", request: &GetTokenReq{ID:"1"}, token:false, err: ErrorInvalidRequest},
 
@@ -57,7 +60,10 @@ func TestRenewAuthToken(t *testing.T){
 		request *RenewTokenReq
 		token   bool
 		err     error
-	}{
+	}{	
+		////there shoud be an error if the request doesn't the request id
+		{name:"request lacks 'a request id'", request: &RenewTokenReq{Token:[]byte("old token")}, token:false, err: ErrorInvalidRequest},
+
 		{name:"request lacks a 'token field'", request: &RenewTokenReq{ID: "1"}, token:false, err:ErrorInvalidRequest},
 
 		{name:"request has 'all the fields'", request: &RenewTokenReq{ID: "1", Token:[]byte("old token")}, token:true, err:nil},

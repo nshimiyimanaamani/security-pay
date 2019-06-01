@@ -26,7 +26,7 @@ type GetTokenReq struct {
 
 //validate checks if the request is valid.
 func (r *GetTokenReq) validate() error {
-	if len(r.Email) < 1 || len(r.Password) < 1 {
+	if len(r.ID) < 1 || len(r.Email) < 1 || len(r.Password) < 1 {
 		return ErrorInvalidRequest
 	}
 	return nil
@@ -39,7 +39,7 @@ type RenewTokenReq struct {
 }
 
 func (r *RenewTokenReq) validate() error {
-	if len(r.Token) < 1 {
+	if len(r.ID) < 1 || len(r.Token) < 1 {
 		return ErrorInvalidRequest
 	}
 	return nil
