@@ -11,10 +11,8 @@ type Application struct{}
 
 //GetAuthToken receives an authentication request and returns a jwt token.
 func (app *Application) GetAuthToken(ctx *context.Context, r *GetTokenReq) (GetTokenResp, error) {
-	if len(r.Email) < 1 || len(r.Password) < 1 {
-		return GetTokenResp{
-			ID: r.ID,
-		}, ErrorInvalidRequest
+	if err := r.validate(); err != nil {
+		return GetTokenResp{ID: r.ID}, err
 	}
 	return GetTokenResp{
 		ID:    r.ID,
@@ -24,10 +22,8 @@ func (app *Application) GetAuthToken(ctx *context.Context, r *GetTokenReq) (GetT
 
 //RenewAuthToken receives an authentication request and returns a renewed jwt.
 func (app *Application) RenewAuthToken(ctx *context.Context, r *RenewTokenReq) (RenewTokenResp, error) {
-	if len(r.Token) < 1 {
-		return RenewTokenResp{
-			ID: r.ID,
-		}, ErrorInvalidRequest
+	if err := r.validate(); err != nil {
+		return RenewTokenResp{ID: r.ID}, err
 	}
 	return RenewTokenResp{
 		ID:    r.ID,

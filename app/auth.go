@@ -24,10 +24,25 @@ type GetTokenReq struct {
 	Password string `json:"password"`
 }
 
+//validate checks if the request is valid.
+func (r *GetTokenReq) validate() error {
+	if len(r.Email) < 1 || len(r.Password) < 1 {
+		return ErrorInvalidRequest
+	}
+	return nil
+}
+
 //RenewTokenReq defines a request to the RenewAuthToken Endpoint.
 type RenewTokenReq struct {
 	ID    string `json:"id"`
 	Token []byte `json:"token"`
+}
+
+func (r *RenewTokenReq) validate() error {
+	if len(r.Token) < 1 {
+		return ErrorInvalidRequest
+	}
+	return nil
 }
 
 //RevokeTokenReq defines a request to the RevokeAuthToken Endpoint.
