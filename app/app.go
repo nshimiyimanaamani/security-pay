@@ -9,6 +9,11 @@ import (
 //them amin container of App wide state.
 type App struct{}
 
+//NewApp creates a new App instance.
+func NewApp() *App {
+	return &App{}
+}
+
 //GetAuthToken receives an authentication request and returns a jwt token.
 func (app *App) GetAuthToken(ctx *context.Context, r *GetTokenReq) (GetTokenResp, error) {
 	if err := r.validate(); err != nil {
