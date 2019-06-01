@@ -12,13 +12,19 @@ type AuthService interface {
 }
 
 //GetTokenReq defines a request to the GetAuthToken Endpoint.
-type GetTokenReq struct{}
+type GetTokenReq struct{
+	ID string `json:"id"`
+}
 
 //RenewTokenReq defines a request to the RenewAuthToken Endpoint.
-type RenewTokenReq struct{}
+type RenewTokenReq struct{
+	ID string `json:"id"`
+}
 
 //RevokeTokenReq defines a request to the RevokeAuthToken Endpoint.
-type RevokeTokenReq struct{}
+type RevokeTokenReq struct{
+	ID string `json:"id"`
+}
 
 //GetTokenResp defines a response to the GetAuthToken Endpoint.
 type GetTokenResp struct {
