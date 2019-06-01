@@ -17,18 +17,42 @@ func TestGetAuthToken(t *testing.T){
 	}{	
 
 		////there shoud be an error if the request doesn't the request id
-		{name:"request lacks 'a request id'", request: &GetTokenReq{Email: "example", Password:"pass"}, token:false, err: ErrorInvalidRequest},
+		{
+			name:"request lacks 'a request id'", 
+			request: &GetTokenReq{Email: "example", Password:"pass"}, 
+			token:false, err: ErrorInvalidRequest,
+		},
 		////there shoud be an error if the request doesn't have any of the required fields
-		{name:"request lacks 'all the fields'", request: &GetTokenReq{ID:"1"}, token:false, err: ErrorInvalidRequest},
+		{
+			name:"request lacks 'all the fields'", 
+			request: &GetTokenReq{ID:"1"}, 
+			token:false, 
+			err: ErrorInvalidRequest,
+		},
 
 		///there should be an error if the request lacks email field
-		{name:"request lacks 'email field'", request: &GetTokenReq{ID:"1",Password:"pass"}, token:false, err: ErrorInvalidRequest},
+		{
+			name:"request lacks 'email field'", 
+			request: &GetTokenReq{ID:"1",Password:"pass"}, 
+			token:false,
+			err: ErrorInvalidRequest,
+		},
 
 		///there should be an error if the request lacks a password fields
-		{name:"request lacks 'password field'", request: &GetTokenReq{ID:"1",Email:"example"}, token:false, err: ErrorInvalidRequest},
+		{
+			name:"request lacks 'password field'", 
+			request: &GetTokenReq{ID:"1",Email:"example"}, 
+			token:false, 
+			err: ErrorInvalidRequest,
+		},
 
 		///perfect request
-		{name:"request has all the required", request: &GetTokenReq{ID: "1", Email: "example", Password:"pass"}, token:true, err:nil},
+		{
+			name:"request has all the required", 
+			request: &GetTokenReq{ID: "1", Email: "example", Password:"pass"}, 
+			token:true, 
+			err:nil,
+		},
 	}
 	for _,tc:=range testcases{
 		t.Run(tc.name, func(t *testing.T){
@@ -62,11 +86,27 @@ func TestRenewAuthToken(t *testing.T){
 		err     error
 	}{	
 		////there shoud be an error if the request doesn't the request id
-		{name:"request lacks 'a request id'", request: &RenewTokenReq{Token:[]byte("old token")}, token:false, err: ErrorInvalidRequest},
+		{
+			name:"request lacks 'a request id'", 
+			request: &RenewTokenReq{Token:[]byte("old token")}, 
+			token:false, 
+			err: ErrorInvalidRequest,
+		},
 
-		{name:"request lacks a 'token field'", request: &RenewTokenReq{ID: "1"}, token:false, err:ErrorInvalidRequest},
+		{
+			name:"request lacks a 'token field'", 
+			request: &RenewTokenReq{ID: "1"}, 
+			token:false, 
+			err:ErrorInvalidRequest,
+		},
 
-		{name:"request has 'all the fields'", request: &RenewTokenReq{ID: "1", Token:[]byte("old token")}, token:true, err:nil},
+		{
+			name:"request has 'all the fields'", 
+			request: &RenewTokenReq{ID: "1", 
+			Token:[]byte("old token")}, 
+			token:true, 
+			err:nil,
+		},
 	}
 
 	for _,tc:= range testcases{
