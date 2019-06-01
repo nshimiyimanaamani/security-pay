@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetAuthToken(t *testing.T){
-	app:= &Application{}
+	app:= &App{}
 
 	testcases:= []struct{
 		name        string
@@ -50,7 +50,7 @@ func TestGetAuthToken(t *testing.T){
 }
 
 func TestRenewAuthToken(t *testing.T){
-	app:= &Application{}
+	app:= &App{}
 
 	testcases:= []struct{
 		name    string
@@ -87,7 +87,7 @@ func TestRenewAuthToken(t *testing.T){
 }
 
 func TestRevokeAuthToken(t *testing.T){
-	app:= &Application{}
+	app:= &App{}
 
 	testcases:= []struct{
 		request *RevokeTokenReq
