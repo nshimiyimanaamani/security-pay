@@ -13,7 +13,7 @@ var (
 //AuthService defines the authentication API.
 type AuthService interface {
 	GetAuthToken(ctx *context.Context, r *GetTokenReq) (GetTokenResp, error)
-	RenewAuthToken(ctx *context.Context, r *RenewTokenReq) (RenewTokenResp, error)
+	RefreshAuthToken(ctx *context.Context, r *RefreshTokenReq) (RefreshTokenResp, error)
 	RevokeAuthToken(ctx *context.Context, r *RevokeTokenReq) (RevokeTokenResp, error)
 }
 
@@ -32,13 +32,13 @@ func (r *GetTokenReq) validate() error {
 	return nil
 }
 
-//RenewTokenReq defines a request to the RenewAuthToken Endpoint.
-type RenewTokenReq struct {
+//RefreshTokenReq defines a request to the RefreshAuthToken Endpoint.
+type RefreshTokenReq struct {
 	ID    string `json:"id"`
 	Token []byte `json:"token"`
 }
 
-func (r *RenewTokenReq) validate() error {
+func (r *RefreshTokenReq) validate() error {
 	if len(r.ID) < 1 || len(r.Token) < 1 {
 		return ErrorInvalidRequest
 	}
@@ -63,8 +63,8 @@ type GetTokenResp struct {
 	Token []byte `json:"token"`
 }
 
-//RenewTokenResp defines a response to the GetAuthToken Endpoint.
-type RenewTokenResp struct {
+//RefreshTokenResp defines a response to the GetAuthToken Endpoint.
+type RefreshTokenResp struct {
 	ID    string `json:"id"`
 	Token []byte `json:"token"`
 }

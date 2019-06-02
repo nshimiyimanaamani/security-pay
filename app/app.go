@@ -25,12 +25,12 @@ func (app *App) GetAuthToken(ctx *context.Context, r *GetTokenReq) (GetTokenResp
 	}, nil
 }
 
-//RenewAuthToken receives an authentication request and returns a renewed jwt.
-func (app *App) RenewAuthToken(ctx *context.Context, r *RenewTokenReq) (RenewTokenResp, error) {
+//RefreshAuthToken receives an authentication request and returns a Refreshed jwt.
+func (app *App) RefreshAuthToken(ctx *context.Context, r *RefreshTokenReq) (RefreshTokenResp, error) {
 	if err := r.validate(); err != nil {
-		return RenewTokenResp{ID: r.ID}, err
+		return RefreshTokenResp{ID: r.ID}, err
 	}
-	return RenewTokenResp{
+	return RefreshTokenResp{
 		ID:    r.ID,
 		Token: []byte("new token"),
 	}, nil

@@ -81,28 +81,28 @@ func TestRovken(t *testing.T){
 
 	testcases:= []struct{
 		name    string
-		request *RenewTokenReq
+		request *RefreshTokenReq
 		token   bool
 		err     error
 	}{	
 		////there shoud be an error if the request doesn't the request id
 		{
 			name:"request lacks 'a request id'", 
-			request: &RenewTokenReq{Token:[]byte("old token")}, 
+			request: &RefreshTokenReq{Token:[]byte("old token")}, 
 			token:false, 
 			err: ErrorInvalidRequest,
 		},
 
 		{
 			name:"request lacks a 'token field'", 
-			request: &RenewTokenReq{ID: "1"}, 
+			request: &RefreshTokenReq{ID: "1"}, 
 			token:false, 
 			err:ErrorInvalidRequest,
 		},
 
 		{
 			name:"request has 'all the fields'", 
-			request: &RenewTokenReq{ID: "1", 
+			request: &RefreshTokenReq{ID: "1", 
 			Token:[]byte("old token")}, 
 			token:true, 
 			err:nil,
@@ -113,7 +113,7 @@ func TestRovken(t *testing.T){
 		t.Run(tc.name, func(t *testing.T){
 			ctx:= context.Background()
 
-			res, err:= app.RenewAuthToken(&ctx, tc.request)
+			res, err:= app.RefreshAuthToken(&ctx, tc.request)
 
 			if err!=tc.err{
 				t.Errorf("expected error message to be '%v' got '%v'", tc.err, err)
