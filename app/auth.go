@@ -26,25 +26,10 @@ type GetTokenReq struct {
 	Account  string `json:"account"`
 }
 
-//validate checks if the request is valid.
-func (r *GetTokenReq) validate() error {
-	if len(r.ID) < 1 || len(r.Email) < 1 || len(r.Password) < 1 || len(r.Account) < 1 {
-		return ErrorInvalidRequest
-	}
-	return nil
-}
-
 //RefreshTokenReq defines a request to the RefreshAuthToken Endpoint.
 type RefreshTokenReq struct {
 	ID    string `json:"id"`
 	Token []byte `json:"token"`
-}
-
-func (r *RefreshTokenReq) validate() error {
-	if len(r.ID) < 1 || len(r.Token) < 1 {
-		return ErrorInvalidRequest
-	}
-	return nil
 }
 
 //RevokeTokenReq defines a request to the RevokeAuthToken Endpoint.
@@ -52,24 +37,10 @@ type RevokeTokenReq struct {
 	ID string `json:"id"`
 }
 
-func (r *RevokeTokenReq) validate() error {
-	if len(r.ID) < 1 {
-		return ErrorInvalidRequest
-	}
-	return nil
-}
-
 //VerifyTokenReq defines a request to the VerifyAuthToken Endpoint
 type VerifyTokenReq struct {
 	ID    string `json:"id"`
 	Token []byte `json:"token"`
-}
-
-func (r *VerifyTokenReq) validate() error {
-	if len(r.ID) < 1 || len(r.Token) < 1 {
-		return ErrorInvalidRequest
-	}
-	return nil
 }
 
 //GetTokenResp defines a response to the GetAuthToken Endpoint.
@@ -93,4 +64,33 @@ type RevokeTokenResp struct {
 type VerifyTokenResp struct {
 	ID    string `json:"id"`
 	Valid bool   `json:"valid"`
+}
+
+//validate checks if the request is valid.
+func (r *GetTokenReq) validate() error {
+	if len(r.ID) < 1 || len(r.Email) < 1 || len(r.Password) < 1 || len(r.Account) < 1 {
+		return ErrorInvalidRequest
+	}
+	return nil
+}
+
+func (r *RefreshTokenReq) validate() error {
+	if len(r.ID) < 1 || len(r.Token) < 1 {
+		return ErrorInvalidRequest
+	}
+	return nil
+}
+
+func (r *RevokeTokenReq) validate() error {
+	if len(r.ID) < 1 {
+		return ErrorInvalidRequest
+	}
+	return nil
+}
+
+func (r *VerifyTokenReq) validate() error {
+	if len(r.ID) < 1 || len(r.Token) < 1 {
+		return ErrorInvalidRequest
+	}
+	return nil
 }
