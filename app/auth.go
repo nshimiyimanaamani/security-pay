@@ -15,6 +15,7 @@ type AuthService interface {
 	GetAuthToken(ctx *context.Context, r *GetTokenReq) (GetTokenResp, error)
 	RefreshAuthToken(ctx *context.Context, r *RefreshTokenReq) (RefreshTokenResp, error)
 	RevokeAuthToken(ctx *context.Context, r *RevokeTokenReq) (RevokeTokenResp, error)
+	VerifyAuthToken(ctx *context.Context, r *VerifyTokenReq) (VerifyTokenResp, error)
 }
 
 //GetTokenReq defines a request to the GetAuthToken Endpoint.
@@ -58,6 +59,19 @@ func (r *RevokeTokenReq) validate() error {
 	return nil
 }
 
+//VerifyTokenReq defines a request to the VerifyAuthToken Endpoint
+type VerifyTokenReq struct {
+	ID    string `json:"id"`
+	Token []byte `json:"token"`
+}
+
+func (r *VerifyTokenReq) validate() error {
+	if len(r.ID) < 1 {
+		return ErrorInvalidRequest
+	}
+	return nil
+}
+
 //GetTokenResp defines a response to the GetAuthToken Endpoint.
 type GetTokenResp struct {
 	ID    string `json:"id"`
@@ -73,4 +87,10 @@ type RefreshTokenResp struct {
 //RevokeTokenResp defines a response to RevokeAuthToken Endpoint
 type RevokeTokenResp struct {
 	ID string `json:"id"`
+}
+
+//VerifyTokenResp defines a response from the VerifyAuthToken Endpoint.
+type VerifyTokenResp struct {
+	ID    string `json:"id"`
+	Valid bool   `json:"valid"`
 }

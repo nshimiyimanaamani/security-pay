@@ -43,3 +43,11 @@ func (app *App) RevokeAuthToken(ctx *context.Context, r *RevokeTokenReq) (Revoke
 	}
 	return RevokeTokenResp{ID: r.ID}, nil
 }
+
+//VerifyAuthToken receives a a verification request anf returns true if the given token is valid
+func (app *App) VerifyAuthToken(ctx *context.Context, r *VerifyTokenReq) (VerifyTokenResp, error) {
+	if err := r.validate(); err != nil {
+		return VerifyTokenResp{ID: r.ID}, err
+	}
+	return VerifyTokenResp{ID: r.ID}, nil
+}

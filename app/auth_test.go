@@ -170,3 +170,44 @@ func TestRevokeAuthToken(t *testing.T){
 		})
 	}
 }
+
+func TestVerifyAuthToken(t *testing.T){
+	app:= New()
+
+	testcases:= []struct{
+		name string
+		request *VerifyTokenReq
+		valid bool
+		err error
+	}{
+		////there shoud be an error if the request doesn't the request id
+		{
+			name:"request lacks 'a request id'", 
+			request: &VerifyTokenReq{Token:[]byte("token")}, 
+			valid:false, 
+			err: ErrorInvalidRequest,
+		},
+	}
+
+	for _,tc:=range testcases{
+		t.Run(tc.name, func(t *testing.T){
+			ctx:= context.Background()
+
+			res, err:= app.VerifyAuthToken(&ctx, tc.request)
+
+			if err!=tc.err{
+				t.Errorf("expected error message to be '%v' got '%v'", tc.err, err)
+			}
+
+			//request and response must have the same id.
+			if res.ID != tc.request.ID{
+				t.Errorf("expected response and request to have the same id found-> req:%s | res:%s", tc.request.ID, res.ID)
+			}
+
+			//the response must have a token field if there is no error
+			if tc.valid != res.Valid{
+				t.Errorf("expected the valid field to be '%v' got '%v'", tc.valid, res.Valid)
+			}
+		})
+	}
+}
