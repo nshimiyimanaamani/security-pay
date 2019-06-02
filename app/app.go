@@ -15,6 +15,7 @@ func New() *App {
 }
 
 //GetAuthToken receives an authentication request and returns a jwt token.
+//and otherwise a validation error and an empty response.
 func (app *App) GetAuthToken(ctx *context.Context, r *GetTokenReq) (GetTokenResp, error) {
 	if err := r.validate(); err != nil {
 		return GetTokenResp{ID: r.ID}, err
@@ -26,6 +27,7 @@ func (app *App) GetAuthToken(ctx *context.Context, r *GetTokenReq) (GetTokenResp
 }
 
 //RefreshAuthToken receives an authentication request and returns a Refreshed jwt.
+//and otherwise a validation error and an empty response.
 func (app *App) RefreshAuthToken(ctx *context.Context, r *RefreshTokenReq) (RefreshTokenResp, error) {
 	if err := r.validate(); err != nil {
 		return RefreshTokenResp{ID: r.ID}, err
@@ -37,6 +39,7 @@ func (app *App) RefreshAuthToken(ctx *context.Context, r *RefreshTokenReq) (Refr
 }
 
 //RevokeAuthToken receives an revokation request and revokes the given token.
+//and otherwise a validation error and an empty response.
 func (app *App) RevokeAuthToken(ctx *context.Context, r *RevokeTokenReq) (RevokeTokenResp, error) {
 	if err := r.validate(); err != nil {
 		return RevokeTokenResp{ID: r.ID}, err
@@ -45,6 +48,7 @@ func (app *App) RevokeAuthToken(ctx *context.Context, r *RevokeTokenReq) (Revoke
 }
 
 //VerifyAuthToken receives a a verification request anf returns true if the given token is valid
+//and otherwise a validation error and an empty response.
 func (app *App) VerifyAuthToken(ctx *context.Context, r *VerifyTokenReq) (VerifyTokenResp, error) {
 	if err := r.validate(); err != nil {
 		return VerifyTokenResp{ID: r.ID}, err
