@@ -46,10 +46,18 @@ func TestGetAuthToken(t *testing.T){
 			err: ErrorInvalidRequest,
 		},
 
+		///there should be an error if the request lacks an account fields
+		{
+			name:"request lacks 'account field'", 
+			request: &GetTokenReq{ID:"1",Email:"example", Password:"pass"}, 
+			token:false, 
+			err: ErrorInvalidRequest,
+		},
+
 		///perfect request
 		{
 			name:"request has all the required", 
-			request: &GetTokenReq{ID: "1", Email: "example", Password:"pass"}, 
+			request: &GetTokenReq{ID: "1", Email: "example", Password:"pass", Account:"remera"}, 
 			token:true, 
 			err:nil,
 		},

@@ -22,11 +22,12 @@ type GetTokenReq struct {
 	ID       string `json:"id"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Account  string `json:"account"`
 }
 
 //validate checks if the request is valid.
 func (r *GetTokenReq) validate() error {
-	if len(r.ID) < 1 || len(r.Email) < 1 || len(r.Password) < 1 {
+	if len(r.ID) < 1 || len(r.Email) < 1 || len(r.Password) < 1 || len(r.Account) < 1 {
 		return ErrorInvalidRequest
 	}
 	return nil
