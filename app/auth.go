@@ -66,7 +66,7 @@ type VerifyTokenReq struct {
 }
 
 func (r *VerifyTokenReq) validate() error {
-	if len(r.ID) < 1 {
+	if len(r.ID) < 1 || len(r.Token) < 1 {
 		return ErrorInvalidRequest
 	}
 	return nil

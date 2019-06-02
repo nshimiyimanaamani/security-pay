@@ -187,6 +187,20 @@ func TestVerifyAuthToken(t *testing.T){
 			valid:false, 
 			err: ErrorInvalidRequest,
 		},
+
+		{
+			name:"request lacks a 'token field'", 
+			request: &VerifyTokenReq{ID: "1"}, 
+			valid:false, 
+			err:ErrorInvalidRequest,
+		},
+
+		{
+			name:"valid request", 
+			request: &VerifyTokenReq{ID: "1", Token:[]byte("token")}, 
+			valid:true, 
+			err:nil,
+		},
 	}
 
 	for _,tc:=range testcases{

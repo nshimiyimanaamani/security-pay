@@ -49,5 +49,5 @@ func (app *App) VerifyAuthToken(ctx *context.Context, r *VerifyTokenReq) (Verify
 	if err := r.validate(); err != nil {
 		return VerifyTokenResp{ID: r.ID}, err
 	}
-	return VerifyTokenResp{ID: r.ID}, nil
+	return VerifyTokenResp{ID: r.ID, Valid: true}, nil
 }
