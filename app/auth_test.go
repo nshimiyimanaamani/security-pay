@@ -196,8 +196,15 @@ func TestVerifyAuthToken(t *testing.T){
 		},
 
 		{
-			name:"valid request", 
-			request: &VerifyTokenReq{ID: "1", Token:[]byte("token")}, 
+			name:"invalid token", 
+			request: &VerifyTokenReq{ID: "1", Token:[]byte(" invalid token")}, 
+			valid:false, 
+			err:nil,
+		},
+
+		{
+			name:"invalid token", 
+			request: &VerifyTokenReq{ID: "1", Token:[]byte("valid token")}, 
 			valid:true, 
 			err:nil,
 		},

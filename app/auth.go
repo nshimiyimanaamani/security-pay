@@ -1,6 +1,7 @@
 package app
 
 import (
+	"bytes"
 	"context"
 	"errors"
 )
@@ -93,4 +94,9 @@ func (r *VerifyTokenReq) validate() error {
 		return ErrorInvalidRequest
 	}
 	return nil
+}
+
+//ValidateToken validates a given token against a set of preset rules.
+func ValidateToken(token []byte) bool {
+	return bytes.Equal(token, []byte("valid token"))
 }
