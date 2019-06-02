@@ -97,6 +97,7 @@ func (r *VerifyTokenReq) validate() error {
 }
 
 //ValidateToken validates a given token against a set of preset rules.
+//Tt returns true if token is valid and otherwise false
 func ValidateToken(token []byte) bool {
 	return bytes.Equal(token, []byte("valid token"))
 }
