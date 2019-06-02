@@ -9,8 +9,8 @@ import (
 //them amin container of App wide state.
 type App struct{}
 
-//NewApp creates a new App instance.
-func NewApp() *App {
+//New initializes a new App instance.
+func New() *App {
 	return &App{}
 }
 
