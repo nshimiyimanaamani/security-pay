@@ -20,6 +20,9 @@ func (app *App) GetAuthToken(ctx *context.Context, r *GetTokenReq) (GetTokenResp
 	if err := r.validate(); err != nil {
 		return GetTokenResp{ID: r.ID}, err
 	}
+	if  err:= ValidateCredentials(r.Email, r.Password, r.Account); err != nil{
+		return GetTokenResp{ID:r.ID}, err
+	}
 	return GetTokenResp{
 		ID:    r.ID,
 		Token: []byte("token"),

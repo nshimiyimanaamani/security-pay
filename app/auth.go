@@ -8,7 +8,10 @@ import (
 
 //API wide error definitions
 var (
-	ErrorInvalidRequest = errors.New("invalid request")
+	ErrorInvalidRequest  = errors.New("invalid request")
+	ErrorInvalidEmail    = errors.New("email is not valid")
+	ErrorInvalidPassword = errors.New("password is not valid")
+	ErrorAccountNotFound = errors.New("the account does not exists")
 )
 
 //AuthService defines the authentication API.
@@ -100,4 +103,22 @@ func (r *VerifyTokenReq) validate() error {
 //Tt returns true if token is valid and otherwise false
 func ValidateToken(token []byte) bool {
 	return bytes.Equal(token, []byte("valid token"))
+}
+
+//ValidateCredentials returns true if all the given credentials are valid.
+func ValidateCredentials(email, password, account string) error {
+	validEmail := "example"
+	validPassword := "password"
+	validAccount := "remera"
+
+	if email != validEmail {
+		return ErrorInvalidEmail
+	}
+	if password != validPassword {
+		return ErrorInvalidPassword
+	}
+	if account != validAccount {
+		return ErrorAccountNotFound
+	}
+	return nil
 }

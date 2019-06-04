@@ -54,10 +54,30 @@ func TestGetAuthToken(t *testing.T){
 			err: ErrorInvalidRequest,
 		},
 
-		///perfect request
+		{
+			name:"request email is not valid", 
+			request: &GetTokenReq{ID: "1", Email: "bad email", Password:"password", Account:"remera"}, 
+			token:false, 
+			err:ErrorInvalidEmail ,
+		},
+
+		{
+			name:"request password is not valid", 
+			request: &GetTokenReq{ID: "1", Email: "example", Password:"invalid password", Account:"remera"}, 
+			token:false, 
+			err: ErrorInvalidPassword,
+		},
+
+		{
+			name:"request account does not exist", 
+			request: &GetTokenReq{ID: "1", Email: "example", Password:"password", Account:"gasabo"}, 
+			token:false, 
+			err:ErrorAccountNotFound,
+		},
+
 		{
 			name:"request has all the required", 
-			request: &GetTokenReq{ID: "1", Email: "example", Password:"pass", Account:"remera"}, 
+			request: &GetTokenReq{ID: "1", Email: "example", Password:"password", Account:"remera"}, 
 			token:true, 
 			err:nil,
 		},
