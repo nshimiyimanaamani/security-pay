@@ -1,0 +1,17 @@
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version
+      - image: circleci/golang:1.12
+
+    steps:
+      - checkout
+      
+      - run: 
+          name: Run build
+          command: make build
+
+      - run:
+          name: Run unit tests 
+          command: make test
