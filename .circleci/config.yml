@@ -20,7 +20,7 @@ jobs:
   publish:
     docker:
       - image: google/cloud-sdk
-      
+
     steps:
       - checkout
       
@@ -42,7 +42,8 @@ jobs:
           name: Run build image
           command: |
               export IMAGE=${MODULE}:${GIT_COMMIT}
-              docker build -t  ${IMAGE} .
+              #docker build -t  ${IMAGE} .
+              echo $IMAGE
       
       - run:
           name: Publish image
