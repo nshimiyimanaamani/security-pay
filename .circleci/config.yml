@@ -48,8 +48,9 @@ jobs:
       - run:
           name: Publish image
           command: |
-            docker tag $IMAGE $REGISTRY/$GOOGLE_PROJECT_ID/$IMAGE
-            docker push $REGISTRY/$GOOGLE_PROJECT_ID/$IMAGE
+            echo $IMAGE
+            # docker tag $IMAGE $REGISTRY/$GOOGLE_PROJECT_ID/$IMAGE
+            # docker push $REGISTRY/$GOOGLE_PROJECT_ID/$IMAGE
 workflows:
   version: 2
   build-deploy:
