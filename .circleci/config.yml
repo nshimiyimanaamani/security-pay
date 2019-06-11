@@ -52,7 +52,7 @@ jobs:
 
       - run:
           name: Run build image
-          command: make build && make make image
+          command: make image
       
       - run:
           name: Publish image
