@@ -18,9 +18,6 @@ jobs:
   publish:
     docker:
       - image: google/cloud-sdk
-        auth:
-          username: _json_key  # default username when using a JSON key file to authenticate
-          password: $GCLOUD_SERVICE_KEY
     
     steps:
       - checkout
