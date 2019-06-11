@@ -66,3 +66,8 @@ func (app *App) VerifyAuthToken(ctx *context.Context, r *VerifyTokenReq) (Verify
 	}
 	return VerifyTokenResp{ID: r.ID, Valid: ValidateToken(r.Token)}, nil
 }
+
+/**
+ * @todo Add JWT TOKEN
+ * @body I should be adding a real Jwt token by commiting the code in models ounce done
+ */
