@@ -6,7 +6,10 @@ import (
 )
 
 func TestGetAuthToken(t *testing.T){
-	app:= New()
+	app, err:= New()
+	if err !=nil{
+		t.Fatalf("unexpected error:'%v'", err)
+	}
 
 	testcases:= []struct{
 		name        string
@@ -105,7 +108,10 @@ func TestGetAuthToken(t *testing.T){
 }
 
 func TestRovken(t *testing.T){
-	app:= New()
+	app, err:= New()
+	if err !=nil{
+		t.Fatalf("unexpected error:'%v'", err)
+	}
 
 	testcases:= []struct{
 		name    string
@@ -161,7 +167,10 @@ func TestRovken(t *testing.T){
 }
 
 func TestRevokeAuthToken(t *testing.T){
-	app:= New()
+	app, err:= New()
+	if err !=nil{
+		t.Fatalf("unexpected error:'%v'", err)
+	}
 
 	testcases:= []struct{
 		name 	string
@@ -192,7 +201,10 @@ func TestRevokeAuthToken(t *testing.T){
 }
 
 func TestVerifyAuthToken(t *testing.T){
-	app:= New()
+	app, err:= New()
+	if err !=nil{
+		t.Fatalf("unexpected error:'%v'", err)
+	}
 
 	testcases:= []struct{
 		name string

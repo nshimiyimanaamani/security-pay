@@ -7,11 +7,19 @@ import (
 //App type is the root of the aoplication and implememts all the services
 //defined by the different service interfaces. For that reason App is
 //them amin container of App wide state.
-type App struct{}
+type App struct {
+	Config *Config
+}
 
 //New initializes a new App instance.
-func New() *App {
-	return &App{}
+func New() (*App, error) {
+	app := &App{}
+	cfg, err := NewConfig()
+	if err != nil {
+		return nil, err //improve code coverage
+	}
+	app.Config = cfg
+	return app, nil
 }
 
 //GetAuthToken receives an authentication request and returns a jwt token.
