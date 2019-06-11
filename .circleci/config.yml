@@ -26,6 +26,7 @@ jobs:
           root: workspace
           paths:
             - bin
+            - Makefile
   publish:
     docker:
       - image: google/cloud-sdk
