@@ -15,3 +15,39 @@ jobs:
       - run:
           name: Run unit tests 
           command: make test
+  publish:
+    docker:
+      - image: google/cloud-sdk
+        auth:
+          username: _json_key  # default username when using a JSON key file to authenticate
+          password: $GCLOUD_SERVICE_KEY
+    
+    steps:
+      - checkout
+      - setup_remote_docker
+
+      -  run:  
+          name: Authorize gcloud
+          command: |
+            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud auth configure-docker
+
+      - run:
+          name: Run build image
+          command: make build && make make image
+      
+      - run:
+          name: Publish image
+          command: make push
+  
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build
+      - publish:
+          requires:
+            - build
