@@ -41,6 +41,7 @@ jobs:
       - run:
           name: Run build image
           command: |
+              export GIT_COMMIT=$(git rev-parse --short HEAD)
               export IMAGE=${MODULE}:${GIT_COMMIT}
               #docker build -t  ${IMAGE} .
               echo $IMAGE
