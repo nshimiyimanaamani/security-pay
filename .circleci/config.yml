@@ -20,7 +20,7 @@ jobs:
       
       - run:
           name: Upload binary
-          command: cp -r bin workspace/
+          command: cp -r bin Makefile workspace/
       
       - persist_to_workspace:
           root: workspace
@@ -56,7 +56,7 @@ jobs:
       
       - run:
           name: Publish image
-          command: make push
+          command: echo "hello" #make push
   
 
 workflows:
