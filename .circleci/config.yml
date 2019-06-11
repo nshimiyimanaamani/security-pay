@@ -8,6 +8,8 @@ jobs:
     steps:
       - checkout
       
+      - run: mkdir -p workspace
+
       - run: 
           name: Run build
           command: make build
@@ -15,12 +17,25 @@ jobs:
       - run:
           name: Run unit tests 
           command: make test
+      
+      - run:
+          name: Upload binary
+          command: cp -r bin workspace/
+      
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - bin
   publish:
     docker:
       - image: google/cloud-sdk
+
+    working_directory: ~/workspace
     
     steps:
-      - checkout
+      - attach_workspace:
+          at: ~/workspace
+      
       - setup_remote_docker
 
       - run: 
