@@ -48,9 +48,11 @@ jobs:
       - run:
           name: Publish image
           command: |
-            echo $IMAGE
-            # docker tag $IMAGE $REGISTRY/$GOOGLE_PROJECT_ID/$IMAGE
-            # docker push $REGISTRY/$GOOGLE_PROJECT_ID/$IMAGE
+             export GIT_COMMIT=$(git rev-parse --short HEAD)
+             export IMAGE=${MODULE}:${GIT_COMMIT}
+             echo $IMAGE
+             docker tag ${IMAGE} ${REGISTRY}/${GOOGLE_PROJECT_ID}/${IMAGE}
+             docker push ${REGISTRY}/${GOOGLE_PROJECT_ID}/${IMAGE}
 workflows:
   version: 2
   build-deploy:
