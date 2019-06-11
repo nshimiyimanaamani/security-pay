@@ -25,7 +25,7 @@ jobs:
 
       - run: 
           name: Install tools
-          command: sudo apt-get install make
+          command: apt-get install make
 
       -  run:  
           name: Authorize gcloud
