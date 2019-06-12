@@ -2,15 +2,16 @@
 
 commit	:= $(shell git rev-parse --short HEAD)
 goVersion	:= $(shell go version | cut -c12-19)
-apiVersion	:= 0.0.1
 os			:= $(shell go version | cut -c21-25)
 arch		:= $(shell go version | cut -c27-31)
 
 
-module:= $(shell basename "${PWD}")
-package  := github.com/rugwirobaker/$(module)
-packages := $(shell go list ./... | grep -v /vendor/)
-image    := codebaker/$(module):$(commit)
+module		:= $(shell basename "${PWD}")
+package  	:= github.com/rugwirobaker/$(module)
+packages 	:= $(shell go list ./... | grep -v /vendor/)
+registry 	:= gcr.io
+projectID 	:= paypack
+image    	:= $(module):$(commit)
 
 .PHONY: all
 all:: dependencies
@@ -46,9 +47,12 @@ check:: lint test
 
 .PHONY: image
 image::
-	#building docker image ...
 	docker build -t $(image) .
 
+.PHONY:
+push::
+	docker tag $(image) $(registry)/$(projectID)/$(image)
+	docker push $(registry)/$(projectID)/$(image)
 .PHONY: clean
 clean::
 	rm -f bin/$(module)
