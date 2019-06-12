@@ -41,6 +41,7 @@ bench::
 .PHONY: lint
 lint::
 	go vet -v $(packages)
+	golint $(packages)
 
 .PHONY: check
 check:: lint test
