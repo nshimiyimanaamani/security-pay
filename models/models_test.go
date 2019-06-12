@@ -19,14 +19,43 @@ func TestGenerate(t *testing.T){
 		Email: "example@!gmail.com",
 		Admin: true,
 	}
+
 	token, err:= Generate(privKey, claims)
-	if err!=nil{
+
+	if err!=nil && len(token)<1{
 		t.Fatalf("unexpected error '%v'",err)
 	}
-	if !validate(token.Token, claims, privKey, t){
+
+	if !validate(token, claims, privKey, t){
 		t.Errorf("token string should be valid")
 	}
 }
+
+func TestParse(t *testing.T){
+	key, err:= jwt.ParseRSAPublicKeyFromPEM([]byte(publicKey))
+	if err!=nil{
+		t.Fatalf("unexpected error '%v'",err)
+	}
+
+	tokenString:= "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJBY2NvdW50IjoiUmVtZXJhIiwiRW1haWwiOiJleGFtcGxlQCFnbWFpbC5jb20iLCJBZG1pbiI6dHJ1ZX0.lzIaopc4xBIR276REB8nIVqnszULc2dK7l_pdIOe8_rmOU9cjl4Ibp_kgwczXpGyIXYVuJq-uxO4C8EjED5n5XKkKTP19oa6t-fJyR0aXu_6CRJaAdp8btYhyxIXuWi8kq8MTEZZFr03CS7Wbaf7IRF9bTScaISTm5T-doOjtivUWsIrO7dlai7ddPG2YApV5mv0IgaESn51YV6cSglWVk7xfDoV7pPHElf8kiLUz3VdKWriYjHoFuWc_JmU9cWPuwmPwl4JoUOcxXGWi6uJz3T_yL78-zDYDXQkWEmba5yoxVUnWj22HiRo3NUlyI4uYBSZCb70Q78HgCX5DbaziQ"
+
+	claims:= &Claims{
+		Account: "Remera",
+		Email: "example@!gmail.com",
+		Admin: true,
+	}
+
+	token, err:= Parse(tokenString,claims, key)
+	if err!=nil{
+		t.Fatalf("unexpected error '%v'",err)
+	}
+
+	if !token.Token.Valid{
+		t.Errorf("expected token to valid")
+	}
+
+
+ }
 
 func validate(tokenString string, claims *Claims, priv *rsa.PrivateKey, t *testing.T)bool{
 	t.Helper()
@@ -71,4 +100,16 @@ lilmzQKBgEs37af1oGYQVgcqGdqvggIxKSMTRQePd/jcvmApBd6PxbID/SNnupaN
 B6RfoVnahqgAn/3v0mGVBPRkrduAyb+I+ZaFz6sbrvj+Uv6qq//k5IX3jsgG9bYv
 kr/6HUjbnnxpRv7ojjnTGPn470EaiqcLkrcg6CS7/N+EUKaoW9Cu
 -----END RSA PRIVATE KEY-----
+`
+
+var publicKey = `
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5k7M61N3NYkkDMuNhfd2
+CZnd5Gxu6rpzBgYkbFKEP2koGZv4a6arQyW/eSL5bfFdzOdPcq3NKOpWxOgoMgLk
+I1QgI56orMGjAhKzUiN8NPtNFQcfS19R+OIvikrXfO8Z7tovRIyFbKYx/Ar5v7Q5
+ZH6mhOcPmSH7tzwqb7T9VCGDiml/JwKW+ErcqZl0PkHO6855BMA4gyiHHRwnCwYS
+crH45glnTyxTfAFizwqfOwzMzQFNLvsH3L3UfR7YQaEW/buISVdwA39CIoRYHza/
+Z9qpzmGXowICHCOzwyOUmFQR57cuSTC/ajcu3pVADv1Ur2sjxXyehdYBGeKFx3hS
+5wIDAQAB
+-----END PUBLIC KEY-----
 `

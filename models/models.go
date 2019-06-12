@@ -8,7 +8,7 @@ import (
 
 //Token defines the jwt token
 type Token struct {
-	Token string
+	Token *jwt.Token
 }
 
 //Claims a struct that will be encoded to a JWT, embedds the jwt type.
@@ -20,15 +20,15 @@ type Claims struct {
 }
 
 //Generate takes an rsa Private Key and Claims to return a new token and an non error.
-func Generate(key *rsa.PrivateKey, claims *Claims) (*Token, error) {
+func Generate(key *rsa.PrivateKey, claims *Claims) (string, error) {
 	token := jwt.NewWithClaims((jwt.GetSigningMethod("RS256")), claims)
 
 	tokenString, err := token.SignedString(key)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return &Token{Token: tokenString}, nil
+	return tokenString, nil
 }
 
 //Parse converts a string into  type Token.
@@ -37,8 +37,18 @@ func Generate(key *rsa.PrivateKey, claims *Claims) (*Token, error) {
  * @todo Add a token Parseer function
  * @body The payment History interfaces deals with listing all the payment receipts.
  */
-func Parse(tkString string, key *rsa.PrivateKey) (*Token, error) {
-	return nil, nil
+func Parse(tokenString string, claims *Claims, key *rsa.PublicKey) (*Token, error) {
+
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return key, nil
+	})
+	if err != nil {
+		return &Token{Token: &jwt.Token{}}, err
+	}
+
+	return &Token{
+		Token: token,
+	}, nil
 }
 
 //Validate verifies the validity a jwt token
