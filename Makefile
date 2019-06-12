@@ -45,6 +45,10 @@ lint::
 .PHONY: check
 check:: lint test
 
+.PHONY: coverage
+coverage::
+	go test -cover $(packages)
+
 .PHONY: image
 image::
 	docker build -t $(image) .
