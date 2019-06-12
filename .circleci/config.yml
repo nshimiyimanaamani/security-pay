@@ -9,8 +9,10 @@ jobs:
       - checkout
 
       - run: 
-          name: Run Code Vetting
-          command: make lint
+          name: Run Code Linter
+          command: |
+            go get -u golang.org/x/lint/golint
+            make lint
 
       - run: 
           name: Run Build
