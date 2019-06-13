@@ -39,18 +39,12 @@ func TestParse(t *testing.T){
 
 	tokenString:= "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJBY2NvdW50IjoiUmVtZXJhIiwiRW1haWwiOiJleGFtcGxlQCFnbWFpbC5jb20iLCJBZG1pbiI6dHJ1ZX0.lzIaopc4xBIR276REB8nIVqnszULc2dK7l_pdIOe8_rmOU9cjl4Ibp_kgwczXpGyIXYVuJq-uxO4C8EjED5n5XKkKTP19oa6t-fJyR0aXu_6CRJaAdp8btYhyxIXuWi8kq8MTEZZFr03CS7Wbaf7IRF9bTScaISTm5T-doOjtivUWsIrO7dlai7ddPG2YApV5mv0IgaESn51YV6cSglWVk7xfDoV7pPHElf8kiLUz3VdKWriYjHoFuWc_JmU9cWPuwmPwl4JoUOcxXGWi6uJz3T_yL78-zDYDXQkWEmba5yoxVUnWj22HiRo3NUlyI4uYBSZCb70Q78HgCX5DbaziQ"
 
-	claims:= &Claims{
-		Account: "Remera",
-		Email: "example@!gmail.com",
-		Admin: true,
-	}
-
-	token, err:= Parse(tokenString,claims, key)
+	token, err:= Parse(tokenString, key)
 	if err!=nil{
 		t.Fatalf("unexpected error '%v'",err)
 	}
 
-	if !token.Token.Valid{
+	if !token.Validate(){
 		t.Errorf("expected token to valid")
 	}
 

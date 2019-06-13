@@ -11,6 +11,11 @@ type Token struct {
 	Token *jwt.Token
 }
 
+//Validate returns true if the token is valid or false otherwise
+func (tk *Token) Validate() bool {
+	return tk.Token.Valid
+}
+
 //Claims a struct that will be encoded to a JWT, embedds the jwt type.
 type Claims struct {
 	Account string
@@ -37,9 +42,9 @@ func Generate(key *rsa.PrivateKey, claims *Claims) (string, error) {
  * @todo Add a token Parseer function
  * @body The payment History interfaces deals with listing all the payment receipts.
  */
-func Parse(tokenString string, claims *Claims, key *rsa.PublicKey) (*Token, error) {
+func Parse(tokenString string, key *rsa.PublicKey) (*Token, error) {
 
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return key, nil
 	})
 	if err != nil {
@@ -50,11 +55,3 @@ func Parse(tokenString string, claims *Claims, key *rsa.PublicKey) (*Token, erro
 		Token: token,
 	}, nil
 }
-
-//Validate verifies the validity a jwt token
-//and retruns a non nil error if any criterion is not met
-/**
- * @todo Add Payment History Interface
- * @body The payment History interfaces deals with listing all the payment receipts.
- */
-func (tk *Token) Validate() error { return nil }
