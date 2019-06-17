@@ -1,0 +1,111 @@
+@font-face {
+  font-family: advent;
+  src: url("../fonts/Source_Sans_Pro/SourceSansPro-Regular.ttf");
+}
+@font-face {
+  font-family: adventThin;
+  src: url("../fonts/Source_Sans_Pro/SourceSansPro-ExtraLight.ttf");
+}
+body {
+  background: #f9f9f9;
+  font-family: advent;
+}
+.loginPage {
+  display: grid;
+  position: relative;
+  grid-template-rows: 136px auto;
+  width: 1280px;
+  height: 96vh;
+}
+.loginTitle {
+  grid-row: 1;
+  position: absolute;
+  left: 405px;
+  top: 41px;
+  width: 480px;
+  height: 145px;
+  text-align: center;
+  color: #848484;
+  font-family: adventThin;
+  font-size: 37px;
+  font-weight: 100;
+  letter-spacing: 2px;
+  line-height: 20px;
+}
+.loginTitle #paypack {
+  font-size: 68px;
+  font-weight: bold;
+  font-family: advent;
+  letter-spacing: 1px;
+  line-height: 75px;
+  color: #3db3fa;
+}
+.loginTitle #easy {
+  font-size: 1.4rem;
+  letter-spacing: 0.2px;
+  font-weight: lighter;
+  font-family: adventThin;
+  color: #949191;
+  top: 5px;
+  position: relative;
+}
+.loginForm {
+  grid-row: 2;
+
+  position: absolute;
+  left: 421px;
+  top: 131px;
+  height: 200px;
+  width: 463px;
+}
+.loginUsername input {
+  padding: 15px;
+  width: 90%;
+  border: 1px solid #bdbdbd;
+  background: transparent;
+  opacity: 0.74;
+  border-radius: 15px;
+  margin: 10px 1%;
+  font-family: adventThin;
+  font-size: 18px;
+}
+.loginPassword input {
+  padding: 15px;
+  width: 90%;
+  border: 1px solid #bdbdbd;
+  background: transparent;
+  opacity: 0.74;
+  margin: 10px 1%;
+  border-radius: 15px;
+  font-family: adventThin;
+  font-size: 18px;
+}
+.loginBtn input {
+  padding: 10px;
+  margin: 10px 1%;
+  width: 97%;
+  border-radius: 17px;
+  border: none;
+  background-color: #3db3fa;
+  font-family: Arial, Helvetica, sans-serif;
+  color: white;
+  font-size: 30px;
+  letter-spacing: 1.2px;
+  line-height: 36px;
+  font-family: adventThin;
+}
+.loginBtn #forgot {
+  color: #bcbdbc;
+  letter-spacing: 0.8px;
+  line-height: 24px;
+  font-size: 20px;
+  float: right;
+  margin-right: 15px;
+}
+.loginBtn #forgot a {
+  text-decoration: none;
+  color: #3db3fa;
+  font-size: 24px;
+  letter-spacing: 0.96px;
+  line-height: 29px;
+}
