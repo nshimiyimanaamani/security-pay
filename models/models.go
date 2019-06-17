@@ -8,12 +8,12 @@ import (
 
 //Token defines the jwt token
 type Token struct {
-	Token *jwt.Token
+	Value *jwt.Token
 }
 
 //Validate returns true if the token is valid or false otherwise
 func (tk *Token) Validate() bool {
-	return tk.Token.Valid
+	return tk.Value.Valid
 }
 
 //Claims a struct that will be encoded to a JWT, embedds the jwt type.
@@ -48,10 +48,10 @@ func Parse(tokenString string, key *rsa.PublicKey) (*Token, error) {
 		return key, nil
 	})
 	if err != nil {
-		return &Token{Token: &jwt.Token{}}, err
+		return &Token{Value: &jwt.Token{}}, err
 	}
 
 	return &Token{
-		Token: token,
+		Value: token,
 	}, nil
 }
