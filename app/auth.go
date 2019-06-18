@@ -21,10 +21,25 @@ var (
 
 //AuthService defines the authentication API.
 type AuthService interface {
-	GetAuthToken(ctx *context.Context, r *GetTokenReq) (GetTokenResp, error)
-	RefreshAuthToken(ctx *context.Context, r *RefreshTokenReq) (RefreshTokenResp, error)
-	RevokeAuthToken(ctx *context.Context, r *RevokeTokenReq) (RevokeTokenResp, error)
-	VerifyAuthToken(ctx *context.Context, r *VerifyTokenReq) (VerifyTokenResp, error)
+	//GetToken creates a new token.
+	//It takes a context and 2 strings[email, account] and a boolean.
+	//A succeful operation retuns a valid jwt token and nil error.
+	GetToken(*context.Context, string, string, bool) (string, error)
+
+	//RefreshToken renews an expired token.
+	//It takes a context object and a string[token].
+	//A succeful operation retuns a valid jwt token and nil error.
+	RefreshToken(*context.Context, string) (string, error)
+
+	//Revoke token invalidates a token.
+	//It takes a context and a string[token]
+	//A succeful operation retuns a nil error.
+	RevokeToken(*context.Context, string) error
+
+	//VerifyToken chechks wether a token is valid.
+	//It takes a context and a string[token]
+	//A succeful operation retuns a nil error.
+	VerifyToken(*context.Context, string) error
 }
 
 //GetTokenReq defines a request to the GetAuthToken Endpoint.
