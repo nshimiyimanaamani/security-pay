@@ -2,7 +2,8 @@
   <div>
     <div class="loginPage">
       <div class="loginTitle">
-        Welcome on
+        Welcome to
+        <br>
         <span id="paypack">PayPack</span>
         <br>
         <span id="easy">

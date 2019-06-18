@@ -25,11 +25,11 @@ body {
   width: 480px;
   height: 145px;
   text-align: center;
-  color: #848484;
+  color: #949191;
   font-family: adventThin;
-  font-size: 37px;
+  font-size: 1.7rem;
   font-weight: 100;
-  letter-spacing: 2px;
+  letter-spacing: 0.2px;
   line-height: 20px;
 }
 .registerTitle #paypack {

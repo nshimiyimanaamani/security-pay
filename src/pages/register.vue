@@ -2,7 +2,7 @@
   <div>
     <div class="registerPage">
       <div class="registerTitle">
-        Welcome on
+        Welcome to <br>
         <span id="paypack">PayPack</span>
         <br>
         <span id="easy">

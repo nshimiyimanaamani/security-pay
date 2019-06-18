@@ -1,0 +1,18 @@
+.dashboardWrapper {
+  display: grid;
+  margin: -8px;
+  grid-template-columns: 200px auto;
+}
+.dashboardSidebar {
+  grid-column: 1;
+  position: fixed;
+  top: 0;
+  height: 99vh;
+
+  background: #3db3fa;
+}
+.dashboardBody {
+  grid-column: 2;
+  min-height: 98vh;
+  background: grey;
+}
