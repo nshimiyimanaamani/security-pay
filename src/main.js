@@ -5,9 +5,6 @@ import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
 
-//Font awesome
-import "font-awesome/css/font-awesome.css";
-
 Vue.config.productionTip = false;
 
 /**

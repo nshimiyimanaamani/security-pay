@@ -1,10 +1,8 @@
-@import url(c:\projects\paypack-frontend\src\assets\css\font-awesome.min.css);
 .dashboardWrapper {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 250px auto;
-      grid-template-columns: 250px auto;
-  font-family: FRegular;
+  -ms-grid-columns: 185px auto;
+      grid-template-columns: 185px auto;
 }
 
 .dashboardWrapper .dashboardSidebar {
@@ -20,64 +18,58 @@
 
 .dashboardWrapper .dashboardSidebar h1 {
   text-align: center;
-  margin-top: 20px;
-  font-family: FBolder;
+  margin-top: 14px;
+  font-family: FThin;
   color: #ffffff;
-  font-size: 36px;
-  font-weight: 500;
-  letter-spacing: 1.44px;
-  line-height: 44px;
+  font-size: 28px;
+  letter-spacing: 3px;
+  line-height: 35px;
 }
 
-.dashboardWrapper .dashboardSidebar .dashboardLinks {
-  list-style-type: none;
-  padding: 0;
-  margin-top: 35px;
-}
-
-.dashboardWrapper .dashboardSidebar .dashboardLinks li {
-  padding: 20px 0;
-  opacity: 0.7;
-}
-
-.dashboardWrapper .dashboardSidebar .dashboardLinks li:hover {
-  background: #88d0fd;
-  opacity: 1;
-}
-
-.dashboardWrapper .dashboardSidebar .dashboardLinks li a {
-  text-decoration: none;
-  margin-left: 20px;
-  color: white;
-  margin-top: 17px;
-  font-family: FBold;
-  text-transform: capitalize;
-  font-size: 25px;
-  letter-spacing: 1px;
-  line-height: 30px;
-  color: #ffffff;
-  font-weight: 500;
-}
-
-.dashboardWrapper .dashboardSidebar button {
+.dashboardWrapper button {
   background: #50e3c2;
   color: white;
-  font-size: 25px;
+  font-size: 20px;
   line-height: 30px;
   font-family: FBold;
-  height: 70px;
-  width: 236px;
-  margin-left: 4px;
+  height: 50px;
+  position: absolute;
+  width: 90%;
+  margin-left: 8px;
   border-radius: 10px;
   border: none;
+  bottom: 20px;
 }
 
-.dashboardWrapper .dashboardSidebar button i {
-  color: black;
-}
-
-.dashboardWrapper .dashboardBody {
+.dashboardBody {
   background: white;
   padding-left: 10px;
+}
+
+.sidebarLinks {
+  padding: 0;
+  position: absolute;
+  width: 100%;
+  margin-top: 25px !important;
+}
+
+.sidebarLinks a {
+  text-decoration: none;
+}
+
+.sidebarLinks li {
+  list-style-type: none;
+  padding: 10px 0px 10px 10px;
+  color: white;
+  font-family: FBold;
+  text-transform: capitalize;
+  font-size: 17px;
+  letter-spacing: 1.4px;
+  color: #ffffff9c;
+}
+
+.sidebarLinks li:hover {
+  color: #ffffff;
+  background: #88f2fbb0;
 }
 /*# sourceMappingURL=dashboardLayout.css.map */

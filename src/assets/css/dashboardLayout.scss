@@ -1,8 +1,6 @@
-@import "./font-awesome.min.css";
 .dashboardWrapper {
   display: grid;
-  grid-template-columns: 250px auto;
-  font-family: FRegular;
+  grid-template-columns: 185px auto;
 
   .dashboardSidebar {
     grid-column: 1;
@@ -14,60 +12,53 @@
 
     h1 {
       text-align: center;
-      margin-top: 20px;
-      font-family: FBolder;
+      margin-top: 14px;
+      font-family: FThin;
       color: #ffffff;
-      font-size: 36px;
-      font-weight: 500;
-      letter-spacing: 1.44px;
-      line-height: 44px;
-    }
-
-    .dashboardLinks {
-      list-style-type: none;
-      padding: 0;
-      margin-top: 35px;
-
-      li {
-        padding: 20px 0;
-        opacity: 0.7;
-        &:hover {
-          background: #88d0fd;
-          opacity: 1;
-        }
-        a {
-          text-decoration: none;
-          margin-left: 20px;
-          color: white;
-          margin-top: 17px;
-          font-family: FBold;
-          text-transform: capitalize;
-          font-size: 25px;
-          letter-spacing: 1px;
-          line-height: 30px;
-          color: #ffffff;
-          font-weight: 500;
-        }
-      }
-    }
-    button {
-      background: #50e3c2;
-      color: white;
-      font-size: 25px;
-      line-height: 30px;
-      font-family: FBold;
-      height: 70px;
-      width: 236px;
-      margin-left: 4px;
-      border-radius: 10px;
-      border: none;
-      i {
-        color: black;
-      }
+      font-size: 28px;
+      letter-spacing: 3px;
+      line-height: 35px;
     }
   }
-  .dashboardBody {
-    background: white;
-    padding-left: 10px;
+  button {
+    background: #50e3c2;
+    color: white;
+    font-size: 20px;
+    line-height: 30px;
+    font-family: FBold;
+    height: 50px;
+    position: absolute;
+    width: 90%;
+    margin-left: 8px;
+    border-radius: 10px;
+    border: none;
+    bottom: 20px;
+  }
+}
+.dashboardBody {
+  background: white;
+  padding-left: 10px;
+}
+.sidebarLinks {
+  padding: 0;
+  position: absolute;
+  width: 100%;
+  margin-top: 25px !important;
+  a {
+    text-decoration: none;
+  }
+  li {
+    list-style-type: none;
+    padding: 10px 0px 10px 10px;
+    color: white;
+    font-family: FBold;
+    text-transform: capitalize;
+    font-size: 17px;
+    letter-spacing: 1.4px;
+    color: #ffffff9c;
+    &:hover {
+      color: #ffffff;
+      background: #88f2fbb0;
+    }
   }
 }

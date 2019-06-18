@@ -19,7 +19,7 @@
           <input type="password" name="password" id="password" placeholder="Password...">
         </div>
         <div class="loginBtn">
-          <a href="#/dashboard">
+          <a href="/dashboard">
             <button>Log In</button>
           </a>
 

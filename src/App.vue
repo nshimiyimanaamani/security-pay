@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <i class="fa fa-user-circle-o"></i>
     <router-view/>
   </div>
 </template>
@@ -35,11 +34,11 @@ export default {};
   font-family: Fitalic;
   src: url("./assets/webFonts/HelveticaNeueIt.ttf");
 }
+@import url("../node_modules/@fortawesome/fontawesome-free/css/all.css");
 
 html,
 body {
   margin: 0;
   padding: 0;
-  font-family: FRegular;
 }
 </style>
