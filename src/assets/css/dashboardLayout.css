@@ -1,18 +1,83 @@
+@import url(c:\projects\paypack-frontend\src\assets\css\font-awesome.min.css);
 .dashboardWrapper {
+  display: -ms-grid;
   display: grid;
-  margin: -8px;
-  grid-template-columns: 200px auto;
+  -ms-grid-columns: 250px auto;
+      grid-template-columns: 250px auto;
+  font-family: FRegular;
 }
-.dashboardSidebar {
-  grid-column: 1;
-  position: fixed;
-  top: 0;
-  height: 99vh;
 
+.dashboardWrapper .dashboardSidebar {
+  -ms-grid-column: 1;
+  grid-column: 1;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  color: white;
   background: #3db3fa;
 }
-.dashboardBody {
-  grid-column: 2;
-  min-height: 98vh;
-  background: grey;
+
+.dashboardWrapper .dashboardSidebar h1 {
+  text-align: center;
+  margin-top: 20px;
+  font-family: FBolder;
+  color: #ffffff;
+  font-size: 36px;
+  font-weight: 500;
+  letter-spacing: 1.44px;
+  line-height: 44px;
 }
+
+.dashboardWrapper .dashboardSidebar .dashboardLinks {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 35px;
+}
+
+.dashboardWrapper .dashboardSidebar .dashboardLinks li {
+  padding: 20px 0;
+  opacity: 0.7;
+}
+
+.dashboardWrapper .dashboardSidebar .dashboardLinks li:hover {
+  background: #88d0fd;
+  opacity: 1;
+}
+
+.dashboardWrapper .dashboardSidebar .dashboardLinks li a {
+  text-decoration: none;
+  margin-left: 20px;
+  color: white;
+  margin-top: 17px;
+  font-family: FBold;
+  text-transform: capitalize;
+  font-size: 25px;
+  letter-spacing: 1px;
+  line-height: 30px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.dashboardWrapper .dashboardSidebar button {
+  background: #50e3c2;
+  color: white;
+  font-size: 25px;
+  line-height: 30px;
+  font-family: FBold;
+  height: 70px;
+  width: 236px;
+  margin-left: 4px;
+  border-radius: 10px;
+  border: none;
+}
+
+.dashboardWrapper .dashboardSidebar button i {
+  color: black;
+}
+
+.dashboardWrapper .dashboardBody {
+  background: white;
+  padding-left: 10px;
+}
+/*# sourceMappingURL=dashboardLayout.css.map */

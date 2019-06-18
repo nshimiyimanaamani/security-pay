@@ -2,7 +2,8 @@
   <div>
     <div class="registerPage">
       <div class="registerTitle">
-        Welcome to <br>
+        Welcome to
+        <br>
         <span id="paypack">PayPack</span>
         <br>
         <span id="easy">
@@ -18,11 +19,13 @@
           <input type="password" name="password" id="password" placeholder="Password...">
         </div>
         <div class="registerBtn">
-          <input type="button" value="Register">
+          <a href="#/dashboard">
+            <button>Register</button>
+          </a>
           <br>
           <span id="forgot">
             Forgot Password?
-            <a href="#">Get Help</a>
+            <a href="#">Get HELP</a>
           </span>
         </div>
       </div>

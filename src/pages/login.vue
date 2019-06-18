@@ -19,11 +19,14 @@
           <input type="password" name="password" id="password" placeholder="Password...">
         </div>
         <div class="loginBtn">
-          <input type="button" value="Log in">
+          <a href="#/dashboard">
+            <button>Log In</button>
+          </a>
+
           <br>
           <span id="forgot">
             Forgot Password?
-            <a href="#">Get Help</a>
+            <a href="#">Get HELP</a>
           </span>
         </div>
       </div>

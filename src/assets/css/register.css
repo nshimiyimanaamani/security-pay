@@ -8,7 +8,7 @@
 }
 body {
   background: #f9f9f9;
-  font-family: advent;
+  font-family: FRegular;
 }
 .registerPage {
   display: grid;
@@ -25,8 +25,8 @@ body {
   width: 480px;
   height: 145px;
   text-align: center;
-  color: #949191;
-  font-family: adventThin;
+  color: #706c6c;
+  font-family: FThin;
   font-size: 1.7rem;
   font-weight: 100;
   letter-spacing: 0.2px;
@@ -35,7 +35,7 @@ body {
 .registerTitle #paypack {
   font-size: 68px;
   font-weight: bold;
-  font-family: advent;
+  font-family: FBold;
   letter-spacing: 1px;
   line-height: 75px;
   color: #3db3fa;
@@ -44,8 +44,8 @@ body {
   font-size: 1.4rem;
   letter-spacing: 0.2px;
   font-weight: lighter;
-  font-family: adventThin;
-  color: #949191;
+  font-family: FThin;
+  color: #706c6c;
   top: 5px;
   position: relative;
 }
@@ -66,7 +66,7 @@ body {
   opacity: 0.74;
   border-radius: 15px;
   margin: 10px 1%;
-  font-family: adventThin;
+  font-family: FRegular;
   font-size: 18px;
 }
 .registerPassword input {
@@ -77,25 +77,26 @@ body {
   opacity: 0.74;
   margin: 10px 1%;
   border-radius: 15px;
-  font-family: adventThin;
+  font-family: FRegular;
   font-size: 18px;
 }
-.registerBtn input {
+.registerBtn a button {
   padding: 10px;
   margin: 10px 1%;
   width: 97%;
   border-radius: 17px;
   border: none;
   background-color: #3db3fa;
-  font-family: Arial, Helvetica, sans-serif;
+  cursor: pointer;
+  font-family: FThin;
+  text-decoration: none;
   color: white;
   font-size: 30px;
   letter-spacing: 1.2px;
   line-height: 36px;
-  font-family: adventThin;
 }
 .registerBtn #forgot {
-  color: #bcbdbc;
+  color: #706c6c;
   letter-spacing: 0.8px;
   line-height: 24px;
   font-size: 20px;
