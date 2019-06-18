@@ -1,5 +1,10 @@
 package app
 
+/**
+ * @todo Refactor the AuthService
+ * @body The refactor service must retrun a model object [Token] which is part of the business logic.
+ */
+
 import (
 	"bytes"
 	"context"
