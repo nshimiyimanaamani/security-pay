@@ -22,12 +22,12 @@
           <li>Penalties</li>
         </router-link>
       </ul>
-      <button>
+      <button id="btn">
         <i class="fa fa-plus-circle"/> Add Services
       </button>
     </div>
     <div class="dashboardBody">
-      <router-view/>Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro praesentium, accusamus est sapiente obcaecati totam nesciunt, alias, ratione numquam exercitationem officiis tenetur dolor fugiat? Iusto ipsam, ab adipisci eos, eveniet doloremque ad aspernatur dolorum veritatis sunt quisquam magnam illo sint! Fugiat voluptas harum quis repellendus facere distinctio rerum neque. Ad?
+      <router-view/>
     </div>
   </div>
 </template>

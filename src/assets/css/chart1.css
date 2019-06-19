@@ -1,0 +1,66 @@
+#chart1container {
+  position: relative;
+  width: 570px;
+  -webkit-box-shadow: 0 0 5px #888;
+          box-shadow: 0 0 5px #888;
+  border-radius: 10px 10px 0 0;
+}
+
+#chart1container .chart1Title {
+  position: relative;
+  height: 77px;
+  border-radius: 10px 10px 0 0;
+  background-color: #3db3fa;
+}
+
+#chart1container .chart1Title h1 {
+  font-family: FThin;
+  height: 30px;
+  width: 339px;
+  color: #ffffff;
+  font-size: 24px;
+  line-height: 30px;
+  letter-spacing: 1.3px;
+  text-align: center;
+  padding-top: 23.5px;
+  padding-left: 115px;
+  text-transform: uppercase;
+}
+
+#chart1container .chart1Title .fa-cog {
+  position: absolute;
+  top: 24px;
+  right: 30px;
+  position: absolute;
+  font-size: 30.89px;
+  color: white;
+}
+
+#chart1container .chart1Title .fa-th-large {
+  position: absolute;
+  top: 25px;
+  left: 30px;
+  position: absolute;
+  font-size: 28px;
+  color: white;
+}
+
+#chart1container .chart1 {
+  position: relative;
+  width: 500px;
+  font-size: 30px;
+  padding: 55px 0 10px 0;
+}
+
+#chart1container #chart-1 {
+  position: absolute;
+  display: block;
+  width: 600px;
+  height: 400px;
+}
+
+.chartjs-render-monitor {
+  width: 530px;
+  height: 400px;
+}
+/*# sourceMappingURL=chart1.css.map */
