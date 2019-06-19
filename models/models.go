@@ -39,7 +39,7 @@ func Generate(key *rsa.PrivateKey, claims *Claims) (string, error) {
 //Parse converts a string into  type Token.
 //Takes a token String an returns a Token and a nil error ig the token string is valid.
 /**
- * @todo Add a token Parseer function
+ * @todo Add a token Parser function
  * @body The payment History interfaces deals with listing all the payment receipts.
  */
 func Parse(tokenString string, key *rsa.PublicKey) (*Token, error) {
