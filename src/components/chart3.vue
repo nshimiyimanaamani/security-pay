@@ -70,10 +70,10 @@ export default {
           },
           layout: {
             padding: {
-              left: 18,
-              right: 15,
+              left: 30,
+              right: 40,
               top: 55,
-              bottom: 28
+              bottom: 20
             }
           }
         }

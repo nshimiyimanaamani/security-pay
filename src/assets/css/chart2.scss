@@ -1,12 +1,13 @@
 #chart2container {
   position: relative;
-  width: 540px;
+  width: 460px;
+  margin-left: -10px;
   box-shadow: 0 0 5px #888;
   border-radius: 10px 10px 0 0;
   background: white;
   .chart2Title {
     position: relative;
-    height: 77px;
+    height: 60px;
     border-radius: 10px 10px 0 0;
     background-color: #3db3fa;
 
@@ -15,17 +16,18 @@
       height: 30px;
       width: 339px;
       color: #ffffff;
-      font-size: 24px;
+      font-size: 20px;
       line-height: 30px;
       letter-spacing: 1.3px;
       text-align: center;
-      padding-top: 23.5px;
-      padding-left: 115px;
+      padding-top: 15.5px;
+      margin: auto;
+      font-weight: bold;
       text-transform: uppercase;
     }
     .fa-cog {
       position: absolute;
-      top: 24px;
+      top: 16px;
       right: 30px;
       position: absolute;
       font-size: 30.89px;
@@ -33,7 +35,7 @@
     }
     .fa-th-large {
       position: absolute;
-      top: 25px;
+      top: 18px;
       left: 30px;
       position: absolute;
       font-size: 28px;
@@ -42,7 +44,7 @@
   }
   .chart2 {
     position: relative;
-    min-height: 465px;
+    height: 250px;
   }
   #chart-2 {
     position: absolute;

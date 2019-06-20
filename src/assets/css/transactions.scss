@@ -2,10 +2,11 @@
   display: grid;
   grid-template-rows: 200px auto;
   align-self: end;
+
   .transaction-title {
     grid-row: 1;
     display: grid;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto 60px auto;
     background: #3db3fa;
     position: relative;
     right: 0;
@@ -13,9 +14,9 @@
     .year-selector {
       color: white;
       grid-row: 1;
-      font-size: 39px;
-      right: 260px;
-      top: 15px;
+      font-size: 24px;
+      right: 303px;
+      top: 40px;
       position: absolute;
     }
     .paragraph {
@@ -31,22 +32,42 @@
       grid-template-columns: auto auto auto;
       width: 300px;
       position: absolute;
-      right: 0;
+      right: 70px;
+      color: white;
       height: 50px;
+      font-family: FRegular;
+      font-weight: bold;
       .contributer1 {
         grid-column: 1;
+        width: 80px;
       }
       .contributer2 {
+        width: 80px;
         grid-column: 2;
       }
       .contributer3 {
+        width: 80px;
         grid-column: 3;
+      }
+      .separator {
+        float: left;
+        font-size: 50px;
+      }
+      .text {
+        position: absolute;
+        top: 13px;
+        padding-left: 5px;
+        font-size: 12px;
+        letter-spacing: 1px;
+        line-height: 22px;
+      }
+      .small {
+        font-size: 14px;
       }
     }
   }
   .transaction-body {
     grid-row: 2;
-    border: 1px solid;
     min-height: 100vh;
   }
 }

@@ -1,0 +1,14 @@
+.container {
+  width: 92%;
+  margin-top: 35px;
+  margin-left: 35px;
+}
+
+.container tbody tr:nth-child(even) {
+  background: white;
+}
+
+.container tbody tr:nth-child(even):nth-child(odd) {
+  background: transparent;
+}
+/*# sourceMappingURL=transactionTable.css.map */

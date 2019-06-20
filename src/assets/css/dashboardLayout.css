@@ -63,7 +63,7 @@
 }
 
 .sidebarLinks a {
-  text-decoration: none;
+  text-decoration: none !important;
 }
 
 .sidebarLinks li {

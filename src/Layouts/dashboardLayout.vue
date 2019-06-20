@@ -3,7 +3,7 @@
     <div class="dashboardSidebar">
       <h1>PayPack</h1>
       <ul class="sidebarLinks">
-        <router-link to="#">
+        <router-link to="/dashboard">
           <li>Overview</li>
         </router-link>
         <router-link to="#">

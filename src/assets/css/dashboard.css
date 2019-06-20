@@ -3,6 +3,7 @@
   display: grid;
   -ms-grid-columns: ()[570px];
       grid-template-columns: repeat(570px);
+  padding: 30px;
 }
 
 .dashboard-container .chart-1 {

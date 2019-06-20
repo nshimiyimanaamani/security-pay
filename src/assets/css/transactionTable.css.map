@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "AAAA,AAAA,UAAU,CAAC;EACT,KAAK,EAAE,GAAG;EACV,UAAU,EAAE,IAAI;EAChB,WAAW,EAAE,IAAI;CAQlB;;AAXD,AAKE,UALQ,CAKR,KAAK,CAAC,EAAE,AAAA,UAAW,CAAA,IAAI,EAAE;EACvB,UAAU,EAAE,KAAK;CAIlB;;AAVH,AAOI,UAPM,CAKR,KAAK,CAAC,EAAE,AAAA,UAAW,CAAA,IAAI,CAEpB,UAAW,CAAA,GAAG,EAAE;EACf,UAAU,EAAE,WAAW;CACxB",
+    "sources": [
+        "transactionTable.scss"
+    ],
+    "names": [],
+    "file": "transactionTable.css"
+}

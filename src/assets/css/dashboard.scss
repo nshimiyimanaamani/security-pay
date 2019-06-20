@@ -1,6 +1,7 @@
 .dashboard-container {
   display: grid;
   grid-template-columns: repeat(570px);
+  padding: 30px;
   .chart-1 {
     grid-column: 1;
     min-height: 30px;

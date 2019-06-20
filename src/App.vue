@@ -36,7 +36,7 @@ export default {};
   src: url("./assets/webFonts/HelveticaNeueIt.ttf");
 }
 @import url("../node_modules/@fortawesome/fontawesome-free/css/all.css");
-
+@import url("../node_modules/bootstrap/dist/css/bootstrap.css");
 html,
 body {
   margin: 0;

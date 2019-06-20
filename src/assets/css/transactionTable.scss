@@ -1,0 +1,12 @@
+.container {
+  width: 92%;
+  margin-top: 35px;
+  margin-left: 35px;
+
+  tbody tr:nth-child(even) {
+    background: white;
+    &:nth-child(odd) {
+      background: transparent;
+    }
+  }
+}

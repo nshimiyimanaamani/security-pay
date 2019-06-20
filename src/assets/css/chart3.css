@@ -1,16 +1,16 @@
 #chart3container {
   position: relative;
-  width: 99%;
+  width: 91%;
   -webkit-box-shadow: 0 0 5px #888;
           box-shadow: 0 0 5px #888;
   border-radius: 10px 10px 0 0;
-  margin-bottom: 15px;
+  margin: 20px 0 15px 35px;
   background: white;
 }
 
 #chart3container .chart3Title {
   position: relative;
-  height: 77px;
+  height: 60px;
   border-radius: 10px 10px 0 0;
   background-color: #3db3fa;
 }
@@ -20,18 +20,19 @@
   height: 30px;
   width: 339px;
   color: #ffffff;
-  font-size: 24px;
+  font-size: 20px;
   line-height: 30px;
-  letter-spacing: 1.3px;
+  letter-spacing: 3.3px;
   text-align: center;
-  padding-top: 23.5px;
-  padding-left: 370px;
+  padding-top: 15.5px;
+  margin: auto;
+  font-weight: bold;
   text-transform: uppercase;
 }
 
 #chart3container .chart3Title .fa-cog {
   position: absolute;
-  top: 24px;
+  top: 16px;
   right: 30px;
   position: absolute;
   font-size: 30.89px;
@@ -40,7 +41,7 @@
 
 #chart3container .chart3Title .fa-th-large {
   position: absolute;
-  top: 25px;
+  top: 18px;
   left: 30px;
   position: absolute;
   font-size: 28px;
@@ -49,7 +50,7 @@
 
 #chart3container .chart3 {
   position: relative;
-  min-height: 465px;
+  height: 260px;
 }
 
 #chart3container #chart-3 {
