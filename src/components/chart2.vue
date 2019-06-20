@@ -2,7 +2,7 @@
   <div id="chart2container">
     <div class="chart2Title">
       <i class="fa fa-th-large"></i>
-      <h1>Remera correcting acct.</h1>
+      <h1>Remera total collected</h1>
       <span class="fa fa-cog"></span>
     </div>
     <div class="chart2">
@@ -12,7 +12,6 @@
 </template>
 
 <script>
-import "../../node_modules/chart.js/dist/Chart.js";
 export default {
   mounted() {
     this.drawChart();
@@ -56,9 +55,9 @@ export default {
           layout: {
             padding: {
               left: 50,
-              right: 0,
-              top: 0,
-              bottom: 0
+              right: 15,
+              top: 55,
+              bottom: 15
             }
           }
         }

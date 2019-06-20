@@ -12,7 +12,7 @@
         <router-link to="#">
           <li>Village</li>
         </router-link>
-        <router-link to="#">
+        <router-link to="/transactions">
           <li>Bank Accounts</li>
         </router-link>
         <router-link to="#">
@@ -25,6 +25,17 @@
       <button id="btn">
         <i class="fa fa-plus-circle"/> Add Services
       </button>
+    </div>
+    <div class="top-nav">
+      <div class="dropdown">
+        <p>
+          YTD
+          <i class="fa fa-caret-down"></i>
+        </p>
+      </div>
+      <div class="search">
+        <input type="search" name="search" id="search" placeholder="Search...">
+      </div>
     </div>
     <div class="dashboardBody">
       <router-view/>

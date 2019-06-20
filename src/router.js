@@ -6,6 +6,7 @@ import login from "./pages/login.vue";
 import register from "./pages/register.vue";
 import startPage from "./Layouts/main.vue";
 import dashboard from "./pages/dashboard.vue";
+import transactions from "./pages/transactions.vue";
 import dashboardLayout from "./Layouts/dashboardLayout.vue";
 
 Vue.use(Router);
@@ -39,6 +40,11 @@ export default new Router({
           path: "/dashboard",
           name: "dashboard",
           component: dashboard
+        },
+        {
+          path: "/transactions",
+          name: "transactions",
+          component: transactions
         }
       ]
     }

@@ -1,10 +1,11 @@
-#chart2container {
+#chart3container {
   position: relative;
-  width: 540px;
+  width: 99%;
   box-shadow: 0 0 5px #888;
   border-radius: 10px 10px 0 0;
+  margin-bottom: 15px;
   background: white;
-  .chart2Title {
+  .chart3Title {
     position: relative;
     height: 77px;
     border-radius: 10px 10px 0 0;
@@ -20,7 +21,7 @@
       letter-spacing: 1.3px;
       text-align: center;
       padding-top: 23.5px;
-      padding-left: 115px;
+      padding-left: 370px;
       text-transform: uppercase;
     }
     .fa-cog {
@@ -40,16 +41,14 @@
       color: white;
     }
   }
-  .chart2 {
+  .chart3 {
     position: relative;
     min-height: 465px;
   }
-  #chart-2 {
+  #chart-3 {
     position: absolute;
     display: block;
+    width: 600px;
+    height: 400px;
   }
-}
-.chartjs-render-monitor {
-  width: 530px;
-  height: 400px;
 }

@@ -1,6 +1,5 @@
 <template>
   <div class="dashboard-container">
-    <div class="top-nav"></div>
     <div class="chart-1">
       <chart1/>
     </div>

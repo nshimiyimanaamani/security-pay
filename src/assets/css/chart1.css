@@ -1,9 +1,10 @@
 #chart1container {
   position: relative;
-  width: 570px;
+  width: 540px;
   -webkit-box-shadow: 0 0 5px #888;
           box-shadow: 0 0 5px #888;
   border-radius: 10px 10px 0 0;
+  background: white;
 }
 
 #chart1container .chart1Title {
@@ -47,9 +48,7 @@
 
 #chart1container .chart1 {
   position: relative;
-  width: 500px;
-  font-size: 30px;
-  padding: 55px 0 10px 0;
+  min-height: 465px;
 }
 
 #chart1container #chart-1 {

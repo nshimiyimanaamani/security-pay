@@ -4,6 +4,7 @@
   </div>
 </template>
 <script>
+import "../node_modules/chart.js/dist/Chart.js";
 export default {};
 </script>
 

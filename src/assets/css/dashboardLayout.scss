@@ -1,10 +1,14 @@
 .dashboardWrapper {
   display: grid;
-  grid-template-columns: 185px auto;
-
+  grid-template-columns: 210px auto;
+  grid-template-rows: 80px auto;
+  position: relative;
+  background: #f5f5f5;
   .dashboardSidebar {
     grid-column: 1;
-    position: sticky;
+    grid-row: 1/1;
+    position: fixed;
+    width: 210px;
     top: 0;
     height: 100vh;
     color: white;
@@ -36,8 +40,9 @@
   }
 }
 .dashboardBody {
-  background: white;
-  padding-left: 10px;
+  grid-row: 2;
+  grid-column: 2;
+  background: #f5f5f5;
 }
 .sidebarLinks {
   padding: 0;
@@ -49,17 +54,64 @@
   }
   li {
     list-style-type: none;
-    padding: 10px 0px 10px 10px;
-    color: white;
+    padding: 15px 0px 15px 10px;
+    color: #eeeeece8;
     font-family: FThin;
     font-weight: bold;
-    text-transform: capitalize;
-    font-size: 18px;
+    text-transform: uppercase;
+    font-size: 17px;
     letter-spacing: 1.9px;
-    color: #ffffff9c;
+    box-shadow: 0 0.2px 1px #ababab5e;
     &:hover {
       color: #ffffff;
       background: #88f2fbb0;
+    }
+  }
+}
+.top-nav {
+  grid-row: 1;
+  grid-column: 2/3;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  box-shadow: 2px 0 5px #888;
+  min-height: 80px;
+  width: 100%;
+  .dropdown {
+    float: left;
+    cursor: pointer;
+    padding: 18px 0 18px 30px;
+    p {
+      padding: 6px;
+      width: 125px;
+      border: 2px solid #3db3fa;
+      border-radius: 7px;
+      text-align: left;
+      font-size: 25px;
+      color: #3db3fa;
+      margin: 0;
+      i {
+        float: right;
+        font-size: 59px;
+        margin: -17px 5px 0 0;
+      }
+    }
+  }
+  .search {
+    float: right;
+    padding: 25px;
+    float: right;
+    padding: 18px 30px 17px 0;
+
+    input {
+      padding: 10px;
+      width: 355px;
+      border-radius: 10px;
+      border-color: #3db3fa;
+      border: 2px solid #3db3fa;
+      font-size: 18px;
+      -webkit-text-fill-color: #3db3fa;
     }
   }
 }
