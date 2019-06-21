@@ -4,8 +4,14 @@ package models
 type Transaction struct {
 	ID       string
 	Amount   string
+	Method   string
 	Property string
 	Date     string
+}
+
+// TransactionPage represents a list of transaction.
+type TransactionPage struct {
+	Transaction []Transaction
 }
 
 //Validate ensure that all Transaction's field are of the valid format
