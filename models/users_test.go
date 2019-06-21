@@ -11,7 +11,7 @@ const (
 	password = "password"
 )
 
-func TestValidate(t *testing.T){
+func TestUserValidate(t *testing.T){
 	cases:= []struct{
 		desc string
 		user User
