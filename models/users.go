@@ -17,4 +17,4 @@ func NewUser(email, password string) User {
 }
 
 //Validate returns an nil error if all the operator fields are valid
-func (opr *User) Validate() error { return nil }
+func (user *User) Validate() error { return nil }
