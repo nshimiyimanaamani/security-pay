@@ -2,12 +2,12 @@
   <div>
     <div class="loginPage">
       <div class="loginTitle">
-        Welcome to
+        <p>Welcome To</p>
         <br>
         <span id="paypack">PayPack</span>
         <br>
         <span id="easy">
-          Easy way to correct and organise
+          Easy way to collect and organise
           <br>public fees
         </span>
       </div>

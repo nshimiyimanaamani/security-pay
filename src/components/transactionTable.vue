@@ -8,44 +8,87 @@
         <table class="table">
           <thead>
             <tr>
-              <th>Column heading</th>
-              <th>Column heading</th>
-              <th>Column heading</th>
+              <th>Today</th>
+              <th>Payment Method</th>
+              <th>Narrative</th>
+              <th>Amount</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Column content</td>
-              <td>Column content</td>
-              <td>Column content</td>
-            </tr>
-            <tr>
-              <td>Column content</td>
-              <td>Column content</td>
-              <td>Column content</td>
-            </tr>
-            <tr>
-              <td>Column content</td>
+              <td>
+                <i class="fa fa-check-circle"></i>
+                <p>12:35,22 March 2019</p>
+              </td>
+              <td>
+                <img src="../assets/img/mtn-logo.png">&nbsp; Rugwiro
+              </td>
               <td>Column content</td>
               <td>Column content</td>
             </tr>
             <tr>
+              <td>
+                <i class="fa fa-check-circle"></i>
+                <p>12:35,22 March 2019</p>
+              </td>
+              <td>
+                <img src="../assets/img/bk-logo.png">&nbsp; Rugwiro
+              </td>
+              <td>Isuku/Umutekano</td>
               <td>Column content</td>
+            </tr>
+            <tr>
+              <td>
+                <i class="fa fa-check-circle"></i>
+                <p>12:35,22 March 2019</p>
+              </td>
+              <td>
+                <img src="../assets/img/bk-logo.png">&nbsp; Rugwiro
+              </td>
               <td>Column content</td>
               <td>Column content</td>
             </tr>
             <tr>
-              <td>Column content</td>
+              <td>
+                <i class="fa fa-check-circle"></i>
+                <p>12:35,22 March 2019</p>
+              </td>
+              <td>
+                <img src="../assets/img/mtn-logo.png">&nbsp; Rugwiro
+              </td>
               <td>Column content</td>
               <td>Column content</td>
             </tr>
             <tr>
-              <td>Column content</td>
+              <td>
+                <i class="fa fa-check-circle"></i>
+                <p>12:35,22 March 2019</p>
+              </td>
+              <td>
+                <img src="../assets/img/mtn-logo.png">&nbsp; Rugwiro
+              </td>
               <td>Column content</td>
               <td>Column content</td>
             </tr>
             <tr>
+              <td>
+                <i class="fa fa-check-circle"></i>
+                <p>12:35,22 March 2019</p>
+              </td>
+              <td>
+                <img src="../assets/img/bk-logo.png">&nbsp; Rugwiro
+              </td>
               <td>Column content</td>
+              <td>Column content</td>
+            </tr>
+            <tr>
+              <td>
+                <i class="fa fa-check-circle"></i>
+                <p>12:35,22 March 2019</p>
+              </td>
+              <td>
+                <img src="../assets/img/mtn-logo.png">&nbsp; Rugwiro
+              </td>
               <td>Column content</td>
               <td>Column content</td>
             </tr>

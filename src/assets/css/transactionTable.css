@@ -11,4 +11,17 @@
 .container tbody tr:nth-child(even):nth-child(odd) {
   background: transparent;
 }
+
+.fa-check-circle {
+  float: left;
+  position: relative;
+  top: 0px;
+  margin-right: 10px;
+  font-size: 20px;
+  color: #6aad1d;
+}
+
+tbody td {
+  vertical-align: initial !important;
+}
 /*# sourceMappingURL=transactionTable.css.map */

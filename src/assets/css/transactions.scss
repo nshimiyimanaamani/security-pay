@@ -25,6 +25,7 @@
       position: absolute;
       color: white;
       font-size: 56px;
+      bottom: 60px;
     }
     .bottom-text {
       grid-row: 3;
@@ -32,37 +33,35 @@
       grid-template-columns: auto auto auto;
       width: 300px;
       position: absolute;
-      right: 70px;
+      right: 71px;
       color: white;
-      height: 50px;
-      font-family: FRegular;
-      font-weight: bold;
+      bottom: 3px;
       .contributer1 {
         grid-column: 1;
-        width: 80px;
       }
       .contributer2 {
-        width: 80px;
         grid-column: 2;
       }
       .contributer3 {
-        width: 80px;
         grid-column: 3;
       }
       .separator {
         float: left;
-        font-size: 50px;
+        font-size: 45px;
       }
       .text {
         position: absolute;
-        top: 13px;
+        top: 12px;
         padding-left: 5px;
         font-size: 12px;
         letter-spacing: 1px;
         line-height: 22px;
+        font-weight: bold;
+        width: fit-content;
       }
       .small {
         font-size: 14px;
+        font-weight: 100;
       }
     }
   }

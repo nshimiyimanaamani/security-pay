@@ -1,7 +1,6 @@
 #chart1container {
   position: relative;
-  width: 460px;
-  height: 310px;
+  width: 35vw;
   box-shadow: 0 0 5px #888;
   border-radius: 10px 10px 0 0;
   background: white;
@@ -13,9 +12,6 @@
     background-color: #3db3fa;
 
     h1 {
-      font-family: FThin;
-      height: 30px;
-      width: 339px;
       color: #ffffff;
       font-size: 20px;
       line-height: 30px;
@@ -23,7 +19,6 @@
       text-align: center;
       padding-top: 15.5px;
       margin: auto;
-      font-weight: bold;
       text-transform: uppercase;
     }
     .fa-cog {
@@ -45,13 +40,7 @@
   }
   .chart1 {
     position: relative;
-    min-height: 240px;
-    height: 240px;
-  }
-  #chart-1 {
-    position: absolute;
-    display: block;
-    width: 600px;
-    height: 240px;
+    height: 35vh;
+    min-height: 270px;
   }
 }

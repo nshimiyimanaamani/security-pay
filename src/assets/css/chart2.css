@@ -1,6 +1,6 @@
 #chart2container {
   position: relative;
-  width: 460px;
+  width: 35vw;
   margin-left: -10px;
   -webkit-box-shadow: 0 0 5px #888;
           box-shadow: 0 0 5px #888;
@@ -16,7 +16,6 @@
 }
 
 #chart2container .chart2Title h1 {
-  font-family: FThin;
   height: 30px;
   width: 339px;
   color: #ffffff;
@@ -26,7 +25,6 @@
   text-align: center;
   padding-top: 15.5px;
   margin: auto;
-  font-weight: bold;
   text-transform: uppercase;
 }
 
@@ -50,16 +48,7 @@
 
 #chart2container .chart2 {
   position: relative;
-  height: 250px;
-}
-
-#chart2container #chart-2 {
-  position: absolute;
-  display: block;
-}
-
-.chartjs-render-monitor {
-  width: 530px;
-  height: 400px;
+  min-height: 270px;
+  height: 35vh;
 }
 /*# sourceMappingURL=chart2.css.map */

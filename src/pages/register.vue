@@ -2,12 +2,12 @@
   <div>
     <div class="registerPage">
       <div class="registerTitle">
-        Welcome to
+        <p>Welcome To</p>
         <br>
         <span id="paypack">PayPack</span>
         <br>
         <span id="easy">
-          Easy way to correct and organise
+          Easy way to collect and organise
           <br>public fees
         </span>
       </div>
@@ -19,7 +19,7 @@
           <input type="password" name="password" id="password" placeholder="Password...">
         </div>
         <div class="registerBtn">
-          <a href="#/dashboard">
+          <a href="/dashboard">
             <button>Register</button>
           </a>
           <br>

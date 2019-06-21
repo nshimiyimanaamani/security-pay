@@ -36,6 +36,7 @@
   position: absolute;
   color: white;
   font-size: 56px;
+  bottom: 60px;
 }
 
 .transactions-container .transaction-title .bottom-text {
@@ -47,47 +48,47 @@
       grid-template-columns: auto auto auto;
   width: 300px;
   position: absolute;
-  right: 70px;
+  right: 71px;
   color: white;
-  height: 50px;
-  font-family: FRegular;
-  font-weight: bold;
+  bottom: 3px;
 }
 
 .transactions-container .transaction-title .bottom-text .contributer1 {
   -ms-grid-column: 1;
   grid-column: 1;
-  width: 80px;
 }
 
 .transactions-container .transaction-title .bottom-text .contributer2 {
-  width: 80px;
   -ms-grid-column: 2;
   grid-column: 2;
 }
 
 .transactions-container .transaction-title .bottom-text .contributer3 {
-  width: 80px;
   -ms-grid-column: 3;
   grid-column: 3;
 }
 
 .transactions-container .transaction-title .bottom-text .separator {
   float: left;
-  font-size: 50px;
+  font-size: 45px;
 }
 
 .transactions-container .transaction-title .bottom-text .text {
   position: absolute;
-  top: 13px;
+  top: 12px;
   padding-left: 5px;
   font-size: 12px;
   letter-spacing: 1px;
   line-height: 22px;
+  font-weight: bold;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
 }
 
 .transactions-container .transaction-title .bottom-text .small {
   font-size: 14px;
+  font-weight: 100;
 }
 
 .transactions-container .transaction-body {

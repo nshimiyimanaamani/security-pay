@@ -20,31 +20,30 @@ export default {
     drawChart() {
       let Chart1Container = document.getElementById("Chart-2").getContext("2d");
       Chart.defaults.global.defaultFontSize = 20;
+      Chart.defaults.global.legend.position = "right";
       let chart1 = new Chart(Chart1Container, {
-        type: "pie",
+        type: "doughnut",
         data: {
-          labels: ["BK Acc", "MTN", "AIRTEL"],
+          labels: ["Umutekano", ""],
           datasets: [
             {
               label: "RWF",
-              data: [1, 3, 4],
-              backgroundColor: ["grey", "yellow", "red"]
+              data: [5, 3],
+              backgroundColor: ["#58C5AD", "#F9F9F9"]
             }
           ]
         },
         options: {
           scales: {
-            yAxes: [
-              {
-                ticks: {
-                  display: false
-                }
+            ticks: {
+              display: false,
+              gridLines: {
+                display: false
               }
-            ]
+            }
           },
           maintainAspectRatio: false,
           legend: {
-            display: false,
             label: {
               fontsize: 23
             },
@@ -54,9 +53,9 @@ export default {
           },
           layout: {
             padding: {
-              left: 50,
+              left: 10,
               right: 15,
-              top: 55,
+              top: 15,
               bottom: 15
             }
           }

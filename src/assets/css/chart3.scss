@@ -1,9 +1,9 @@
 #chart3container {
   position: relative;
-  width: 91%;
+  width: 74vw;
   box-shadow: 0 0 5px #888;
   border-radius: 10px 10px 0 0;
-  margin: 20px 0 15px 35px;
+  margin: 20px 37px;
   background: white;
   .chart3Title {
     position: relative;
@@ -12,9 +12,6 @@
     background-color: #3db3fa;
 
     h1 {
-      font-family: FThin;
-      height: 30px;
-      width: 339px;
       color: #ffffff;
       font-size: 20px;
       line-height: 30px;
@@ -22,7 +19,6 @@
       text-align: center;
       padding-top: 15.5px;
       margin: auto;
-      font-weight: bold;
       text-transform: uppercase;
     }
     .fa-cog {
@@ -44,12 +40,6 @@
   }
   .chart3 {
     position: relative;
-    height: 260px;
-  }
-  #chart-3 {
-    position: absolute;
-    display: block;
-    width: 600px;
-    height: 400px;
+    height: 35vh;
   }
 }

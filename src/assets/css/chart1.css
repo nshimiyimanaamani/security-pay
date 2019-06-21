@@ -1,7 +1,6 @@
 #chart1container {
   position: relative;
-  width: 460px;
-  height: 310px;
+  width: 35vw;
   -webkit-box-shadow: 0 0 5px #888;
           box-shadow: 0 0 5px #888;
   border-radius: 10px 10px 0 0;
@@ -17,9 +16,6 @@
 }
 
 #chart1container .chart1Title h1 {
-  font-family: FThin;
-  height: 30px;
-  width: 339px;
   color: #ffffff;
   font-size: 20px;
   line-height: 30px;
@@ -27,7 +23,6 @@
   text-align: center;
   padding-top: 15.5px;
   margin: auto;
-  font-weight: bold;
   text-transform: uppercase;
 }
 
@@ -51,14 +46,7 @@
 
 #chart1container .chart1 {
   position: relative;
-  min-height: 240px;
-  height: 240px;
-}
-
-#chart1container #chart-1 {
-  position: absolute;
-  display: block;
-  width: 600px;
-  height: 240px;
+  height: 35vh;
+  min-height: 270px;
 }
 /*# sourceMappingURL=chart1.css.map */

@@ -34,26 +34,6 @@
           </span>
         </div>
       </div>
-      <!-- <div class="bottom-text">
-        <span>
-          BK Acc
-          <br>
-          <span class="small">12M</span>
-        </span>
-        <span class="separator">|</span>
-
-        <span>
-          MTN MoMo
-          <br>
-          <span class="small">12M</span>
-        </span>
-        <span class="separator">|</span>
-        <span>
-          Airtel Money
-          <br>
-          <span class="small">12M</span>
-        </span>
-      </div>-->
     </div>
     <div class="transaction-body">
       <transactionTable/>

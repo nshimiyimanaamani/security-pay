@@ -20,6 +20,7 @@ export default {
     drawChart() {
       let Chart1Container = document.getElementById("Chart-1").getContext("2d");
       Chart.defaults.global.defaultFontSize = 20;
+      Chart.defaults.global.defaultFontFamily = "Helvetica Neue, sans-serif";
       let chart1 = new Chart(Chart1Container, {
         type: "bar",
         data: {
@@ -27,8 +28,8 @@ export default {
           datasets: [
             {
               label: "RWF",
-              data: [1, 3, 4],
-              backgroundColor: ["grey", "yellow", "red"]
+              data: [2, 4, 3],
+              backgroundColor: "#88D8C6"
             }
           ]
         },
@@ -56,7 +57,8 @@ export default {
                   }
                 }
               }
-            ]
+            ],
+            xAxes: [{ barPercentage: 1, categoryPercentage: 1 }]
           },
           maintainAspectRatio: false,
           legend: {
@@ -70,10 +72,10 @@ export default {
           },
           layout: {
             padding: {
-              left: 20,
+              left: 15,
               right: 15,
-              top: 55,
-              bottom: 15
+              top: 25,
+              bottom: 0
             }
           }
         }
