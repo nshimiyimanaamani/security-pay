@@ -14,10 +14,10 @@ const (
 func TestValidate(t *testing.T){
 	cases:= []struct{
 		desc string
-		user Operator
+		user User
 		err  error
 	}{
-		{"validate user with valid data", NewOperator(email, password), nil},
+		{"validate user with valid data", NewUser(email, password), nil},
 	}
 
 	for _, tc := range cases {
