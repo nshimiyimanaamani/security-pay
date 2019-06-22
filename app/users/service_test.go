@@ -3,6 +3,7 @@ package users_test
 import (
 	"fmt"
 	"testing"
+	
 	"github.com/stretchr/testify/assert"
 	"github.com/rugwirobaker/paypack-backend/models"
 	"github.com/rugwirobaker/paypack-backend/app/users"
