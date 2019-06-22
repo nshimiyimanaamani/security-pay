@@ -1,17 +1,20 @@
 package mocks
 
 import (
+	"strconv"
+	"sync"
+
 	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/models"
 	store "github.com/rugwirobaker/paypack-backend/store/users"
-	"sync"
 )
 
 var _ store.UserStore = (*userStoreMock)(nil)
 
 type userStoreMock struct {
-	mu    sync.Mutex
-	users map[string]models.User
+	mu      sync.Mutex
+	counter uint64
+	users   map[string]models.User
 }
 
 //NewUserStore creates "mirror" user store
@@ -41,7 +44,9 @@ func (str *userStoreMock) Save(user models.User) (string, error) {
 		return "", users.ErrConflict
 	}
 
-	user.ID = "id"
+	str.counter++
+	user.ID = strconv.FormatUint(str.counter, 10)
+
 	str.users[user.Email] = user
 
 	return str.users[user.Email].ID, nil
