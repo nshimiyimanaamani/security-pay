@@ -46,9 +46,24 @@
 <script>
 // @ is an alias to /src
 
-export default {};
+export default {
+  data() {
+    return {};
+  },
+  created() {
+    var active = document.querySelectorAll("ul a");
+    for (let i = 0; i < active.length; i++) {
+      active[i].addEventListener("click", () => {
+        return active[i];
+      });
+    }
+  }
+};
 </script>
 <style>
+.data {
+  background: black !important;
+}
 @import url("../assets/css/dashboardLayout.css");
 </style>
 

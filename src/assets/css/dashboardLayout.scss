@@ -47,17 +47,17 @@
   padding: 0;
   position: absolute;
   width: 100%;
-  margin-top: 65px !important;
+  margin-top: 30px !important;
   a {
     text-decoration: none !important;
   }
   li {
     list-style-type: none;
-    padding: 15px 0px 15px 10px;
+    padding: 15px 0px 15px 25px;
     color: #eeeeece8;
     text-transform: uppercase;
-    font-size: 17px;
-    letter-spacing: 1.9px;
+    font-size: 14px;
+    letter-spacing: 2px;
     &:hover {
       color: #ffffff;
       background: #88f2fbb0;
@@ -78,15 +78,16 @@
   .dropdown {
     float: left;
     cursor: pointer;
-    padding: 4px 0 0px 30px;
+    padding: 8px 0 0px 30px;
     p {
-      padding: 6px;
-      width: 125px;
+      padding: 2px 7px;
+      width: 120px;
       border: 2px solid #3db3fa;
-      border-radius: 9px;
+      border-radius: 7px;
       text-align: left;
-      font-size: 22px;
+      font-size: 21px;
       color: #3db3fa;
+      margin: 0;
       i {
         float: right;
         font-size: 59px;
@@ -96,16 +97,20 @@
   }
   .search {
     float: right;
-    padding: 5px 30px 0px 0px;
+    padding: 6px 30px 0px 0px;
 
     input {
-      padding: 6px 0 6px 20px;
+      padding: 5px 0 5px 20px;
       width: 300px;
       border-radius: 10px;
       border-color: #3db3fa;
       border: 2px solid #3db3fa;
-      font-size: 20px;
+      font-size: 19px;
       -webkit-text-fill-color: #3db3fa;
     }
   }
+}
+.router-link-exact-active li {
+  background: #88f2fbb0;
+  color: white;
 }

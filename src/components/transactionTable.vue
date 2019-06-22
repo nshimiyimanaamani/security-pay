@@ -8,10 +8,22 @@
         <table class="table">
           <thead>
             <tr>
-              <th>Today</th>
-              <th>Payment Method</th>
-              <th>Narrative</th>
-              <th>Amount</th>
+              <th>
+                Today
+                <i class="fa fa-caret-down"></i>
+              </th>
+              <th>
+                Payment Method
+                <i class="fa fa-caret-down"></i>
+              </th>
+              <th>
+                Narrative
+                <i class="fa fa-caret-down"></i>
+              </th>
+              <th>
+                Amount
+                <i class="fa fa-caret-down"></i>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -23,8 +35,8 @@
               <td>
                 <img src="../assets/img/mtn-logo.png">&nbsp; Rugwiro
               </td>
-              <td>Column content</td>
-              <td>Column content</td>
+              <td>Isuku/Umutekano</td>
+              <td>3000 Frw</td>
             </tr>
             <tr>
               <td>
@@ -35,7 +47,7 @@
                 <img src="../assets/img/bk-logo.png">&nbsp; Rugwiro
               </td>
               <td>Isuku/Umutekano</td>
-              <td>Column content</td>
+              <td>2000 Rwf</td>
             </tr>
             <tr>
               <td>
@@ -45,8 +57,8 @@
               <td>
                 <img src="../assets/img/bk-logo.png">&nbsp; Rugwiro
               </td>
-              <td>Column content</td>
-              <td>Column content</td>
+              <td>Isuku/Umutekano</td>
+              <td>4000 Rwf</td>
             </tr>
             <tr>
               <td>
@@ -56,8 +68,9 @@
               <td>
                 <img src="../assets/img/mtn-logo.png">&nbsp; Rugwiro
               </td>
-              <td>Column content</td>
-              <td>Column content</td>
+              <td>Isuku/Umutekano</td>
+
+              <td>3000 Rwf</td>
             </tr>
             <tr>
               <td>
@@ -67,8 +80,9 @@
               <td>
                 <img src="../assets/img/mtn-logo.png">&nbsp; Rugwiro
               </td>
-              <td>Column content</td>
-              <td>Column content</td>
+              <td>Isuku/Umutekano</td>
+
+              <td>1000 Rwf</td>
             </tr>
             <tr>
               <td>
@@ -78,8 +92,8 @@
               <td>
                 <img src="../assets/img/bk-logo.png">&nbsp; Rugwiro
               </td>
-              <td>Column content</td>
-              <td>Column content</td>
+              <td>Isuku/Umutekano</td>
+              <td>2500 Rwf</td>
             </tr>
             <tr>
               <td>
@@ -89,8 +103,8 @@
               <td>
                 <img src="../assets/img/mtn-logo.png">&nbsp; Rugwiro
               </td>
-              <td>Column content</td>
-              <td>Column content</td>
+              <td>Isuku/Umutekano</td>
+              <td>1500 Rwf</td>
             </tr>
           </tbody>
         </table>

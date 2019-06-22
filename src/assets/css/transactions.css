@@ -1,8 +1,8 @@
 .transactions-container {
   display: -ms-grid;
   display: grid;
-  -ms-grid-rows: 200px auto;
-      grid-template-rows: 200px auto;
+  -ms-grid-rows: 170px auto;
+      grid-template-rows: 170px auto;
   -ms-grid-row-align: end;
       align-self: end;
 }
@@ -16,27 +16,31 @@
       grid-template-rows: auto 60px auto;
   background: #3db3fa;
   position: relative;
+  color: white;
   right: 0;
 }
 
 .transactions-container .transaction-title .year-selector {
-  color: white;
   -ms-grid-row: 1;
   grid-row: 1;
-  font-size: 24px;
-  right: 303px;
-  top: 40px;
+  font-size: 26px;
+  top: 10px;
   position: absolute;
+  right: 295px;
+  width: 100px;
+}
+
+.transactions-container .transaction-title .year-selector .fa-caret-down {
+  font-size: 35px;
 }
 
 .transactions-container .transaction-title .paragraph {
-  right: 12px;
+  right: 35px;
+  top: -25px;
   -ms-grid-row: 2;
   grid-row: 2;
   position: absolute;
-  color: white;
   font-size: 56px;
-  bottom: 60px;
 }
 
 .transactions-container .transaction-title .bottom-text {
@@ -44,13 +48,11 @@
   grid-row: 3;
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: auto auto auto;
-      grid-template-columns: auto auto auto;
-  width: 300px;
+  -ms-grid-columns: 130px 130px 130px;
+      grid-template-columns: 130px 130px 130px;
   position: absolute;
-  right: 71px;
-  color: white;
-  bottom: 3px;
+  right: 5px;
+  top: -20px;
 }
 
 .transactions-container .transaction-title .bottom-text .contributer1 {

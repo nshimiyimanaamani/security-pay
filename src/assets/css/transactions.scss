@@ -1,6 +1,6 @@
 .transactions-container {
   display: grid;
-  grid-template-rows: 200px auto;
+  grid-template-rows: 184px auto;
   align-self: end;
 
   .transaction-title {
@@ -9,33 +9,34 @@
     grid-template-rows: auto 60px auto;
     background: #3db3fa;
     position: relative;
+    color: white;
     right: 0;
 
     .year-selector {
-      color: white;
       grid-row: 1;
-      font-size: 24px;
-      right: 303px;
-      top: 40px;
+      font-size: 26px;
+      top: 10px;
       position: absolute;
+      right: 295px;
+      width: 100px;
+      .fa-caret-down {
+        font-size: 35px;
+      }
     }
     .paragraph {
-      right: 12px;
+      right: 35px;
+      top: -25px;
       grid-row: 2;
       position: absolute;
-      color: white;
       font-size: 56px;
-      bottom: 60px;
     }
     .bottom-text {
       grid-row: 3;
       display: grid;
-      grid-template-columns: auto auto auto;
-      width: 300px;
+      grid-template-columns: 130px 130px 130px;
       position: absolute;
-      right: 71px;
-      color: white;
-      bottom: 3px;
+      right: 5px;
+      top: -20px;
       .contributer1 {
         grid-column: 1;
       }

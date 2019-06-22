@@ -13,29 +13,49 @@
 
 <script>
 export default {
+  data() {
+    return {
+      Percentage: 60
+    };
+  },
   mounted() {
     this.drawChart();
   },
   methods: {
     drawChart() {
-      let Chart1Container = document.getElementById("Chart-2").getContext("2d");
+      let chartcanvas = document.getElementById("Chart-2").getContext("2d");
       Chart.defaults.global.defaultFontSize = 20;
       Chart.defaults.global.legend.position = "right";
-      let chart1 = new Chart(Chart1Container, {
+      Chart.defaults.global.legend.labels.boxWidth = 0;
+      var value = this.Percentage;
+      var chartData = {
         type: "doughnut",
         data: {
-          labels: ["Umutekano", ""],
+          labels: [`UMUTEKANO: ${value}% `],
           datasets: [
             {
-              label: "RWF",
-              data: [5, 3],
-              backgroundColor: ["#58C5AD", "#F9F9F9"]
+              data: [value, 100 - value],
+              backgroundColor: ["#58C5AD", "#f9f9f9"],
+              hoverBackgroundColor: ["#58C5AD", "#f9f9f9"],
+              hoverBorderColor: ["#58C5AD", "#ffffff"]
             }
           ]
         },
         options: {
+          elements: {
+            center: {
+              text: `${value}%`,
+              color: "#58C5AD", // Default is #000000
+              fontStyle: "Arial", // Default is Arial
+              sidePadding: 20 // Defualt is 20 (as a percentage)
+            }
+          },
+          cutoutPercentage: 80,
           scales: {
             ticks: {
+              max: 100,
+              min: 0,
+              stepSize: 1,
               display: false,
               gridLines: {
                 display: false
@@ -48,7 +68,14 @@ export default {
               fontsize: 23
             },
             tooltip: {
-              display: false
+              callback: {
+                label(tooltipItem, data) {
+                  return { tooltipItem: "" };
+                }
+              }
+            },
+            labels: {
+              padding: 20
             }
           },
           layout: {
@@ -58,6 +85,35 @@ export default {
               top: 15,
               bottom: 15
             }
+          }
+        }
+      };
+      let chart = new Chart(chartcanvas, chartData);
+      Chart.pluginService.register({
+        beforeDraw: function(chart) {
+          if (chart.config.options.elements.center) {
+            var ctx = chart.chart.ctx;
+            var centerConfig = chart.config.options.elements.center;
+            var fontStyle = centerConfig.fontStyle || "arial";
+            var txt = centerConfig.text;
+            var color = centerConfig.color || "#000";
+            var sidePadding = centerConfig.sidePadding || 20;
+            var sidePaddingCalculated =
+              (sidePadding / 100) * (chart.innerRadius * 2);
+            ctx.font = "40px " + fontStyle;
+            var stringWidth = ctx.measureText(txt).width;
+            var elementWidth = chart.innerRadius * 2 - sidePaddingCalculated;
+            var widthRatio = elementWidth / stringWidth;
+            var newFontSize = Math.floor(30 * widthRatio);
+            var elementHeight = chart.innerRadius * 2;
+            var fontSizeToUse = Math.min(newFontSize, elementHeight);
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            var centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+            var centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+            ctx.font = fontSizeToUse + "px " + fontStyle;
+            ctx.fillStyle = color;
+            ctx.fillText(txt, centerX, centerY);
           }
         }
       });

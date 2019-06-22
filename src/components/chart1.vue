@@ -13,23 +13,28 @@
 
 <script>
 export default {
+  data() {
+    return {
+      datas: [2, 4, 3],
+      labels: ["BK Acc", "MTN", "AIRTEL"]
+    };
+  },
   mounted() {
     this.drawChart();
   },
   methods: {
-    drawChart() {
+    drawChart(datas) {
       let Chart1Container = document.getElementById("Chart-1").getContext("2d");
-      Chart.defaults.global.defaultFontSize = 20;
+      Chart.defaults.global.defaultFontSize = 18;
       Chart.defaults.global.defaultFontFamily = "Helvetica Neue, sans-serif";
       let chart1 = new Chart(Chart1Container, {
         type: "bar",
         data: {
-          labels: ["BK Acc", "MTN", "AIRTEL"],
+          labels: this.labels,
           datasets: [
             {
-              label: "RWF",
-              data: [2, 4, 3],
-              backgroundColor: "#88D8C6"
+              data: this.datas,
+              backgroundColor: "#58c5ad"
             }
           ]
         },
@@ -58,16 +63,19 @@ export default {
                 }
               }
             ],
-            xAxes: [{ barPercentage: 1, categoryPercentage: 1 }]
+            xAxes: [
+              {
+                barPercentage: 0.99,
+                categoryPercentage: 1,
+                gridLines: { display: false }
+              }
+            ]
           },
           maintainAspectRatio: false,
           legend: {
             display: false,
             label: {
               fontsize: 23
-            },
-            tooltip: {
-              display: false
             }
           },
           layout: {
