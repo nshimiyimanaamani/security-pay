@@ -32,8 +32,8 @@ func TestRegister(t *testing.T) {
 		err  error
 	}{
 		{"register new user", user, nil},
-		{"register existing user", user, users.ErrConflict},
-		{"register new user with empty password", models.NewUser(user.Email, ""), users.ErrInvalidEntity},
+		{"register existing user", user, models.ErrConflict},
+		{"register new user with empty password", models.NewUser(user.Email, ""), models.ErrInvalidEntity},
 	}
 
 	for _, tc := range cases {
@@ -52,8 +52,8 @@ func TestLogin(t *testing.T){
 		err  error
 	}{
 		{"login with good credentials", user, nil},
-		{"login with wrong e-mail", models.NewUser(wrong, user.Password), users.ErrUnauthorizedAccess},
-		{"login with wrong password", models.NewUser(user.Email, wrong), users.ErrUnauthorizedAccess },
+		{"login with wrong e-mail", models.NewUser(wrong, user.Password), models.ErrUnauthorizedAccess},
+		{"login with wrong password", models.NewUser(user.Email, wrong), models.ErrUnauthorizedAccess },
 	}
 
 	for _, tc := range cases {
@@ -73,7 +73,7 @@ func TestIdentify(t *testing.T){
 		err  error
 	}{
 		{"valid token's identity", token, nil},
-		{"invalid token's identity", "", users.ErrUnauthorizedAccess },
+		{"invalid token's identity", "", models.ErrUnauthorizedAccess },
 	}
 	for _, tc := range cases {
 		_, err:= svc.Identify(tc.token)
