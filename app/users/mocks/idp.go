@@ -1,6 +1,9 @@
 package mocks
 
-import "github.com/rugwirobaker/paypack-backend/app/users"
+import (
+	"github.com/rugwirobaker/paypack-backend/app/users"
+	"github.com/rugwirobaker/paypack-backend/models"
+)
 
 var _ users.IdentityProvider = (*identityProviderMock)(nil)
 
@@ -14,7 +17,7 @@ func NewIdentityProvider() users.IdentityProvider {
 
 func (idp *identityProviderMock) TemporaryKey(id string) (string, error) {
 	if id == "" {
-		return "", users.ErrUnauthorizedAccess
+		return "", models.ErrUnauthorizedAccess
 	}
 
 	return id, nil

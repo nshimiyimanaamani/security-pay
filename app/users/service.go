@@ -1,26 +1,9 @@
 package users
 
 import (
-	"errors"
 	"github.com/rugwirobaker/paypack-backend/app/config"
 	"github.com/rugwirobaker/paypack-backend/models"
 	store "github.com/rugwirobaker/paypack-backend/store/users"
-)
-
-var (
-	// ErrConflict indicates usage of the existing email during account
-	// registration.
-	ErrConflict = errors.New("email already taken")
-	// ErrUnauthorizedAccess indicates missing or invalid credentials provided
-	// when accessing a protected resource.
-	ErrUnauthorizedAccess = errors.New("missing or invalid credentials provided")
-
-	//ErrInvalidEntity indicates malformed entity specification (e.g.
-	//invalid username,  password, account).
-	ErrInvalidEntity = errors.New("invalid entity format specification")
-
-	// ErrNotFound indicates a non-existent entity request.
-	ErrNotFound = errors.New("non-existent entity")
 )
 
 //Service defines the users API
@@ -57,7 +40,7 @@ func New(idp IdentityProvider, cfg config.Config, hasher Hasher, store store.Use
 func (svc *usersService) Register(user models.User) (string, error) {
 	hash, err := svc.hasher.Hash(user.Password)
 	if err != nil {
-		return "", ErrInvalidEntity
+		return "", models.ErrInvalidEntity
 	}
 	user.Password = hash
 	return svc.store.Save(user)
@@ -66,11 +49,11 @@ func (svc *usersService) Register(user models.User) (string, error) {
 func (svc *usersService) Login(user models.User) (string, error) {
 	dbUser, err := svc.store.RetrieveByID(user.Email)
 	if err != nil {
-		return "", ErrUnauthorizedAccess
+		return "", models.ErrUnauthorizedAccess
 	}
 
 	if err := svc.hasher.Compare(user.Password, dbUser.Password); err != nil {
-		return "", ErrUnauthorizedAccess
+		return "", models.ErrUnauthorizedAccess
 	}
 
 	return svc.idp.TemporaryKey(user.Email)
@@ -79,7 +62,7 @@ func (svc *usersService) Login(user models.User) (string, error) {
 func (svc *usersService) Identify(token string) (string, error) {
 	id, err := svc.idp.Identity(token)
 	if err != nil {
-		return "", ErrUnauthorizedAccess
+		return "", models.ErrUnauthorizedAccess
 	}
 	return id, nil
 }

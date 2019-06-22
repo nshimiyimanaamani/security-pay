@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/models"
 	store "github.com/rugwirobaker/paypack-backend/store/users"
 )
@@ -30,7 +29,7 @@ func (str *userStoreMock) RetrieveByID(email string) (models.User, error) {
 
 	val, ok := str.users[email]
 	if !ok {
-		return models.User{}, users.ErrNotFound
+		return models.User{}, models.ErrNotFound
 	}
 
 	return val, nil
@@ -41,7 +40,7 @@ func (str *userStoreMock) Save(user models.User) (string, error) {
 	defer str.mu.Unlock()
 
 	if _, ok := str.users[user.Email]; ok {
-		return "", users.ErrConflict
+		return "", models.ErrConflict
 	}
 
 	str.counter++
