@@ -18,6 +18,9 @@ func TestUserValidate(t *testing.T){
 		err  error
 	}{
 		{"validate user with valid data", NewUser(email, password), nil},
+		{"validate user with empty email", User{Email:"", Password:password}, ErrInvalidEntity},
+		{"validate user with empty password", User{Email:email, Password:""}, ErrInvalidEntity},
+		{"validate user with invalid email", User{Email:"userexample.com", Password:password}, ErrInvalidEntity},
 	}
 
 	for _, tc := range cases {

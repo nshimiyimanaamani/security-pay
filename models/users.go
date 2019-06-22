@@ -1,5 +1,7 @@
 package models
 
+import "github.com/asaskevich/govalidator"
+
 //User defines a system user
 type User struct {
 	ID       string `json:"id"`
@@ -18,4 +20,14 @@ func NewUser(email, password string) User {
 
 //Validate ensure that all User's field are of the valid format
 //and returns a non nil error if it's not.
-func (user *User) Validate() error { return nil }
+func (user *User) Validate() error {
+	if user.Email == "" || user.Password == "" {
+		return ErrInvalidEntity
+	}
+
+	if !govalidator.IsEmail(user.Email) {
+		return ErrInvalidEntity
+	}
+
+	return nil
+}
