@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	amount    = "5000.00"
+	amount   = "5000.00"
+	method   = "BK" 
 	property = "1000-4433-34343"
 )
 
@@ -17,7 +18,8 @@ func TestTransactionValidate(t *testing.T){
 		transaction Transaction
 		err  error
 	}{
-		{"validate user with valid data", Transaction{Amount:amount,Property:property}, nil},
+		{"validate user with valid data", Transaction{Amount:amount,Method:method, Property:property}, nil},
+		{"validate user with invalid data", Transaction{}, ErrInvalidEntity},
 	}
 
 	for _, tc := range cases {

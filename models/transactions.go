@@ -11,11 +11,14 @@ type Transaction struct {
 
 // TransactionPage represents a list of transaction.
 type TransactionPage struct {
-	Transaction []Transaction
+	Transactions []Transaction
 }
 
 //Validate ensure that all Transaction's field are of the valid format
 //and returns a non nil error if it's not
 func (tr *Transaction) Validate() error {
+	if tr.Amount == "" || tr.Method == "" || tr.Property == "" {
+		return ErrInvalidEntity
+	}
 	return nil
 }

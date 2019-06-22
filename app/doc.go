@@ -4,6 +4,6 @@ package app
 //it contains the different service interfaces and their implementation onto the root App type.
 
 /**
- * @todo Add Payment History Interface
- * @body The payment History interfaces deals with listing all the payment receipts.
+ * @todo Add Transaction History Interface
+ * @body The transaction history interface deals with listing all the payment receipts.
  */
