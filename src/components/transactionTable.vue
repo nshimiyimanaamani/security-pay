@@ -36,7 +36,10 @@
                 <img src="../assets/img/mtn-logo.png">&nbsp; Rugwiro
               </td>
               <td>Isuku/Umutekano</td>
-              <td>3000 Frw</td>
+              <td>
+                3000 Frw
+                <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
+              </td>
             </tr>
             <tr>
               <td>
@@ -47,7 +50,10 @@
                 <img src="../assets/img/bk-logo.png">&nbsp; Rugwiro
               </td>
               <td>Isuku/Umutekano</td>
-              <td>2000 Rwf</td>
+              <td>
+                2000 Rwf
+                <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
+              </td>
             </tr>
             <tr>
               <td>
@@ -58,7 +64,10 @@
                 <img src="../assets/img/bk-logo.png">&nbsp; Rugwiro
               </td>
               <td>Isuku/Umutekano</td>
-              <td>4000 Rwf</td>
+              <td>
+                4000 Rwf
+                <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
+              </td>
             </tr>
             <tr>
               <td>
@@ -70,7 +79,10 @@
               </td>
               <td>Isuku/Umutekano</td>
 
-              <td>3000 Rwf</td>
+              <td>
+                3000 Rwf
+                <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
+              </td>
             </tr>
             <tr>
               <td>
@@ -82,7 +94,10 @@
               </td>
               <td>Isuku/Umutekano</td>
 
-              <td>1000 Rwf</td>
+              <td>
+                1000 Rwf
+                <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
+              </td>
             </tr>
             <tr>
               <td>
@@ -93,7 +108,10 @@
                 <img src="../assets/img/bk-logo.png">&nbsp; Rugwiro
               </td>
               <td>Isuku/Umutekano</td>
-              <td>2500 Rwf</td>
+              <td>
+                2500 Rwf
+                <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
+              </td>
             </tr>
             <tr>
               <td>
@@ -104,7 +122,10 @@
                 <img src="../assets/img/mtn-logo.png">&nbsp; Rugwiro
               </td>
               <td>Isuku/Umutekano</td>
-              <td>1500 Rwf</td>
+              <td>
+                1500 Rwf
+                <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
+              </td>
             </tr>
           </tbody>
         </table>

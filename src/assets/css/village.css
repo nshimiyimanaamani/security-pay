@@ -1,0 +1,74 @@
+.village-wrapper {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 40vw 40vw;
+      grid-template-columns: 40vw 40vw;
+  margin-left: 25px;
+  margin-top: 10px;
+}
+
+.village-wrapper .container-body {
+  min-height: 75vh;
+  background: white;
+  border: 1px solid #ebebeb;
+  border-radius: 0 0 10px 10px;
+  padding-top: 20px;
+  padding-bottom: 10px;
+  font-weight: bold;
+}
+
+.village-wrapper .container1 {
+  -ms-grid-column: 1;
+  grid-column: 1;
+  width: 97%;
+  -webkit-box-shadow: 0 2px 10px #888;
+          box-shadow: 0 2px 10px #888;
+  border-radius: 10px;
+}
+
+.village-wrapper .container2 {
+  -ms-grid-column: 2;
+  grid-column: 2;
+  width: 97%;
+  -webkit-box-shadow: 0 2px 7px #888;
+          box-shadow: 0 2px 7px #888;
+  border-radius: 10px;
+}
+
+.village-wrapper .container-title {
+  position: relative;
+  height: 60px;
+  color: white;
+  border-radius: 10px 7px 0 0;
+  background-color: #3db3fa;
+}
+
+.village-wrapper .container-title h1 {
+  color: #ffffff;
+  font-size: 20px;
+  line-height: 30px;
+  letter-spacing: 3.3px;
+  text-align: center;
+  padding-top: 15.5px;
+  margin: auto;
+  text-transform: uppercase;
+}
+
+.village-wrapper .container-title .fa-cog {
+  position: absolute;
+  top: 16px;
+  right: 30px;
+  position: absolute;
+  font-size: 30.89px;
+  color: white;
+}
+
+.village-wrapper .container-title .fa-th-large {
+  position: absolute;
+  top: 18px;
+  left: 30px;
+  position: absolute;
+  font-size: 28px;
+  color: white;
+}
+/*# sourceMappingURL=village.css.map */

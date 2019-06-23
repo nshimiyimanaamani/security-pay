@@ -9,7 +9,7 @@
         <router-link to="#">
           <li>Cells</li>
         </router-link>
-        <router-link to="#">
+        <router-link to="/village">
           <li>Village</li>
         </router-link>
         <router-link to="/transactions">
@@ -49,21 +49,10 @@
 export default {
   data() {
     return {};
-  },
-  created() {
-    var active = document.querySelectorAll("ul a");
-    for (let i = 0; i < active.length; i++) {
-      active[i].addEventListener("click", () => {
-        return active[i];
-      });
-    }
   }
 };
 </script>
 <style>
-.data {
-  background: black !important;
-}
 @import url("../assets/css/dashboardLayout.css");
 </style>
 

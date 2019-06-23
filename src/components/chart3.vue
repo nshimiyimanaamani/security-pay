@@ -36,8 +36,6 @@ export default {
       Chart.defaults.scale.ticks.beginAtZero = true;
 
       var customTooltips = function(tooltip) {
-        console.log(tooltip);
-
         // Tooltip Element
         var tooltipEl = document.getElementById("chartjs-tooltip");
         if (!tooltipEl) {
@@ -158,6 +156,7 @@ export default {
             custom: customTooltips,
             displayColors: false
           },
+          
           scales: {
             yAxes: [
               {
@@ -196,7 +195,7 @@ export default {
               top: 25,
               bottom: 0
             }
-          }
+          },
         }
       });
     }
