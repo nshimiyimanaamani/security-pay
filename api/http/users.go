@@ -2,8 +2,10 @@ package http
 
 import (
 	"encoding/json"
-	"github.com/rugwirobaker/paypack-backend/models"
 	"net/http"
+	
+	"github.com/rugwirobaker/paypack-backend/models"
+	
 )
 
 //UserRegisterEndpoint handles user registration

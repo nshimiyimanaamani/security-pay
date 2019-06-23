@@ -3,7 +3,7 @@ package users
 import (
 	"github.com/rugwirobaker/paypack-backend/app/config"
 	"github.com/rugwirobaker/paypack-backend/models"
-	store "github.com/rugwirobaker/paypack-backend/store/users"
+	"github.com/rugwirobaker/paypack-backend/store/users"
 )
 
 //Service defines the users API
@@ -29,11 +29,11 @@ type usersService struct {
 	Config config.Config
 	hasher Hasher
 	idp    IdentityProvider
-	store  store.UserStore
+	store  users.Store
 }
 
 //New instanciates a new Service.
-func New(idp IdentityProvider, cfg config.Config, hasher Hasher, store store.UserStore) Service {
+func New(idp IdentityProvider, cfg config.Config, hasher Hasher, store users.Store) Service {
 	return &usersService{Config: cfg, hasher: hasher, idp: idp, store: store}
 }
 
