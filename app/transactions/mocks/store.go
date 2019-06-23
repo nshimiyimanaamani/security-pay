@@ -6,10 +6,10 @@ import (
 	"sync"
 
 	"github.com/rugwirobaker/paypack-backend/models"
-	store "github.com/rugwirobaker/paypack-backend/store/transactions"
+	"github.com/rugwirobaker/paypack-backend/store/transactions"
 )
 
-var _ (store.TransactionStore) = (*transactionStoreMock)(nil)
+var _ (transactions.Store) = (*transactionStoreMock)(nil)
 
 type transactionStoreMock struct {
 	mu           sync.Mutex
@@ -18,7 +18,7 @@ type transactionStoreMock struct {
 }
 
 // NewTransactionStore creates TransactiobStore mirror
-func NewTransactionStore() store.TransactionStore {
+func NewTransactionStore() transactions.Store {
 	return &transactionStoreMock{
 		transactions: make(map[string]models.Transaction),
 	}

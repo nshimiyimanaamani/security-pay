@@ -2,7 +2,7 @@ package transactions
 
 import (
 	"github.com/rugwirobaker/paypack-backend/models"
-	store "github.com/rugwirobaker/paypack-backend/store/transactions"
+	"github.com/rugwirobaker/paypack-backend/store/transactions"
 )
 
 //Service defines the transaction service API
@@ -35,11 +35,11 @@ type Service interface {
 var _ Service = (*transactionsService)(nil)
 
 type transactionsService struct {
-	store store.TransactionStore
+	store transactions.Store
 }
 
 //New instantiates a new transaxtions service
-func New(store store.TransactionStore) Service {
+func New(store transactions.Store) Service {
 	return &transactionsService{
 		store: store,
 	}
