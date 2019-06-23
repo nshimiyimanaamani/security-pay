@@ -39,6 +39,11 @@ func (api *API) handler(f func(http.ResponseWriter, *http.Request) error) http.H
 			Hijacker:       hijacker,
 		}
 
+		if err := checkContentType(r); err != nil {
+			encodeError(w, err)
+			return
+		}
+
 		defer func() {
 			statusCode := w.(*statusCodeRecorder).StatusCode
 			if statusCode == 0 {
@@ -47,9 +52,7 @@ func (api *API) handler(f func(http.ResponseWriter, *http.Request) error) http.H
 		}()
 
 		if err := f(w, r); err != nil {
-			//encode error
 			encodeError(w, err)
-			//http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
 

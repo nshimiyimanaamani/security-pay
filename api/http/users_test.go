@@ -74,6 +74,8 @@ func TestUserRegisterEndpoint(t *testing.T){
 	client := ts.Client()
 
 	data := toJSON(user)
+	invalidData := toJSON(models.User{Email: invalidEmail, Password: "password"})
+	invalidFieldData := fmt.Sprintf(`{"email": "%s", "pass": "%s"}`, user.Email, user.Password)
 
 	cases := []struct {
 		desc        string
@@ -82,6 +84,13 @@ func TestUserRegisterEndpoint(t *testing.T){
 		status      int
 	}{
 		{"register new user", data, contentType, http.StatusCreated},
+		{"register existing user", data, contentType, http.StatusConflict},
+		{"register user with invalid email address", invalidData, contentType, http.StatusBadRequest},
+		{"register user with invalid request format", "{", contentType, http.StatusBadRequest},
+		{"register user with empty JSON request", "{}", contentType, http.StatusBadRequest},
+		{"register user with empty request", "", contentType, http.StatusBadRequest},
+		{"register user with invalid field name", invalidFieldData, contentType, http.StatusBadRequest},
+		{"register user with missing content type", data, "", http.StatusUnsupportedMediaType},
 	}
 
 	for _, tc := range cases {
@@ -110,6 +119,10 @@ func TestUserLoginEndpoint(t *testing.T){
 
 	tokenData := toJSON(map[string]string{"token": user.Email})
 	data := toJSON(user)
+	invalidData := toJSON(models.User{Email:"user@example.com", Password:"invalid_password"})
+	invalidEmailData := toJSON(models.User{Email: invalidEmail, Password: "password"})
+	nonexistentData := toJSON(models.User{Email:"non-existentuser@example.com", Password:"pass"})
+
 	svc.Register(user)
 
 	cases := []struct {
@@ -120,6 +133,13 @@ func TestUserLoginEndpoint(t *testing.T){
 		res         string
 	}{
 		{"login with valid credentials", data, contentType, http.StatusCreated, tokenData},
+		{"login with invalid credentials", invalidData, contentType, http.StatusForbidden, ""},
+		{"login with invalid email address", invalidEmailData, contentType, http.StatusBadRequest, ""},
+		{"login non-existent user", nonexistentData, contentType, http.StatusForbidden, ""},
+		{"login with invalid request format", "{", contentType, http.StatusBadRequest, ""},
+		{"login with empty JSON request", "{}", contentType, http.StatusBadRequest, ""},
+		{"login with empty request", "", contentType, http.StatusBadRequest, ""},
+		{"login with missing content type", data, "", http.StatusUnsupportedMediaType, ""},
 	}
 
 	for _, tc := range cases {

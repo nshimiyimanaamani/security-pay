@@ -16,6 +16,10 @@ func (api *API) UserRegisterEndpoint(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
+	if err = user.Validate(); err != nil {
+		return err
+	}
+
 	var id string
 
 	id, err = api.Users.Register(user)
@@ -26,7 +30,6 @@ func (api *API) UserRegisterEndpoint(w http.ResponseWriter, r *http.Request) err
 	if err = encodeResponse(w, userRegisterResponse{ID: id}); err != nil {
 		return err
 	}
-	w.WriteHeader(http.StatusCreated)
 	return nil
 }
 
@@ -39,7 +42,11 @@ func (api *API) UserLoginEndpoint(w http.ResponseWriter, r *http.Request) error 
 	if err = json.NewDecoder(r.Body).Decode(&user); err != nil {
 		return err
 	}
-	//call the user Service(Login).
+
+	if err = user.Validate(); err != nil {
+		return err
+	}
+
 	var token string
 
 	token, err = api.Users.Login(user)
@@ -50,7 +57,5 @@ func (api *API) UserLoginEndpoint(w http.ResponseWriter, r *http.Request) error 
 	if err = encodeResponse(w, userLoginResponse{Token: token}); err != nil {
 		return err
 	}
-
-	w.WriteHeader(http.StatusCreated)
 	return nil
 }
