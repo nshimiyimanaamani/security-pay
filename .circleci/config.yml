@@ -5,6 +5,8 @@ jobs:
       # specify the version
       - image: circleci/golang:1.12
 
+    environment:
+      DOCKERTEST_BIND_LOCALHOST: "true" #trying to fix docker connection error in unit tests
     steps:
       - checkout
 
