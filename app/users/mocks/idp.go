@@ -1,28 +1,29 @@
 package mocks
 
 import (
-	"github.com/rugwirobaker/paypack-backend/app/users"
-	"github.com/rugwirobaker/paypack-backend/models"
+	"fmt"
+	"sync"
+
+	"github.com/rugwirobaker/paypack-backend/app"
 )
 
-var _ users.IdentityProvider = (*identityProviderMock)(nil)
+var _ app.IdentityProvider = (*identityProviderMock)(nil)
 
-type identityProviderMock struct{}
+type identityProviderMock struct {
+	mu      sync.Mutex
+	counter int
+}
 
 // NewIdentityProvider creates "mirror" identity provider, i.e. generated
 // token will hold value provided by the caller.
-func NewIdentityProvider() users.IdentityProvider {
+func NewIdentityProvider() app.IdentityProvider {
 	return &identityProviderMock{}
 }
 
-func (idp *identityProviderMock) TemporaryKey(id string) (string, error) {
-	if id == "" {
-		return "", models.ErrUnauthorizedAccess
-	}
+func (idp *identityProviderMock) ID() string {
+	idp.mu.Lock()
+	defer idp.mu.Unlock()
 
-	return id, nil
-}
-
-func (idp *identityProviderMock) Identity(key string) (string, error) {
-	return idp.TemporaryKey(key)
+	idp.counter++
+	return fmt.Sprintf("%s%012d", "123e4567-e89b-12d3-a456-", idp.counter)
 }

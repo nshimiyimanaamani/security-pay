@@ -1,8 +1,8 @@
 package users
 
-// IdentityProvider specifies an API for identity management via security
-// tokens.
-type IdentityProvider interface {
+// TempIdentityProvider defines a temporary identifcation provider for users
+// this identificatiob is stateless on server side.
+type TempIdentityProvider interface {
 	// TemporaryKey generates the temporary access token.
 	TemporaryKey(string) (string, error)
 
