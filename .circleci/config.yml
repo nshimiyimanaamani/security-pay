@@ -5,10 +5,12 @@ jobs:
       # specify the version
       - image: circleci/golang:1.12
 
-    environment:
-      DOCKERTEST_BIND_LOCALHOST: "true" #trying to fix docker connection error in unit tests
+    #environment:
+      #DOCKERTEST_BIND_LOCALHOST: "true" #trying to fix docker connection error in unit tests
     steps:
       - checkout
+
+      - setup_remote_docker #trying to fix docker connection error in unit tests
 
       - run: 
           name: Run Code Linter
