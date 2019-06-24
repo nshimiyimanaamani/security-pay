@@ -11,6 +11,8 @@ jobs:
       - checkout
 
       - setup_remote_docker #trying to fix docker connection error in unit tests
+      
+      - run: netstat -anp |grep 2376
 
       - run: 
           name: Run Code Linter
