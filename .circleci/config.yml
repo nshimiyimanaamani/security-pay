@@ -10,7 +10,7 @@ jobs:
     
     environment:
       GO111MODULE: "ON"
-    working_directory: ~/app
+    working_directory: /go/src/github.com/rugwirobaker/paypack-backend
     steps:
       - checkout
 
