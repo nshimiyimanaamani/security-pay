@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 jobs:
   build:
     # docker:
@@ -8,10 +8,23 @@ jobs:
       image: ubuntu-1604:201903-01
       docker_layer_caching: true
     
+    environment:
+      GO111MODULE: "ON"
     working_directory: ~/app
     steps:
       - checkout
-          
+
+      - run: 
+          name: Install and Setup Go environment
+          command: |
+            # wget https://dl.google.com/go/go1.12.6.linux-amd64.tar.gz
+            # sudo tar -xvf go1.12.6.linux-amd64.tar.gz
+            # sudo mv go /usr/local
+
+            # export GOROOT=/usr/local/go
+            # export GOPATH=$HOME/go
+            # export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+      
       - run: 
           name: Run Code Linter
           command: |
