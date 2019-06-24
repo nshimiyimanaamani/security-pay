@@ -48,12 +48,12 @@ func (tr testRequest) make() (*http.Response, error) {
 
 
 func newService() users.Service {
-	idp := mocks.NewIdentityProvider()
 	hasher:= mocks.NewHasher()
-	config:= mocks.NewConfiguration()
+	tempIdp := mocks.NewTempIdentityProvider()
+	idp := mocks.NewIdentityProvider()
 	store:= mocks.NewUserStore()
 
-	return users.New(idp, config, hasher, store)
+	return users.New(hasher,tempIdp, idp, store)
 }
 
 func newServer(api *API,f func(http.ResponseWriter, *http.Request) error) *httptest.Server {
