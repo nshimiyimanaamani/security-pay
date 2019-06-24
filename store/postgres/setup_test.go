@@ -15,7 +15,14 @@ import (
 var db *sql.DB
 
 func TestMain(m *testing.M){
-	pool, err := dockertest.NewPool("")
+	var pool *dockertest.Pool
+	var err error
+
+	if host:=os.Getenv("DOCKER_HOST"); host!=""{
+		pool, err = dockertest.NewPool(host)
+	}
+
+	pool, err = dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
@@ -62,7 +69,7 @@ func TestMain(m *testing.M){
 
 	code:=m.Run()
 
-	if err := pool.Purge(container); err != nil {
+	if err = pool.Purge(container); err != nil {
 		log.Fatalf("Could not purge container: %s", err)
 	}
 	
