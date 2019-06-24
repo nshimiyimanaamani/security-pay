@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     machine: true
-    
+
     steps:
       - checkout
 
@@ -31,7 +31,7 @@ jobs:
     steps:
       - checkout
       
-      - setup_remote_docker
+      # - setup_remote_docker
 
       - run: 
           name: Install Tools
