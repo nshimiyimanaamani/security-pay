@@ -18,12 +18,11 @@ func TestMain(m *testing.M){
 	var pool *dockertest.Pool
 	var err error
 
-	pool, err = dockertest.NewPool("")
-
 	if host:=os.Getenv("DOCKER_HOST"); host!=""{
 		pool, err = dockertest.NewPool(host)
+	} else {
+		pool, err = dockertest.NewPool("")
 	}
-
 	if err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
