@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: 40vw 40vw;
   margin-left: 25px;
-  margin-top: 10px;
+  margin-top: 20px;
 
   .container-body {
     min-height: 75vh;
@@ -58,6 +58,66 @@
       position: absolute;
       font-size: 28px;
       color: white;
+    }
+  }
+  .house {
+    border: 1px solid #ebebeb;
+    height: 85px;
+    width: 95%;
+    margin-left: 12px;
+    margin-top: 10px;
+    display: grid;
+    padding: 6px;
+    grid-template-rows: 40px 50px;
+    box-shadow: 0 2px 3px #888;
+    cursor: pointer;
+    &:hover {
+      background: #e8e8e87c;
+    }
+
+    .top-detail {
+      grid-row: 1;
+      font-size: 18px;
+      letter-spacing: 1px;
+      span {
+        float: right;
+      }
+    }
+    .bottom-detail {
+      grid-row: 2;
+      margin-top: 5px;
+      .completed {
+        float: right;
+        padding-right: 25px;
+        color: green;
+        visibility: 1;
+        margin-top: -5px;
+        padding-bottom: 5px;
+      }
+      .details {
+        float: left;
+        color: #f4b833;
+        font-size: 12px;
+        letter-spacing: 1px;
+        margin-bottom: 2px;
+        margin-left: 1px;
+      }
+      #progress-container {
+        float: left;
+        width: 96%;
+        border-radius: 30px;
+        background: #ebebeb;
+        #progress-bar {
+          width: 0%;
+          border-radius: 30px;
+          height: 5px;
+        }
+      }
+      .fa-ellipsis-v {
+        float: right;
+        font-size: 20px;
+        margin-top: -12px;
+      }
     }
   }
 }

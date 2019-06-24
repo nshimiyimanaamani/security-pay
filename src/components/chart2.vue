@@ -27,6 +27,7 @@ export default {
       Chart.defaults.global.defaultFontSize = 20;
       Chart.defaults.global.legend.position = "right";
       Chart.defaults.global.legend.labels.boxWidth = 0;
+      Chart.defaults.global.tooltips.enabled = false;
       var value = this.Percentage;
       var chartData = {
         type: "doughnut",
@@ -66,13 +67,6 @@ export default {
           legend: {
             label: {
               fontsize: 23
-            },
-            tooltip: {
-              callback: {
-                label(tooltipItem, data) {
-                  return { tooltipItem: "" };
-                }
-              }
             },
             labels: {
               padding: 20

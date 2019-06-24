@@ -16,13 +16,13 @@ export default {
   data() {
     return {
       pay: {
-        CELLA: [3, 2, 1, 1],
-        CELLB: [3, 2, 1, 4],
-        CELLC: [3, 2, 1, 3],
-        CELLD: [3, 2, 1, 5],
-        CELLE: [3, 2, 1, 2],
-        CELLF: [3, 2, 1, 1],
-        CELLG: [3, 2, 1, 3]
+        CELLA: [3, 2, 1, 20],
+        CELLB: [3, 2, 1, 40],
+        CELLC: [3, 2, 1, 30],
+        CELLD: [3, 2, 1, 50],
+        CELLE: [3, 2, 1, 20],
+        CELLF: [3, 2, 1, 10],
+        CELLG: [3, 2, 1, 30]
       }
     };
   },
@@ -156,17 +156,17 @@ export default {
             custom: customTooltips,
             displayColors: false
           },
-          
+
           scales: {
             yAxes: [
               {
                 ticks: {
                   callback: function(value, index, values) {
-                    return value + "%";
+                    return value + " ";
                   },
-                  max: 5,
+                  max: 100,
                   min: 0,
-                  stepSize: 1
+                  stepSize: 20
                 }
               }
             ],
@@ -195,7 +195,7 @@ export default {
               top: 25,
               bottom: 0
             }
-          },
+          }
         }
       });
     }

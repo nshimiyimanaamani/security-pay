@@ -1,8 +1,8 @@
 .transactions-container {
   display: -ms-grid;
   display: grid;
-  -ms-grid-rows: 170px auto;
-      grid-template-rows: 170px auto;
+  -ms-grid-rows: 184px auto;
+      grid-template-rows: 184px auto;
   -ms-grid-row-align: end;
       align-self: end;
 }
@@ -96,6 +96,6 @@
 .transactions-container .transaction-body {
   -ms-grid-row: 2;
   grid-row: 2;
-  min-height: 100vh;
+  min-height: 60vh;
 }
 /*# sourceMappingURL=transactions.css.map */

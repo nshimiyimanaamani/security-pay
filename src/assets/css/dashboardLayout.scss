@@ -50,6 +50,36 @@
   margin-top: 30px !important;
   a {
     text-decoration: none !important;
+    .dropdown {
+      float: right;
+      background: transparent;
+      color: white;
+      li {
+        background: transparent;
+        min-width: 200px;
+        padding: 0;
+        a {
+          padding: 10px 15px;
+        }
+      }
+    }
+    button {
+      padding: 0px;
+      width: 49px;
+      margin-top: -15px;
+      height: 50px;
+      background: transparent;
+      border-radius: 0;
+      font-size: 25px;
+      &:hover {
+        color: #ffffff;
+        background: #36c5d2cf;
+      }
+      span {
+        vertical-align: top;
+        margin-top: 4px;
+      }
+    }
   }
   li {
     list-style-type: none;
@@ -78,21 +108,23 @@
   .dropdown {
     float: left;
     cursor: pointer;
-    padding: 8px 0 0px 30px;
-    p {
-      padding: 2px 7px;
-      width: 120px;
+    left: 15px;
+    top: 4px;
+    button {
+      background: transparent;
       border: 2px solid #3db3fa;
-      border-radius: 7px;
+      width: 120px;
       text-align: left;
-      font-size: 21px;
       color: #3db3fa;
-      margin: 0;
-      i {
-        float: right;
-        font-size: 59px;
-        margin: -17px 5px 0 0;
-      }
+      border-radius: 7px;
+      font-size: 20px;
+      padding: 3px 0 3px 10px;
+    }
+    i {
+      float: right;
+      font-size: 45px;
+      margin: -1px 0 0 -25px;
+      color: #3db3fa;
     }
   }
   .search {
@@ -110,7 +142,7 @@
     }
   }
 }
-.router-link-exact-active li {
+.router-link-active li {
   background: #88f2fbb0;
   color: white;
 }

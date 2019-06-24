@@ -2,9 +2,6 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12">
-        <div class="alert alert-success" style="display:none;">
-          <span class="glyphicon glyphicon-ok"></span> Drag table row and cange Order
-        </div>
         <table class="table">
           <thead>
             <tr>
@@ -17,7 +14,7 @@
                 <i class="fa fa-caret-down"></i>
               </th>
               <th>
-                Narrative
+                Narrative3
                 <i class="fa fa-caret-down"></i>
               </th>
               <th>
@@ -27,103 +24,28 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr v-for="(trans , index) in transactionData" :key="index">
               <td>
-                <i class="fa fa-check-circle"></i>
-                <p>12:35,22 March 2019</p>
+                <div></div>
+                <i v-if="trans.success == 'true'" class="fa fa-check-circle"></i>
+                <i v-else-if="trans.success == 'false'" class="fa fa-times-circle"></i>
+                <p>{{trans.date}}</p>
               </td>
               <td>
-                <img src="../assets/img/mtn-logo.png">&nbsp; Rugwiro
+                <div v-if="trans.paymentMethod == 'mtn'" class="mtn">
+                  <span>mtn</span>
+                </div>
+                <div v-else-if="trans.paymentMethod == 'airtel'" class="airtel">
+                  <span>airtel</span>
+                </div>
+                <div v-else-if="trans.paymentMethod == 'bk'" class="bk">
+                  <span>bk</span>
+                </div>&nbsp;
+                <p class="customerName">{{trans.payee}}</p>
               </td>
-              <td>Isuku/Umutekano</td>
+              <td>{{trans.narrator}}</td>
               <td>
-                3000 Frw
-                <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <i class="fa fa-check-circle"></i>
-                <p>12:35,22 March 2019</p>
-              </td>
-              <td>
-                <img src="../assets/img/bk-logo.png">&nbsp; Rugwiro
-              </td>
-              <td>Isuku/Umutekano</td>
-              <td>
-                2000 Rwf
-                <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <i class="fa fa-check-circle"></i>
-                <p>12:35,22 March 2019</p>
-              </td>
-              <td>
-                <img src="../assets/img/bk-logo.png">&nbsp; Rugwiro
-              </td>
-              <td>Isuku/Umutekano</td>
-              <td>
-                4000 Rwf
-                <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <i class="fa fa-check-circle"></i>
-                <p>12:35,22 March 2019</p>
-              </td>
-              <td>
-                <img src="../assets/img/mtn-logo.png">&nbsp; Rugwiro
-              </td>
-              <td>Isuku/Umutekano</td>
-
-              <td>
-                3000 Rwf
-                <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <i class="fa fa-check-circle"></i>
-                <p>12:35,22 March 2019</p>
-              </td>
-              <td>
-                <img src="../assets/img/mtn-logo.png">&nbsp; Rugwiro
-              </td>
-              <td>Isuku/Umutekano</td>
-
-              <td>
-                1000 Rwf
-                <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <i class="fa fa-check-circle"></i>
-                <p>12:35,22 March 2019</p>
-              </td>
-              <td>
-                <img src="../assets/img/bk-logo.png">&nbsp; Rugwiro
-              </td>
-              <td>Isuku/Umutekano</td>
-              <td>
-                2500 Rwf
-                <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <i class="fa fa-check-circle"></i>
-                <p>12:35,22 March 2019</p>
-              </td>
-              <td>
-                <img src="../assets/img/mtn-logo.png">&nbsp; Rugwiro
-              </td>
-              <td>Isuku/Umutekano</td>
-              <td>
-                1500 Rwf
+                {{trans.amount}}
                 <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
               </td>
             </tr>
@@ -135,7 +57,62 @@
 </template>
 
 <script>
-export default {};
+export default {
+  data() {
+    return {
+      transactionData: [
+        {
+          success: "true",
+          date: "12:35,22 March 2019",
+          paymentMethod: "mtn",
+          payee: "customer1",
+          narrator: "Umutekano",
+          amount: "4000 Rwf"
+        },
+        {
+          success: "true",
+          date: "12:35,22 March 2019",
+          paymentMethod: "airtel",
+          payee: "customer2",
+          narrator: "Umutekano",
+          amount: "3000 Rwf"
+        },
+        {
+          success: "true",
+          date: "12:35,22 March 2019",
+          paymentMethod: "mtn",
+          payee: "customer3",
+          narrator: "Umutekano",
+          amount: "500 Rwf"
+        },
+        {
+          success: "true",
+          date: "12:35,22 March 2019",
+          paymentMethod: "mtn",
+          payee: "customer4",
+          narrator: "Umutekano",
+          amount: "5000 Rwf"
+        },
+        {
+          success: "true",
+          date: "12:35,22 March 2019",
+          paymentMethod: "bk",
+          payee: "customer5",
+          narrator: "Umutekano",
+          amount: "2500 Rwf"
+        },
+        {
+          success: "false",
+          date: "12:35,22 March 2019",
+          paymentMethod: "bk",
+          payee: "customer6",
+          narrator: "Umutekano",
+          amount: "2000 Rwf"
+        }
+      ]
+    };
+  }
+};
 </script>
 
 <style>
