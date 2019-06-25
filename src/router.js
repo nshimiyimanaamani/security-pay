@@ -9,6 +9,7 @@ import dashboard from "./pages/dashboard.vue";
 import transactions from "./pages/transactions.vue";
 import dashboardLayout from "./Layouts/dashboardLayout.vue";
 import village from "./pages/village.vue";
+import cells from "./pages/cells.vue";
 
 Vue.use(Router);
 
@@ -51,6 +52,11 @@ export default new Router({
           path: "/village",
           name: "village",
           component: village
+        },
+        {
+          path: "/cells",
+          name: "cells",
+          component: cells
         }
       ]
     }

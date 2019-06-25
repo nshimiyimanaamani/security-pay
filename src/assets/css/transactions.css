@@ -1,8 +1,8 @@
 .transactions-container {
   display: -ms-grid;
   display: grid;
-  -ms-grid-rows: 184px auto;
-      grid-template-rows: 184px auto;
+  -ms-grid-rows: 175px auto;
+      grid-template-rows: 175px auto;
   -ms-grid-row-align: end;
       align-self: end;
 }

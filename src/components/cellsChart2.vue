@@ -7,7 +7,6 @@
     </div>
     <div class="chart2">
       <canvas id="Chart-2"></canvas>
-      <div id="legend"></div>
     </div>
   </div>
 </template>
@@ -63,32 +62,12 @@ export default {
           },
           maintainAspectRatio: false,
           legend: {
-            display: false
-          },
-          legendCallback: function(chart) {
-            // Return the HTML string here.
-            console.log(chart.data.datasets[0]);
-            var text = [];
-            text.push('<ul class="' + chart.id + '-legend">');
-            for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
-              text.push(
-                '<li><span id="legend-' +
-                  i +
-                  '-item" style="background-color:' +
-                  chart.data.datasets[0].backgroundColor[i] +
-                  '"   onclick="updateDataset(event, ' +
-                  "'" +
-                  i +
-                  "'" +
-                  ')">'
-              );
-              if (chart.data.labels[i]) {
-                text.push(chart.data.labels[i]);
-              }
-              text.push("</span></li>");
+            label: {
+              fontsize: 19
+            },
+            labels: {
+              padding: 20
             }
-            text.push("</ul>");
-            return text.join("");
           },
           layout: {
             padding: {
@@ -100,8 +79,7 @@ export default {
           }
         }
       };
-      window.chart = new Chart(chartcanvas, chartData);
-      chart.generateLegend();
+      let chart = new Chart(chartcanvas, chartData);
       Chart.pluginService.register({
         beforeDraw: function(chart) {
           if (chart.config.options.elements.center) {

@@ -35,7 +35,8 @@
 
     h1 {
       color: #ffffff;
-      font-size: 20px;
+      font-size: 15px;
+      font-weight: bold;
       line-height: 30px;
       letter-spacing: 3.3px;
       text-align: center;
@@ -48,7 +49,7 @@
       top: 16px;
       right: 30px;
       position: absolute;
-      font-size: 30.89px;
+      font-size: 29px;
       color: white;
     }
     .fa-th-large {
@@ -56,7 +57,7 @@
       top: 18px;
       left: 30px;
       position: absolute;
-      font-size: 28px;
+      font-size: 25px;
       color: white;
     }
   }
@@ -70,14 +71,25 @@
     padding: 6px;
     grid-template-rows: 40px 50px;
     box-shadow: 0 2px 3px #888;
+    transition: all 1s;
+
     cursor: pointer;
     &:hover {
-      background: #e8e8e87c;
+      background: #e8e8e89c;
+    }
+    .historic {
+      width: 70%;
+      height: 100px;
+      position: relative;
+      background: aquamarine;
+      top: -15px;
+      left: -7px;
+      display: none;
     }
 
     .top-detail {
       grid-row: 1;
-      font-size: 18px;
+      font-size: 15px;
       letter-spacing: 1px;
       span {
         float: right;
@@ -117,6 +129,22 @@
         float: right;
         font-size: 20px;
         margin-top: -12px;
+      }
+    }
+  }
+  .card {
+    width: 96%;
+    margin-left: 10px;
+    .closeBtn {
+      border-top: none;
+      padding-bottom: 20px;
+      i {
+        background: grey;
+        color: white;
+        border-radius: 20px;
+        font-size: 25px;
+        float: right;
+        margin: -15px -5px 0 0;
       }
     }
   }

@@ -97,13 +97,13 @@ export default {
         type: "bar",
         data: {
           labels: [
-            "CELL A",
-            "CELL B",
-            "CELL C",
-            "CELL D",
-            "CELL E",
-            "CELL F",
-            "CELL G"
+            "village A",
+            "village B",
+            "village C",
+            "village D",
+            "village E",
+            "village F",
+            "village G"
           ],
           datasets: [
             {

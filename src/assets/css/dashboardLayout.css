@@ -24,17 +24,17 @@
 
 .dashboardWrapper .dashboardSidebar h1 {
   text-align: center;
-  margin-top: 14px;
+  margin-top: 10px;
   color: #ffffff;
-  font-size: 35px;
-  letter-spacing: 3px;
+  font-size: 25px;
+  letter-spacing: 1px;
   line-height: 35px;
 }
 
 .dashboardWrapper #btn {
   background: #50e3c2;
   color: white;
-  font-size: 20px;
+  font-size: 16px;
   line-height: 30px;
   height: 50px;
   position: absolute;
@@ -43,6 +43,12 @@
   border-radius: 10px;
   border: none;
   bottom: 20px;
+}
+
+.dashboardWrapper #btn i {
+  font-size: 30px;
+  float: left;
+  margin-left: inherit;
 }
 
 .dashboardBody {
@@ -71,6 +77,27 @@
   color: white;
 }
 
+.sidebarLinks a .dropdown ul {
+  left: -160px !important;
+  max-width: 210px;
+  max-height: 300px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.sidebarLinks a .dropdown ul::-webkit-scrollbar {
+  width: 8px;
+  overflow: visible;
+  border-radius: 34px;
+}
+
+.sidebarLinks a .dropdown ul:hover::-webkit-scrollbar-thumb {
+  background: #acacac75;
+  overflow: visible;
+  border-radius: 34px;
+  cursor: default;
+}
+
 .sidebarLinks a .dropdown li {
   background: transparent;
   min-width: 200px;
@@ -79,6 +106,7 @@
 
 .sidebarLinks a .dropdown li a {
   padding: 10px 15px;
+  font-size: 12px;
 }
 
 .sidebarLinks a button {
@@ -98,16 +126,15 @@
 
 .sidebarLinks a button span {
   vertical-align: top;
-  margin-top: 4px;
 }
 
 .sidebarLinks li {
   list-style-type: none;
-  padding: 15px 0px 15px 25px;
+  padding: 15px 0px 15px 20px;
   color: #eeeeece8;
   text-transform: uppercase;
-  font-size: 14px;
-  letter-spacing: 2px;
+  font-size: 13px;
+  letter-spacing: 1px;
 }
 
 .sidebarLinks li:hover {
@@ -142,19 +169,19 @@
 
 .top-nav .dropdown button {
   background: transparent;
-  border: 2px solid #3db3fa;
-  width: 120px;
+  border: 1.5px solid #3db3fa;
+  width: 110px;
   text-align: left;
   color: #3db3fa;
   border-radius: 7px;
-  font-size: 20px;
-  padding: 3px 0 3px 10px;
+  font-size: 19px;
+  padding: 3px 0 3px 7px;
 }
 
 .top-nav .dropdown i {
   float: right;
-  font-size: 45px;
-  margin: -1px 0 0 -25px;
+  font-size: 43px;
+  margin: -2px 0 0 -25px;
   color: #3db3fa;
 }
 
@@ -165,16 +192,32 @@
 
 .top-nav .search input {
   padding: 5px 0 5px 20px;
-  width: 300px;
-  border-radius: 10px;
+  width: 250px;
+  margin: 4px 20px 0 0px;
+  border-radius: 7px;
   border-color: #3db3fa;
   border: 2px solid #3db3fa;
-  font-size: 19px;
+  font-size: 15px;
   -webkit-text-fill-color: #3db3fa;
 }
 
 .router-link-active li {
   background: #88f2fbb0;
   color: white;
+}
+
+.vs__selected-options input {
+  border: 1px solid #8888888c;
+  width: 85%;
+  margin-left: 4px;
+  color: black;
+  float: left;
+  -webkit-box-shadow: 0 1px 4px #888;
+  box-shadow: 1px 0px 2px #888;
+  border-radius: 7px;
+}
+
+.vs__actions {
+  float: right;
 }
 /*# sourceMappingURL=dashboardLayout.css.map */

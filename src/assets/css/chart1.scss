@@ -7,34 +7,34 @@
   margin-left: 40px;
   .chart1Title {
     position: relative;
-    height: 60px;
+    height: 50px;
     border-radius: 10px 10px 0 0;
     background-color: #3db3fa;
 
     h1 {
       color: #ffffff;
-      font-size: 20px;
+      font-size: 14px;
       line-height: 30px;
       letter-spacing: 1.3px;
       text-align: center;
-      padding-top: 15.5px;
+      padding-top: 7px;
       margin: auto;
       text-transform: uppercase;
     }
     .fa-cog {
       position: absolute;
-      top: 16px;
+      top: 9px;
       right: 30px;
       position: absolute;
-      font-size: 30.89px;
+      font-size: 29px;
       color: white;
     }
     .fa-th-large {
       position: absolute;
-      top: 18px;
+      top: 10px;
       left: 30px;
       position: absolute;
-      font-size: 28px;
+      font-size: 25px;
       color: white;
     }
   }

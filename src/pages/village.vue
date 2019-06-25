@@ -8,7 +8,7 @@
       </div>
       <div class="container-body">
         <div v-for="(house,index) in houses" :key="index">
-          <div class="house" v-if="index % 2 == 0">
+          <div class="house" v-if="index % 2 == 0" v-b-toggle="'' + index">
             <div class="top-detail">
               {{house.houseNo}}
               <span>{{house.housename}}</span>
@@ -39,7 +39,27 @@
               <i class="fa fa-ellipsis-v"></i>
             </div>
           </div>
-          <div v-else></div>
+          <b-collapse v-if="index %2 ==0" :id="'' + index" class="mt-2">
+            <b-card>
+              <b-list-group>
+                <b-list-group-item v-for="year in [2018 ,2019]" :key="year">
+                  <div v-b-toggle="''+year+index">Historical {{year}}</div>
+                  <b-collapse :id="'' + year+index" class="mt-2">
+                    <b-card>
+                      <b-list-group>
+                        <b-list-group-item>Historical 2019</b-list-group-item>
+                        <b-list-group-item>Historical 2018</b-list-group-item>
+                        <b-list-group-item>{{house.amount}}</b-list-group-item>
+                      </b-list-group>
+                    </b-card>
+                  </b-collapse>
+                </b-list-group-item>
+                <b-list-group-item class="closeBtn">
+                  <i v-b-toggle="'' + index" class="fa fa-times-circle"></i>
+                </b-list-group-item>
+              </b-list-group>
+            </b-card>
+          </b-collapse>
         </div>
       </div>
     </div>
@@ -51,7 +71,7 @@
       </div>
       <div class="container-body">
         <div v-for="(house,index) in houses" :key="index">
-          <div class="house" v-if="index % 2 != 0">
+          <div class="house" v-if="index % 2 != 0" v-b-toggle="'' + index">
             <div class="top-detail">
               {{house.houseNo}}
               <span>{{house.housename}}</span>
@@ -82,7 +102,27 @@
               <i class="fa fa-ellipsis-v"></i>
             </div>
           </div>
-          <div v-else></div>
+          <b-collapse v-if="index %2 !=0" :id="'' + index" class="mt-2">
+            <b-card>
+              <b-list-group>
+                <b-list-group-item v-for="year in [2018 ,2019]" :key="year">
+                  <div v-b-toggle="''+year+index">Historical {{year}}</div>
+                  <b-collapse :id="'' + year+index" class="mt-2">
+                    <b-card>
+                      <b-list-group>
+                        <b-list-group-item>Historical 2019</b-list-group-item>
+                        <b-list-group-item>Historical 2018</b-list-group-item>
+                        <b-list-group-item>{{house.amount}}</b-list-group-item>
+                      </b-list-group>
+                    </b-card>
+                  </b-collapse>
+                </b-list-group-item>
+                <b-list-group-item class="closeBtn">
+                  <i v-b-toggle="'' + index" class="fa fa-times-circle"></i>
+                </b-list-group-item>
+              </b-list-group>
+            </b-card>
+          </b-collapse>
         </div>
       </div>
     </div>
@@ -93,6 +133,8 @@
 export default {
   data() {
     return {
+      info: "",
+      modal: false,
       houses: [
         {
           housename: "house1",
@@ -180,9 +222,7 @@ export default {
       red: "#d40d0de0"
     };
   },
-  mounted() {
-    console.log(this.houses.amount);
-  },
+  mounted() {},
   methods: {
     draw(house) {
       var elem = document.querySelector(".container-body");

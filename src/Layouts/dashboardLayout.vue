@@ -6,16 +6,34 @@
         <router-link to="/dashboard">
           <li>Overview</li>
         </router-link>
-        <router-link to="#">
-          <li>Cells</li>
+        <router-link to="/cells">
+          <li>
+            Cells
+            <b-dropdown id="dropdown-right" class="m-md-2" v-if="this.$route.name == 'cells'">
+              <template slot="button-content">
+                <span class="fa fa-caret-down"></span>
+              </template>
+              <!-- <v-select></v-select> -->
+              <b-dropdown-item>cell 1</b-dropdown-item>
+              <b-dropdown-item>cell 2</b-dropdown-item>
+              <b-dropdown-item>cell 4</b-dropdown-item>
+              <b-dropdown-item>cell 5</b-dropdown-item>
+              <b-dropdown-item>cell 6</b-dropdown-item>
+              <b-dropdown-item>cell 7</b-dropdown-item>
+              <b-dropdown-item>cell 8</b-dropdown-item>
+              <b-dropdown-item>cell 9</b-dropdown-item>
+              <b-dropdown-item>cell 10</b-dropdown-item>
+            </b-dropdown>
+          </li>
         </router-link>
         <router-link to="/village">
           <li>
             Village
-            <b-dropdown id="dropdown-right" class="m-md-2">
+            <b-dropdown id="dropdown-right" class="m-md-2" v-if="this.$route.name == 'village'">
               <template slot="button-content">
                 <span class="fa fa-caret-down"></span>
               </template>
+              <!-- <v-select></v-select> -->
               <b-dropdown-item>village 1</b-dropdown-item>
               <b-dropdown-item>village 2</b-dropdown-item>
               <b-dropdown-item>village 4</b-dropdown-item>
