@@ -24,11 +24,11 @@ dependencies::
 .PHONY: build
 build::
 	CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o \
-	bin/app -ldflags="-w -s -X main.Service=${module} \
+	bin/app -ldflags="-w -s -X main.Service=${projectID}-backend \
 	-X main.GitCommit=${commit} \
 	-X main.GoVersion=${goVersion} \
 	-X main.GOOS=${os} \
-	-X main.GOARCH=${arch}" main.go
+	-X main.GOARCH=${arch}" cmd
 
 .PHONY: test
 test::
