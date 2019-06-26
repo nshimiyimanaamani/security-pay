@@ -114,7 +114,7 @@ func loadConfig()config{
 	return config{
 		logLevel: paypack.Env(envLogLevel, defLogLevel),
 		dbConfig: dbConfig,
-		httpPort: paypack.Env("", ""),
+		httpPort: paypack.Env(envHTTPPort, defHTTPPort),
 		secret:   paypack.Env(envSecret, defSecret),
 	}
 }
