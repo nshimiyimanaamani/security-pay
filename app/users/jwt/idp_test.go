@@ -14,7 +14,7 @@ var (
 	invalid = "invalid"
 )
 
-func newIdentityProvider()users.IdentityProvider{
+func newIdentityProvider()users.TempIdentityProvider{
 	return New(secret)
 }
 

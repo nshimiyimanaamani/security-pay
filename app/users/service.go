@@ -1,7 +1,7 @@
 package users
 
 import (
-	"github.com/rugwirobaker/paypack-backend/app/config"
+	"github.com/rugwirobaker/paypack-backend/app"
 	"github.com/rugwirobaker/paypack-backend/models"
 	"github.com/rugwirobaker/paypack-backend/store/users"
 )
@@ -26,15 +26,15 @@ type Service interface {
 var _ Service = (*usersService)(nil)
 
 type usersService struct {
-	Config config.Config
-	hasher Hasher
-	idp    IdentityProvider
-	store  users.Store
+	hasher  Hasher
+	tempIdp TempIdentityProvider
+	idp     app.IdentityProvider
+	store   users.Store
 }
 
 //New instanciates a new Service.
-func New(idp IdentityProvider, cfg config.Config, hasher Hasher, store users.Store) Service {
-	return &usersService{Config: cfg, hasher: hasher, idp: idp, store: store}
+func New(hasher Hasher, tempIdp TempIdentityProvider, idp app.IdentityProvider, store users.Store) Service {
+	return &usersService{hasher: hasher, tempIdp: tempIdp, idp: idp, store: store}
 }
 
 func (svc *usersService) Register(user models.User) (string, error) {
@@ -42,7 +42,11 @@ func (svc *usersService) Register(user models.User) (string, error) {
 	if err != nil {
 		return "", models.ErrInvalidEntity
 	}
+
 	user.Password = hash
+
+	user.ID = svc.idp.ID()
+
 	return svc.store.Save(user)
 }
 
@@ -56,11 +60,11 @@ func (svc *usersService) Login(user models.User) (string, error) {
 		return "", models.ErrUnauthorizedAccess
 	}
 
-	return svc.idp.TemporaryKey(user.Email)
+	return svc.tempIdp.TemporaryKey(user.Email)
 }
 
 func (svc *usersService) Identify(token string) (string, error) {
-	id, err := svc.idp.Identity(token)
+	id, err := svc.tempIdp.Identity(token)
 	if err != nil {
 		return "", models.ErrUnauthorizedAccess
 	}

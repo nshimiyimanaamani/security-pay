@@ -16,12 +16,12 @@ const wrong string = "wrong-value"
 var user = models.NewUser("user@gmail.com", "password")
 
 func newService() users.Service {
-	idp := mocks.NewIdentityProvider()
 	hasher:= mocks.NewHasher()
-	config:= mocks.NewConfiguration()
+	tempIdp := mocks.NewTempIdentityProvider()
+	idp := mocks.NewIdentityProvider()
 	store:= mocks.NewUserStore()
 
-	return users.New(idp, config, hasher, store)
+	return users.New(hasher,tempIdp, idp, store)
 }
 
 func TestRegister(t *testing.T) {

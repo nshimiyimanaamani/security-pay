@@ -13,14 +13,14 @@ const (
 	duration time.Duration = 10 * time.Hour
 )
 
-var _ users.IdentityProvider = (*jwtIdentityProvider)(nil)
+var _ users.TempIdentityProvider = (*jwtIdentityProvider)(nil)
 
 type jwtIdentityProvider struct {
 	secret string
 }
 
 // New instantiates a JWT identity provider.
-func New(secret string) users.IdentityProvider {
+func New(secret string) users.TempIdentityProvider {
 	return &jwtIdentityProvider{secret}
 }
 
