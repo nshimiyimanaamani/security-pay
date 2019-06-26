@@ -48,7 +48,7 @@ func migrateDB(db *sql.DB) error {
 	migrations := &migrate.MemoryMigrationSource{
 		Migrations: []*migrate.Migration{
 			{
-				Id: "users_1",
+				Id: "paypack_1",
 
 				Up: []string{
 					`CREATE TABLE IF NOT EXISTS users (
@@ -57,9 +57,20 @@ func migrateDB(db *sql.DB) error {
 						password 	CHAR(60)	 NOT NULL,
 						PRIMARY  	KEY (id)
 					)`,
+					`CREATE TABLE IF NOT EXISTS transactions (
+						id 			UUID,
+						property 	UUID,
+						amount    	VARCHAR(254),
+						method  	VARCHAR(254),
+						PRIMARY KEY	(id)
+					)`,
 				},
 
-				Down: []string{"DROP TABLE users"},
+				Down: []string{
+					"DROP TABLE users",
+					"DROP TABLE properties",
+					"DROP TABLE transactions",
+				},
 			},
 		},
 	}

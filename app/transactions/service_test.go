@@ -15,6 +15,7 @@ const (
 )
 
 var transaction = models.Transaction{
+	ID: 		"1000-4433-3343",
 	Amount:   	"1000.00",
 	Method:   	"BK",
 	Property: 	"1000-4433-3343",

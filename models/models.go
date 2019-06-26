@@ -18,3 +18,10 @@ var (
 	// ErrNotFound indicates a non-existent entity request.
 	ErrNotFound = errors.New("non-existent entity")
 )
+
+// PageMetadata contains page metadata that helps navigation.
+type PageMetadata struct {
+	Total  uint64
+	Offset uint64
+	Limit  uint64
+}
