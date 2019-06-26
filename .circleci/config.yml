@@ -1,14 +1,16 @@
 version: 2
 jobs:
   build:
-    docker:
-      # specify the version
-      - image: circleci/golang:1.12
+    machine:
+      image: ubuntu-1604:201903-01
+      docker_layer_caching: true
+    environment:
+      GO111MODULE: "ON"
+
+    working_directory: ~/go/src/github.com/rugwirobaker/paypack-backend
 
     steps:
       - checkout
-
-      - setup_remote_docker
 
       - run: 
           name: Run Code Linter
