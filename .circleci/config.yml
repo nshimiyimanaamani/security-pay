@@ -14,7 +14,7 @@ jobs:
           name: Update Environment
           command: |
             wget https://dl.google.com/go/go1.12.1.linux-amd64.tar.gz
-            sudo tar -xf go1.12.6.linux-amd64.tar.gz
+            sudo tar -xf go1.12.1.linux-amd64.tar.gz
             sudo rm -r /usr/local/go
             sudo mv go /usr/local
             export GOPATH=$HOME/project
