@@ -48,7 +48,7 @@ const (
 	envDBSSLCert     = "PAYPACK_DB_SSL_CERT"
 	envDBSSLKey      = "PAYPACK_DB_SSL_KEY"
 	envDBSSLRootCert = "PAYPACK_DB_SSL_ROOT_CERT"
-	envHTTPPort      = "PAYPACK_HTTP_PORT"
+	envHTTPPort      = "PORT"
 	envSecret        = "PAYPACK_SECRET"
 	envServerCert    = "PAYPACK_SERVER_CERT"
 	envServerKey     = "PAYPACK_SERVER_KEY"
