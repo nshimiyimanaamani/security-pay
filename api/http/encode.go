@@ -6,8 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
-
-	"github.com/rugwirobaker/paypack-backend/api"
+	
 	"github.com/rugwirobaker/paypack-backend/models"
 )
 
@@ -16,10 +15,11 @@ var (
 	errUnsupportedContentType = errors.New("unsupported content type")
 )
 
-func encodeResponse(w http.ResponseWriter, response interface{}) error {
+//EncodeResponse encoded the application response to the http transport
+func EncodeResponse(w http.ResponseWriter, response interface{}) error {
 	w.Header().Set("Content-Type", contentType)
 
-	if ar, ok := response.(api.Response); ok {
+	if ar, ok := response.(Response); ok {
 		for k, v := range ar.Headers() {
 			w.Header().Set(k, v)
 		}
@@ -33,7 +33,8 @@ func encodeResponse(w http.ResponseWriter, response interface{}) error {
 	return json.NewEncoder(w).Encode(response)
 }
 
-func encodeError(w http.ResponseWriter, err error) {
+//EncodeError encodes the application error to the http api
+func EncodeError(w http.ResponseWriter, err error) {
 	w.Header().Set("Content-Type", contentType)
 
 	switch err {
@@ -64,7 +65,8 @@ func encodeError(w http.ResponseWriter, err error) {
 	}
 }
 
-func checkContentType(r *http.Request) error {
+//CheckContentType middleware checks content typ
+func CheckContentType(r *http.Request) error {
 	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
 		//logger.Warn("Invalid or missing content type.")
 		return errUnsupportedContentType

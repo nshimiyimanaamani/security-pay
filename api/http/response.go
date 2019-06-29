@@ -1,4 +1,4 @@
-package api
+package http
 
 // Response contains HTTP response specific methods.
 type Response interface {

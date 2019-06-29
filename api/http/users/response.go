@@ -1,13 +1,14 @@
-package http
+package users
 
 import (
-	"github.com/rugwirobaker/paypack-backend/api"
 	"net/http"
+
+	transport"github.com/rugwirobaker/paypack-backend/api/http"
 )
 
 var (
-	_ api.Response = (*userLoginResponse)(nil)
-	_ api.Response = (*userRegisterResponse)(nil)
+	_ transport.Response = (*userLoginResponse)(nil)
+	_ transport.Response = (*userRegisterResponse)(nil)
 )
 
 //UserRegisterResponse defines the http Response payload sent the Register endpoint

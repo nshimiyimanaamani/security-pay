@@ -1,26 +1,29 @@
-package http
+package users_test
 
 import (
 	"encoding/json"
 	"fmt"
+	//"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	//"os"
 	"strings"
 	"testing"
-	//"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/app/users/mocks"
+	
+
+	"github.com/gorilla/mux"
+	adapters "github.com/rugwirobaker/paypack-backend/api/http/users"
 	"github.com/rugwirobaker/paypack-backend/app/users"
+	"github.com/rugwirobaker/paypack-backend/app/users/mocks"
 	"github.com/rugwirobaker/paypack-backend/models"
 	"github.com/stretchr/testify/assert"
 )
 
-
 var (
-	user = models.NewUser("user@example.com", "password")
-	invalidEmail = "userexample.com"
+	contentType 	= "application/json"
+	user			= models.User{Email:"user@example.com", Password:"password"}
+	invalidEmail 	= "userexample.com"
 )
 
 type testRequest struct {
@@ -46,7 +49,6 @@ func (tr testRequest) make() (*http.Response, error) {
 	return tr.client.Do(req)
 }
 
-
 func newService() users.Service {
 	hasher:= mocks.NewHasher()
 	tempIdp := mocks.NewTempIdentityProvider()
@@ -56,8 +58,9 @@ func newService() users.Service {
 	return users.New(hasher,tempIdp, idp, store)
 }
 
-func newServer(api *API,f func(http.ResponseWriter, *http.Request) error) *httptest.Server {
-	mux:= api.handler(f)
+func newServer(svc users.Service) *httptest.Server {
+	mux:= mux.NewRouter()
+	adapters.MakeAdapter(mux)(svc)
 	return httptest.NewServer(mux)
 }
 
@@ -67,11 +70,11 @@ func toJSON(data interface{}) string {
 }
 
 func TestUserRegisterEndpoint(t *testing.T){
-	svc := newService()
-	api:= New(svc)
-	ts := newServer(api, api.UserRegisterEndpoint)
+	svc:= newService()
+	ts:= newServer(svc)
+
 	defer ts.Close()
-	client := ts.Client()
+	client:= ts.Client()
 
 	data := toJSON(user)
 	invalidData := toJSON(models.User{Email: invalidEmail, Password: "password"})
@@ -97,7 +100,7 @@ func TestUserRegisterEndpoint(t *testing.T){
 		req := testRequest{
 			client:      client,
 			method:      http.MethodPost,
-			url:         fmt.Sprintf("%s/users", ts.URL),
+			url:         fmt.Sprintf("%s/", ts.URL),
 			contentType: tc.contentType,
 			body:        strings.NewReader(tc.req),
 		}
@@ -108,14 +111,12 @@ func TestUserRegisterEndpoint(t *testing.T){
 	}
 }
 
-
-
 func TestUserLoginEndpoint(t *testing.T){
-	svc := newService()
-	api:= New(svc)
-	ts := newServer(api, api.UserLoginEndpoint)
+	svc:= newService()
+	ts:= newServer(svc)
+
 	defer ts.Close()
-	client := ts.Client()
+	client:= ts.Client()
 
 	tokenData := toJSON(map[string]string{"token": user.Email})
 	data := toJSON(user)

@@ -14,7 +14,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/app/users"
-	api"github.com/rugwirobaker/paypack-backend/api/http"
+	usersAdapters"github.com/rugwirobaker/paypack-backend/api/http/users"
 	"github.com/rugwirobaker/paypack-backend/app/users/bcrypt"
 	"github.com/rugwirobaker/paypack-backend/app/users/jwt"
 	"github.com/rugwirobaker/paypack-backend/logger"
@@ -74,10 +74,7 @@ func main(){
 	db := connectToDB(cfg.dbConfig, logger)
 	defer db.Close()
 
-	users := newUserService(db, cfg.secret)
-	api:= api.New(users)
-
-	
+	users := newUserService(db, cfg.secret)	
 
 	go func() {
 		ch := make(chan os.Signal, 1)
@@ -93,7 +90,7 @@ func main(){
 	go func() {
 		defer wg.Done()
 		defer cancel()
-		startHTTPServer(ctx, api, cfg.httpPort, logger)
+		startHTTPServer(ctx, users, cfg.httpPort, logger)
 	}()
 
 	wg.Wait()
@@ -138,15 +135,19 @@ func newUserService(db *sql.DB, secret string)users.Service{
 
 // func newTransactionService(db *sql.DB){}
 
-func startHTTPServer(ctx context.Context, api *api.API, port string, logger logger.Logger){
+func startHTTPServer(ctx context.Context, users users.Service, port string, logger logger.Logger){
 	cors := handlers.CORS(
 		handlers.AllowedOrigins([]string{"*"}),
 		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "OPTIONS"}),
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
 
-	router := mux.NewRouter()
-	api.Init(router.PathPrefix("/api").Subrouter())
+	router := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(true)
+
+
+	userRoutes:= router.PathPrefix("/users").Subrouter()
+	usersAdapters.MakeAdapter(userRoutes)(users)
+
 
 	s := &http.Server{
 		Addr:        fmt.Sprintf(":%s", port),
