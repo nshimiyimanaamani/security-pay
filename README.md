@@ -37,3 +37,4 @@ Other directories:
  * **secrets**: the secrets directory is created when you run `make secrets` to create secrets and certficates.
 
  ## To Get started.
+ check the endpoint documentantion detials at https://github.com/rugwirobaker/paypack-backend/blob/master/docs.md
