@@ -17,7 +17,7 @@ type TransactionPage struct {
 //Validate ensure that all Transaction's field are of the valid format
 //and returns a non nil error if it's not
 func (tr *Transaction) Validate() error {
-	if tr.ID == "" || tr.Amount == "" || tr.Method == "" || tr.Property == "" {
+	if tr.Amount == "" || tr.Method == "" || tr.Property == "" {
 		return ErrInvalidEntity
 	}
 	return nil

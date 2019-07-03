@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	
+
 	"github.com/rugwirobaker/paypack-backend/models"
 )
 
@@ -63,6 +63,9 @@ func EncodeError(w http.ResponseWriter, err error) {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 	}
+
+	// httpError := NewError(err)
+	// json.NewEncoder(w).Encode(httpError)
 }
 
 //CheckContentType middleware checks content typ

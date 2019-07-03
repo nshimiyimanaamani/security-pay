@@ -1,6 +1,7 @@
 package transactions
 
 import (
+	"github.com/rugwirobaker/paypack-backend/app"
 	"github.com/rugwirobaker/paypack-backend/models"
 	"github.com/rugwirobaker/paypack-backend/store/transactions"
 )
@@ -35,12 +36,14 @@ type Service interface {
 var _ Service = (*transactionsService)(nil)
 
 type transactionsService struct {
+	idp   app.IdentityProvider
 	store transactions.Store
 }
 
 //New instantiates a new transaxtions service
-func New(store transactions.Store) Service {
+func New(idp app.IdentityProvider, store transactions.Store) Service {
 	return &transactionsService{
+		idp:   idp,
 		store: store,
 	}
 }
@@ -49,12 +52,15 @@ func (svc *transactionsService) RecordTransaction(transaction models.Transaction
 	if err := transaction.Validate(); err != nil {
 		return models.Transaction{}, err
 	}
+
+	transaction.ID = svc.idp.ID()
+
 	id, err := svc.store.Save(transaction)
 	if err != nil {
 		return models.Transaction{}, err
 	}
-
 	transaction.ID = id
+
 	return transaction, nil
 }
 

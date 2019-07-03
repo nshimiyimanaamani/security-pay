@@ -3,11 +3,12 @@ package transactions_test
 import (
 	"fmt"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
+	
+	//"github.com/rugwirobaker/paypack-backend/app"
 	"github.com/rugwirobaker/paypack-backend/models"
 	"github.com/rugwirobaker/paypack-backend/app/transactions/mocks"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -22,8 +23,9 @@ var transaction = models.Transaction{
 }
 
 func newService() transactions.Service {
+	idp := mocks.NewIdentityProvider()
 	store:= mocks.NewTransactionStore()
-	return transactions.New(store)
+	return transactions.New(idp, store)
 }
 
 func TestRecordTransaction(t *testing.T){

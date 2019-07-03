@@ -14,7 +14,9 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/app/users"
+	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	usersAdapters"github.com/rugwirobaker/paypack-backend/api/http/users"
+	trxAdapters"github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/users/bcrypt"
 	"github.com/rugwirobaker/paypack-backend/app/users/jwt"
 	"github.com/rugwirobaker/paypack-backend/logger"
@@ -74,7 +76,8 @@ func main(){
 	db := connectToDB(cfg.dbConfig, logger)
 	defer db.Close()
 
-	users := newUserService(db, cfg.secret)	
+	users := newUserService(db, cfg.secret)
+	transactions:= newTransactionService(db)
 
 	go func() {
 		ch := make(chan os.Signal, 1)
@@ -90,7 +93,7 @@ func main(){
 	go func() {
 		defer wg.Done()
 		defer cancel()
-		startHTTPServer(ctx, users, cfg.httpPort, logger)
+		startHTTPServer(ctx, users, transactions, cfg.httpPort, logger)
 	}()
 
 	wg.Wait()
@@ -133,9 +136,13 @@ func newUserService(db *sql.DB, secret string)users.Service{
 	return users.New(hasher, tempid, idp, store)
 }
 
-// func newTransactionService(db *sql.DB){}
+ func newTransactionService(db *sql.DB)transactions.Service{
+	idp := uuid.New()
+	store := postgres.NewTransactionStore(db)
+	return transactions.New(idp, store)
+ }
 
-func startHTTPServer(ctx context.Context, users users.Service, port string, logger logger.Logger){
+func startHTTPServer(ctx context.Context, users users.Service, trx transactions.Service, port string, logger logger.Logger){
 	cors := handlers.CORS(
 		handlers.AllowedOrigins([]string{"*"}),
 		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "OPTIONS"}),
@@ -147,6 +154,9 @@ func startHTTPServer(ctx context.Context, users users.Service, port string, logg
 
 	userRoutes:= router.PathPrefix("/users").Subrouter()
 	usersAdapters.MakeAdapter(userRoutes)(users)
+
+	trxRoutes:= router.PathPrefix("/transactions").Subrouter()
+	trxAdapters.MakeAdapter(trxRoutes)(trx)
 
 
 	s := &http.Server{
