@@ -1,33 +1,32 @@
 package sms_test
 
+
 import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/rugwirobaker/paypack-backend/models"
 	"github.com/rugwirobaker/paypack-backend/app/sms"
+	"github.com/stretchr/testify/assert"
 )
-var message = models.Message{ Body:"hello world", Destination:"+250-788-455-100"}
 
-func newService()sms.Service{
-	return sms.New()
-}
-
-func TestSend(t *testing.T){
-	svc:= newService()
-
+var (
+	body = "hello world"
+	destination = "+250-788-455-100"
+)
+func TestValidate(t *testing.T){
 	cases:= []struct{
-		desc 		string
-		message 	models.Message
-		err 		error
+		desc string
+		message sms.Message
+		err  error
 	}{
-		{"send valid message", message, nil},
-		{"send invalid message", models.Message{Body:"", Destination:"+250-788-455-100"}, models.ErrInvalidEntity},
+		{"validate with valid data", sms.Message{Body:body, Destination: destination}, nil},
+		{"validate with empty message", sms.Message{}, sms.ErrInvalidEntity},
+		//TODO add more validation cases
 	}
 
-	for _,tc:=range cases{
-		err:=svc.Send(tc.message)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+	for _, tc := range cases {
+		err := tc.message.Validate()
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s", tc.desc, tc.err, err))
 	}
+
 }

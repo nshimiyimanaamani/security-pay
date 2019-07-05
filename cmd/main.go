@@ -13,16 +13,18 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/app/users"
+	paypack "github.com/rugwirobaker/paypack-backend"
+	prtEndpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
+	trxAdapters "github.com/rugwirobaker/paypack-backend/api/http/transactions"
+	usersAdapters "github.com/rugwirobaker/paypack-backend/api/http/users"
+	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
-	usersAdapters"github.com/rugwirobaker/paypack-backend/api/http/users"
-	trxAdapters"github.com/rugwirobaker/paypack-backend/api/http/transactions"
+	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/app/users/bcrypt"
 	"github.com/rugwirobaker/paypack-backend/app/users/jwt"
-	"github.com/rugwirobaker/paypack-backend/logger"
-	paypack"github.com/rugwirobaker/paypack-backend"
-	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
+	"github.com/rugwirobaker/paypack-backend/logger"
+	"github.com/rugwirobaker/paypack-backend/store/postgres"
 )
 
 const (
@@ -57,16 +59,16 @@ const (
 )
 
 type config struct {
-	logLevel   string
-	dbConfig   postgres.Config
-	httpPort   string
-	secret     string
+	logLevel string
+	dbConfig postgres.Config
+	httpPort string
+	secret   string
 }
 
-func main(){
+func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	cfg:= loadConfig()
+	cfg := loadConfig()
 
 	logger, err := logger.New(os.Stdout, cfg.logLevel)
 	if err != nil {
@@ -77,7 +79,8 @@ func main(){
 	defer db.Close()
 
 	users := newUserService(db, cfg.secret)
-	transactions:= newTransactionService(db)
+	transactions := newTransactionService(db)
+	properties := newPropertyService(db)
 
 	go func() {
 		ch := make(chan os.Signal, 1)
@@ -93,14 +96,14 @@ func main(){
 	go func() {
 		defer wg.Done()
 		defer cancel()
-		startHTTPServer(ctx, users, transactions, cfg.httpPort, logger)
+		startHTTPServer(ctx, users, transactions, properties, cfg.httpPort, logger)
 	}()
 
 	wg.Wait()
 }
 
-func loadConfig()config{
-	dbConfig:= postgres.Config{
+func loadConfig() config {
+	dbConfig := postgres.Config{
 		Host:        paypack.Env(envDBHost, defDBHost),
 		Port:        paypack.Env(envDBPort, defDBPort),
 		User:        paypack.Env(envDBUser, defDBUser),
@@ -119,7 +122,7 @@ func loadConfig()config{
 	}
 }
 
-func connectToDB(config postgres.Config, logger logger.Logger)*sql.DB{
+func connectToDB(config postgres.Config, logger logger.Logger) *sql.DB {
 	db, err := postgres.Connect(config)
 	if err != nil {
 		log.Println(fmt.Sprintf("Failed to connect to postgres: %s", err))
@@ -128,7 +131,7 @@ func connectToDB(config postgres.Config, logger logger.Logger)*sql.DB{
 	return db
 }
 
-func newUserService(db *sql.DB, secret string)users.Service{
+func newUserService(db *sql.DB, secret string) users.Service {
 	hasher := bcrypt.New()
 	tempid := jwt.New(secret)
 	idp := uuid.New()
@@ -136,28 +139,40 @@ func newUserService(db *sql.DB, secret string)users.Service{
 	return users.New(hasher, tempid, idp, store)
 }
 
- func newTransactionService(db *sql.DB)transactions.Service{
+func newTransactionService(db *sql.DB) transactions.Service {
 	idp := uuid.New()
 	store := postgres.NewTransactionStore(db)
 	return transactions.New(idp, store)
- }
+}
 
-func startHTTPServer(ctx context.Context, users users.Service, trx transactions.Service, port string, logger logger.Logger){
+func newPropertyService(db *sql.DB) properties.Service {
+	idp := uuid.New()
+	store := postgres.NewPropertyStore(db)
+	return properties.New(idp, store)
+}
+
+func startHTTPServer(ctx context.Context,
+	users users.Service,
+	trx transactions.Service,
+	prt properties.Service,
+	port string, logger logger.Logger,
+) {
 	cors := handlers.CORS(
 		handlers.AllowedOrigins([]string{"*"}),
-		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "OPTIONS"}),
+		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"}),
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
 
 	router := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(true)
 
-
-	userRoutes:= router.PathPrefix("/users").Subrouter()
+	userRoutes := router.PathPrefix("/users").Subrouter()
 	usersAdapters.MakeAdapter(userRoutes)(users)
 
-	trxRoutes:= router.PathPrefix("/transactions").Subrouter()
+	trxRoutes := router.PathPrefix("/transactions").Subrouter()
 	trxAdapters.MakeAdapter(trxRoutes)(trx)
 
+	prtRoutes := router.PathPrefix("/properties").Subrouter()
+	prtEndpoints.MakeEndpoint(prtRoutes)(prt)
 
 	s := &http.Server{
 		Addr:        fmt.Sprintf(":%s", port),

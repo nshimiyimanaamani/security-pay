@@ -48,7 +48,7 @@ func (res viewTransRes) Empty() bool {
 
 type transPageRes struct {
 	pageRes
-	Transactions []viewTransRes `json:"things"`
+	Transactions []viewTransRes `json:"transactions"`
 }
 
 func (res transPageRes) Code() int {

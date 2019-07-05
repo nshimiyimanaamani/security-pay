@@ -1,22 +1,15 @@
 package sms
 
-import "github.com/rugwirobaker/paypack-backend/models"
-
-//Service defines the send sms API
-type Service interface {
-	//Send sends a message and returns nil if the operation is successful
-	Send(models.Message) error
+// Message defines an SMS message
+type Message struct {
+	Body        string
+	Destination string
 }
 
-var _ (Service) = (*smsService)(nil)
-
-type smsService struct{}
-
-//New instanciates a new Service instance
-func New() Service {
-	return &smsService{}
-}
-
-func (svc *smsService) Send(message models.Message) error {
-	return message.Validate()
+// Validate validates the struct of a message
+func (msg *Message) Validate() error {
+	if msg.Body == "" || msg.Destination == "" {
+		return ErrInvalidEntity
+	}
+	return nil
 }

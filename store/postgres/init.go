@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	errDuplicate = "unique_violation"
-	errFK        = "foreign_key_violation"
-	errInvalid   = "invalid_text_representation"
+	errDuplicate  = "unique_violation"
+	errFK         = "foreign_key_violation"
+	errInvalid    = "invalid_text_representation"
+	errTruncation = "string_data_right_truncation"
 )
 
 // Config defines the options that are used when connecting to a PostgreSQL instance
@@ -56,6 +57,14 @@ func migrateDB(db *sql.DB) error {
 						email    	VARCHAR(254) UNIQUE,
 						password 	CHAR(60)	 NOT NULL,
 						PRIMARY  	KEY (id)
+					)`,
+					`CREATE TABLE IF NOT EXISTS properties (
+						id			UUID,
+						owner		VARCHAR(254) NOT NULL,
+						sector		VARCHAR(254) NOT NULL,
+						cell		VARCHAR(254) NOT NULL,
+						village		VARCHAR(254) NOT NULL,
+						PRIMARY 	KEY(id)
 					)`,
 					`CREATE TABLE IF NOT EXISTS transactions (
 						id 			UUID,
