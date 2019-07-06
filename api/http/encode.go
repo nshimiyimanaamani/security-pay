@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/rugwirobaker/paypack-backend/models"
@@ -58,6 +59,8 @@ func EncodeError(w http.ResponseWriter, err error) {
 		case *json.SyntaxError:
 			w.WriteHeader(http.StatusBadRequest)
 		case *json.UnmarshalTypeError:
+			w.WriteHeader(http.StatusBadRequest)
+		case *strconv.NumError:
 			w.WriteHeader(http.StatusBadRequest)
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
