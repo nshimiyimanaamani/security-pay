@@ -58,14 +58,6 @@ func migrateDB(db *sql.DB) error {
 						password 	CHAR(60)	 NOT NULL,
 						PRIMARY  	KEY (id)
 					)`,
-					`CREATE TABLE IF NOT EXISTS properties (
-						id			UUID,
-						owner		VARCHAR(254) NOT NULL,
-						sector		VARCHAR(254) NOT NULL,
-						cell		VARCHAR(254) NOT NULL,
-						village		VARCHAR(254) NOT NULL,
-						PRIMARY 	KEY(id)
-					)`,
 					`CREATE TABLE IF NOT EXISTS transactions (
 						id 			UUID,
 						property 	UUID,
@@ -77,8 +69,26 @@ func migrateDB(db *sql.DB) error {
 
 				Down: []string{
 					"DROP TABLE users",
-					"DROP TABLE properties",
 					"DROP TABLE transactions",
+				},
+			},
+			{
+
+				Id: "paypack_2",
+
+				Up: []string{
+					`CREATE TABLE IF NOT EXISTS properties (
+							id			UUID,
+							owner		VARCHAR(254) NOT NULL,
+							sector		VARCHAR(254) NOT NULL,
+							cell		VARCHAR(254) NOT NULL,
+							village		VARCHAR(254) NOT NULL,
+							PRIMARY 	KEY(id)
+						)`,
+				},
+
+				Down: []string{
+					"DROP TABLE properties",
 				},
 			},
 		},
