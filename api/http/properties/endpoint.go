@@ -3,6 +3,7 @@ package properties
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
@@ -23,15 +24,21 @@ func MakeEndpoint(router *mux.Router) func(svc properties.Service) {
 			handleViewProperty(svc, w, r)
 		}).Methods("GET")
 
-		router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {}).Methods("GET")
+		router.HandleFunc("/owners/{owner}", func(w http.ResponseWriter, r *http.Request) {
+			handleListByOwner(svc, w, r)
+		}).Queries("offset", "{offset}", "limit", "{limit}").Methods("GET")
 
-		router.HandleFunc("/{owner}", func(w http.ResponseWriter, r *http.Request) {}).Methods("GET")
+		router.HandleFunc("/sectors/{sector}", func(w http.ResponseWriter, r *http.Request) {
+			handleListBySector(svc, w, r)
+		}).Queries("offset", "{offset}", "limit", "{limit}").Methods("GET")
 
-		router.HandleFunc("/{sector}", func(w http.ResponseWriter, r *http.Request) {}).Methods("GET")
+		router.HandleFunc("/cells/{cell}", func(w http.ResponseWriter, r *http.Request) {
+			handleListByCell(svc, w, r)
+		}).Queries("offset", "{offset}", "limit", "{limit}").Methods("GET")
 
-		router.HandleFunc("/{cell}", func(w http.ResponseWriter, r *http.Request) {}).Methods("GET")
-
-		router.HandleFunc("/{village}", func(w http.ResponseWriter, r *http.Request) {}).Methods("GET")
+		router.HandleFunc("/villages/{village}", func(w http.ResponseWriter, r *http.Request) {
+			handleListByVillage(svc, w, r)
+		}).Queries("offset", "{offset}", "limit", "{limit}").Methods("GET")
 	}
 	return handler
 }
@@ -139,10 +146,198 @@ func handleViewProperty(svc properties.Service, w http.ResponseWriter, r *http.R
 	}
 }
 
-func listPropertiesByOwner(svc properties.Service, w http.ResponseWriter, r *http.Request) {}
+func handleListByOwner(svc properties.Service, w http.ResponseWriter, r *http.Request) {
+	var err error
 
-func listPropertiesBySector(svc properties.Service, w http.ResponseWriter, r *http.Request) {}
+	vars := mux.Vars(r)
 
-func listPropertiesByCell(svc properties.Service, w http.ResponseWriter, r *http.Request) {}
+	offset, err := strconv.ParseUint(vars["offset"], 10, 32)
+	if err != nil {
+		EncodeError(w, err)
+		return
+	}
 
-func listPropertiesByVillage(svc properties.Service, w http.ResponseWriter, r *http.Request) {}
+	limit, err := strconv.ParseUint(vars["limit"], 10, 32)
+	if err != nil {
+		EncodeError(w, err)
+		return
+	}
+
+	page, err := svc.ListPropertiesByOwner(vars["owner"], offset, limit)
+	if err != nil {
+		EncodeError(w, err)
+		return
+	}
+
+	response := propPageRes{
+		pageRes: pageRes{
+			Total:  page.Total,
+			Offset: page.Offset,
+			Limit:  page.Limit,
+		},
+		Properties: []viewPropRes{},
+	}
+
+	for _, property := range page.Properties {
+		view := viewPropRes{
+			ID:      property.ID,
+			Owner:   property.Owner,
+			Sector:  property.Sector,
+			Cell:    property.Cell,
+			Village: property.Village,
+		}
+		response.Properties = append(response.Properties, view)
+	}
+
+	if err = EncodeResponse(w, response); err != nil {
+		EncodeError(w, err)
+		return
+	}
+}
+
+func handleListBySector(svc properties.Service, w http.ResponseWriter, r *http.Request) {
+	var err error
+
+	vars := mux.Vars(r)
+
+	offset, err := strconv.ParseUint(vars["offset"], 10, 32)
+	if err != nil {
+		EncodeError(w, err)
+		return
+	}
+
+	limit, err := strconv.ParseUint(vars["limit"], 10, 32)
+	if err != nil {
+		EncodeError(w, err)
+		return
+	}
+
+	page, err := svc.ListPropertiesBySector(vars["sector"], offset, limit)
+	if err != nil {
+		EncodeError(w, err)
+		return
+	}
+
+	response := propPageRes{
+		pageRes: pageRes{
+			Total:  page.Total,
+			Offset: page.Offset,
+			Limit:  page.Limit,
+		},
+		Properties: []viewPropRes{},
+	}
+
+	for _, property := range page.Properties {
+		view := viewPropRes{
+			ID:      property.ID,
+			Owner:   property.Owner,
+			Sector:  property.Sector,
+			Cell:    property.Cell,
+			Village: property.Village,
+		}
+		response.Properties = append(response.Properties, view)
+	}
+
+	if err = EncodeResponse(w, response); err != nil {
+		EncodeError(w, err)
+		return
+	}
+}
+
+func handleListByCell(svc properties.Service, w http.ResponseWriter, r *http.Request) {
+	var err error
+
+	vars := mux.Vars(r)
+
+	offset, err := strconv.ParseUint(vars["offset"], 10, 32)
+	if err != nil {
+		EncodeError(w, err)
+		return
+	}
+
+	limit, err := strconv.ParseUint(vars["limit"], 10, 32)
+	if err != nil {
+		EncodeError(w, err)
+		return
+	}
+
+	page, err := svc.ListPropertiesByCell(vars["cell"], offset, limit)
+	if err != nil {
+		EncodeError(w, err)
+		return
+	}
+
+	response := propPageRes{
+		pageRes: pageRes{
+			Total:  page.Total,
+			Offset: page.Offset,
+			Limit:  page.Limit,
+		},
+		Properties: []viewPropRes{},
+	}
+
+	for _, property := range page.Properties {
+		view := viewPropRes{
+			ID:      property.ID,
+			Owner:   property.Owner,
+			Sector:  property.Sector,
+			Cell:    property.Cell,
+			Village: property.Village,
+		}
+		response.Properties = append(response.Properties, view)
+	}
+
+	if err = EncodeResponse(w, response); err != nil {
+		EncodeError(w, err)
+		return
+	}
+}
+
+func handleListByVillage(svc properties.Service, w http.ResponseWriter, r *http.Request) {
+	var err error
+
+	vars := mux.Vars(r)
+
+	offset, err := strconv.ParseUint(vars["offset"], 10, 32)
+	if err != nil {
+		EncodeError(w, err)
+		return
+	}
+
+	limit, err := strconv.ParseUint(vars["limit"], 10, 32)
+	if err != nil {
+		EncodeError(w, err)
+		return
+	}
+
+	page, err := svc.ListPropertiesByVillage(vars["village"], offset, limit)
+	if err != nil {
+		EncodeError(w, err)
+		return
+	}
+
+	response := propPageRes{
+		pageRes: pageRes{
+			Total:  page.Total,
+			Offset: page.Offset,
+			Limit:  page.Limit,
+		},
+		Properties: []viewPropRes{},
+	}
+
+	for _, property := range page.Properties {
+		view := viewPropRes{
+			ID:      property.ID,
+			Owner:   property.Owner,
+			Sector:  property.Sector,
+			Cell:    property.Cell,
+			Village: property.Village,
+		}
+		response.Properties = append(response.Properties, view)
+	}
+
+	if err = EncodeResponse(w, response); err != nil {
+		EncodeError(w, err)
+		return
+	}
+}

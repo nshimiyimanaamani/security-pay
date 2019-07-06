@@ -299,76 +299,318 @@ func TestViewProperty(t *testing.T) {
 	}
 }
 
-// func TestListPropertiesByOwner(t *testing.T) {
-// 	svc := newService()
-// 	ts := newServer(svc)
+func TestListPropertiesByOwner(t *testing.T) {
+	svc := newService()
+	ts := newServer(svc)
 
-// 	defer ts.Close()
-// 	client := ts.Client()
+	defer ts.Close()
+	client := ts.Client()
 
-// 	property := properties.Property{
-// 		Owner: "Eugene Mugabo",
-// 		Address: properties.Address{
-// 			Sector:  "Remera",
-// 			Cell:    "Gishushu",
-// 			Village: "Ingabo",
-// 		},
-// 	}
+	owner := "Gashuga John"
+	property := properties.Property{
+		Owner: owner,
+		Address: properties.Address{
+			Sector:  "Remera",
+			Cell:    "Gishushu",
+			Village: "Ingabo",
+		},
+	}
 
-// 	data := []propRes{}
+	data := []propRes{}
 
-// 	for i := 0; i < 100; i++ {
-// 		saved, err := svc.AddProperty(property)
-// 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	for i := 0; i < 100; i++ {
+		saved, err := svc.AddProperty(property)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-// 		res := propRes{
-// 			ID:      saved.ID,
-// 			Owner:   saved.Owner,
-// 			Sector:  saved.Sector,
-// 			Cell:    saved.Cell,
-// 			Village: saved.Village,
-// 		}
+		res := propRes{
+			ID:      saved.ID,
+			Owner:   saved.Owner,
+			Sector:  saved.Sector,
+			Cell:    saved.Cell,
+			Village: saved.Village,
+		}
 
-// 		data = append(data, res)
-// 	}
+		data = append(data, res)
+	}
 
-// 	transactionURL := fmt.Sprintf("%s/", ts.URL)
+	transactionURL := fmt.Sprintf("%s/owners", ts.URL)
 
-// 	cases := []struct {
-// 		desc   string
-// 		status int
-// 		url    string
-// 		res    []propRes
-// 	}{
-// 		{
-// 			desc:   "get a list of transactions",
-// 			status: http.StatusOK,
-// 			url:    fmt.Sprintf("%s?offset=%d&limit=%d", transactionURL, 0, 5),
-// 			res:    data[0:5],
-// 		},
-// 	}
+	cases := []struct {
+		desc   string
+		status int
+		url    string
+		res    []propRes
+	}{
+		{
+			desc:   "get a list of properties",
+			status: http.StatusOK,
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, owner, 0, 5),
+			res:    data[0:5],
+		},
+		{
+			desc:   "get a list of properties with negative offset",
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, owner, -1, 5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of properties with negative limit",
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, owner, 1, -5),
+			res:    nil,
+		},
+	}
 
-// 	for _, tc := range cases {
-// 		req := testRequest{
-// 			client: client,
-// 			method: http.MethodGet,
-// 			url:    tc.url,
-// 		}
+	for _, tc := range cases {
+		req := testRequest{
+			client: client,
+			method: http.MethodGet,
+			url:    tc.url,
+		}
 
-// 		res, err := req.make()
-// 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
-// 		var data propPageRes
-// 		json.NewDecoder(res.Body).Decode(&data)
-// 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
-// 		assert.ElementsMatch(t, tc.res, data.Properties, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Properties))
-// 	}
-// }
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		var data propPageRes
+		json.NewDecoder(res.Body).Decode(&data)
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.ElementsMatch(t, tc.res, data.Properties, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Properties))
+	}
+}
 
-func TestListPropertiesBySector(t *testing.T) {}
+func TestListPropertiesBySector(t *testing.T) {
+	svc := newService()
+	ts := newServer(svc)
 
-func TestListPropertiesByCell(t *testing.T) {}
+	defer ts.Close()
+	client := ts.Client()
 
-func TestListPropertiesByVillage(t *testing.T) {}
+	sector := "Remera"
+	property := properties.Property{
+		Owner: "Gashuga John",
+		Address: properties.Address{
+			Sector:  sector,
+			Cell:    "Gishushu",
+			Village: "Ingabo",
+		},
+	}
+
+	data := []propRes{}
+
+	for i := 0; i < 100; i++ {
+		saved, err := svc.AddProperty(property)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+		res := propRes{
+			ID:      saved.ID,
+			Owner:   saved.Owner,
+			Sector:  saved.Sector,
+			Cell:    saved.Cell,
+			Village: saved.Village,
+		}
+
+		data = append(data, res)
+	}
+
+	transactionURL := fmt.Sprintf("%s/sectors", ts.URL)
+
+	cases := []struct {
+		desc   string
+		status int
+		url    string
+		res    []propRes
+	}{
+		{
+			desc:   "get a list of properties",
+			status: http.StatusOK,
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, sector, 0, 5),
+			res:    data[0:5],
+		},
+		{
+			desc:   "get a list of properties with negative offset",
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, sector, -1, 5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of properties with negative limit",
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, sector, 1, -5),
+			res:    nil,
+		},
+	}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client: client,
+			method: http.MethodGet,
+			url:    tc.url,
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		var data propPageRes
+		json.NewDecoder(res.Body).Decode(&data)
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.ElementsMatch(t, tc.res, data.Properties, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Properties))
+	}
+}
+
+func TestListPropertiesByCell(t *testing.T) {
+	svc := newService()
+	ts := newServer(svc)
+
+	defer ts.Close()
+	client := ts.Client()
+
+	cell := "Gishushu"
+	property := properties.Property{
+		Owner: "Gashuga John",
+		Address: properties.Address{
+			Sector:  "Remera",
+			Cell:    cell,
+			Village: "Ingabo",
+		},
+	}
+
+	data := []propRes{}
+
+	for i := 0; i < 100; i++ {
+		saved, err := svc.AddProperty(property)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+		res := propRes{
+			ID:      saved.ID,
+			Owner:   saved.Owner,
+			Sector:  saved.Sector,
+			Cell:    saved.Cell,
+			Village: saved.Village,
+		}
+
+		data = append(data, res)
+	}
+
+	transactionURL := fmt.Sprintf("%s/cells", ts.URL)
+
+	cases := []struct {
+		desc   string
+		status int
+		url    string
+		res    []propRes
+	}{
+		{
+			desc:   "get a list of properties",
+			status: http.StatusOK,
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, cell, 0, 5),
+			res:    data[0:5],
+		},
+		{
+			desc:   "get a list of properties with negative offset",
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, cell, -1, 5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of properties with negative limit",
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, cell, 1, -5),
+			res:    nil,
+		},
+	}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client: client,
+			method: http.MethodGet,
+			url:    tc.url,
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		var data propPageRes
+		json.NewDecoder(res.Body).Decode(&data)
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.ElementsMatch(t, tc.res, data.Properties, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Properties))
+	}
+}
+
+func TestListPropertiesByVillage(t *testing.T) {
+	svc := newService()
+	ts := newServer(svc)
+
+	defer ts.Close()
+	client := ts.Client()
+
+	village := "Ingabo"
+
+	property := properties.Property{
+		Owner: "Gashuga John",
+		Address: properties.Address{
+			Sector:  "Remera",
+			Cell:    "Gishushu",
+			Village: village,
+		},
+	}
+
+	data := []propRes{}
+
+	for i := 0; i < 100; i++ {
+		saved, err := svc.AddProperty(property)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+		res := propRes{
+			ID:      saved.ID,
+			Owner:   saved.Owner,
+			Sector:  saved.Sector,
+			Cell:    saved.Cell,
+			Village: saved.Village,
+		}
+
+		data = append(data, res)
+	}
+
+	transactionURL := fmt.Sprintf("%s/villages", ts.URL)
+
+	cases := []struct {
+		desc   string
+		status int
+		url    string
+		res    []propRes
+	}{
+		{
+			desc:   "get a list of properties",
+			status: http.StatusOK,
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, village, 0, 5),
+			res:    data[0:5],
+		},
+		{
+			desc:   "get a list of properties with negative offset",
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, village, -1, 5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of properties with negative limit",
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, village, 1, -5),
+			res:    nil,
+		},
+	}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client: client,
+			method: http.MethodGet,
+			url:    tc.url,
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		var data propPageRes
+		json.NewDecoder(res.Body).Decode(&data)
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.ElementsMatch(t, tc.res, data.Properties, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Properties))
+	}
+}
 
 type propRes struct {
 	ID      string `json:"id,omitempty"`

@@ -58,3 +58,26 @@ func (res viewPropRes) Headers() map[string]string {
 func (res viewPropRes) Empty() bool {
 	return false
 }
+
+type propPageRes struct {
+	pageRes
+	Properties []viewPropRes `json:"properties"`
+}
+
+func (res propPageRes) Code() int {
+	return http.StatusOK
+}
+
+func (res propPageRes) Headers() map[string]string {
+	return map[string]string{}
+}
+
+func (res propPageRes) Empty() bool {
+	return false
+}
+
+type pageRes struct {
+	Total  uint64 `json:"total"`
+	Offset uint64 `json:"offset"`
+	Limit  uint64 `json:"limit"`
+}
