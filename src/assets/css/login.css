@@ -1,71 +1,84 @@
 body {
   background: #f9f9f9;
-  font-family: Arial, Helvetica, sans-serif;
 }
 .loginPage {
+  display: grid;
   position: relative;
+  grid-template-rows: 136px 200px;
   width: 50vw;
-  margin: auto;
+  left: 24.5vw;
+  font-family: FThin;
   height: 100vh;
-  color: #0000007a;
 }
 .loginTitle {
+  grid-row: 1;
   position: relative;
-  margin: auto;
-  top: 10%;
-  width: 290px;
+  left: 110px;
+  top: 65px;
+  width: 480px;
+  color: #615f5f;
   text-align: center;
-  letter-spacing: 1px;
-  font-size: 15px;
+  font-size: 2.5rem;
+  font-weight: 100;
+  letter-spacing: 0.2px;
+  line-height: 20px;
 }
 .loginTitle p {
   margin: 0;
   text-align: left;
-  left: 18px;
+  left: 95px;
   position: relative;
+  letter-spacing: 1px;
 }
 .loginTitle #paypack {
-  font-size: 65px;
-  line-height: 20px;
-  line-height: 10px;
+  font-size: 72px;
+  font-family: Arial, Helvetica, sans-serif;
+  letter-spacing: 1.5px;
+  line-height: 28px;
   color: #3db3fa;
 }
 .loginTitle #easy {
-  top: 7px;
+  font-size: 1.8rem;
+  letter-spacing: 0.8px;
+  top: 15px;
   text-align: center;
   position: relative;
 }
 .loginForm {
+  grid-row: 2;
   position: relative;
-  margin: auto;
-  top: 30%;
-  width: 57%;
+  left: 165px;
+  top: 15rem;
+  min-height: 200px;
+  width: 60%;
 }
 .loginUsername input {
-  padding: 10px 0 10px 15px;
-  width: 100%;
+  padding: 15px;
+  width: 90%;
   border: 1px solid #bdbdbd;
   background: transparent;
-  border-radius: 10px;
-  margin: 10px auto;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px;
+  opacity: 0.74;
+  border-radius: 15px;
+  margin: 10px 1%;
+  font-family: FRegular;
+  font-size: 18px;
 }
 .loginPassword input {
-  padding: 10px 0 10px 15px;
-  width: 100%;
+  padding: 15px;
+  width: 90%;
   border: 1px solid #bdbdbd;
   background: transparent;
-  border-radius: 10px;
-  margin: 10px auto;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px;
+  opacity: 0.74;
+  margin: 10px 1%;
+  border-radius: 15px;
+  font-family: FRegular;
+  font-size: 18px;
 }
 .loginBtn a button {
-  padding: 5px;
-  margin: 10px auto;
-  width: 100%;
-  border-radius: 10px;
+  padding: 10px;
+  margin: 10px 1%;
+  width: 90%;
+  border-radius: 15px;
   border: none;
   background-color: #3db3fa;
   cursor: pointer;
@@ -77,104 +90,16 @@ body {
   line-height: 35px;
 }
 .loginBtn #forgot {
+  color: #706c6c;
   letter-spacing: 0.8px;
-  font-size: 15px;
+  font-size: 20px;
   float: right;
+  margin-right: 40px;
 }
 .loginBtn #forgot a {
   text-decoration: none;
   color: #3db3fa;
-  font-size: 18px;
-  letter-spacing: 1px;
-  line-height: 20px;
-}
-@keyframes lds-rolling {
-  0% {
-    -webkit-transform: translate(-50%, -50%) rotate(0deg);
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-  100% {
-    -webkit-transform: translate(-50%, -50%) rotate(360deg);
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-@-webkit-keyframes lds-rolling {
-  0% {
-    -webkit-transform: translate(-50%, -50%) rotate(0deg);
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-  100% {
-    -webkit-transform: translate(-50%, -50%) rotate(360deg);
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-.lds-rolling {
-  position: relative;
-}
-.lds-css {
-  width: fit-content;
-  float: right;
-  height: 10px;
-  margin-top: -4px;
-}
-.lds-rolling div,
-.lds-rolling div:after {
-  position: absolute;
-  width: 90px;
-  height: 90px;
-  border: 10px solid #ffffff;
-  border-top-color: transparent;
-  border-radius: 50%;
-}
-.lds-rolling div {
-  -webkit-animation: lds-rolling 1.2s linear infinite;
-  animation: lds-rolling 1.2s linear infinite;
-  top: 100px;
-  left: 100px;
-}
-.lds-rolling div:after {
-  -webkit-transform: rotate(90deg);
-  transform: rotate(90deg);
-}
-.lds-rolling {
-  width: 45px !important;
-  height: 45px !important;
-  -webkit-transform: translate(-22.5px, -22.5px) scale(0.225)
-    translate(22.5px, 22.5px);
-  transform: translate(-22.5px, -22.5px) scale(0.225) translate(22.5px, 22.5px);
-}
-#error-message .modal-content {
-  width: 60%;
-  top: 30vh;
-  margin: auto;
-}
-#error-message .modal-title {
-  width: 95%;
-  float: left;
-  text-align: center;
-  font-size: 13px;
-  text-transform: uppercase;
-}
-#error-message .modal-header {
-  padding: 10px 15px;
-  border-bottom: 1px solid #cdd7dd;
-}
-#error-message .modal-body {
-  position: relative;
-  padding: 10px;
-}
-#error-message .modal-body h3 {
-  margin: 5px !important;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  line-height: 1.5;
-}
-#error-message .modal-body button {
-  display: block;
-  width: 15%;
-  margin-left: auto;
-  background: #2267a2;
-  padding: 3px 10px !important;
-  color: white;
+  font-size: 24px;
+  letter-spacing: 0.4px;
+  line-height: 25px;
 }

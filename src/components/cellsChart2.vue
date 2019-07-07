@@ -1,5 +1,5 @@
 <template>
-  <div id="cellChart2container">
+  <div id="chart2container">
     <div class="chart2Title">
       <i class="fa fa-th-large"></i>
       <h1>Remera total collected</h1>
@@ -7,7 +7,6 @@
     </div>
     <div class="chart2">
       <canvas id="Chart-2"></canvas>
-      <div id="legend"></div>
     </div>
   </div>
 </template>
@@ -25,37 +24,29 @@ export default {
   methods: {
     drawChart() {
       let chartcanvas = document.getElementById("Chart-2").getContext("2d");
-
       Chart.defaults.global.defaultFontSize = 15;
       Chart.defaults.global.legend.position = "right";
       Chart.defaults.global.legend.labels.boxWidth = 0;
+      Chart.defaults.global.tooltips.enabled = false;
       var value = this.Percentage;
       var chartData = {
         type: "doughnut",
         data: {
-          labels: [`Umutekano`],
+          labels: [`UMUTEKANO: ${value}% `],
           datasets: [
             {
               data: [value, 100 - value],
-              backgroundColor: ["#219fea", "#f9f9f9"],
-              hoverBackgroundColor: ["#219fea", "#f9f9f9"],
-              hoverBorderColor: ["#219fea", "#ffffff"]
+              backgroundColor: ["#58C5AD", "#f9f9f9"],
+              hoverBackgroundColor: ["#58C5AD", "#f9f9f9"],
+              hoverBorderColor: ["#58C5AD", "#ffffff"]
             }
           ]
         },
         options: {
-          legendCallback: function(chart) {
-            var text = `<span> ${value}%</span> Umutekano`;
-            return text;
-          },
-          tooltips: { enabled: false },
-          legend: {
-            display: false
-          },
           elements: {
             center: {
               text: `${value}%`,
-              color: "#219fea", // Default is #000000
+              color: "#58C5AD", // Default is #000000
               fontStyle: "Arial", // Default is Arial
               sidePadding: 20 // Defualt is 20 (as a percentage)
             }
@@ -70,19 +61,25 @@ export default {
             }
           },
           maintainAspectRatio: false,
+          legend: {
+            label: {
+              fontsize: 19
+            },
+            labels: {
+              padding: 20
+            }
+          },
           layout: {
             padding: {
-              left: 0,
-              right: 200,
+              left: 10,
+              right: 15,
               top: 15,
               bottom: 15
             }
           }
         }
       };
-      window.chart = new Chart(chartcanvas, chartData);
-      let legendContainer = document.getElementById("legend");
-      legendContainer.innerHTML = chart.generateLegend();
+      let chart = new Chart(chartcanvas, chartData);
       Chart.pluginService.register({
         beforeDraw: function(chart) {
           if (chart.config.options.elements.center) {
@@ -118,6 +115,6 @@ export default {
 
 
 <style>
-@import url("../assets/css/cellsChart2.css");
+@import url("../assets/css/chart2.css");
 </style>
 

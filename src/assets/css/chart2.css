@@ -1,39 +1,44 @@
 #chart2container {
   position: relative;
+  width: 35vw;
+  margin-left: -10px;
+  -webkit-box-shadow: 0 0 5px #888;
+          box-shadow: 0 0 5px #888;
   border-radius: 10px 10px 0 0;
   background: white;
-  width: 98%;
-  margin: auto;
-  -webkit-box-shadow: 0 5px 5px #00000030;
-          box-shadow: 0 5px 5px #00000030;
 }
 
 #chart2container .chart2Title {
-  padding: 8px;
+  position: relative;
+  height: 50px;
   border-radius: 10px 10px 0 0;
-  background: #3db3fa;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
+  background-color: #3db3fa;
 }
 
 #chart2container .chart2Title h1 {
   color: #ffffff;
-  font-size: 15px;
-  letter-spacing: 1.3px;
+  font-size: 14px;
+  line-height: 30px;
+  letter-spacing: 1px;
+  text-align: center;
+  padding-top: 7px;
   margin: auto;
   text-transform: uppercase;
 }
 
 #chart2container .chart2Title .fa-cog {
-  font-size: 25px;
-  margin: auto 15px;
+  position: absolute;
+  top: 9px;
+  right: 30px;
+  font-size: 29px;
   color: white;
 }
 
 #chart2container .chart2Title .fa-th-large {
-  font-size: 23px;
-  margin: auto 15px;
+  position: absolute;
+  top: 10px;
+  left: 30px;
+  font-size: 25px;
   color: white;
 }
 
@@ -41,30 +46,5 @@
   position: relative;
   min-height: 270px;
   height: 35vh;
-}
-
-#chart2container #legend {
-  background: #f9f9f9;
-  position: absolute;
-  top: 30%;
-  right: 5%;
-  color: #9a9a9a;
-  text-align: center;
-  display: -ms-grid;
-  display: grid;
-  font-size: 15px;
-  text-transform: uppercase;
-  padding: 10px;
-  line-height: 20px;
-  letter-spacing: 1px;
-  font-weight: bold;
-}
-
-#chart2container #legend span {
-  font-size: 35px;
-  letter-spacing: 1px;
-  line-height: 50px;
-  color: #58c5ad;
-  font-weight: normal;
 }
 /*# sourceMappingURL=chart2.css.map */

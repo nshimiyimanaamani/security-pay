@@ -5,13 +5,7 @@
 </template>
 <script>
 import "../node_modules/chart.js/dist/Chart.js";
-export default {
-  computed: {
-    user() {
-      return this.$store.state.user1;
-    }
-  }
-};
+export default {};
 </script>
 
 <style>
@@ -43,7 +37,6 @@ export default {
 }
 @import url("../node_modules/@fortawesome/fontawesome-free/css/all.css");
 @import url("../node_modules/bootstrap/dist/css/bootstrap.css");
-@import url("../node_modules/bootstrap-vue/dist/bootstrap-vue.css");
 html,
 body {
   margin: 0;

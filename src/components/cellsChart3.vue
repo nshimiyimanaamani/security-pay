@@ -1,5 +1,5 @@
 <template>
-  <div id="cellChart3container">
+  <div id="chart3container">
     <div class="chart3Title">
       <i class="fa fa-th-large"></i>
       <h1>Remera sector</h1>
@@ -120,9 +120,9 @@ export default {
                 payData.CELLG[3]
               ],
               backgroundColor: "transparent",
-              borderColor: "#2578c1",
+              borderColor: "#46A9D4",
               borderWidth: 5,
-              borderDash: [9, 5],
+              borderDash: [5, 5],
               pointBackgroundColor: "#fff",
               pointBorderWidth: 1,
               pointRadius: 8,
@@ -139,8 +139,8 @@ export default {
                 payData.CELLF[3],
                 payData.CELLG[3]
               ],
-              backgroundColor: "#219fea",
-              borderColor: "#219fea",
+              backgroundColor: "#58c5ad",
+              borderColor: "#58c5ad",
               borderWidth: 1
             }
           ]
@@ -162,7 +162,7 @@ export default {
               {
                 ticks: {
                   callback: function(value, index, values) {
-                    return value + "% ";
+                    return value + " ";
                   },
                   max: 100,
                   min: 0,
@@ -190,8 +190,8 @@ export default {
           },
           layout: {
             padding: {
-              left: 10,
-              right: 20,
+              left: 20,
+              right: 50,
               top: 25,
               bottom: 0
             }
@@ -205,5 +205,5 @@ export default {
 
 
 <style>
-@import url("../assets/css/cellsChart3.css");
+@import url("../assets/css/chart3.css");
 </style>

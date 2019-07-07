@@ -1,5 +1,5 @@
 <template>
-  <div id="cellChart1container">
+  <div id="chart1container">
     <div class="chart1Title">
       <i class="fa fa-th-large"></i>
       <h1 class>Remera collecting acct.</h1>
@@ -24,16 +24,16 @@ export default {
   },
   methods: {
     drawChart(datas) {
-      let Chart1 = document.getElementById("Chart-1").getContext("2d");
+      let Chart1Container = document.getElementById("Chart-1").getContext("2d");
       Chart.defaults.global.defaultFontSize = 15;
-      let cellsChart = new Chart(Chart1, {
+      let chart1 = new Chart(Chart1Container, {
         type: "bar",
         data: {
           labels: this.labels,
           datasets: [
             {
               data: this.datas,
-              backgroundColor: "#219fea"
+              backgroundColor: "#58c5ad"
             }
           ]
         },
@@ -76,8 +76,8 @@ export default {
           },
           layout: {
             padding: {
-              left: 10,
-              right: 20,
+              left: 15,
+              right: 15,
               top: 25,
               bottom: 0
             }
@@ -91,5 +91,5 @@ export default {
 
 
 <style>
-@import url("../assets/css/cellsChart1.css");
+@import url("../assets/css/chart1.css");
 </style>

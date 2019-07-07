@@ -1,18 +1,6 @@
 <template>
   <div class="container">
-    <div class="loading" v-if="this.loading">
-      <div class="lds-roller">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
-    </div>
-    <div class="row" v-else-if="this.loading == false">
+    <div class="row">
       <div class="col-md-12">
         <table class="table">
           <thead>
@@ -26,7 +14,7 @@
                 <i class="fa fa-caret-down"></i>
               </th>
               <th>
-                Narrative
+                Narrative3
                 <i class="fa fa-caret-down"></i>
               </th>
               <th>
@@ -38,22 +26,24 @@
           <tbody>
             <tr v-for="(trans , index) in transactionData" :key="index">
               <td>
-                <i class="fa fa-check-circle"></i>
-                <p>12:35,22 March 2019</p>
+                <div></div>
+                <i v-if="trans.success == 'true'" class="fa fa-check-circle"></i>
+                <i v-else-if="trans.success == 'false'" class="fa fa-times-circle"></i>
+                <p>{{trans.date}}</p>
               </td>
               <td>
-                <div v-if="trans.method == 'mtn' || 'MTN'" class="mtn">
+                <div v-if="trans.paymentMethod == 'mtn'" class="mtn">
                   <span>mtn</span>
                 </div>
-                <div v-else-if="trans.method == 'airtel' || 'AIRTEL'" class="airtel">
+                <div v-else-if="trans.paymentMethod == 'airtel'" class="airtel">
                   <span>airtel</span>
                 </div>
-                <div v-else-if="trans.method == 'bk' || 'BK'" class="bk">
+                <div v-else-if="trans.paymentMethod == 'bk'" class="bk">
                   <span>bk</span>
                 </div>&nbsp;
-                <p class="customerName">Customer Name</p>
+                <p class="customerName">{{trans.payee}}</p>
               </td>
-              <td>Umutekano</td>
+              <td>{{trans.narrator}}</td>
               <td>
                 {{trans.amount}}
                 <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
@@ -67,32 +57,60 @@
 </template>
 
 <script>
-import axios from "axios";
 export default {
   data() {
     return {
-      transactionData: []
+      transactionData: [
+        {
+          success: "true",
+          date: "12:35,22 March 2019",
+          paymentMethod: "mtn",
+          payee: "customer1",
+          narrator: "Umutekano",
+          amount: "4000 Rwf"
+        },
+        {
+          success: "true",
+          date: "12:35,22 March 2019",
+          paymentMethod: "airtel",
+          payee: "customer2",
+          narrator: "Umutekano",
+          amount: "3000 Rwf"
+        },
+        {
+          success: "true",
+          date: "12:35,22 March 2019",
+          paymentMethod: "mtn",
+          payee: "customer3",
+          narrator: "Umutekano",
+          amount: "500 Rwf"
+        },
+        {
+          success: "true",
+          date: "12:35,22 March 2019",
+          paymentMethod: "mtn",
+          payee: "customer4",
+          narrator: "Umutekano",
+          amount: "5000 Rwf"
+        },
+        {
+          success: "true",
+          date: "12:35,22 March 2019",
+          paymentMethod: "bk",
+          payee: "customer5",
+          narrator: "Umutekano",
+          amount: "2500 Rwf"
+        },
+        {
+          success: "false",
+          date: "12:35,22 March 2019",
+          paymentMethod: "bk",
+          payee: "customer6",
+          narrator: "Umutekano",
+          amount: "2000 Rwf"
+        }
+      ]
     };
-  },
-  computed: {
-    loading() {
-      return this.$store.state.loading;
-    }
-  },
-  mounted() {
-    this.$store.state.loading = true;
-    axios
-      .get(
-        "https://paypack-backend-qahoqfdr3q-uc.a.run.app/api/transactions/?offset=0&limit=5"
-      )
-      .then(res => {
-        this.transactionData = res.data.transactions;
-        this.$store.state.loading = false;
-      })
-      .catch(err => {
-        this.$store.state.loading = false;
-        console.log(err);
-      });
   }
 };
 </script>
