@@ -190,8 +190,8 @@ export default {
           },
           layout: {
             padding: {
-              left: 20,
-              right: 50,
+              left: 10,
+              right: 20,
               top: 25,
               bottom: 0
             }
@@ -204,6 +204,6 @@ export default {
 </script>
 
 
-<style>
+<style scoped>
 @import url("../assets/css/chart3.css");
 </style>

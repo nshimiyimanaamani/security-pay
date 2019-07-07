@@ -1,14 +1,14 @@
 <template>
-  <div id="chart1container">
-    <div class="chart1Title">
+  <b-card id="chart1container">
+    <b-card-header class="chart1Title">
       <i class="fa fa-th-large"></i>
       <h1 class>Remera collecting acct.</h1>
       <span class="fa fa-cog"></span>
-    </div>
+    </b-card-header>
     <div class="chart1">
       <canvas id="Chart-1"></canvas>
     </div>
-  </div>
+  </b-card>
 </template>
 
 <script>
@@ -38,6 +38,25 @@ export default {
           ]
         },
         options: {
+          tooltips: { enabled: false },
+          hover: { mode: null },
+          legend: false,
+          plugins: {
+            datalabels: {
+              align: "end",
+              anchor: "end",
+              color: "white",
+              font: {
+                size: 13,
+                weight: 600
+              },
+              offset: 4,
+              padding: 5,
+              formatter: function(value) {
+                return Math.round(value * 10) / 10;
+              }
+            }
+          },
           scales: {
             yAxes: [
               {
@@ -76,8 +95,8 @@ export default {
           },
           layout: {
             padding: {
-              left: 15,
-              right: 15,
+              left: 10,
+              right: 20,
               top: 25,
               bottom: 0
             }
@@ -90,6 +109,6 @@ export default {
 </script>
 
 
-<style>
+<style scoped>
 @import url("../assets/css/chart1.css");
 </style>

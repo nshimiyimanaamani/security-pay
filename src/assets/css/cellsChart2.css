@@ -1,4 +1,4 @@
-#chart2container {
+#cellChart2container {
   position: relative;
   border-radius: 10px 10px 0 0;
   background: white;
@@ -8,16 +8,16 @@
           box-shadow: 0 5px 5px #00000030;
 }
 
-#chart2container .chart2Title {
+#cellChart2container .chart2Title {
   padding: 8px;
+  background: #219fea !important;
   border-radius: 10px 10px 0 0;
-  background: #3db3fa;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
 }
 
-#chart2container .chart2Title h1 {
+#cellChart2container .chart2Title h1 {
   color: #ffffff;
   font-size: 15px;
   letter-spacing: 1.3px;
@@ -25,25 +25,25 @@
   text-transform: uppercase;
 }
 
-#chart2container .chart2Title .fa-cog {
+#cellChart2container .chart2Title .fa-cog {
   font-size: 25px;
   margin: auto 15px;
   color: white;
 }
 
-#chart2container .chart2Title .fa-th-large {
+#cellChart2container .chart2Title .fa-th-large {
   font-size: 23px;
   margin: auto 15px;
   color: white;
 }
 
-#chart2container .chart2 {
+#cellChart2container .chart2 {
   position: relative;
   min-height: 270px;
   height: 35vh;
 }
 
-#chart2container #legend {
+#cellChart2container #legend {
   background: #f9f9f9;
   position: absolute;
   top: 30%;
@@ -60,11 +60,11 @@
   font-weight: bold;
 }
 
-#chart2container #legend span {
+#cellChart2container #legend span {
   font-size: 35px;
   letter-spacing: 1px;
   line-height: 50px;
-  color: #58c5ad;
+  color: #219fea;
   font-weight: normal;
 }
-/*# sourceMappingURL=chart2.css.map */
+/*# sourceMappingURL=cellsChart2.css.map */

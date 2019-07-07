@@ -1,84 +1,71 @@
 body {
   background: #f9f9f9;
+  font-family: Arial, Helvetica, sans-serif;
 }
 .registerPage {
-  display: grid;
   position: relative;
-  grid-template-rows: 136px 200px;
   width: 50vw;
-  left: 24.5vw;
-  font-family: FThin;
+  margin: auto;
   height: 100vh;
+  color: #0000007a;
 }
 .registerTitle {
-  grid-row: 1;
   position: relative;
-  left: 110px;
-  top: 65px;
-  width: 480px;
-  color: #615f5f;
+  margin: auto;
+  top: 70px;
+  width: 290px;
   text-align: center;
-  font-size: 2.5rem;
-  font-weight: 100;
-  letter-spacing: 0.2px;
   line-height: 20px;
+  letter-spacing: 0.8px;
+  font-size: 15.4px;
 }
 .registerTitle p {
   margin: 0;
   text-align: left;
-  left: 95px;
+  left: 18px;
   position: relative;
-  letter-spacing: 1px;
 }
 .registerTitle #paypack {
-  font-size: 72px;
-  font-family: Arial, Helvetica, sans-serif;
-  letter-spacing: 1.5px;
-  line-height: 28px;
+  font-size: 65px;
+  line-height: 10px;
   color: #3db3fa;
 }
 .registerTitle #easy {
-  font-size: 1.8rem;
-  letter-spacing: 0.8px;
-  top: 15px;
+  top: 8px;
   text-align: center;
   position: relative;
 }
 .registerForm {
-  grid-row: 2;
   position: relative;
-  left: 165px;
-  top: 15rem;
-  min-height: 200px;
-  width: 60%;
+  margin: auto;
+  top: 14rem;
+  width: 57%;
 }
 .registerUsername input {
-  padding: 15px;
-  width: 90%;
+  padding: 10px 0 10px 15px;
+  width: 100%;
   border: 1px solid #bdbdbd;
   background: transparent;
-  opacity: 0.74;
-  border-radius: 15px;
-  margin: 10px 1%;
-  font-family: FRegular;
-  font-size: 18px;
+  border-radius: 10px;
+  margin: 10px auto;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
 }
 .registerPassword input {
-  padding: 15px;
-  width: 90%;
+  padding: 10px 0 10px 15px;
+  width: 100%;
   border: 1px solid #bdbdbd;
   background: transparent;
-  opacity: 0.74;
-  margin: 10px 1%;
-  border-radius: 15px;
-  font-family: FRegular;
-  font-size: 18px;
+  border-radius: 10px;
+  margin: 10px auto;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
 }
 .registerBtn a button {
-  padding: 10px;
-  margin: 10px 1%;
-  width: 90%;
-  border-radius: 15px;
+  padding: 5px;
+  margin: 10px auto;
+  width: 100%;
+  border-radius: 10px;
   border: none;
   background-color: #3db3fa;
   cursor: pointer;
@@ -90,16 +77,78 @@ body {
   line-height: 35px;
 }
 .registerBtn #forgot {
-  color: #706c6c;
   letter-spacing: 0.8px;
-  font-size: 20px;
+  font-size: 15px;
   float: right;
-  margin-right: 40px;
 }
 .registerBtn #forgot a {
   text-decoration: none;
   color: #3db3fa;
-  font-size: 24px;
-  letter-spacing: 0.4px;
-  line-height: 25px;
+  font-size: 18px;
+  letter-spacing: 1px;
+  line-height: 20px;
+}
+.modal {
+  opacity: 1;
+}
+.modal-content {
+  width: 60%;
+  top: 34vh;
+  margin: auto;
+}
+
+@keyframes lds-rolling {
+  0% {
+    -webkit-transform: translate(-50%, -50%) rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    -webkit-transform: translate(-50%, -50%) rotate(360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+@-webkit-keyframes lds-rolling {
+  0% {
+    -webkit-transform: translate(-50%, -50%) rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    -webkit-transform: translate(-50%, -50%) rotate(360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+.lds-rolling {
+  position: relative;
+}
+.lds-css {
+  width: fit-content;
+  float: right;
+  height: 10px;
+  margin-top: -4px;
+}
+.lds-rolling div,
+.lds-rolling div:after {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border: 10px solid #ffffff;
+  border-top-color: transparent;
+  border-radius: 50%;
+}
+.lds-rolling div {
+  -webkit-animation: lds-rolling 1.2s linear infinite;
+  animation: lds-rolling 1.2s linear infinite;
+  top: 100px;
+  left: 100px;
+}
+.lds-rolling div:after {
+  -webkit-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+.lds-rolling {
+  width: 45px !important;
+  height: 45px !important;
+  -webkit-transform: translate(-22.5px, -22.5px) scale(0.225)
+    translate(22.5px, 22.5px);
+  transform: translate(-22.5px, -22.5px) scale(0.225) translate(22.5px, 22.5px);
 }

@@ -1,15 +1,14 @@
-#chart2container {
+#cellChart1container {
   position: relative;
   border-radius: 10px 10px 0 0;
   background: white;
   width: 98%;
   margin: auto;
   box-shadow: 0 5px 5px #00000030;
-
-  .chart2Title {
+  .chart1Title {
     padding: 8px;
+    background: #219fea !important;
     border-radius: 10px 10px 0 0;
-    background: #3db3fa;
     display: flex;
 
     h1 {
@@ -30,31 +29,9 @@
       color: white;
     }
   }
-  .chart2 {
+  .chart1 {
     position: relative;
-    min-height: 270px;
     height: 35vh;
-  }
-  #legend {
-    background: #f9f9f9;
-    position: absolute;
-    top: 30%;
-    right: 5%;
-    color: #9a9a9a;
-    text-align: center;
-    display: grid;
-    font-size: 15px;
-    text-transform: uppercase;
-    padding: 10px;
-    line-height: 20px;
-    letter-spacing: 1px;
-    font-weight: bold;
-    span {
-      font-size: 35px;
-      letter-spacing: 1px;
-      line-height: 50px;
-      color: #58c5ad;
-      font-weight: normal;
-    }
+    min-height: 270px;
   }
 }

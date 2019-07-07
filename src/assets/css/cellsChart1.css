@@ -1,4 +1,4 @@
-#chart1container {
+#cellChart1container {
   position: relative;
   border-radius: 10px 10px 0 0;
   background: white;
@@ -8,16 +8,16 @@
           box-shadow: 0 5px 5px #00000030;
 }
 
-#chart1container .chart1Title {
+#cellChart1container .chart1Title {
   padding: 8px;
+  background: #219fea !important;
   border-radius: 10px 10px 0 0;
-  background: #3db3fa !important;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
 }
 
-#chart1container .chart1Title h1 {
+#cellChart1container .chart1Title h1 {
   color: #ffffff;
   font-size: 15px;
   letter-spacing: 1.3px;
@@ -25,21 +25,21 @@
   text-transform: uppercase;
 }
 
-#chart1container .chart1Title .fa-cog {
+#cellChart1container .chart1Title .fa-cog {
   font-size: 25px;
   margin: auto 15px;
   color: white;
 }
 
-#chart1container .chart1Title .fa-th-large {
+#cellChart1container .chart1Title .fa-th-large {
   font-size: 23px;
   margin: auto 15px;
   color: white;
 }
 
-#chart1container .chart1 {
+#cellChart1container .chart1 {
   position: relative;
   height: 35vh;
   min-height: 270px;
 }
-/*# sourceMappingURL=chart1.css.map */
+/*# sourceMappingURL=cellsChart1.css.map */
