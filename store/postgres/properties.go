@@ -8,14 +8,14 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 )
 
-var _ (properties.Store) = (*propertiesStore)(nil)
+var _ (properties.PropertyStore) = (*propertiesStore)(nil)
 
 type propertiesStore struct {
 	db *sql.DB
 }
 
 // NewPropertyStore instanctiates a new transactiob store interface
-func NewPropertyStore(db *sql.DB) properties.Store {
+func NewPropertyStore(db *sql.DB) properties.PropertyStore {
 	return &propertiesStore{db}
 }
 

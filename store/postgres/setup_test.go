@@ -14,7 +14,7 @@ import (
 
 var db *sql.DB
 
-func TestMain(m *testing.M){
+func TestMain(m *testing.M) {
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
@@ -43,7 +43,7 @@ func TestMain(m *testing.M){
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
 
-	config:= postgres.Config{
+	config := postgres.Config{
 		Host:        "localhost",
 		Port:        port,
 		User:        "test",
@@ -55,16 +55,24 @@ func TestMain(m *testing.M){
 		SSLRootCert: "",
 	}
 
-	if db, err=postgres.Connect(config); err!=nil{
+	if db, err = postgres.Connect(config); err != nil {
 		log.Fatalf("failed to connect to test DB: %v", err)
 	}
 	defer db.Close()
 
-	code:=m.Run()
+	code := m.Run()
 
 	if err = pool.Purge(container); err != nil {
 		log.Fatalf("Could not purge container: %s", err)
 	}
-	
+
 	os.Exit(code)
+}
+
+func CleanDB(t *testing.T, tables ...string) {
+	t.Helper()
+	for _, table := range tables {
+		q := fmt.Sprintf("DELETE FROM %s", table)
+		db.Exec(q)
+	}
 }

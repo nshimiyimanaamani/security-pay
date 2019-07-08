@@ -8,6 +8,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/properties/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -33,8 +34,9 @@ var (
 
 func newService() properties.Service {
 	idp := mocks.NewIdentityProvider()
-	store := mocks.NewPropertyStore()
-	return properties.New(idp, store)
+	propStore := mocks.NewPropertyStore()
+	ownerStore := mocks.NewOwnerStore()
+	return properties.New(idp, ownerStore, propStore)
 }
 
 func TestAddProperty(t *testing.T) {
@@ -118,9 +120,15 @@ func TestViewProperty(t *testing.T) {
 func TestListPropertiesByOwner(t *testing.T) {
 	svc := newService()
 
+	owner := properties.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+	oid, err := svc.CreateOwner(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
-		svc.AddProperty(property)
+		property.Owner = oid
+		_, err = svc.AddProperty(property)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 
 	cases := []struct {
@@ -343,4 +351,160 @@ func TestListPropertiesByVillage(t *testing.T) {
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 
+}
+
+func TestCreateOwner(t *testing.T) {
+	svc := newService()
+
+	cases := []struct {
+		desc  string
+		owner properties.Owner
+		err   error
+	}{
+		{
+			desc:  "add valid owner",
+			owner: properties.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"},
+			err:   nil,
+		},
+		{
+			desc:  "add invalid owner",
+			owner: properties.Owner{},
+			err:   properties.ErrInvalidEntity,
+		},
+		{
+			desc:  "add owner with empty fname field",
+			owner: properties.Owner{Lname: "Torredo", Phone: "0784677882"},
+			err:   properties.ErrInvalidEntity,
+		},
+		{
+			desc:  "add owner with empty lname field",
+			owner: properties.Owner{Fname: "James", Phone: "0784677882"},
+			err:   properties.ErrInvalidEntity,
+		},
+		{
+			desc:  "add owner with invalid phone number",
+			owner: properties.Owner{Fname: "James", Lname: "Torredo", Phone: "77878333"},
+			err:   properties.ErrInvalidEntity,
+		},
+	}
+
+	for _, tc := range cases {
+		_, err := svc.CreateOwner(tc.owner)
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+	}
+}
+
+func TestUpdateOwner(t *testing.T) {
+	svc := newService()
+
+	owner := properties.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+	owner.ID, _ = svc.CreateOwner(owner)
+
+	saved := owner
+
+	cases := []struct {
+		desc  string
+		owner properties.Owner
+		err   error
+	}{
+		{
+			desc:  "update existing owner",
+			owner: saved,
+			err:   nil,
+		},
+		{
+			desc:  "update non-existant owner",
+			owner: properties.Owner{Fname: "james", Lname: "Torredo", Phone: "0784677882"},
+			err:   properties.ErrNotFound,
+		},
+	}
+
+	for _, tc := range cases {
+		err := svc.UpdateOwner(tc.owner)
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+	}
+}
+
+func TestViewOwner(t *testing.T) {
+	svc := newService()
+
+	owner := properties.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+	owner.ID, _ = svc.CreateOwner(owner)
+
+	saved := owner
+
+	cases := []struct {
+		desc     string
+		identity string
+		err      error
+	}{
+		{
+			desc:     "view existing property",
+			identity: saved.ID,
+			err:      nil,
+		},
+		{
+			desc:     "view non-existing property",
+			identity: wrongValue,
+			err:      properties.ErrNotFound,
+		},
+	}
+
+	for _, tc := range cases {
+		_, err := svc.ViewOwner(tc.identity)
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+	}
+}
+
+func TestListOwners(t *testing.T) {
+	svc := newService()
+
+	owner := properties.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+	n := uint64(10)
+	for i := uint64(0); i < n; i++ {
+		svc.CreateOwner(owner)
+	}
+
+	cases := []struct {
+		desc   string
+		offset uint64
+		limit  uint64
+		size   uint64
+		err    error
+	}{
+		{
+			desc:   "list all properties",
+			offset: 0,
+			limit:  n,
+			size:   n,
+		},
+		{
+			desc:   "list half of the properties",
+			offset: n / 2,
+			limit:  n,
+			size:   n / 2,
+			err:    nil,
+		},
+		{
+			desc: "	list empty set",
+			offset: n + 1,
+			limit:  n,
+			size:   0,
+			err:    nil,
+		},
+		{
+			desc:   "list with zero limit",
+			offset: 1,
+			limit:  0,
+			size:   0,
+			err:    nil,
+		},
+	}
+
+	for _, tc := range cases {
+		page, err := svc.ListOwners(tc.offset, tc.limit)
+		size := uint64(len(page.Owners))
+		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+	}
 }

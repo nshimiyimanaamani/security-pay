@@ -48,9 +48,10 @@ func (tr testRequest) make() (*http.Response, error) {
 }
 
 func newService() properties.Service {
-	store := mocks.NewPropertyStore()
 	idp := mocks.NewIdentityProvider()
-	return properties.New(idp, store)
+	propStore := mocks.NewPropertyStore()
+	ownerStore := mocks.NewOwnerStore()
+	return properties.New(idp, ownerStore, propStore)
 }
 
 func newServer(svc properties.Service) *httptest.Server {
@@ -263,13 +264,13 @@ func TestViewProperty(t *testing.T) {
 		res         string
 	}{
 		{
-			desc:   "view existing transaction",
+			desc:   "view existing owner",
 			id:     saved.ID,
 			status: http.StatusOK,
 			res:    data,
 		},
 		{
-			desc:   "view non-existent transaction",
+			desc:   "view non-existent owner",
 			id:     strconv.FormatUint(wrongID, 10),
 			status: http.StatusNotFound,
 			res:    notFoundMessage,
@@ -306,9 +307,12 @@ func TestListPropertiesByOwner(t *testing.T) {
 	defer ts.Close()
 	client := ts.Client()
 
-	owner := "Gashuga John"
+	owner := properties.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+	oid, err := svc.CreateOwner(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
 	property := properties.Property{
-		Owner: owner,
+		Owner: oid,
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -333,7 +337,7 @@ func TestListPropertiesByOwner(t *testing.T) {
 		data = append(data, res)
 	}
 
-	transactionURL := fmt.Sprintf("%s/owners", ts.URL)
+	transactionURL := fmt.Sprintf("%s/owners/properties", ts.URL)
 
 	cases := []struct {
 		desc   string
@@ -344,19 +348,19 @@ func TestListPropertiesByOwner(t *testing.T) {
 		{
 			desc:   "get a list of properties",
 			status: http.StatusOK,
-			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, owner, 0, 5),
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, oid, 0, 5),
 			res:    data[0:5],
 		},
 		{
 			desc:   "get a list of properties with negative offset",
 			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, owner, -1, 5),
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, oid, -1, 5),
 			res:    nil,
 		},
 		{
 			desc:   "get a list of properties with negative limit",
 			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, owner, 1, -5),
+			url:    fmt.Sprintf("%s/%s?offset=%d&limit=%d", transactionURL, oid, 1, -5),
 			res:    nil,
 		},
 	}
@@ -612,6 +616,300 @@ func TestListPropertiesByVillage(t *testing.T) {
 	}
 }
 
+func TestCreateOwner(t *testing.T) {
+	svc := newService()
+	ts := newServer(svc)
+
+	defer ts.Close()
+	client := ts.Client()
+
+	owner := properties.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+	invalidOwner := properties.Owner{}
+
+	data := toJSON(owner)
+	invalidData := toJSON(invalidOwner)
+
+	cases := []struct {
+		desc        string
+		req         string
+		contentType string
+		status      int
+	}{
+		{"create a valid owner", data, contentType, http.StatusCreated},
+		{"create owner with invalid property", invalidData, contentType, http.StatusBadRequest},
+		{"create owner with invalid request format", "{", contentType, http.StatusBadRequest},
+		{"create owner with empty JSON request", "{}", contentType, http.StatusBadRequest},
+		{"create owner with empty request", "", contentType, http.StatusBadRequest},
+		{"create owner with missing content type", data, "", http.StatusUnsupportedMediaType},
+	}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client:      client,
+			method:      http.MethodPost,
+			url:         fmt.Sprintf("%s/owners", ts.URL),
+			contentType: tc.contentType,
+			body:        strings.NewReader(tc.req),
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+	}
+}
+
+func TestUpdateOwner(t *testing.T) {
+	svc := newService()
+	ts := newServer(svc)
+
+	defer ts.Close()
+	client := ts.Client()
+
+	owner := properties.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+	invalidOwner := properties.Owner{}
+
+	id, err := svc.CreateOwner(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	res := ownerRes{
+		ID:    id,
+		Fname: owner.Fname,
+		Lname: owner.Lname,
+		Phone: owner.Phone,
+	}
+
+	data := toJSON(res)
+	invalidData := toJSON(invalidOwner)
+
+	notFoundMessage := toJSON(errRes{"non-existent entity"})
+	invalidEntityMessage := toJSON(errRes{"invalid entity format"})
+	unsupportedContentMessage := toJSON(errRes{"unsupported content type"})
+
+	ownersURL := fmt.Sprintf("%s/owners", ts.URL)
+
+	cases := []struct {
+		desc        string
+		req         string
+		id          string
+		contentType string
+		status      int
+		res         string
+	}{
+		{
+			desc:        "update existing owner",
+			req:         data,
+			id:          id,
+			contentType: contentType,
+			status:      http.StatusOK,
+			res:         data,
+		},
+		{
+			desc:        "update non-existent owner",
+			req:         data,
+			id:          strconv.FormatUint(wrongID, 10),
+			contentType: contentType,
+			status:      http.StatusNotFound,
+			res:         notFoundMessage,
+		},
+		{
+			desc:        "update owner with invalid id",
+			req:         data,
+			id:          "invalid",
+			contentType: contentType,
+			status:      http.StatusNotFound,
+			res:         notFoundMessage,
+		},
+		{
+			desc:        "update owner with invalid data format",
+			req:         invalidData,
+			id:          id,
+			contentType: contentType,
+			status:      http.StatusBadRequest,
+			res:         invalidEntityMessage,
+		},
+		{
+			desc:        "update owner with invalid data format",
+			req:         "{",
+			id:          id,
+			contentType: contentType,
+			status:      http.StatusBadRequest,
+			res:         invalidEntityMessage,
+		},
+		{
+			desc:        "update owner with empty request",
+			req:         "",
+			id:          id,
+			contentType: contentType,
+			status:      http.StatusBadRequest,
+			res:         invalidEntityMessage,
+		},
+		{
+			desc:        "update thing without content type",
+			req:         data,
+			id:          id,
+			contentType: "",
+			status:      http.StatusUnsupportedMediaType,
+			res:         unsupportedContentMessage,
+		},
+	}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client:      client,
+			method:      http.MethodPut,
+			url:         fmt.Sprintf("%s/%s", ownersURL, tc.id),
+			contentType: tc.contentType,
+			body:        strings.NewReader(tc.req),
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		body, err := ioutil.ReadAll(res.Body)
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		data := strings.Trim(string(body), "\n")
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.Equal(t, tc.res, data, fmt.Sprintf("%s: expected body %s got %s", tc.desc, tc.res, data))
+	}
+}
+func TestViewOwner(t *testing.T) {
+	svc := newService()
+	ts := newServer(svc)
+
+	defer ts.Close()
+	client := ts.Client()
+
+	owner := properties.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+
+	id, err := svc.CreateOwner(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	res := ownerRes{
+		ID:    id,
+		Fname: owner.Fname,
+		Lname: owner.Lname,
+		Phone: owner.Phone,
+	}
+
+	data := toJSON(res)
+	notFoundMessage := toJSON(errRes{"non-existent entity"})
+
+	ownersURL := fmt.Sprintf("%s/owners", ts.URL)
+
+	cases := []struct {
+		desc        string
+		id          string
+		contentType string
+		status      int
+		res         string
+	}{
+		{
+			desc:   "view existing owner",
+			id:     res.ID,
+			status: http.StatusOK,
+			res:    data,
+		},
+		{
+			desc:   "view non-existent owner",
+			id:     strconv.FormatUint(wrongID, 10),
+			status: http.StatusNotFound,
+			res:    notFoundMessage,
+		},
+		{
+			desc:   "view thing by passing invalid id",
+			id:     "invalid",
+			status: http.StatusNotFound,
+			res:    notFoundMessage,
+		},
+	}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client: client,
+			method: http.MethodGet,
+			url:    fmt.Sprintf("%s/%s", ownersURL, tc.id),
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		body, err := ioutil.ReadAll(res.Body)
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		data := strings.Trim(string(body), "\n")
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.Equal(t, tc.res, data, fmt.Sprintf("%s: expected body %s got %s", tc.desc, tc.res, data))
+	}
+
+}
+
+func TestListOwners(t *testing.T) {
+	svc := newService()
+	ts := newServer(svc)
+
+	defer ts.Close()
+	client := ts.Client()
+
+	owner := properties.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+
+	data := []ownerRes{}
+
+	for i := 0; i < 100; i++ {
+		id, err := svc.CreateOwner(owner)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+		res := ownerRes{
+			ID:    id,
+			Fname: owner.Fname,
+			Lname: owner.Lname,
+			Phone: owner.Phone,
+		}
+
+		data = append(data, res)
+	}
+
+	transactionURL := fmt.Sprintf("%s/owners/", ts.URL)
+
+	cases := []struct {
+		desc   string
+		status int
+		url    string
+		res    []ownerRes
+	}{
+		{
+			desc:   "get a list of owners",
+			status: http.StatusOK,
+			url:    fmt.Sprintf("%s?offset=%d&limit=%d", transactionURL, 0, 5),
+			res:    data[0:5],
+		},
+		{
+			desc:   "get a list of owners with negative offset",
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s?offset=%d&limit=%d", transactionURL, -1, 5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of owners with negative limit",
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s?offset=%d&limit=%d", transactionURL, 1, -5),
+			res:    nil,
+		},
+	}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client: client,
+			method: http.MethodGet,
+			url:    tc.url,
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		var data ownerPageRes
+		json.NewDecoder(res.Body).Decode(&data)
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.ElementsMatch(t, tc.res, data.Owners, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Owners))
+	}
+}
+
 type propRes struct {
 	ID      string `json:"id,omitempty"`
 	Owner   string `json:"owner,omitempty"`
@@ -620,11 +918,25 @@ type propRes struct {
 	Village string `json:"village,omitempty"`
 }
 
+type ownerRes struct {
+	ID    string `json:"id,omitempty"`
+	Fname string `json:"fname,omitempty"`
+	Lname string `json:"lname,omitempty"`
+	Phone string `json:"phone,omitempty"`
+}
+
 type propPageRes struct {
 	Properties []propRes `json:"properties"`
 	Total      uint64    `json:"total"`
 	Offset     uint64    `json:"offset"`
 	Limit      uint64    `json:"limit"`
+}
+
+type ownerPageRes struct {
+	Owners []ownerRes `json:"owners"`
+	Total  uint64     `json:"total"`
+	Offset uint64     `json:"offset"`
+	Limit  uint64     `json:"limit"`
 }
 
 type errRes struct {

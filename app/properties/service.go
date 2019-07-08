@@ -50,20 +50,36 @@ type Service interface {
 	// ListPropertiesByVillage returns a lists of properties in the given village
 	// withing the given range(offset, limit).
 	ListPropertiesByVillage(string, uint64, uint64) (PropertyPage, error)
+
+	// CreateOwner adds a new property adn returns his id if the operation is a success
+	CreateOwner(Owner) (string, error)
+
+	// Update owner updates the given owner and returns a nil error if
+	// the operation is a success.
+	UpdateOwner(Owner) error
+
+	// ViewOwner returns a owner entity given it's id and returns\
+	// a non-nil error the operation failed
+	ViewOwner(string) (Owner, error)
+
+	// Listowners returns a subset(offset, limit) of owners and a non-nil error
+	ListOwners(uint64, uint64) (OwnerPage, error)
 }
 
 var _ Service = (*propertyService)(nil)
 
 type propertyService struct {
-	idp   app.IdentityProvider
-	store Store
+	idp        app.IdentityProvider
+	owners     OwnerStore
+	properties PropertyStore
 }
 
 // New instatiates a new property service
-func New(idp app.IdentityProvider, store Store) Service {
+func New(idp app.IdentityProvider, owners OwnerStore, properties PropertyStore) Service {
 	return &propertyService{
-		idp:   idp,
-		store: store,
+		idp:        idp,
+		owners:     owners,
+		properties: properties,
 	}
 }
 
@@ -71,10 +87,9 @@ func (svc *propertyService) AddProperty(property Property) (Property, error) {
 	if err := property.Validate(); err != nil {
 		return Property{}, err
 	}
-
 	property.ID = svc.idp.ID()
 
-	id, err := svc.store.Save(property)
+	id, err := svc.properties.Save(property)
 	if err != nil {
 		return Property{}, err
 	}
@@ -87,25 +102,54 @@ func (svc *propertyService) UpdateProperty(property Property) error {
 	if err := property.Validate(); err != nil {
 		return err
 	}
-	return svc.store.UpdateProperty(property)
+	return svc.properties.UpdateProperty(property)
 }
 
 func (svc *propertyService) ViewProperty(id string) (Property, error) {
-	return svc.store.RetrieveByID(id)
+	return svc.properties.RetrieveByID(id)
 }
 
-func (svc *propertyService) ListPropertiesByOwner(owner string, offset, limit uint64) (PropertyPage, error) {
-	return svc.store.RetrieveByOwner(owner, offset, limit)
+func (svc *propertyService) ListPropertiesByOwner(id string, offset, limit uint64) (PropertyPage, error) {
+	owner, err := svc.owners.Retrieve(id)
+	if err != nil {
+		return PropertyPage{}, err
+	}
+	return svc.properties.RetrieveByOwner(owner.ID, offset, limit)
 }
 
 func (svc *propertyService) ListPropertiesBySector(sector string, offset, limit uint64) (PropertyPage, error) {
-	return svc.store.RetrieveBySector(sector, offset, limit)
+	return svc.properties.RetrieveBySector(sector, offset, limit)
 }
 
 func (svc *propertyService) ListPropertiesByCell(cell string, offset, limit uint64) (PropertyPage, error) {
-	return svc.store.RetrieveByCell(cell, offset, limit)
+	return svc.properties.RetrieveByCell(cell, offset, limit)
 }
 
 func (svc *propertyService) ListPropertiesByVillage(village string, offset, limit uint64) (PropertyPage, error) {
-	return svc.store.RetrieveByVillage(village, offset, limit)
+	return svc.properties.RetrieveByVillage(village, offset, limit)
+}
+
+// CreateOwner adds a new property adn returns his id if the operation is a success
+func (svc *propertyService) CreateOwner(owner Owner) (string, error) {
+	if err := owner.Validate(); err != nil {
+		return "", err
+	}
+	owner.ID = svc.idp.ID()
+	return svc.owners.Save(owner)
+}
+
+// Update owner updates the given owner and returns a nil error if
+// the operation is a success.
+func (svc *propertyService) UpdateOwner(owner Owner) error {
+	return svc.owners.Update(owner)
+}
+
+// ViewOwner returns a owner entity given it's id and returns\
+// a non-nil error the operation failed
+func (svc *propertyService) ViewOwner(id string) (Owner, error) {
+	return svc.owners.Retrieve(id)
+}
+
+func (svc *propertyService) ListOwners(offset, limit uint64) (OwnerPage, error) {
+	return svc.owners.RetrieveAll(offset, limit)
 }

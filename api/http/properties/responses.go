@@ -76,8 +76,63 @@ func (res propPageRes) Empty() bool {
 	return false
 }
 
+type updateOwnerRes struct {
+	ID    string `json:"id,omitempty"`
+	Fname string `json:"fname,omitempty"`
+	Lname string `json:"lname,omitempty"`
+	Phone string `json:"phone,omitempty"`
+}
+
+func (res updateOwnerRes) Code() int {
+	return http.StatusOK
+}
+
+func (res updateOwnerRes) Headers() map[string]string {
+	return map[string]string{}
+}
+
+func (res updateOwnerRes) Empty() bool {
+	return false
+}
+
 type pageRes struct {
 	Total  uint64 `json:"total"`
 	Offset uint64 `json:"offset"`
 	Limit  uint64 `json:"limit"`
+}
+
+type viewOwnerRes struct {
+	ID    string `json:"id,omitempty"`
+	Fname string `json:"fname,omitempty"`
+	Lname string `json:"lname,omitempty"`
+	Phone string `json:"phone,omitempty"`
+}
+
+func (res viewOwnerRes) Code() int {
+	return http.StatusOK
+}
+
+func (res viewOwnerRes) Headers() map[string]string {
+	return map[string]string{}
+}
+
+func (res viewOwnerRes) Empty() bool {
+	return false
+}
+
+type ownerPageRes struct {
+	pageRes
+	Owners []viewOwnerRes `json:"owners"`
+}
+
+func (res ownerPageRes) Code() int {
+	return http.StatusOK
+}
+
+func (res ownerPageRes) Headers() map[string]string {
+	return map[string]string{}
+}
+
+func (res ownerPageRes) Empty() bool {
+	return false
 }

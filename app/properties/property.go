@@ -35,8 +35,8 @@ func (prt *Property) Validate() error {
 	return nil
 }
 
-// Store defines the api to the properties data store
-type Store interface {
+// PropertyStore defines the api to the properties data store
+type PropertyStore interface {
 	// Save adds a new transactiob to the data store returns nil
 	// if the operation is successful or otherwise an error.
 	Save(Property) (string, error)

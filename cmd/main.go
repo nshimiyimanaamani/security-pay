@@ -147,8 +147,9 @@ func newTransactionService(db *sql.DB) transactions.Service {
 
 func newPropertyService(db *sql.DB) properties.Service {
 	idp := uuid.New()
-	store := postgres.NewPropertyStore(db)
-	return properties.New(idp, store)
+	propStore := postgres.NewPropertyStore(db)
+	ownerStore := postgres.NewOwnerStore(db)
+	return properties.New(idp, ownerStore, propStore)
 }
 
 func startHTTPServer(ctx context.Context,

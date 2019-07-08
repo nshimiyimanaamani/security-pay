@@ -17,6 +17,7 @@ var (
 
 func TestSave(t *testing.T) {
 	repo := postgres.NewTransactionStore(db)
+	defer CleanDB(t, "transactions")
 
 	property := uuid.New().ID()
 	id := uuid.New().ID()
@@ -57,6 +58,8 @@ func TestSave(t *testing.T) {
 
 func TestSinglePropertyRetrieveByID(t *testing.T) {
 	repo := postgres.NewTransactionStore(db)
+	defer CleanDB(t, "transactions")
+
 	property := uuid.New().ID()
 	method := "kcb"
 
@@ -89,6 +92,8 @@ func TestSinglePropertyRetrieveByID(t *testing.T) {
 func TestRetrieveAll(t *testing.T) {
 	idp := uuid.New()
 	repo := postgres.NewTransactionStore(db)
+	defer CleanDB(t, "transactions")
+
 	property := uuid.New().ID()
 	method := "mtn"
 
@@ -132,6 +137,8 @@ func TestRetrieveAll(t *testing.T) {
 func TestRetrieveByProperty(t *testing.T) {
 	idp := uuid.New()
 	repo := postgres.NewTransactionStore(db)
+	defer CleanDB(t, "transactions")
+
 	property := uuid.New().ID()
 	method := "airtel"
 
@@ -184,6 +191,8 @@ func TestRetrieveByProperty(t *testing.T) {
 func TestRetrieveByMethod(t *testing.T) {
 	idp := uuid.New()
 	repo := postgres.NewTransactionStore(db)
+	defer CleanDB(t, "transactions")
+
 	property := uuid.New().ID()
 	method := "equity"
 

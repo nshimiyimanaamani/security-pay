@@ -77,14 +77,23 @@ func migrateDB(db *sql.DB) error {
 				Id: "paypack_2",
 
 				Up: []string{
+					`CREATE TABLE IF NOT EXISTS owners (
+						id	   		UUID,
+						fname  		VARCHAR(1024) NOT NULL,
+						lname  		VARCHAR(1024) NOT NULL,
+						phone  		VARCHAR(15)   NOT NULL,
+						PRIMARY 	KEY(id)
+					)`,
+
 					`CREATE TABLE IF NOT EXISTS properties (
-							id			UUID,
-							owner		VARCHAR(254) NOT NULL,
-							sector		VARCHAR(254) NOT NULL,
-							cell		VARCHAR(254) NOT NULL,
-							village		VARCHAR(254) NOT NULL,
-							PRIMARY 	KEY(id)
-						)`,
+						id			UUID,
+						owner		UUID		 NOT NULL,
+						sector		VARCHAR(254) NOT NULL,
+						cell		VARCHAR(254) NOT NULL,
+						village		VARCHAR(254) NOT NULL,
+						FOREIGN KEY(owner) references owners(id) ON DELETE CASCADE ON UPDATE CASCADE,
+						PRIMARY 	KEY(id)
+					)`,
 				},
 
 				Down: []string{

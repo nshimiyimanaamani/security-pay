@@ -8,7 +8,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 )
 
-var _ (properties.Store) = (*propertyStoreMock)(nil)
+var _ (properties.PropertyStore) = (*propertyStoreMock)(nil)
 
 type propertyStoreMock struct {
 	mu         sync.Mutex
@@ -17,7 +17,7 @@ type propertyStoreMock struct {
 }
 
 // NewPropertyStore creates PropertyStore mirror
-func NewPropertyStore() properties.Store {
+func NewPropertyStore() properties.PropertyStore {
 	return &propertyStoreMock{
 		properties: make(map[string]properties.Property),
 	}

@@ -31,6 +31,8 @@ require (
 	github.com/rubenv/sql-migrate v0.0.0-20190618074426-f4d34eae5a5c
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.3.0
+	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
+	github.com/ttacon/libphonenumber v1.0.1
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	golang.org/x/crypto v0.0.0-20190621222207-cc06ce4a13d4
 	google.golang.org/appengine v1.6.1 // indirect

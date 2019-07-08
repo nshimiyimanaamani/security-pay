@@ -8,13 +8,23 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSaveProperty(t *testing.T) {
-	repo := postgres.NewPropertyStore(db)
+	props := postgres.NewPropertyStore(db)
+	ows := postgres.NewOwnerStore(db)
+
+	defer CleanDB(t, "properties", "owners")
+
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	id, err := ows.Save(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	owner.ID = id
+
 	new := properties.Property{
 		ID:    uuid.New().ID(),
-		Owner: "Kagabo John",
+		Owner: owner.ID,
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -53,17 +63,25 @@ func TestSaveProperty(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		_, err := repo.Save(tc.property)
+		_, err := props.Save(tc.property)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 }
 
 func TestUpdateProperty(t *testing.T) {
-	repo := postgres.NewPropertyStore(db)
+	props := postgres.NewPropertyStore(db)
+	ows := postgres.NewOwnerStore(db)
+
+	defer CleanDB(t, "properties", "owners")
+
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	id, err := ows.Save(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	owner.ID = id
 
 	property := properties.Property{
 		ID:    uuid.New().ID(),
-		Owner: "Eugene Mugabo",
+		Owner: owner.ID,
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -71,7 +89,7 @@ func TestUpdateProperty(t *testing.T) {
 		},
 	}
 
-	prid, _ := repo.Save(property)
+	prid, _ := props.Save(property)
 
 	property.ID = prid
 
@@ -89,7 +107,7 @@ func TestUpdateProperty(t *testing.T) {
 			desc: "update non existant property",
 			property: properties.Property{
 				ID:    uuid.New().ID(),
-				Owner: "Eugene Mugabo",
+				Owner: uuid.New().ID(),
 				Address: properties.Address{
 					Sector:  "Remera",
 					Cell:    "Gishushu",
@@ -102,7 +120,20 @@ func TestUpdateProperty(t *testing.T) {
 			desc: "udpate property with invalid id",
 			property: properties.Property{
 				ID:    wrongValue,
-				Owner: "Eugene Mugabo",
+				Owner: owner.ID,
+				Address: properties.Address{
+					Sector:  "Remera",
+					Cell:    "Gishushu",
+					Village: "Ingabo",
+				},
+			},
+			err: properties.ErrInvalidEntity,
+		},
+		{
+			desc: "udpate property with invalid owner",
+			property: properties.Property{
+				ID:    uuid.New().ID(),
+				Owner: wrongValue,
 				Address: properties.Address{
 					Sector:  "Remera",
 					Cell:    "Gishushu",
@@ -114,18 +145,26 @@ func TestUpdateProperty(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		err := repo.UpdateProperty(tc.property)
+		err := props.UpdateProperty(tc.property)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 
 }
 
 func TestRetrieveByID(t *testing.T) {
-	repo := postgres.NewPropertyStore(db)
+	props := postgres.NewPropertyStore(db)
+	ows := postgres.NewOwnerStore(db)
 
+	defer CleanDB(t, "properties", "owners")
+
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	oid, err := ows.Save(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	owner.ID = oid
 	property := properties.Property{
 		ID:    uuid.New().ID(),
-		Owner: "Eugene Mugabo",
+		Owner: owner.ID,
 		Address: properties.Address{
 			Sector:  "Gasabo",
 			Cell:    "Kanserege",
@@ -133,29 +172,35 @@ func TestRetrieveByID(t *testing.T) {
 		},
 	}
 
-	id, _ := repo.Save(property)
+	pid, _ := props.Save(property)
 
 	cases := []struct {
 		desc string
 		id   string
 		err  error
 	}{
-		{"retrieve existing transaction", id, nil},
-		{"retrieve non existing transaction", uuid.New().ID(), properties.ErrNotFound},
+		{"retrieve existing property", pid, nil},
+		{"retrieve non-existing property", uuid.New().ID(), properties.ErrNotFound},
 		{"retrieve with malformed id", wrongValue, properties.ErrNotFound},
 	}
 
 	for _, tc := range cases {
-		_, err := repo.RetrieveByID(tc.id)
+		_, err := props.RetrieveByID(tc.id)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 
 }
 func TestRetrieveByOwner(t *testing.T) {
-	idp := uuid.New()
-	repo := postgres.NewPropertyStore(db)
+	props := postgres.NewPropertyStore(db)
+	ows := postgres.NewOwnerStore(db)
 
-	owner := "James Rodriguez"
+	defer CleanDB(t, "properties", "owners")
+
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	oid, err := ows.Save(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	owner.ID = oid
 	sector := "Nyarugenge"
 	cell := "Kacyiru"
 	village := "Kanserege"
@@ -164,8 +209,8 @@ func TestRetrieveByOwner(t *testing.T) {
 
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
-			ID:    idp.ID(),
-			Owner: owner,
+			ID:    uuid.New().ID(),
+			Owner: owner.ID,
 			Address: properties.Address{
 				Sector:  sector,
 				Cell:    cell,
@@ -173,7 +218,7 @@ func TestRetrieveByOwner(t *testing.T) {
 			},
 		}
 
-		repo.Save(p)
+		props.Save(p)
 	}
 	cases := map[string]struct {
 		owner  string
@@ -183,21 +228,21 @@ func TestRetrieveByOwner(t *testing.T) {
 		total  uint64
 	}{
 		"retrieve all properties with existing owner": {
-			owner:  owner,
+			owner:  owner.ID,
 			offset: 0,
 			limit:  n,
 			size:   n,
 			total:  n,
 		},
 		"retrieve subset of properties with existing owner": {
-			owner:  owner,
+			owner:  owner.ID,
 			offset: n / 2,
 			limit:  n,
 			size:   n / 2,
 			total:  n,
 		},
 		"retrieve properties with non-existing owner": {
-			owner:  wrongValue,
+			owner:  uuid.New().ID(),
 			offset: 0,
 			limit:  n,
 			size:   0,
@@ -206,7 +251,7 @@ func TestRetrieveByOwner(t *testing.T) {
 	}
 
 	for desc, tc := range cases {
-		page, err := repo.RetrieveByOwner(tc.owner, tc.offset, tc.limit)
+		page, err := props.RetrieveByOwner(tc.owner, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
@@ -215,20 +260,26 @@ func TestRetrieveByOwner(t *testing.T) {
 }
 
 func TestRetrieveBySector(t *testing.T) {
-	idp := uuid.New()
-	repo := postgres.NewPropertyStore(db)
+	props := postgres.NewPropertyStore(db)
+	ows := postgres.NewOwnerStore(db)
 
-	owner := "James  Rodriguez"
-	sector := "REMERA"
-	cell := "Kibagabaga"
-	village := "Bishenyi"
+	defer CleanDB(t, "properties", "owners")
+
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	oid, err := ows.Save(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	owner.ID = oid
+	sector := "Gasabo"
+	cell := "Kacyiru"
+	village := "Shambo"
 
 	n := uint64(10)
 
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
-			ID:    idp.ID(),
-			Owner: owner,
+			ID:    uuid.New().ID(),
+			Owner: owner.ID,
 			Address: properties.Address{
 				Sector:  sector,
 				Cell:    cell,
@@ -236,7 +287,7 @@ func TestRetrieveBySector(t *testing.T) {
 			},
 		}
 
-		repo.Save(p)
+		props.Save(p)
 	}
 	cases := map[string]struct {
 		sector string
@@ -269,7 +320,7 @@ func TestRetrieveBySector(t *testing.T) {
 	}
 
 	for desc, tc := range cases {
-		page, err := repo.RetrieveBySector(tc.sector, tc.offset, tc.limit)
+		page, err := props.RetrieveBySector(tc.sector, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
@@ -278,10 +329,16 @@ func TestRetrieveBySector(t *testing.T) {
 }
 
 func TestRetrieveByCell(t *testing.T) {
-	idp := uuid.New()
-	repo := postgres.NewPropertyStore(db)
+	props := postgres.NewPropertyStore(db)
+	ows := postgres.NewOwnerStore(db)
 
-	owner := "Shema Fred"
+	defer CleanDB(t, "properties", "owners")
+
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	oid, err := ows.Save(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	owner.ID = oid
 	sector := "Gasate"
 	cell := "Gasaka"
 	village := "Shami"
@@ -290,8 +347,8 @@ func TestRetrieveByCell(t *testing.T) {
 
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
-			ID:    idp.ID(),
-			Owner: owner,
+			ID:    uuid.New().ID(),
+			Owner: owner.ID,
 			Address: properties.Address{
 				Sector:  sector,
 				Cell:    cell,
@@ -299,7 +356,7 @@ func TestRetrieveByCell(t *testing.T) {
 			},
 		}
 
-		repo.Save(p)
+		props.Save(p)
 	}
 	cases := map[string]struct {
 		cell   string
@@ -332,7 +389,7 @@ func TestRetrieveByCell(t *testing.T) {
 	}
 
 	for desc, tc := range cases {
-		page, err := repo.RetrieveByCell(tc.cell, tc.offset, tc.limit)
+		page, err := props.RetrieveByCell(tc.cell, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
@@ -341,10 +398,16 @@ func TestRetrieveByCell(t *testing.T) {
 }
 
 func TestRetrieveByVillage(t *testing.T) {
-	idp := uuid.New()
-	repo := postgres.NewPropertyStore(db)
+	props := postgres.NewPropertyStore(db)
+	ows := postgres.NewOwnerStore(db)
 
-	owner := "Mukwege Tommy"
+	defer CleanDB(t, "properties", "owners")
+
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	oid, err := ows.Save(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	owner.ID = oid
 	sector := "Kigomna"
 	cell := "Kigeme"
 	village := "Tetero"
@@ -353,8 +416,8 @@ func TestRetrieveByVillage(t *testing.T) {
 
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
-			ID:    idp.ID(),
-			Owner: owner,
+			ID:    uuid.New().ID(),
+			Owner: owner.ID,
 			Address: properties.Address{
 				Sector:  sector,
 				Cell:    cell,
@@ -362,8 +425,9 @@ func TestRetrieveByVillage(t *testing.T) {
 			},
 		}
 
-		repo.Save(p)
+		props.Save(p)
 	}
+
 	cases := map[string]struct {
 		village string
 		offset  uint64
@@ -395,7 +459,7 @@ func TestRetrieveByVillage(t *testing.T) {
 	}
 
 	for desc, tc := range cases {
-		page, err := repo.RetrieveByVillage(tc.village, tc.offset, tc.limit)
+		page, err := props.RetrieveByVillage(tc.village, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
