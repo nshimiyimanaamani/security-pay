@@ -164,7 +164,7 @@ func startHTTPServer(ctx context.Context,
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
 
-	router := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(true)
+	router := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(false)
 
 	userRoutes := router.PathPrefix("/users").Subrouter()
 	usersAdapters.MakeAdapter(userRoutes)(users)

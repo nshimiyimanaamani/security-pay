@@ -42,7 +42,7 @@ func MakeEndpoint(router *mux.Router) func(svc properties.Service) {
 		}).Queries("offset", "{offset}", "limit", "{limit}").Methods("GET")
 
 		//owner handlers
-		router.HandleFunc("/owners", func(w http.ResponseWriter, r *http.Request) {
+		router.HandleFunc("/owners/", func(w http.ResponseWriter, r *http.Request) {
 			handleCreateOwner(svc, w, r)
 		}).Methods("POST")
 
