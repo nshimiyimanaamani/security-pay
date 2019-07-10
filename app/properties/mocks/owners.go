@@ -63,6 +63,18 @@ func (str *ownerStoreMock) Retrieve(id string) (properties.Owner, error) {
 	return val, nil
 }
 
+func (str *ownerStoreMock) FindOwner(fname, lname, phone string) (properties.Owner, error) {
+	str.mu.Lock()
+	defer str.mu.Unlock()
+
+	for _, val := range str.owners {
+		if val.Fname == fname && val.Lname == lname && val.Phone == phone {
+			return val, nil
+		}
+	}
+	return properties.Owner{}, properties.ErrNotFound
+}
+
 func (str *ownerStoreMock) RetrieveAll(offset, limit uint64) (properties.OwnerPage, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()

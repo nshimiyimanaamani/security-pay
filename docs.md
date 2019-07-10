@@ -161,6 +161,18 @@ Note that the `property` must be a valid uuid and you can generate them with at 
         "phone": "0784577882"
     }
     ```
+* `/properties/owners/search/?fname=n&lname=m&phone=o`
+    - method: `GET`
+    - request body: `empty`
+    - response body: 
+    ```
+    {
+        "fname": "Tucky",
+        "id": "54f0a0a5-373a-439f-8831-2e5151535679",
+        "lname": "Bucky",
+        "phone": "0784577882"
+    }
+    ```
 
 * `/properties/owners/:owner/?offset=n&limit=m`
     - method: `GET`
