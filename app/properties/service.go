@@ -64,6 +64,9 @@ type Service interface {
 
 	// Listowners returns a subset(offset, limit) of owners and a non-nil error
 	ListOwners(uint64, uint64) (OwnerPage, error)
+
+	// FindOwner owners finds a owner given their fname, lname and phone.
+	FindOwner(string, string, string) (Owner, error)
 }
 
 var _ Service = (*propertyService)(nil)
@@ -152,4 +155,8 @@ func (svc *propertyService) ViewOwner(id string) (Owner, error) {
 
 func (svc *propertyService) ListOwners(offset, limit uint64) (OwnerPage, error) {
 	return svc.owners.RetrieveAll(offset, limit)
+}
+
+func (svc *propertyService) FindOwner(fname, lname, phone string) (Owner, error) {
+	return svc.owners.FindOwner(fname, lname, phone)
 }

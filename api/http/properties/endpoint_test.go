@@ -866,7 +866,7 @@ func TestListOwners(t *testing.T) {
 		data = append(data, res)
 	}
 
-	transactionURL := fmt.Sprintf("%s/owners/", ts.URL)
+	ownersURL := fmt.Sprintf("%s/owners/", ts.URL)
 
 	cases := []struct {
 		desc   string
@@ -877,19 +877,19 @@ func TestListOwners(t *testing.T) {
 		{
 			desc:   "get a list of owners",
 			status: http.StatusOK,
-			url:    fmt.Sprintf("%s?offset=%d&limit=%d", transactionURL, 0, 5),
+			url:    fmt.Sprintf("%s?offset=%d&limit=%d", ownersURL, 0, 5),
 			res:    data[0:5],
 		},
 		{
 			desc:   "get a list of owners with negative offset",
 			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s?offset=%d&limit=%d", transactionURL, -1, 5),
+			url:    fmt.Sprintf("%s?offset=%d&limit=%d", ownersURL, -1, 5),
 			res:    nil,
 		},
 		{
 			desc:   "get a list of owners with negative limit",
 			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s?offset=%d&limit=%d", transactionURL, 1, -5),
+			url:    fmt.Sprintf("%s?offset=%d&limit=%d", ownersURL, 1, -5),
 			res:    nil,
 		},
 	}
@@ -908,6 +908,95 @@ func TestListOwners(t *testing.T) {
 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
 		assert.ElementsMatch(t, tc.res, data.Owners, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Owners))
 	}
+}
+
+func TestSearchOwner(t *testing.T) {
+	svc := newService()
+	ts := newServer(svc)
+
+	defer ts.Close()
+	client := ts.Client()
+
+	owner := properties.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+
+	id, err := svc.CreateOwner(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	res := ownerRes{
+		ID:    id,
+		Fname: owner.Fname,
+		Lname: owner.Lname,
+		Phone: owner.Phone,
+	}
+
+	data := toJSON(res)
+	notFoundMessage := toJSON(errRes{"non-existent entity"})
+
+	ownersURL := fmt.Sprintf("%s/owners/search/", ts.URL)
+
+	cases := []struct {
+		desc   string
+		fname  string
+		lname  string
+		phone  string
+		url    string
+		status int
+		res    string
+	}{
+		{
+			desc:   "search existing owner",
+			fname:  res.Fname,
+			lname:  res.Lname,
+			phone:  res.Phone,
+			url:    fmt.Sprintf("%s?fname=%s&lname=%s&phone=%s", ownersURL, res.Fname, res.Lname, res.Phone),
+			status: http.StatusOK,
+			res:    data,
+		},
+		{
+			desc:   "search owner with wrong first name",
+			fname:  "wrong",
+			lname:  res.Lname,
+			phone:  res.Phone,
+			url:    fmt.Sprintf("%s?fname=%s&lname=%s&phone=%s", ownersURL, "wrong", res.Lname, res.Phone),
+			status: http.StatusNotFound,
+			res:    notFoundMessage,
+		},
+		{
+			desc:   "search owner with wrong lname name",
+			fname:  res.Fname,
+			lname:  "wrong",
+			phone:  res.Phone,
+			url:    fmt.Sprintf("%s?fname=%s&lname=%s&phone=%s", ownersURL, res.Fname, "wrong", res.Phone),
+			status: http.StatusNotFound,
+			res:    notFoundMessage,
+		},
+		{
+			desc:   "search owner with wrong phone number",
+			fname:  res.Fname,
+			lname:  res.Lname,
+			phone:  "wrong",
+			url:    fmt.Sprintf("%s?fname=%s&lname=%s&phone=%s", ownersURL, res.Fname, res.Lname, "wrong"),
+			status: http.StatusNotFound,
+			res:    notFoundMessage,
+		},
+	}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client: client,
+			method: http.MethodGet,
+			url:    tc.url,
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		body, err := ioutil.ReadAll(res.Body)
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		data := strings.Trim(string(body), "\n")
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.Equal(t, tc.res, data, fmt.Sprintf("%s: expected body %s got %s", tc.desc, tc.res, data))
+	}
+
 }
 
 type propRes struct {

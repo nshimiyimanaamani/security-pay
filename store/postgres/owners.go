@@ -80,6 +80,24 @@ func (str *ownerStore) Retrieve(id string) (properties.Owner, error) {
 	return owner, nil
 }
 
+func (str *ownerStore) FindOwner(fname, lname, phone string) (properties.Owner, error) {
+	q := `SELECT * FROM owners WHERE fname=$1 AND lname=$2 AND phone=$3;`
+
+	var owner properties.Owner
+
+	err := str.db.QueryRow(q, fname, lname, phone).Scan(&owner.ID, &owner.Fname, &owner.Lname, &owner.Phone)
+	if err != nil {
+		empty := properties.Owner{}
+
+		pqErr, ok := err.(*pq.Error)
+		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
+			return empty, properties.ErrNotFound
+		}
+		return empty, err
+	}
+	return owner, nil
+}
+
 func (str *ownerStore) RetrieveAll(offset, limit uint64) (properties.OwnerPage, error) {
 	q := `SELECT * FROM owners ORDER BY id LIMIT $1 OFFSET $2;`
 

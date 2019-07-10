@@ -40,6 +40,9 @@ type OwnerStore interface {
 	// Retrieve retrieves an owner given their id
 	Retrieve(string) (Owner, error)
 
+	// FindOwner retrieves an owner given their fname, lname and phone.
+	FindOwner(string, string, string) (Owner, error)
+
 	// RetrieveAll retrieves a subst of owners.
 	RetrieveAll(uint64, uint64) (OwnerPage, error)
 }

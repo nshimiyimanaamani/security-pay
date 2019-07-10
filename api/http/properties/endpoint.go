@@ -57,6 +57,10 @@ func MakeEndpoint(router *mux.Router) func(svc properties.Service) {
 		router.HandleFunc("/owners/{id}", func(w http.ResponseWriter, r *http.Request) {
 			handleUpdateOwner(svc, w, r)
 		}).Methods("PUT")
+
+		router.HandleFunc("/owners/search/", func(w http.ResponseWriter, r *http.Request) {
+			handleSearchOwner(svc, w, r)
+		}).Queries("fname", "{fname}", "lname", "{lname}", "phone", "{phone}").Methods("GET")
 	}
 	return handler
 }
@@ -502,6 +506,34 @@ func handleListOwners(svc properties.Service, w http.ResponseWriter, r *http.Req
 			Phone: owner.Phone,
 		}
 		response.Owners = append(response.Owners, view)
+	}
+
+	if err = EncodeResponse(w, response); err != nil {
+		EncodeError(w, err)
+		return
+	}
+}
+
+func handleSearchOwner(svc properties.Service, w http.ResponseWriter, r *http.Request) {
+	var err error
+
+	vars := mux.Vars(r)
+
+	fname := vars["fname"]
+	lname := vars["lname"]
+	phone := vars["phone"]
+
+	owner, err := svc.FindOwner(fname, lname, phone)
+	if err != nil {
+		EncodeError(w, err)
+		return
+	}
+
+	response := viewOwnerRes{
+		ID:    owner.ID,
+		Fname: owner.Fname,
+		Lname: owner.Lname,
+		Phone: owner.Phone,
 	}
 
 	if err = EncodeResponse(w, response); err != nil {

@@ -508,3 +508,57 @@ func TestListOwners(t *testing.T) {
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 }
+
+func TestFindOwner(t *testing.T) {
+	svc := newService()
+
+	fname := "james"
+	lname := "torredo"
+	phone := "0784677882"
+
+	owner := properties.Owner{Fname: fname, Lname: lname, Phone: phone}
+
+	_, err := svc.CreateOwner(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	cases := []struct {
+		desc  string
+		fname string
+		lname string
+		phone string
+		err   error
+	}{
+		{
+			desc:  "find existing owner",
+			fname: fname,
+			lname: lname,
+			phone: phone,
+			err:   nil,
+		},
+		{
+			desc:  "find owner with wrong first name",
+			fname: "wrong",
+			lname: lname,
+			phone: phone,
+			err:   properties.ErrNotFound,
+		},
+		{
+			desc:  "find owner with wrong last name",
+			fname: fname,
+			lname: "wrong",
+			phone: phone,
+			err:   properties.ErrNotFound,
+		},
+		{
+			desc:  "find owner with wrong phone number",
+			fname: fname,
+			lname: lname,
+			phone: "wrong",
+			err:   properties.ErrNotFound,
+		},
+	}
+	for _, tc := range cases {
+		_, err := svc.FindOwner(tc.fname, tc.lname, tc.phone)
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+	}
+}

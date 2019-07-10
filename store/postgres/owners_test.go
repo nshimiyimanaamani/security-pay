@@ -116,6 +116,63 @@ func TestRetrieveOwner(t *testing.T) {
 	}
 }
 
+func TestFindOwner(t *testing.T) {
+	repo := postgres.NewOwnerStore(db)
+
+	defer CleanDB(t, "owners")
+
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+
+	id, err := repo.Save(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	saved, err := repo.Retrieve(id)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	cases := []struct {
+		desc  string
+		fname string
+		lname string
+		phone string
+		err   error
+	}{
+		{
+			desc:  "find existing owner",
+			fname: saved.Fname,
+			lname: saved.Lname,
+			phone: saved.Phone,
+			err:   nil,
+		},
+		{
+			desc:  "find owner with wrong first name",
+			fname: "wrong",
+			lname: saved.Lname,
+			phone: saved.Phone,
+			err:   properties.ErrNotFound,
+		},
+		{
+			desc:  "find owner with wrong last name",
+			fname: saved.Fname,
+			lname: "wrong",
+			phone: saved.Phone,
+			err:   properties.ErrNotFound,
+		},
+		{
+			desc:  "find owner with wrong phone number",
+			fname: saved.Fname,
+			lname: saved.Lname,
+			phone: "wrong",
+			err:   properties.ErrNotFound,
+		},
+	}
+
+	for _, tc := range cases {
+		_, err := repo.FindOwner(tc.fname, tc.lname, tc.phone)
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+	}
+
+}
+
 func TestRetrieveAllOwners(t *testing.T) {
 	repo := postgres.NewOwnerStore(db)
 
