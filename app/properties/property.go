@@ -5,6 +5,7 @@ type Property struct {
 	Address
 	ID    string
 	Owner string
+	Due   float64
 }
 
 // PropertyPage represents a list of transaction.
@@ -30,6 +31,9 @@ type PageMetadata struct {
 // Validate validates a Property entity an returns nil error if it's valid.
 func (prt *Property) Validate() error {
 	if prt.Owner == "" || prt.Sector == "" || prt.Cell == "" || prt.Village == "" {
+		return ErrInvalidEntity
+	}
+	if prt.Due == float64(0) {
 		return ErrInvalidEntity
 	}
 	return nil

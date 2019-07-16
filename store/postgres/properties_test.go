@@ -30,6 +30,7 @@ func TestSaveProperty(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Due: float64(1000),
 	}
 
 	cases := []struct {
@@ -58,6 +59,7 @@ func TestSaveProperty(t *testing.T) {
 					Cell:    "Gishushu",
 					Village: "Ingabo",
 				},
+				Due: float64(1000),
 			},
 			err: properties.ErrInvalidEntity,
 		},
@@ -87,6 +89,7 @@ func TestUpdateProperty(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Due: float64(1000),
 	}
 
 	prid, _ := props.Save(property)
@@ -113,6 +116,7 @@ func TestUpdateProperty(t *testing.T) {
 					Cell:    "Gishushu",
 					Village: "Ingabo",
 				},
+				Due: float64(1000),
 			},
 			err: properties.ErrNotFound,
 		},
@@ -126,6 +130,7 @@ func TestUpdateProperty(t *testing.T) {
 					Cell:    "Gishushu",
 					Village: "Ingabo",
 				},
+				Due: float64(1000),
 			},
 			err: properties.ErrInvalidEntity,
 		},
@@ -139,6 +144,7 @@ func TestUpdateProperty(t *testing.T) {
 					Cell:    "Gishushu",
 					Village: "Ingabo",
 				},
+				Due: float64(1000),
 			},
 			err: properties.ErrInvalidEntity,
 		},
@@ -170,6 +176,7 @@ func TestRetrieveByID(t *testing.T) {
 			Cell:    "Kanserege",
 			Village: "RukiriII",
 		},
+		Due: float64(1000),
 	}
 
 	pid, _ := props.Save(property)
@@ -216,6 +223,7 @@ func TestRetrieveByOwner(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
+			Due: float64(1000),
 		}
 
 		props.Save(p)
@@ -285,6 +293,7 @@ func TestRetrieveBySector(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
+			Due: float64(1000),
 		}
 
 		props.Save(p)
@@ -354,6 +363,7 @@ func TestRetrieveByCell(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
+			Due: float64(1000),
 		}
 
 		props.Save(p)
@@ -423,6 +433,7 @@ func TestRetrieveByVillage(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
+			Due: float64(1000),
 		}
 
 		props.Save(p)

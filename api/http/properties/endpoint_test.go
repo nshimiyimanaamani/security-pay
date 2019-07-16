@@ -79,6 +79,7 @@ func TestAddProperty(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Due: float64(1000),
 	}
 
 	data := toJSON(property)
@@ -130,6 +131,7 @@ func TestUpdateProperty(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Due: float64(1000),
 	}
 
 	saved, err := svc.AddProperty(property)
@@ -138,6 +140,7 @@ func TestUpdateProperty(t *testing.T) {
 	res := propRes{
 		ID:      saved.ID,
 		Owner:   saved.Owner,
+		Due:     saved.Due,
 		Sector:  saved.Sector,
 		Cell:    saved.Cell,
 		Village: saved.Village,
@@ -240,6 +243,7 @@ func TestViewProperty(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Due: float64(1000),
 	}
 
 	saved, err := svc.AddProperty(property)
@@ -248,6 +252,7 @@ func TestViewProperty(t *testing.T) {
 	res := propRes{
 		ID:      saved.ID,
 		Owner:   saved.Owner,
+		Due:     saved.Due,
 		Sector:  saved.Sector,
 		Cell:    saved.Cell,
 		Village: saved.Village,
@@ -318,6 +323,7 @@ func TestListPropertiesByOwner(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Due: float64(1000),
 	}
 
 	data := []propRes{}
@@ -329,6 +335,7 @@ func TestListPropertiesByOwner(t *testing.T) {
 		res := propRes{
 			ID:      saved.ID,
 			Owner:   saved.Owner,
+			Due:     saved.Due,
 			Sector:  saved.Sector,
 			Cell:    saved.Cell,
 			Village: saved.Village,
@@ -396,6 +403,7 @@ func TestListPropertiesBySector(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Due: float64(1000),
 	}
 
 	data := []propRes{}
@@ -407,6 +415,7 @@ func TestListPropertiesBySector(t *testing.T) {
 		res := propRes{
 			ID:      saved.ID,
 			Owner:   saved.Owner,
+			Due:     saved.Due,
 			Sector:  saved.Sector,
 			Cell:    saved.Cell,
 			Village: saved.Village,
@@ -474,6 +483,7 @@ func TestListPropertiesByCell(t *testing.T) {
 			Cell:    cell,
 			Village: "Ingabo",
 		},
+		Due: float64(1000),
 	}
 
 	data := []propRes{}
@@ -485,6 +495,7 @@ func TestListPropertiesByCell(t *testing.T) {
 		res := propRes{
 			ID:      saved.ID,
 			Owner:   saved.Owner,
+			Due:     saved.Due,
 			Sector:  saved.Sector,
 			Cell:    saved.Cell,
 			Village: saved.Village,
@@ -553,6 +564,7 @@ func TestListPropertiesByVillage(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: village,
 		},
+		Due: float64(1000),
 	}
 
 	data := []propRes{}
@@ -564,6 +576,7 @@ func TestListPropertiesByVillage(t *testing.T) {
 		res := propRes{
 			ID:      saved.ID,
 			Owner:   saved.Owner,
+			Due:     saved.Due,
 			Sector:  saved.Sector,
 			Cell:    saved.Cell,
 			Village: saved.Village,
@@ -1000,11 +1013,12 @@ func TestSearchOwner(t *testing.T) {
 }
 
 type propRes struct {
-	ID      string `json:"id,omitempty"`
-	Owner   string `json:"owner,omitempty"`
-	Sector  string `json:"sector,omitempty"`
-	Cell    string `json:"cell,omitempty"`
-	Village string `json:"village,omitempty"`
+	ID      string  `json:"id,omitempty"`
+	Owner   string  `json:"owner,omitempty"`
+	Due     float64 `json:"due,omitempty"`
+	Sector  string  `json:"sector,omitempty"`
+	Cell    string  `json:"cell,omitempty"`
+	Village string  `json:"village,omitempty"`
 }
 
 type ownerRes struct {

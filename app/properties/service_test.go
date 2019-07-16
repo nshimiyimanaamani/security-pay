@@ -12,23 +12,6 @@ import (
 )
 
 var (
-	property = properties.Property{
-		Owner: "Eugene Mugabo",
-		Address: properties.Address{
-			Sector:  "Remera",
-			Cell:    "Gishushu",
-			Village: "Ingabo",
-		},
-	}
-
-	wrongProperty = properties.Property{
-		Address: properties.Address{
-			Sector:  "Remera",
-			Cell:    "Gishushu",
-			Village: "Ingabo",
-		},
-	}
-
 	wrongValue = "wrong-value"
 )
 
@@ -42,13 +25,28 @@ func newService() properties.Service {
 func TestAddProperty(t *testing.T) {
 	svc := newService()
 
+	property := properties.Property{
+		Owner: "Eugene Mugabo", Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due: float64(1000),
+	}
+
+	invalidProperty := properties.Property{
+		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due:     float64(1000),
+	}
+
+	emptyDue := properties.Property{
+		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+	}
+
 	cases := []struct {
 		desc     string
 		property properties.Property
 		err      error
 	}{
 		{"add valid property", property, nil},
-		{"add invalid property", wrongProperty, properties.ErrInvalidEntity},
+		{"add invalid property", invalidProperty, properties.ErrInvalidEntity},
+		{"validate with empty montly due", emptyDue, properties.ErrInvalidEntity},
 	}
 
 	for _, tc := range cases {
@@ -59,6 +57,20 @@ func TestAddProperty(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	svc := newService()
+
+	property := properties.Property{
+		Owner: "Eugene Mugabo", Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due: float64(1000),
+	}
+
+	invalidProperty := properties.Property{
+		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due:     float64(1000),
+	}
+
+	emptyDue := properties.Property{
+		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+	}
 
 	saved, _ := svc.AddProperty(property)
 
@@ -74,13 +86,18 @@ func TestUpdate(t *testing.T) {
 		},
 		{
 			desc:     "update with wrong property data",
-			property: wrongProperty,
+			property: invalidProperty,
 			err:      properties.ErrInvalidEntity,
 		},
 		{
 			desc:     "update non-existant property",
 			property: property,
 			err:      properties.ErrNotFound,
+		},
+		{
+			desc:     "update property with empty due",
+			property: emptyDue,
+			err:      properties.ErrInvalidEntity,
 		},
 	}
 
@@ -92,6 +109,12 @@ func TestUpdate(t *testing.T) {
 
 func TestViewProperty(t *testing.T) {
 	svc := newService()
+
+	property := properties.Property{
+		Owner: "Eugene Mugabo", Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due: float64(1000),
+	}
+
 	saved, _ := svc.AddProperty(property)
 
 	cases := []struct {
@@ -120,7 +143,12 @@ func TestViewProperty(t *testing.T) {
 func TestListPropertiesByOwner(t *testing.T) {
 	svc := newService()
 
+	property := properties.Property{
+		Owner: "Eugene Mugabo", Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due: float64(1000),
+	}
 	owner := properties.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+
 	oid, err := svc.CreateOwner(owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -183,6 +211,11 @@ func TestListPropertiesByOwner(t *testing.T) {
 func TestListPropertiesBySector(t *testing.T) {
 	svc := newService()
 
+	property := properties.Property{
+		Owner: "Eugene Mugabo", Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due: float64(1000),
+	}
+
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
 		svc.AddProperty(property)
@@ -239,6 +272,11 @@ func TestListPropertiesBySector(t *testing.T) {
 
 func TestListPropertiesByCell(t *testing.T) {
 	svc := newService()
+
+	property := properties.Property{
+		Owner: "Eugene Mugabo", Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due: float64(1000),
+	}
 
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
@@ -297,6 +335,11 @@ func TestListPropertiesByCell(t *testing.T) {
 
 func TestListPropertiesByVillage(t *testing.T) {
 	svc := newService()
+
+	property := properties.Property{
+		Owner: "Eugene Mugabo", Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due: float64(1000),
+	}
 
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {

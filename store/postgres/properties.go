@@ -20,9 +20,9 @@ func NewPropertyStore(db *sql.DB) properties.PropertyStore {
 }
 
 func (str *propertiesStore) Save(pro properties.Property) (string, error) {
-	q := `INSERT INTO properties (id, owner, sector, cell, village) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+	q := `INSERT INTO properties (id, owner, due, sector, cell, village) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
 
-	_, err := str.db.Exec(q, pro.ID, pro.Owner, pro.Sector, pro.Cell, pro.Village)
+	_, err := str.db.Exec(q, pro.ID, pro.Owner, pro.Due, pro.Sector, pro.Cell, pro.Village)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -40,9 +40,9 @@ func (str *propertiesStore) Save(pro properties.Property) (string, error) {
 }
 
 func (str *propertiesStore) UpdateProperty(pro properties.Property) error {
-	q := `UPDATE properties SET owner=$1 WHERE id=$2;`
+	q := `UPDATE properties SET owner=$1, due=$2 WHERE id=$3;`
 
-	res, err := str.db.Exec(q, pro.Owner, pro.ID)
+	res, err := str.db.Exec(q, pro.Owner, pro.Due, pro.ID)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -65,11 +65,11 @@ func (str *propertiesStore) UpdateProperty(pro properties.Property) error {
 }
 
 func (str *propertiesStore) RetrieveByID(id string) (properties.Property, error) {
-	q := `SELECT * FROM properties WHERE id = $1`
+	q := `SELECT id, owner, due, sector, cell, village FROM properties WHERE id = $1`
 
 	var prt = properties.Property{}
 
-	if err := str.db.QueryRow(q, id).Scan(&prt.ID, &prt.Owner, &prt.Sector, &prt.Cell, &prt.Village); err != nil {
+	if err := str.db.QueryRow(q, id).Scan(&prt.ID, &prt.Owner, &prt.Due, &prt.Sector, &prt.Cell, &prt.Village); err != nil {
 		empty := properties.Property{}
 
 		pqErr, ok := err.(*pq.Error)
@@ -84,7 +84,7 @@ func (str *propertiesStore) RetrieveByID(id string) (properties.Property, error)
 }
 
 func (str *propertiesStore) RetrieveByOwner(owner string, offset, limit uint64) (properties.PropertyPage, error) {
-	q := `SELECT * FROM properties WHERE owner = $1 ORDER BY id LIMIT $2 OFFSET $3`
+	q := `SELECT id, owner, due, sector, cell, village FROM properties WHERE owner = $1 ORDER BY id LIMIT $2 OFFSET $3`
 
 	var items = []properties.Property{}
 
@@ -96,7 +96,7 @@ func (str *propertiesStore) RetrieveByOwner(owner string, offset, limit uint64) 
 
 	for rows.Next() {
 		c := properties.Property{}
-		if err := rows.Scan(&c.ID, &c.Owner, &c.Sector, &c.Cell, &c.Village); err != nil {
+		if err := rows.Scan(&c.ID, &c.Owner, &c.Due, &c.Sector, &c.Cell, &c.Village); err != nil {
 			return properties.PropertyPage{}, err
 		}
 		items = append(items, c)
@@ -121,7 +121,7 @@ func (str *propertiesStore) RetrieveByOwner(owner string, offset, limit uint64) 
 }
 
 func (str *propertiesStore) RetrieveBySector(sector string, offset, limit uint64) (properties.PropertyPage, error) {
-	q := `SELECT * FROM properties WHERE sector = $1 ORDER BY id LIMIT $2 OFFSET $3`
+	q := `SELECT id, owner, due, sector, cell, village FROM properties WHERE sector = $1 ORDER BY id LIMIT $2 OFFSET $3`
 
 	var items = []properties.Property{}
 
@@ -133,7 +133,7 @@ func (str *propertiesStore) RetrieveBySector(sector string, offset, limit uint64
 
 	for rows.Next() {
 		c := properties.Property{}
-		if err := rows.Scan(&c.ID, &c.Owner, &c.Sector, &c.Cell, &c.Village); err != nil {
+		if err := rows.Scan(&c.ID, &c.Owner, &c.Due, &c.Sector, &c.Cell, &c.Village); err != nil {
 			return properties.PropertyPage{}, err
 		}
 		items = append(items, c)
@@ -158,7 +158,7 @@ func (str *propertiesStore) RetrieveBySector(sector string, offset, limit uint64
 }
 
 func (str *propertiesStore) RetrieveByCell(cell string, offset, limit uint64) (properties.PropertyPage, error) {
-	q := `SELECT * FROM properties WHERE cell = $1 ORDER BY id LIMIT $2 OFFSET $3`
+	q := `SELECT id, owner, due, sector, cell, village FROM properties WHERE cell = $1 ORDER BY id LIMIT $2 OFFSET $3`
 
 	var items = []properties.Property{}
 
@@ -170,7 +170,7 @@ func (str *propertiesStore) RetrieveByCell(cell string, offset, limit uint64) (p
 
 	for rows.Next() {
 		c := properties.Property{}
-		if err := rows.Scan(&c.ID, &c.Owner, &c.Sector, &c.Cell, &c.Village); err != nil {
+		if err := rows.Scan(&c.ID, &c.Owner, &c.Due, &c.Sector, &c.Cell, &c.Village); err != nil {
 			return properties.PropertyPage{}, err
 		}
 		items = append(items, c)
@@ -195,7 +195,7 @@ func (str *propertiesStore) RetrieveByCell(cell string, offset, limit uint64) (p
 }
 
 func (str *propertiesStore) RetrieveByVillage(village string, offset, limit uint64) (properties.PropertyPage, error) {
-	q := `SELECT * FROM properties WHERE village = $1 ORDER BY id LIMIT $2 OFFSET $3`
+	q := `SELECT id, owner, due, sector, cell, village FROM properties WHERE village = $1 ORDER BY id LIMIT $2 OFFSET $3`
 
 	var items = []properties.Property{}
 
@@ -207,7 +207,7 @@ func (str *propertiesStore) RetrieveByVillage(village string, offset, limit uint
 
 	for rows.Next() {
 		c := properties.Property{}
-		if err := rows.Scan(&c.ID, &c.Owner, &c.Sector, &c.Cell, &c.Village); err != nil {
+		if err := rows.Scan(&c.ID, &c.Owner, &c.Due, &c.Sector, &c.Cell, &c.Village); err != nil {
 			return properties.PropertyPage{}, err
 		}
 		items = append(items, c)
