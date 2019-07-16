@@ -100,6 +100,17 @@ func migrateDB(db *sql.DB) error {
 					"DROP TABLE properties",
 				},
 			},
+			{
+				Id: "paypack_3",
+
+				Up: []string{
+					`ALTER TABLE properties ADD COLUMN due NUMERIC (9, 2) NOT NULL DEFAULT (0);`,
+				},
+
+				Down: []string{
+					`ALTER TABLE properties DROP COLUMN  monthlty_due`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

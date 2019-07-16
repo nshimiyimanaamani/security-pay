@@ -119,6 +119,7 @@ Note that the `property` must be a valid uuid and you can generate them with at 
     {
         "cell": "gishushu",
         "owner": "54f0a0a5-373a-439f-8831-2e5151535679",
+        "due":"1000",
         "sector": "remera",
         "village": "ingabo"
     }
@@ -220,6 +221,7 @@ Note that the `property` must be a valid uuid and you can generate them with at 
                 "cell": "gishushu",
                 "id": "9f27518b-9023-4f4d-b949-c097511b66e7",
                 "owner": "54f0a0a5-373a-439f-8831-2e5151535679",
+                "due":"1000",
                 "sector": "remera",
                 "village": "ingabo"
             }

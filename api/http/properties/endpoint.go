@@ -131,6 +131,7 @@ func handleUpdateProperty(svc properties.Service, w http.ResponseWriter, r *http
 	response := updatePropertyRes{
 		ID:      property.ID,
 		Owner:   property.Owner,
+		Due:     property.Due,
 		Sector:  property.Sector,
 		Cell:    property.Cell,
 		Village: property.Village,
@@ -157,6 +158,7 @@ func handleViewProperty(svc properties.Service, w http.ResponseWriter, r *http.R
 	response := viewPropRes{
 		ID:      property.ID,
 		Owner:   property.Owner,
+		Due:     property.Due,
 		Sector:  property.Sector,
 		Cell:    property.Cell,
 		Village: property.Village,
@@ -204,6 +206,7 @@ func handleListByOwner(svc properties.Service, w http.ResponseWriter, r *http.Re
 		view := viewPropRes{
 			ID:      property.ID,
 			Owner:   property.Owner,
+			Due:     property.Due,
 			Sector:  property.Sector,
 			Cell:    property.Cell,
 			Village: property.Village,
@@ -253,6 +256,7 @@ func handleListBySector(svc properties.Service, w http.ResponseWriter, r *http.R
 		view := viewPropRes{
 			ID:      property.ID,
 			Owner:   property.Owner,
+			Due:     property.Due,
 			Sector:  property.Sector,
 			Cell:    property.Cell,
 			Village: property.Village,
@@ -302,6 +306,7 @@ func handleListByCell(svc properties.Service, w http.ResponseWriter, r *http.Req
 		view := viewPropRes{
 			ID:      property.ID,
 			Owner:   property.Owner,
+			Due:     property.Due,
 			Sector:  property.Sector,
 			Cell:    property.Cell,
 			Village: property.Village,
@@ -351,6 +356,7 @@ func handleListByVillage(svc properties.Service, w http.ResponseWriter, r *http.
 		view := viewPropRes{
 			ID:      property.ID,
 			Owner:   property.Owner,
+			Due:     property.Due,
 			Sector:  property.Sector,
 			Cell:    property.Cell,
 			Village: property.Village,

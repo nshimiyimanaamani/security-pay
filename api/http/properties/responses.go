@@ -20,11 +20,12 @@ func (res addPropertyRes) Empty() bool {
 }
 
 type updatePropertyRes struct {
-	ID      string `json:"id"`
-	Owner   string `json:"owner"`
-	Sector  string `json:"sector"`
-	Cell    string `json:"cell"`
-	Village string `json:"village"`
+	ID      string  `json:"id"`
+	Owner   string  `json:"owner,omitempty"`
+	Due     float64 `json:"due,omitempty"`
+	Sector  string  `json:"sector,omitempty"`
+	Cell    string  `json:"cell,omitempty"`
+	Village string  `json:"village,omitempty"`
 }
 
 func (res updatePropertyRes) Code() int {
@@ -40,11 +41,12 @@ func (res updatePropertyRes) Empty() bool {
 }
 
 type viewPropRes struct {
-	ID      string `json:"id"`
-	Owner   string `json:"owner"`
-	Sector  string `json:"sector"`
-	Cell    string `json:"cell"`
-	Village string `json:"village"`
+	ID      string  `json:"id"`
+	Owner   string  `json:"owner,omitempty"`
+	Due     float64 `json:"due,omitempty"`
+	Sector  string  `json:"sector,omitempty"`
+	Cell    string  `json:"cell,omitempty"`
+	Village string  `json:"village,omitempty"`
 }
 
 func (res viewPropRes) Code() int {
