@@ -1,11 +1,23 @@
-package models
+package transactions
+
+import (
+	"time"
+)
 
 //Transaction defines a payment made for a property(i.e house).
 type Transaction struct {
-	ID       string
-	Property string
-	Amount   string
-	Method   string
+	ID           string
+	Property     string
+	Amount       string
+	Method       string
+	DateRecorded time.Time
+}
+
+// PageMetadata contains page metadata that helps navigation.
+type PageMetadata struct {
+	Total  uint64
+	Offset uint64
+	Limit  uint64
 }
 
 // TransactionPage represents a list of transaction.

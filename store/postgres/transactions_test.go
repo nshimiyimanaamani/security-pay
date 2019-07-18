@@ -3,9 +3,10 @@ package postgres_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
+	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
-	"github.com/rugwirobaker/paypack-backend/models"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
 )
@@ -25,28 +26,30 @@ func TestSave(t *testing.T) {
 
 	cases := []struct {
 		desc        string
-		transaction models.Transaction
+		transaction transactions.Transaction
 		err         error
 	}{
 		{
 			"save new transaction",
-			models.Transaction{
-				ID:       id,
-				Property: property,
-				Amount:   amount,
-				Method:   method,
+			transactions.Transaction{
+				ID:           id,
+				Property:     property,
+				Amount:       amount,
+				Method:       method,
+				DateRecorded: time.Now(),
 			},
 			nil,
 		},
 		{
 			"save duplicate transaction",
-			models.Transaction{
-				ID:       id,
-				Property: uuid.New().ID(),
-				Amount:   "4000.00",
-				Method:   "bk",
+			transactions.Transaction{
+				ID:           id,
+				Property:     uuid.New().ID(),
+				Amount:       "4000.00",
+				Method:       "bk",
+				DateRecorded: time.Now(),
 			},
-			models.ErrConflict,
+			transactions.ErrConflict,
 		},
 	}
 
@@ -63,11 +66,12 @@ func TestSinglePropertyRetrieveByID(t *testing.T) {
 	property := uuid.New().ID()
 	method := "kcb"
 
-	transaction := models.Transaction{
-		ID:       uuid.New().ID(),
-		Property: property,
-		Amount:   amount,
-		Method:   method,
+	transaction := transactions.Transaction{
+		ID:           uuid.New().ID(),
+		Property:     property,
+		Amount:       amount,
+		Method:       method,
+		DateRecorded: time.Now(),
 	}
 
 	id, _ := repo.Save(transaction)
@@ -78,8 +82,8 @@ func TestSinglePropertyRetrieveByID(t *testing.T) {
 		err  error
 	}{
 		{"retrieve existing transaction", id, nil},
-		{"retrieve non existing transaction", uuid.New().ID(), models.ErrNotFound},
-		{"retrieve with malformed id", wrongValue, models.ErrNotFound},
+		{"retrieve non existing transaction", uuid.New().ID(), transactions.ErrNotFound},
+		{"retrieve with malformed id", wrongValue, transactions.ErrNotFound},
 	}
 
 	for _, tc := range cases {
@@ -100,11 +104,12 @@ func TestRetrieveAll(t *testing.T) {
 	n := uint64(10)
 
 	for i := uint64(0); i < n; i++ {
-		t := models.Transaction{
-			ID:       idp.ID(),
-			Property: property,
-			Amount:   amount,
-			Method:   method,
+		t := transactions.Transaction{
+			ID:           idp.ID(),
+			Property:     property,
+			Amount:       amount,
+			Method:       method,
+			DateRecorded: time.Now(),
 		}
 
 		repo.Save(t)
@@ -145,11 +150,12 @@ func TestRetrieveByProperty(t *testing.T) {
 	n := uint64(10)
 
 	for i := uint64(0); i < n; i++ {
-		t := models.Transaction{
-			ID:       idp.ID(),
-			Property: property,
-			Amount:   amount,
-			Method:   method,
+		t := transactions.Transaction{
+			ID:           idp.ID(),
+			Property:     property,
+			Amount:       amount,
+			Method:       method,
+			DateRecorded: time.Now(),
 		}
 
 		repo.Save(t)
@@ -199,11 +205,12 @@ func TestRetrieveByMethod(t *testing.T) {
 	n := uint64(10)
 
 	for i := uint64(0); i < n; i++ {
-		t := models.Transaction{
-			ID:       idp.ID(),
-			Property: property,
-			Amount:   amount,
-			Method:   method,
+		t := transactions.Transaction{
+			ID:           idp.ID(),
+			Property:     property,
+			Amount:       amount,
+			Method:       method,
+			DateRecorded: time.Now(),
 		}
 
 		repo.Save(t)
