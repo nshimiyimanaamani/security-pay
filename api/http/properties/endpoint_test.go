@@ -1015,7 +1015,7 @@ func TestSearchOwner(t *testing.T) {
 type propRes struct {
 	ID      string  `json:"id,omitempty"`
 	Owner   string  `json:"owner,omitempty"`
-	Due     float64 `json:"due,omitempty"`
+	Due     float64 `json:"due,string,omitempty"`
 	Sector  string  `json:"sector,omitempty"`
 	Cell    string  `json:"cell,omitempty"`
 	Village string  `json:"village,omitempty"`
