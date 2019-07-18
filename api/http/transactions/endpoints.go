@@ -6,9 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	transport "github.com/rugwirobaker/paypack-backend/api/http"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
-	"github.com/rugwirobaker/paypack-backend/models"
 )
 
 // MakeAdapter takes a transaction service instance and returns a http handler
@@ -41,33 +39,33 @@ func MakeAdapter(router *mux.Router) func(svc transactions.Service) {
 func handleRecordTransaction(svc transactions.Service, w http.ResponseWriter, r *http.Request) {
 	var err error
 
-	if err = transport.CheckContentType(r); err != nil {
-		transport.EncodeError(w, err)
+	if err = CheckContentType(r); err != nil {
+		EncodeError(w, err)
 		return
 	}
 
-	var transaction models.Transaction
+	var transaction transactions.Transaction
 	if err = json.NewDecoder(r.Body).Decode(&transaction); err != nil {
-		transport.EncodeError(w, err)
+		EncodeError(w, err)
 		return
 	}
 
 	if err = transaction.Validate(); err != nil {
-		transport.EncodeError(w, err)
+		EncodeError(w, err)
 		return
 	}
 
 	transaction, err = svc.RecordTransaction(transaction)
 	if err != nil {
-		transport.EncodeError(w, err)
+		EncodeError(w, err)
 		return
 	}
 
 	response := recordTransRes{
 		ID: transaction.ID,
 	}
-	if err = transport.EncodeResponse(w, response); err != nil {
-		transport.EncodeError(w, err)
+	if err = EncodeResponse(w, response); err != nil {
+		EncodeError(w, err)
 		return
 	}
 }
@@ -81,7 +79,7 @@ func handleViewTransaction(svc transactions.Service, w http.ResponseWriter, r *h
 
 	transaction, err := svc.ViewTransaction(id)
 	if err != nil {
-		transport.EncodeError(w, err)
+		EncodeError(w, err)
 		return
 	}
 
@@ -92,8 +90,8 @@ func handleViewTransaction(svc transactions.Service, w http.ResponseWriter, r *h
 		Method:   transaction.Method,
 	}
 
-	if err = transport.EncodeResponse(w, response); err != nil {
-		transport.EncodeError(w, err)
+	if err = EncodeResponse(w, response); err != nil {
+		EncodeError(w, err)
 		return
 	}
 }
@@ -105,26 +103,26 @@ func handleListTransaction(svc transactions.Service, w http.ResponseWriter, r *h
 
 	offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 	if err != nil {
-		transport.EncodeError(w, err)
+		EncodeError(w, err)
 		return
 	}
 
 	limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 	if err != nil {
-		transport.EncodeError(w, err)
+		EncodeError(w, err)
 		return
 	}
 
 	// if offset == 0 || limit == 0 {
-	// 	transport.EncodeError(w, models.ErrInvalidEntity)
+	// 	EncodeError(w, transactions.ErrInvalidEntity)
 	// 	return
 	// }
 
-	var page models.TransactionPage
+	var page transactions.TransactionPage
 
 	page, err = svc.ListTransactions(offset, limit)
 	if err != nil {
-		transport.EncodeError(w, err)
+		EncodeError(w, err)
 		return
 	}
 
@@ -147,8 +145,8 @@ func handleListTransaction(svc transactions.Service, w http.ResponseWriter, r *h
 		response.Transactions = append(response.Transactions, view)
 	}
 
-	if err = transport.EncodeResponse(w, response); err != nil {
-		transport.EncodeError(w, err)
+	if err = EncodeResponse(w, response); err != nil {
+		EncodeError(w, err)
 		return
 	}
 

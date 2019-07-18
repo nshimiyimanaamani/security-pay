@@ -15,7 +15,6 @@ import (
 	adapters "github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/transactions/mocks"
-	"github.com/rugwirobaker/paypack-backend/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -26,7 +25,7 @@ const (
 
 var (
 	contentType = "application/json"
-	transaction = models.Transaction{Amount: "1000.00", Method: "BK", Property: "1000-4433-3343"}
+	transaction = transactions.Transaction{Amount: "1000.00", Method: "BK", Property: "1000-4433-3343"}
 )
 
 type testRequest struct {
@@ -77,7 +76,7 @@ func TestRecordTransaction(t *testing.T) {
 	client := ts.Client()
 
 	data := toJSON(transaction)
-	invalidData := toJSON(models.Transaction{Amount: "1000.00", Method: "BK"})
+	invalidData := toJSON(transactions.Transaction{Amount: "1000.00", Method: "BK"})
 
 	cases := []struct {
 		desc        string
@@ -126,6 +125,9 @@ func TestViewTransaction(t *testing.T) {
 	}
 
 	data := toJSON(trxRes)
+	notFoundMessage := toJSON(errRes{"non-existent entity"})
+	// invalidEntityMessage := toJSON(errRes{"invalid entity format"})
+	// unsupportedContentMessage := toJSON(errRes{"unsupported content type"})
 
 	cases := []struct {
 		desc        string
@@ -144,7 +146,7 @@ func TestViewTransaction(t *testing.T) {
 			desc:   "view non-existent transaction",
 			id:     strconv.FormatUint(wrongID, 10),
 			status: http.StatusNotFound,
-			res:    "",
+			res:    notFoundMessage,
 		},
 	}
 
@@ -234,6 +236,10 @@ func TestListTransactions(t *testing.T) {
 func TestListByProperty(t *testing.T) {}
 
 func TestListByMethod(t *testing.T) {}
+
+type errRes struct {
+	Message string `json:"message"`
+}
 
 type transRes struct {
 	ID       string `json:"id,omitempty"`
