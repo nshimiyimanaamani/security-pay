@@ -22,7 +22,7 @@ func (res addPropertyRes) Empty() bool {
 type updatePropertyRes struct {
 	ID      string  `json:"id"`
 	Owner   string  `json:"owner,omitempty"`
-	Due     float64 `json:"due,omitempty"`
+	Due     float64 `json:"due,string,omitempty"`
 	Sector  string  `json:"sector,omitempty"`
 	Cell    string  `json:"cell,omitempty"`
 	Village string  `json:"village,omitempty"`
@@ -43,7 +43,7 @@ func (res updatePropertyRes) Empty() bool {
 type viewPropRes struct {
 	ID      string  `json:"id"`
 	Owner   string  `json:"owner,omitempty"`
-	Due     float64 `json:"due,omitempty"`
+	Due     float64 `json:"due,string,omitempty"`
 	Sector  string  `json:"sector,omitempty"`
 	Cell    string  `json:"cell,omitempty"`
 	Village string  `json:"village,omitempty"`

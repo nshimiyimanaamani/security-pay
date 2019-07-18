@@ -5,7 +5,7 @@ type Property struct {
 	Address
 	ID    string
 	Owner string
-	Due   float64
+	Due   float64 `json:"due,string,omitempty"`
 }
 
 // PropertyPage represents a list of transaction.
