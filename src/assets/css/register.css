@@ -1,0 +1,143 @@
+body {
+  background: #f9f9f9;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.registerPage {
+  position: relative;
+  width: 50vw;
+  margin: auto;
+  height: 100vh;
+  color: #0000007a;
+}
+.registerTitle {
+  position: relative;
+  margin: auto;
+  top: 70px;
+  width: 290px;
+  text-align: center;
+  line-height: 20px;
+  letter-spacing: 0.8px;
+  font-size: 15.4px;
+}
+.registerTitle p {
+  margin: 0;
+  text-align: left;
+  left: 18px;
+  position: relative;
+}
+.registerTitle #paypack {
+  font-size: 65px;
+  line-height: 10px;
+  color: #3db3fa;
+}
+.registerTitle #easy {
+  top: 8px;
+  text-align: center;
+  position: relative;
+}
+.registerForm {
+  position: relative;
+  margin: auto;
+  top: 14rem;
+  width: 57%;
+}
+.registerUsername input {
+  padding: 10px 0 10px 15px;
+  width: 100%;
+  border: 1px solid #bdbdbd;
+  background: transparent;
+  border-radius: 10px;
+  margin: 10px auto;
+  font-size: 15px;
+}
+.registerPassword input {
+  padding: 10px 0 10px 15px;
+  width: 100%;
+  border: 1px solid #bdbdbd;
+  background: transparent;
+  border-radius: 10px;
+  margin: 10px auto;
+  font-size: 15px;
+}
+.registerBtn a button {
+  padding: 5px;
+  margin: 10px auto;
+  width: 100%;
+  border-radius: 10px;
+  border: none;
+  background-color: #3db3fa;
+  cursor: pointer;
+  font-family: ubuntu;
+  text-decoration: none;
+  color: white;
+  font-size: 30px;
+  letter-spacing: 2px;
+  line-height: 35px;
+}
+.registerBtn #forgot {
+  letter-spacing: 0.8px;
+  font-size: 15px;
+  float: right;
+}
+.registerBtn #forgot a {
+  text-decoration: none;
+  color: #3db3fa;
+  font-size: 18px;
+  letter-spacing: 1px;
+  line-height: 20px;
+}
+@keyframes lds-rolling {
+  0% {
+    -webkit-transform: translate(-50%, -50%) rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    -webkit-transform: translate(-50%, -50%) rotate(360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+@-webkit-keyframes lds-rolling {
+  0% {
+    -webkit-transform: translate(-50%, -50%) rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    -webkit-transform: translate(-50%, -50%) rotate(360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+.lds-rolling {
+  position: relative;
+}
+.lds-css {
+  width: fit-content;
+  float: right;
+  height: 10px;
+  margin-top: -4px;
+}
+.lds-rolling div,
+.lds-rolling div:after {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border: 10px solid #ffffff;
+  border-top-color: transparent;
+  border-radius: 50%;
+}
+.lds-rolling div {
+  -webkit-animation: lds-rolling 1.2s linear infinite;
+  animation: lds-rolling 1.2s linear infinite;
+  top: 100px;
+  left: 100px;
+}
+.lds-rolling div:after {
+  -webkit-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+.lds-rolling {
+  width: 45px !important;
+  height: 45px !important;
+  -webkit-transform: translate(-22.5px, -22.5px) scale(0.225)
+    translate(22.5px, 22.5px);
+  transform: translate(-22.5px, -22.5px) scale(0.225) translate(22.5px, 22.5px);
+}

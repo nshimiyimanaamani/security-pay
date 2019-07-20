@@ -1,0 +1,70 @@
+#cellChart2container {
+  position: relative;
+  border-radius: 10px 10px 0 0;
+  background: white;
+  width: 98%;
+  margin: auto;
+  -webkit-box-shadow: 0 5px 5px #00000030;
+          box-shadow: 0 5px 5px #00000030;
+}
+
+#cellChart2container .chart2Title {
+  padding: 8px;
+  background: #219fea !important;
+  border-radius: 10px 10px 0 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+#cellChart2container .chart2Title h1 {
+  color: #ffffff;
+  font-size: 15px;
+  letter-spacing: 1.3px;
+  margin: auto;
+  text-transform: uppercase;
+}
+
+#cellChart2container .chart2Title .fa-cog {
+  font-size: 25px;
+  margin: auto 15px;
+  color: white;
+}
+
+#cellChart2container .chart2Title .fa-th-large {
+  font-size: 23px;
+  margin: auto 15px;
+  color: white;
+}
+
+#cellChart2container .chart2 {
+  position: relative;
+  min-height: 270px;
+  height: 35vh;
+}
+
+#cellChart2container #legend {
+  background: #f9f9f9;
+  position: absolute;
+  top: 30%;
+  right: 5%;
+  color: #9a9a9a;
+  text-align: center;
+  display: -ms-grid;
+  display: grid;
+  font-size: 15px;
+  text-transform: uppercase;
+  padding: 10px;
+  line-height: 20px;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+
+#cellChart2container #legend span {
+  font-size: 35px;
+  letter-spacing: 1px;
+  line-height: 50px;
+  color: #219fea;
+  font-weight: normal;
+}
+/*# sourceMappingURL=cellsChart2.css.map */

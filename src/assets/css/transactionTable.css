@@ -1,0 +1,238 @@
+.container {
+  width: 92%;
+  margin-top: 35px;
+  margin-left: 35px;
+}
+
+.container tbody tr:nth-child(even) {
+  background: white;
+}
+
+.container tbody tr:nth-child(even):nth-child(odd) {
+  background: transparent;
+}
+
+.container .loading {
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: 5% auto;
+}
+
+.container .loading .lds-roller {
+  display: inline-block;
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+
+.container .loading .lds-roller div {
+  -webkit-animation: lds-roller 1.75s cubic-bezier(0.5, 1, 0.5, 0) infinite;
+          animation: lds-roller 1.75s cubic-bezier(0.5, 1, 0.5, 0) infinite;
+  -webkit-transform-origin: 50px 50px;
+          transform-origin: 50px 50px;
+}
+
+.container .loading .lds-roller div:after {
+  content: " ";
+  display: block;
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #337ab7;
+  margin: 25px 0 0 0;
+}
+
+.container .loading .lds-roller div:nth-child(1) {
+  -webkit-animation-delay: -0.036s;
+          animation-delay: -0.036s;
+}
+
+.container .loading .lds-roller div:nth-child(1):after {
+  top: 50px;
+  left: 50px;
+}
+
+.container .loading .lds-roller div:nth-child(2) {
+  -webkit-animation-delay: -0.072s;
+          animation-delay: -0.072s;
+}
+
+.container .loading .lds-roller div:nth-child(2):after {
+  top: 54px;
+  left: 45px;
+}
+
+.container .loading .lds-roller div:nth-child(3) {
+  -webkit-animation-delay: -0.108s;
+          animation-delay: -0.108s;
+}
+
+.container .loading .lds-roller div:nth-child(3):after {
+  top: 57px;
+  left: 39px;
+}
+
+.container .loading .lds-roller div:nth-child(4) {
+  -webkit-animation-delay: -0.144s;
+          animation-delay: -0.144s;
+}
+
+.container .loading .lds-roller div:nth-child(4):after {
+  top: 58px;
+  left: 32px;
+}
+
+.container .loading .lds-roller div:nth-child(5) {
+  -webkit-animation-delay: -0.18s;
+          animation-delay: -0.18s;
+}
+
+.container .loading .lds-roller div:nth-child(5):after {
+  top: 57px;
+  left: 25px;
+}
+
+.container .loading .lds-roller div:nth-child(6) {
+  -webkit-animation-delay: -0.216s;
+          animation-delay: -0.216s;
+}
+
+.container .loading .lds-roller div:nth-child(6):after {
+  top: 54px;
+  left: 19px;
+}
+
+.container .loading .lds-roller div:nth-child(7) {
+  -webkit-animation-delay: -0.252s;
+          animation-delay: -0.252s;
+}
+
+.container .loading .lds-roller div:nth-child(7):after {
+  top: 50px;
+  left: 14px;
+}
+
+.container .loading .lds-roller div:nth-child(8) {
+  -webkit-animation-delay: -0.288s;
+          animation-delay: -0.288s;
+}
+
+.container .loading .lds-roller div:nth-child(8):after {
+  top: 45px;
+  left: 10px;
+}
+
+@-webkit-keyframes lds-roller {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+
+@keyframes lds-roller {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+
+.fa-check-circle {
+  float: left;
+  position: relative;
+  top: 0px;
+  margin-right: 10px;
+  font-size: 20px;
+  color: #6aad1d;
+}
+
+.fa-times-circle {
+  float: left;
+  position: relative;
+  top: 0px;
+  margin-right: 10px;
+  font-size: 20px;
+  color: #ff2323;
+}
+
+tbody td {
+  vertical-align: initial !important;
+}
+
+.mtn {
+  height: 30px;
+  width: 55px;
+  border-radius: 5px;
+  float: left;
+  background: white;
+  margin-top: -3px;
+  -webkit-box-shadow: 1px 1px 4px #9a9797;
+          box-shadow: 1px 1px 4px #9a9797;
+}
+
+.mtn span {
+  font-size: 15px;
+  text-transform: uppercase;
+  padding: 12px;
+  vertical-align: -webkit-baseline-middle;
+  font-weight: bold;
+  color: #f9b004;
+}
+
+.airtel {
+  width: 55px;
+  border-radius: 5px;
+  float: left;
+  height: 30px;
+  background: #f93d3d;
+  margin-top: -3px;
+  -webkit-box-shadow: 1px 1px 5px #9a9797;
+          box-shadow: 1px 1px 5px #9a9797;
+}
+
+.airtel span {
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 6.5px;
+  position: relative;
+  top: 4px;
+  font-weight: bold;
+  color: white;
+}
+
+.bk {
+  width: 55px;
+  border-radius: 5px;
+  float: left;
+  background: white;
+  -webkit-box-shadow: 1px 1px 4px #9a9797;
+          box-shadow: 1px 1px 4px #9a9797;
+  height: 30px;
+  margin-top: -3px;
+  text-align: center;
+}
+
+.bk span {
+  color: #3d3d65;
+  font-size: 15px;
+  vertical-align: -webkit-baseline-middle;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.customerName {
+  display: inline;
+  padding-left: 10px;
+  text-transform: capitalize;
+}
+/*# sourceMappingURL=transactionTable.css.map */

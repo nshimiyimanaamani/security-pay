@@ -1,0 +1,403 @@
+.dashboardWrapper {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 210px auto;
+      grid-template-columns: 210px auto;
+  -ms-grid-rows: 55px auto;
+      grid-template-rows: 55px auto;
+  position: relative;
+  background: #f5f5f5;
+}
+
+.dashboardWrapper .dashboardSidebar {
+  -ms-grid-column: 1;
+  grid-column: 1;
+  -ms-grid-row: 1;
+  grid-row: 1/1;
+  position: fixed;
+  width: 210px;
+  top: 0;
+  height: 100vh;
+  color: white;
+  background: #3db3fa;
+}
+
+.dashboardWrapper .dashboardSidebar h1 {
+  text-align: center;
+  margin-top: 10px;
+  color: #ffffff;
+  font-size: 25px;
+  letter-spacing: 1px;
+  line-height: 35px;
+}
+
+.dashboardWrapper #btn {
+  background: #50e3c2;
+  color: white;
+  font-size: 16px;
+  line-height: 30px;
+  height: 50px;
+  position: absolute;
+  width: 90%;
+  margin-left: 8px;
+  border-radius: 10px;
+  border: none;
+  bottom: 20px;
+}
+
+.dashboardWrapper #btn i {
+  font-size: 30px;
+  float: left;
+  margin-left: inherit;
+}
+
+.dashboardWrapper .AddPropertymodal {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #00000090 !important;
+  z-index: 1000;
+}
+
+.dashboardWrapper .AddPropertymodal .form {
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  background: white;
+  position: absolute;
+  top: 10%;
+  left: 0;
+  right: 0;
+  bottom: auto;
+  margin: auto;
+  height: -webkit-fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.dashboardWrapper .AddPropertymodal .form .form-control {
+  margin-top: 5px;
+}
+
+.dashboardWrapper .AddPropertymodal .form legend {
+  font-size: 15px;
+  width: 98%;
+  margin: auto;
+  color: #00000090;
+}
+
+.dashboardWrapper .AddPropertymodal .form .loader {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #dbdbdba8;
+}
+
+.dashboardWrapper .AddPropertymodal .form .loader .v-spinner {
+  text-align: center;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  height: -webkit-fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+.dashboardWrapper .AddPropertymodal .form .loader .v-spinner .v-clip {
+  border-width: 3px !important;
+}
+
+.dashboardWrapper .AddPropertymodal .form .loader .v-spinner::after {
+  content: "please wait...";
+  display: block;
+}
+
+.dashboardBody {
+  -ms-grid-row: 2;
+  grid-row: 2;
+  -ms-grid-column: 2;
+  grid-column: 2;
+  background: #f5f5f5;
+  min-height: 90vh;
+  overflow: hidden;
+}
+
+.sidebarLinks {
+  padding: 0;
+  position: absolute;
+  width: 100%;
+  margin-top: 30px !important;
+}
+
+.sidebarLinks a {
+  text-decoration: none !important;
+}
+
+.sidebarLinks a .dropdown {
+  float: right;
+  background: transparent;
+  color: white;
+}
+
+.sidebarLinks a .dropdown ul {
+  -webkit-transform: translate3d(-160px, 32px, 0px) !important;
+          transform: translate3d(-160px, 32px, 0px) !important;
+  padding: 0;
+  max-width: 210px;
+  max-height: 300px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.sidebarLinks a .dropdown ul::-webkit-scrollbar {
+  width: 8px;
+  overflow: visible;
+  border-radius: 34px;
+}
+
+.sidebarLinks a .dropdown ul:hover::-webkit-scrollbar-thumb {
+  background: #acacac75;
+  overflow: visible;
+  border-radius: 34px;
+  cursor: default;
+}
+
+.sidebarLinks a .dropdown li {
+  background: transparent;
+  min-width: 198px;
+  padding: 0;
+  border: none;
+}
+
+.sidebarLinks a .dropdown li a {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.sidebarLinks a button {
+  padding: 0px;
+  width: 49px;
+  margin-top: -15px;
+  height: 50px;
+  background: transparent;
+  border-radius: 0;
+  color: #ffffff;
+  font-size: 25px;
+  opacity: 0;
+}
+
+.sidebarLinks a button:hover {
+  background: #36c5d241;
+}
+
+.sidebarLinks a button span {
+  vertical-align: top;
+}
+
+.sidebarLinks li {
+  list-style-type: none;
+  padding: 15px 0px 15px 20px;
+  color: #eeeeece8;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 1px;
+  border-top: 1px solid #3db3fa;
+}
+
+.sidebarLinks li:hover {
+  color: #ffffff;
+  background: #88f2fbb0;
+}
+
+.sidebarLinks li:hover button {
+  opacity: 1;
+  color: white;
+}
+
+.top-nav {
+  -ms-grid-row: 1;
+  grid-row: 1;
+  -ms-grid-column: 2;
+  -ms-grid-column-span: 1;
+  grid-column: 2/3;
+  background: white;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  height: 55px;
+  z-index: 999;
+  -webkit-box-shadow: 2px 0 5px #888;
+          box-shadow: 2px 0 5px #888;
+  min-height: 55px;
+  width: 100%;
+}
+
+.top-nav .dropdown {
+  float: left;
+  cursor: pointer;
+  left: 15px;
+  top: 4px;
+}
+
+.top-nav .dropdown button {
+  background: transparent;
+  border: 1.5px solid #3db3fa;
+  width: 110px;
+  text-align: left;
+  color: #3db3fa;
+  border-radius: 7px;
+  font-size: 19px;
+  padding: 3px 0 3px 7px;
+}
+
+.top-nav .dropdown i {
+  float: right;
+  font-size: 43px;
+  margin: -2px 0 0 -25px;
+  color: #3db3fa;
+}
+
+.top-nav .search {
+  float: right;
+  padding: 6px 30px 0px 0px;
+}
+
+.top-nav .search input {
+  padding: 5px 0 5px 20px;
+  width: 250px;
+  margin: 4px 20px 0 0px;
+  border-radius: 7px;
+  border-color: #3db3fa;
+  border: 2px solid #3db3fa;
+  font-size: 15px;
+  -webkit-text-fill-color: #3db3fa;
+}
+
+.router-link-active li {
+  background: #88f2fbb0;
+  color: white;
+}
+
+.vs__selected-options input {
+  border: 1px solid #8888888c;
+  width: 85%;
+  margin-left: 4px;
+  color: black;
+  float: left;
+  -webkit-box-shadow: 0 1px 4px #888;
+  box-shadow: 1px 0px 2px #888;
+  border-radius: 7px;
+}
+
+.vs__actions {
+  float: right;
+}
+
+#modal .modal-title {
+  text-align: center;
+  font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#modal .phone-notify {
+  border-color: tomato !important;
+  display: block;
+  width: 100%;
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+#modal legend {
+  margin-bottom: 0;
+  font-size: 14px;
+  color: #5c5c5ce6;
+}
+
+#modal fieldset {
+  padding: 16px 0;
+  margin-bottom: 10px;
+}
+
+.form1 .names {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.form1 .names input {
+  margin: 0 3px;
+}
+
+.form1 .buttons {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: reverse;
+      -ms-flex-flow: row-reverse;
+          flex-flow: row-reverse;
+}
+
+.form1 .buttons button {
+  margin: 0 3px;
+  outline: none;
+}
+
+.form2 select {
+  display: block;
+  width: 100%;
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form2 .amount {
+  width: 50%;
+  margin-left: auto;
+}
+
+.form2 .phone {
+  width: 45%;
+  float: left;
+}
+
+.form2 .buttons {
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin-left: auto;
+}
+
+.form2 .buttons .btn {
+  margin-left: 15px;
+}
+/*# sourceMappingURL=dashboardLayout.css.map */

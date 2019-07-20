@@ -1,0 +1,192 @@
+.village-wrapper {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 42vw 42vw;
+      grid-template-columns: 42vw 42vw;
+  margin-top: 10px;
+}
+
+.village-wrapper .container-body {
+  padding-top: 5px;
+  padding-bottom: 15px;
+  font-weight: bold;
+}
+
+.village-wrapper .container1 {
+  -ms-grid-column: 1;
+  grid-column: 1;
+  background: white;
+  border: 1px solid #ebebeb;
+  border-radius: 10px;
+  width: 98%;
+  height: -webkit-fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
+  margin: 0 auto;
+}
+
+.village-wrapper .container2 {
+  -ms-grid-column: 2;
+  grid-column: 2;
+  background: white;
+  border: 1px solid #ebebeb;
+  height: -webkit-fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
+  border-radius: 10px;
+  width: 98%;
+  margin: 0 auto;
+}
+
+.village-wrapper .container-title {
+  padding: 8px;
+  border-radius: 10px 10px 0 0;
+  background-color: #3db3fa;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.village-wrapper .container-title h1 {
+  color: #ffffff;
+  font-size: 14px;
+  letter-spacing: 1.3px;
+  margin: auto;
+  text-transform: uppercase;
+}
+
+.village-wrapper .container-title .fa-cog {
+  font-size: 25px;
+  margin: auto 15px;
+  color: white;
+}
+
+.village-wrapper .container-title .fa-th-large {
+  font-size: 23px;
+  margin: auto 15px;
+  color: white;
+}
+
+.list-group-item {
+  padding-top: 3px;
+  width: 97%;
+  margin: auto;
+  margin-top: 10px;
+  font-size: small;
+  letter-spacing: 1px;
+}
+
+.list-group-item .card-body p {
+  margin: 0;
+  padding: 5px 0;
+}
+
+.list-group-item .list-group-item .historic-selector {
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: auto;
+}
+
+.list-group-item .list-group-item .historic-selector span {
+  font-size: 25px;
+  margin-left: 10px;
+  vertical-align: sub;
+  height: -webkit-fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
+  color: #00000066;
+}
+
+.list-group-item .list-group-item .collapsed span {
+  -webkit-transform: rotate(180deg);
+          transform: rotate(180deg);
+  position: relative;
+  top: 28px;
+}
+
+.list-group-item .list-group-item .collapse,
+.list-group-item .list-group-item .collapsing {
+  margin: 0;
+  padding-top: 10px;
+  margin-bottom: -10px;
+}
+
+.list-group-item .list-group-item .collapse .card-text,
+.list-group-item .list-group-item .collapsing .card-text {
+  margin: 0;
+  padding: 2px;
+}
+
+.list-group-item .list-group-item .collapse .card-text span,
+.list-group-item .list-group-item .collapsing .card-text span {
+  float: right;
+}
+
+.list-group-item .list-group-item .collapse .card-text:nth-child(odd),
+.list-group-item .list-group-item .collapsing .card-text:nth-child(odd) {
+  background: ghostwhite;
+}
+
+.list-group-item .collapse,
+.list-group-item .collapsing {
+  margin: 20px 0 30px -5px;
+}
+
+.list-group-item .collapse .list-group-item,
+.list-group-item .collapsing .list-group-item {
+  margin: 0;
+  width: 100%;
+}
+
+.list-group-item .collapse .fa-times-circle,
+.list-group-item .collapsing .fa-times-circle {
+  float: right;
+  margin: 14px 0 0 0;
+  font-size: 22px;
+  color: silver;
+}
+
+.list-group-item #progress-container {
+  float: left;
+  width: 96%;
+  border-radius: 30px;
+  background: #ebebeb;
+}
+
+.list-group-item #progress-container #progress-bar {
+  width: 0%;
+  border-radius: 30px;
+  height: 5px;
+}
+
+.list-group-item .fa-ellipsis-v {
+  float: right;
+  font-size: 15px;
+  margin-top: -10px;
+}
+
+.list-group-item .bottom-detail {
+  padding: 5px 0;
+}
+
+.list-group-item .bottom-detail .completed {
+  padding-right: 20px;
+  color: green;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: reverse;
+      -ms-flex-direction: row-reverse;
+          flex-direction: row-reverse;
+}
+
+.list-group-item .bottom-detail .details {
+  color: #f4b833;
+  font-size: 13px;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+  margin-left: 1px;
+}
+/*# sourceMappingURL=village.css.map */
