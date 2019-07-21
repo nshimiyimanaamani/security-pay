@@ -143,11 +143,6 @@ body {
     translate(22.5px, 22.5px);
   transform: translate(-22.5px, -22.5px) scale(0.225) translate(22.5px, 22.5px);
 }
-#error-message .modal-content {
-  width: 60%;
-  top: 30vh;
-  margin: auto;
-}
 #error-message .modal-title {
   width: 95%;
   float: left;

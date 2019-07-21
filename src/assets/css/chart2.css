@@ -14,7 +14,7 @@
   background: #3db3fa;
   display: -webkit-box;
   display: -ms-flexbox;
-  display: flex;
+  display: flex
 }
 
 #chart2container .chart2Title h1 {

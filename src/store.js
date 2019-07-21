@@ -1,5 +1,6 @@
 /* eslint-disable semi */
 /* eslint-disable quotes */
+
 import Vue from "vue";
 import Vuex from "vuex";
 

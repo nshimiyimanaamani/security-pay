@@ -20,7 +20,9 @@ export default {
     };
   },
   mounted() {
+    if(this.$route.name == "dashboard"){
     this.drawChart();
+    }
   },
   methods: {
     drawChart(datas) {

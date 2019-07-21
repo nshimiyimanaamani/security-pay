@@ -88,15 +88,6 @@ body {
   letter-spacing: 1px;
   line-height: 20px;
 }
-.modal {
-  opacity: 1;
-}
-.modal-content {
-  width: 60%;
-  top: 34vh;
-  margin: auto;
-}
-
 @keyframes lds-rolling {
   0% {
     -webkit-transform: translate(-50%, -50%) rotate(0deg);
