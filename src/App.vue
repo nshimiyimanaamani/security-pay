@@ -1,18 +1,18 @@
 <template>
   <div id="app">
+    <vue-snotify></vue-snotify>
     <router-view />
   </div>
 </template>
 <script>
-import "../node_modules/chart.js/dist/Chart.js";
 export default {
   computed: {
     user() {
       return this.$store.state.user1;
     }
   },
-  beforeMount(){
-    this.$store.dispatch('startup_function')
+  beforeMount() {
+    this.$store.dispatch("startup_function");
   }
 };
 </script>
@@ -33,6 +33,7 @@ export default {
 @import url("../node_modules/@fortawesome/fontawesome-free/css/all.css");
 @import url("../node_modules/bootstrap/dist/css/bootstrap.css");
 @import url("../node_modules/bootstrap-vue/dist/bootstrap-vue.css");
+@import "~vue-snotify/styles/material.css";
 html,
 body {
   font-family: ubuntuRegular, Helvetica, Arial, sans-serif !important;
@@ -47,7 +48,8 @@ body {
   -webkit-font-smoothing: antialiased !important;
   -moz-osx-font-smoothing: grayscale !important;
 }
-button,input{
+button,
+input {
   font-family: ubuntuRegular, Helvetica, Arial, sans-serif !important;
 }
 </style>

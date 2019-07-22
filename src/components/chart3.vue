@@ -28,16 +28,20 @@ export default {
   },
   mounted() {
     if (this.$route.name == "dashboard") {
-      this.drawChart(this.pay);
+      this.drawChart(this.pay, this.getCellsArray);
     }
   },
   computed: {
     getActiveSector() {
       return this.$store.getters.getActiveSector;
+    },
+    getCellsArray() {
+      chart.update();
+      return this.$store.getters.getCellsArray;
     }
   },
   methods: {
-    drawChart(payData) {
+    drawChart(payData, cellsArray) {
       let Chart3Container = document.getElementById("Chart-3").getContext("2d");
       Chart.defaults.global.defaultFontSize = 15;
       Chart.defaults.scale.ticks.beginAtZero = true;
@@ -103,15 +107,7 @@ export default {
       let chart3 = new Chart(Chart3Container, {
         type: "bar",
         data: {
-          labels: [
-            "CELL A",
-            "CELL B",
-            "CELL C",
-            "CELL D",
-            "CELL E",
-            "CELL F",
-            "CELL G"
-          ],
+          labels: cellsArray,
           datasets: [
             {
               type: "line",

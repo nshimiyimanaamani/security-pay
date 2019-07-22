@@ -72,12 +72,12 @@
         <b-form class="form1" v-show="!toggleForms">
           <b-form-group label="Owner:">
             <div class="names">
-              <b-form-input v-model="form1.fname" required placeholder="First Name..."></b-form-input>
-              <b-form-input v-model="form1.lname" required placeholder="Last Name..."></b-form-input>
+              <b-form-input v-model="form.fname" required placeholder="First Name..."></b-form-input>
+              <b-form-input v-model="form.lname" required placeholder="Last Name..."></b-form-input>
             </div>
           </b-form-group>
           <b-form-group label="Phone number:">
-            <b-form-input type="number" v-model="form1.phoneNo"></b-form-input>
+            <b-form-input type="number" v-model="form.phoneNo"></b-form-input>
           </b-form-group>
 
           <div class="buttons">
@@ -87,21 +87,17 @@
         </b-form>
 
         <b-form @submit="onSubmit" v-show="toggleForms" class="form2">
-         <b-form-group class="phone" label="First Name:">
-            <b-form-input
-              :disabled="userAvailable"
-              v-model="form.fname"
-              placeholder="Firse Name..."
-            ></b-form-input>
+          <b-form-group class="phone" label="First Name:">
+            <b-form-input disabled v-model="form.fname" placeholder="First Name..."></b-form-input>
           </b-form-group>
           <b-form-group class="amount" label="Surname:">
-            <b-form-input :disabled="userAvailable" v-model="form.lname" placeholder="surname..."></b-form-input>
+            <b-form-input disabled v-model="form.lname" placeholder="surname..."></b-form-input>
           </b-form-group>
           <b-form-group class="phone" label="Phone number:">
             <b-form-input
               type="number"
-              :disabled="userAvailable"
-              v-model="form.phone"
+              disabled
+              v-model="form.phoneNo"
               placeholder="Phone Number..."
             ></b-form-input>
           </b-form-group>
@@ -109,10 +105,10 @@
             <b-form-input type="number" v-model="form.amount" placeholder="Amount..."></b-form-input>
           </b-form-group>
           <b-form-group label="cell:">
-            <b-form-select v-model="form.cells" :options="cells()" required></b-form-select>
+            <b-form-select v-model="form.cells" :options="this.getPropertyCell" required></b-form-select>
           </b-form-group>
           <b-form-group label="village:">
-            <b-form-select v-model="form.village" :options="village()" required></b-form-select>
+            <b-form-select v-model="form.village" :options="this.getPropertyVillage" required></b-form-select>
           </b-form-group>
           <div class="buttons">
             <b-button variant="danger" @click="cancel">cancel</b-button>
@@ -149,16 +145,13 @@ export default {
       },
       form: {
         name: "",
-        phone: "",
+        fname: "",
+        lname: "",
+        phoneNo: "",
         amount: "",
         cells: null,
         village: null,
         user_id: ""
-      },
-      form1: {
-        fname: "Tucky",
-        lname: "Bucky",
-        phoneNo: "0784577882"
       }
     };
   },
@@ -184,6 +177,12 @@ export default {
     },
     getSector() {
       return this.$store.getters.getSector;
+    },
+    getPropertyCell() {
+      return this.cells();
+    },
+    getPropertyVillage() {
+      return this.village();
     }
   },
   mounted() {
@@ -203,35 +202,43 @@ export default {
     },
     search(e) {
       e.preventDefault();
-      this.userAvailable = false;
       this.loading = true;
       axios
         .get(
-          `${this.endpoint}/properties/owners/search/?fname=${this.form1.fname}&lname=${this.form1.lname}&phone=${this.form1.phoneNo}`
+          `${this.endpoint}/properties/owners/search/?fname=${this.form.fname}&lname=${this.form.lname}&phone=${this.form.phoneNo}`
         )
         .then(res => {
-          this.userAvailable = false;
-          this.form.name = `${res.data.fname} ${res.data.lname}`;
-          this.form.phone = res.data.phone;
           this.form.user_id = res.data.id;
           this.toggleForms = true;
-          console.log(res);
-          // resole();
+          this.loading = false;
+          this.$snotify.info(
+            `Existing user. proceeding to property registration...`
+          );
         })
         .catch(err => {
-          console.log(err);
-          this.toggleForms = true;
-          this.loading = false;
-
-          // reject();
+          this.$snotify.warning(`Oops! user not found. Creating user...`);
+          axios
+            .post(`${this.endpoint}/properties/owners/`, {
+              fname: this.form.fname,
+              lname: this.form.lname,
+              phone: this.form.phoneNo
+            })
+            .then(res => {
+              this.form.user_id = res.data.id;
+              this.toggleForms = true;
+              this.loading = false;
+              this.$snotify.info(`User created. proceeding to registration...`);
+            })
+            .catch(err => {
+              this.loading = false;
+              this.$snotify.error(`Oops! user creation Failed`);
+            });
         });
-      // });
-      // asyncLoading(search)
-      //   .then(console.log("search finish"))
-      //   .catch(console.log("search error"));
     },
+
     onSubmit(evt) {
       evt.preventDefault();
+      this.loading = true;
       axios
         .post(`${this.endpoint}/properties/`, {
           cell: this.form.cells,
@@ -241,44 +248,57 @@ export default {
           village: this.form.village
         })
         .then(res => {
-          console.log(res.data);
+          this.$snotify.success(`Property registered successfully`);
+          this.loading = false;
+          this.modalShow = !this.modalShow;
+          (this.form.lname = ""),
+            (this.form.fname = ""),
+            (this.form.phoneNo = ""),
+            (this.form.amount = ""),
+            (this.form.cells = ""),
+            (this.form.village = "");
+          this.toggleForms = false;
         })
         .catch(err => {
-          console.log(err);
+          this.$snotify.error(`Oops! property registration Failed`);
+          this.loading = false;
         });
     },
+
     cancel(e) {
       e.preventDefault();
 
       this.modalShow = !this.modalShow;
-      (this.form.email = ""),
-        (this.form.name = ""),
-        (this.form.phone = ""),
+      (this.form.lname = ""),
+        (this.form.fname = ""),
+        (this.form.phoneNo = ""),
         (this.form.amount = ""),
         (this.form.cells = ""),
         (this.form.village = "");
       this.toggleForms = false;
     },
+
     cells() {
       let main_array = [{ text: "Select cell", value: null }];
-      for (const key in this.getSector) {
-        if (this.getSector.hasOwnProperty(key)) {
-          main_array = [...main_array, key];
-        }
-      }
+      this.getCellsArray.forEach(element => {
+        main_array = [...main_array, element];
+      });
       return main_array;
     },
+
     village() {
       let main_array = [{ text: "Select village", value: null }];
-      if (
-        this.getSector[this.form.cells] != undefined &&
-        this.getSector[this.form.cells] != ""
+      if (this.form.cells == null) {
+        return main_array;
+      } else if (
+        this.form.cells != null &&
+        this.getSector[this.form.cells] != undefined
       ) {
         this.getSector[this.form.cells].forEach(element => {
           main_array = [...main_array, element];
         });
+        return main_array;
       }
-      return main_array;
     }
   }
 };

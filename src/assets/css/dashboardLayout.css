@@ -104,9 +104,7 @@
   width: -webkit-fit-content;
   width: -moz-fit-content;
   width: fit-content;
-  height: -webkit-fit-content;
-  height: -moz-fit-content;
-  height: fit-content;
+  height: 25%;
   position: absolute;
   top: 0;
   left: 0;
@@ -155,10 +153,10 @@
   -webkit-transform: translate3d(-160px, 32px, 0px) !important;
           transform: translate3d(-160px, 32px, 0px) !important;
   padding: 0;
-  max-width: 210px;
+  width: 209px;
   max-height: 300px;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .sidebarLinks a .dropdown ul::-webkit-scrollbar {

@@ -23,21 +23,37 @@ export default {
         CELLE: [3, 2, 1, 20],
         CELLF: [3, 2, 1, 90],
         CELLG: [3, 2, 1, 30]
-      }
+      },
+      text: "hello"
     };
   },
   computed: {
     getActiveCell() {
       return this.$store.getters.getActiveCell;
+    },
+    getVillageArray() {
+      return this.$store.getters.getVillageArray;
     }
   },
   mounted() {
     if (this.$route.name == "cells") {
-      this.drawChart(this.pay);
+      this.drawChart(this.pay, this.getVillageArray);
+    }
+    setInterval(() => {
+      // this.updateChart();
+    }, 3000);
+  },
+  watch: {
+    getVillageArray: {
+      handler: "updateChart",
+      immediate: true
     }
   },
   methods: {
-    drawChart(payData) {
+    updateChart() {
+      // this.drawChart(null,null);
+    },
+    drawChart(payData, villageArray) {
       let Chart3Container = document.getElementById("Chart-3").getContext("2d");
       Chart.defaults.global.defaultFontSize = 15;
       Chart.defaults.scale.ticks.beginAtZero = true;
@@ -103,15 +119,7 @@ export default {
       let chart3 = new Chart(Chart3Container, {
         type: "bar",
         data: {
-          labels: [
-            "village A",
-            "village B",
-            "village C",
-            "village D",
-            "village E",
-            "village F",
-            "village G"
-          ],
+          labels: villageArray,
           datasets: [
             {
               type: "line",
