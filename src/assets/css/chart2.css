@@ -12,7 +12,10 @@
   position: relative;
   height: 50px;
   border-radius: 10px 10px 0 0;
-  background-color: #3db3fa;
+  background: #3db3fa;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex
 }
 
 #chart2container .chart2Title h1 {
