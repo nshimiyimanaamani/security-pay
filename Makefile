@@ -19,11 +19,13 @@ all:: test build image
 
 .PHONY: dependencies
 dependencies::
-	go mod tidy
+	@echo "  >  downloading dependencies..."
+	@go mod tidy
 
 .PHONY: build
 build::
-	CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o \
+	@echo "  >  building binary..."
+	@CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o \
 	bin/app -ldflags="-w -s -X ${package}/version.Service=${projectID}-backend \
 	-X ${package}/version.GitCommit=${commit} \
 	-X ${package}/version.GoVersion=${goVersion} \
@@ -32,31 +34,38 @@ build::
 
 .PHONY: test
 test::
-	go test -v $(packages)
+	@echo "  >  running unit tests..."
+	@go test -v $(packages)
 
 .PHONY: bench
 bench::
-	go test -bench=. -v $(packages)
+	@echo "  >  running benchmark tests..."
+	@go test -bench=. -v $(packages)
 
 .PHONY: lint
 lint::
-	golint $(packages)
+	@echo "  >  linting code..."
+	@golint $(packages)
 
 .PHONY: check
 check:: lint test
 
 .PHONY: coverage
 coverage::
-	go test -cover $(packages)
+	@echo "  >  making coverage report..."
+	@go test -cover $(packages)
 
 .PHONY: image
 image::
-	docker build -t $(image) .
+	@echo "  >  building docker image..."
+	@docker build -t $(image) .
 
 .PHONY:
 push::
-	docker tag $(image) $(registry)/$(projectID)/$(image)
-	docker push $(registry)/$(projectID)/$(image)
+	@echo "  >  pushing docker image..."
+	@docker tag $(image) $(registry)/$(projectID)/$(image)
+	@docker push $(registry)/$(projectID)/$(image)
 .PHONY: clean
 clean::
-	rm -f bin/$(module)
+	@echo "  >  cleaning..."
+	@rm -f bin/$(module)

@@ -17,6 +17,7 @@ import (
 	prtEndpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
 	trxAdapters "github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	usersAdapters "github.com/rugwirobaker/paypack-backend/api/http/users"
+	verionAdapters "github.com/rugwirobaker/paypack-backend/api/http/version"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/users"
@@ -165,6 +166,9 @@ func startHTTPServer(ctx context.Context,
 	)
 
 	router := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(false)
+
+	versionRoute := router.PathPrefix("/version").Subrouter()
+	verionAdapters.MakeEndpoint(versionRoute)
 
 	userRoutes := router.PathPrefix("/users").Subrouter()
 	usersAdapters.MakeAdapter(userRoutes)(users)
