@@ -1,6 +1,12 @@
 # paypack http api documentation
 This document is organised such that each service's endpoints are listed in their own section
 
+
+## version
+
+Get version information
+*`GET /version`
+
 ## users service
 
 Registering a new user.
