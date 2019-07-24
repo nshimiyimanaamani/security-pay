@@ -1,14 +1,14 @@
-package http
+package users
 
 import (
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
-	"strconv"
 	"strings"
 
-	"github.com/rugwirobaker/paypack-backend/models"
+	api "github.com/rugwirobaker/paypack-backend/api/http"
+	"github.com/rugwirobaker/paypack-backend/app/users"
 )
 
 var (
@@ -20,7 +20,7 @@ var (
 func EncodeResponse(w http.ResponseWriter, response interface{}) error {
 	w.Header().Set("Content-Type", contentType)
 
-	if ar, ok := response.(Response); ok {
+	if ar, ok := response.(api.Response); ok {
 		for k, v := range ar.Headers() {
 			w.Header().Set(k, v)
 		}
@@ -39,13 +39,13 @@ func EncodeError(w http.ResponseWriter, err error) {
 	w.Header().Set("Content-Type", contentType)
 
 	switch err {
-	case models.ErrInvalidEntity:
+	case users.ErrInvalidEntity:
 		w.WriteHeader(http.StatusBadRequest)
-	case models.ErrUnauthorizedAccess:
+	case users.ErrUnauthorizedAccess:
 		w.WriteHeader(http.StatusForbidden)
-	case models.ErrNotFound:
+	case users.ErrNotFound:
 		w.WriteHeader(http.StatusNotFound)
-	case models.ErrConflict:
+	case users.ErrConflict:
 		w.WriteHeader(http.StatusConflict)
 	case errUnsupportedContentType:
 		w.WriteHeader(http.StatusUnsupportedMediaType)
@@ -55,20 +55,8 @@ func EncodeError(w http.ResponseWriter, err error) {
 		w.WriteHeader(http.StatusBadRequest)
 
 	default:
-		switch err.(type) {
-		case *json.SyntaxError:
-			w.WriteHeader(http.StatusBadRequest)
-		case *json.UnmarshalTypeError:
-			w.WriteHeader(http.StatusBadRequest)
-		case *strconv.NumError:
-			w.WriteHeader(http.StatusBadRequest)
-		default:
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		w.WriteHeader(http.StatusInternalServerError)
 	}
-
-	// httpError := NewError(err)
-	// json.NewEncoder(w).Encode(httpError)
 }
 
 //CheckContentType middleware checks content typ

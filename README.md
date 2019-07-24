@@ -37,4 +37,9 @@ Other directories:
  * **secrets**: the secrets directory is created when you run `make secrets` to create secrets and certficates.
 
  ## To Get started.
+ For a locally runnable version of paypack checkout the compose manifest rep at  https://github.com/rugwirobaker/paypaack-compose-manifests
+ ## API docs
+ Checkout the REST API docs at [api](api.docs.md)
+
+
  check the endpoint documentantion detials at https://github.com/rugwirobaker/paypack-backend/blob/master/docs.md

@@ -68,6 +68,7 @@ Record a new transaction.
 
 Note that the `property` must be a valid uuid and you can generate them with at https://www.uuidgenerator.net/
 
+Get a transaction given it's id
 * `GET /transactions/:id`
     - example: `transactions/c48e8607-1834-4b81-a935-7cb30d4e7416`
     - response body: 
@@ -79,6 +80,7 @@ Note that the `property` must be a valid uuid and you can generate them with at 
         "property": "83232d60-c527-4b92-a45a-c451ca217a4e"
     }
     ```
+Get a list a subset of transactions given an offset and the limit
 * `GET /transactions/?offset=0&limit=5`
     - example using httpie: `http  "localhost:8081/api/transactions/?offset=0&limit=5"`
     - response body:
@@ -117,7 +119,7 @@ Note that the `property` must be a valid uuid and you can generate them with at 
 ```
 ## properties(houses) endpoints.
 **properties**: are the general properties endpoints. 
-
+Add a property object to a owner portofolio given their uid
 * `/properties/`
     - method: `POST`
     - request body: 
@@ -136,11 +138,11 @@ Note that the `property` must be a valid uuid and you can generate them with at 
         "id":"9f27518b-9023-4f4d-b949-c097511b66e7"
     }
     ```
-
+Retrieve a property given it's uid
 * `/properties/:id`
 
 **owners**: endpoints return help manage property owners.
-
+Add a new owner to the reperitory(require before adding properties)
 * `/properties/owners/`
     - method: `POST`
     - request body: 
@@ -155,7 +157,7 @@ Note that the `property` must be a valid uuid and you can generate them with at 
         "id": "c48e8607-1834-4b81-a935-7cb30d4e7416"
     }
     ```
-
+Retrieve a property given it's uid
 * `/properties/owners/:id`
     - method: `GET`
     - request body: `empty`
@@ -168,6 +170,7 @@ Note that the `property` must be a valid uuid and you can generate them with at 
         "phone": "0784577882"
     }
     ```
+Search and retrieve an owner given their first name and phone number
 * `/properties/owners/search/?fname=n&lname=m&phone=o`
     - method: `GET`
     - request body: `empty`
@@ -180,8 +183,8 @@ Note that the `property` must be a valid uuid and you can generate them with at 
         "phone": "0784577882"
     }
     ```
-
-* `/properties/owners/:owner/?offset=n&limit=m`
+Retrieve a subset of owners as a list given an offset and a limit
+* `/properties/owners/?offset=n&limit=m`
     - method: `GET`
     - request body: `empty`
     - response body:
@@ -213,6 +216,7 @@ Note that the `property` must be a valid uuid and you can generate them with at 
     }
 
     ```
+Retrieve properties given the owner
 * `/properties/owners/properties/{owner}?offset=0&limit=5`
     - method: `GET`
     - request body: `empty`
@@ -238,10 +242,13 @@ Note that the `property` must be a valid uuid and you can generate them with at 
 
 **admin blocks**: endpoints return properties within certain administration blocks
 
+Retrieve properties given the sector of their location
 * `"/properties/sectors/:sector/?offset=n&limit=m`
 
+Retrieve properties given the sector and cell of their location
 * `"/properties/sectors/:sector/cells/:cell/?offset=n&limit=m`
 
+Retrieve properties given the sector, cell and village of their location
 * `"/properties/sectors/:sector/cells/:cell/villages/:village/?offset=n&limit=m`
 
 

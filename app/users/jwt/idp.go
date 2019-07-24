@@ -5,7 +5,6 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/rugwirobaker/paypack-backend/app/users"
-	"github.com/rugwirobaker/paypack-backend/models"
 )
 
 const (
@@ -45,14 +44,14 @@ func (idp *jwtIdentityProvider) TemporaryKey(id string) (string, error) {
 func (idp *jwtIdentityProvider) Identity(key string) (string, error) {
 	token, err := jwt.Parse(key, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, models.ErrUnauthorizedAccess
+			return nil, users.ErrUnauthorizedAccess
 		}
 
 		return []byte(idp.secret), nil
 	})
 
 	if err != nil {
-		return "", models.ErrUnauthorizedAccess
+		return "", users.ErrUnauthorizedAccess
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {

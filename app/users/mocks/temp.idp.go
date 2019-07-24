@@ -2,7 +2,6 @@ package mocks
 
 import (
 	"github.com/rugwirobaker/paypack-backend/app/users"
-	"github.com/rugwirobaker/paypack-backend/models"
 )
 
 var _ users.TempIdentityProvider = (*tempIdentityProviderMock)(nil)
@@ -17,7 +16,7 @@ func NewTempIdentityProvider() users.TempIdentityProvider {
 
 func (idp *tempIdentityProviderMock) TemporaryKey(id string) (string, error) {
 	if id == "" {
-		return "", models.ErrUnauthorizedAccess
+		return "", users.ErrUnauthorizedAccess
 	}
 
 	return id, nil
