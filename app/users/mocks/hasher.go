@@ -2,7 +2,6 @@ package mocks
 
 import (
 	"github.com/rugwirobaker/paypack-backend/app/users"
-	"github.com/rugwirobaker/paypack-backend/models"
 )
 
 var _ users.Hasher = (*hasherMock)(nil)
@@ -17,14 +16,14 @@ func NewHasher() users.Hasher {
 
 func (hm *hasherMock) Hash(pwd string) (string, error) {
 	if pwd == "" {
-		return "", models.ErrInvalidEntity
+		return "", users.ErrInvalidEntity
 	}
 	return pwd, nil
 }
 
 func (hm *hasherMock) Compare(plain, hashed string) error {
 	if plain != hashed {
-		return models.ErrUnauthorizedAccess
+		return users.ErrUnauthorizedAccess
 	}
 
 	return nil

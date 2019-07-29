@@ -13,13 +13,12 @@ registry 	:= gcr.io
 projectID 	:= paypack
 image    	:= $(module):$(commit)
 
-.PHONY: all
-all:: dependencies
+all:: install
 all:: test build image
 
 .PHONY: dependencies
-dependencies::
-	@echo "  >  downloading dependencies..."
+install::
+	@echo "  >  installing dependencies..."
 	@go mod tidy
 
 .PHONY: build

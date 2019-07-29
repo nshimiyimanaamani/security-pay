@@ -3,6 +3,9 @@ package users_test
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/stretchr/testify/require"
+
 	//"errors"
 	"io"
 	"io/ioutil"
@@ -10,20 +13,17 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	
 
 	"github.com/gorilla/mux"
-	adapters "github.com/rugwirobaker/paypack-backend/api/http/users"
+	endpoints "github.com/rugwirobaker/paypack-backend/api/http/users"
 	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/app/users/mocks"
-	"github.com/rugwirobaker/paypack-backend/models"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	contentType 	= "application/json"
-	user			= models.User{Email:"user@example.com", Password:"password"}
-	invalidEmail 	= "userexample.com"
+	contentType  = "application/json"
+	invalidEmail = "userexample.com"
 )
 
 type testRequest struct {
@@ -50,17 +50,17 @@ func (tr testRequest) make() (*http.Response, error) {
 }
 
 func newService() users.Service {
-	hasher:= mocks.NewHasher()
+	hasher := mocks.NewHasher()
 	tempIdp := mocks.NewTempIdentityProvider()
 	idp := mocks.NewIdentityProvider()
-	store:= mocks.NewUserStore()
+	store := mocks.NewUserStore()
 
-	return users.New(hasher,tempIdp, idp, store)
+	return users.New(hasher, tempIdp, idp, store)
 }
 
 func newServer(svc users.Service) *httptest.Server {
-	mux:= mux.NewRouter()
-	adapters.MakeAdapter(mux)(svc)
+	mux := mux.NewRouter()
+	endpoints.MakeAdapter(mux)(svc)
 	return httptest.NewServer(mux)
 }
 
@@ -69,15 +69,17 @@ func toJSON(data interface{}) string {
 	return string(jsonData)
 }
 
-func TestUserRegisterEndpoint(t *testing.T){
-	svc:= newService()
-	ts:= newServer(svc)
+func TestUserRegisterEndpoint(t *testing.T) {
+	svc := newService()
+	ts := newServer(svc)
 
 	defer ts.Close()
-	client:= ts.Client()
+	client := ts.Client()
+
+	user := users.User{Email: "user@example.com", Password: "password", Cell: "admin"}
 
 	data := toJSON(user)
-	invalidData := toJSON(models.User{Email: invalidEmail, Password: "password"})
+	invalidData := toJSON(users.User{Email: invalidEmail, Password: "password"})
 	invalidFieldData := fmt.Sprintf(`{"email": "%s", "pass": "%s"}`, user.Email, user.Password)
 
 	cases := []struct {
@@ -111,20 +113,23 @@ func TestUserRegisterEndpoint(t *testing.T){
 	}
 }
 
-func TestUserLoginEndpoint(t *testing.T){
-	svc:= newService()
-	ts:= newServer(svc)
+func TestUserLoginEndpoint(t *testing.T) {
+	svc := newService()
+	ts := newServer(svc)
 
 	defer ts.Close()
-	client:= ts.Client()
+	client := ts.Client()
+
+	user := users.User{Email: "user@example.com", Password: "password", Cell: "admin"}
 
 	tokenData := toJSON(map[string]string{"token": user.Email})
 	data := toJSON(user)
-	invalidData := toJSON(models.User{Email:"user@example.com", Password:"invalid_password"})
-	invalidEmailData := toJSON(models.User{Email: invalidEmail, Password: "password"})
-	nonexistentData := toJSON(models.User{Email:"non-existentuser@example.com", Password:"pass"})
+	invalidData := toJSON(users.User{Email: "user@example.com", Password: "invalid_password"})
+	invalidEmailData := toJSON(users.User{Email: invalidEmail, Password: "password"})
+	nonexistentData := toJSON(users.User{Email: "non-existentuser@example.com", Password: "pass"})
 
-	svc.Register(user)
+	_, err := svc.Register(user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	cases := []struct {
 		desc        string

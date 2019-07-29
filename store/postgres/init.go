@@ -122,6 +122,17 @@ func migrateDB(db *sql.DB) error {
 					`ALTER TABLE transactions DROP COLUMN  date_recorded`,
 				},
 			},
+			{
+				Id: "paypack_5",
+
+				Up: []string{
+					`ALTER TABLE users ADD COLUMN cell VARCHAR(254);`,
+				},
+
+				Down: []string{
+					`ALTER TABLE users DROP COLUMN  cell;`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

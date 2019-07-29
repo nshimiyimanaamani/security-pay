@@ -4,8 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/lib/pq"
-	"github.com/rugwirobaker/paypack-backend/models"
-	"github.com/rugwirobaker/paypack-backend/store/users"
+	"github.com/rugwirobaker/paypack-backend/app/users"
 )
 
 var _ users.Store = (*userStore)(nil)
@@ -19,12 +18,12 @@ func NewUserStore(db *sql.DB) users.Store {
 	return &userStore{db}
 }
 
-func (str *userStore) Save(user models.User) (string, error) {
-	q := `INSERT INTO users (id, email, password) VALUES ($1, $2, $3) RETURNING id`
+func (str *userStore) Save(user users.User) (string, error) {
+	q := `INSERT INTO users (id, email, password, cell) VALUES ($1, $2, $3, $4) RETURNING id`
 
-	if _, err := str.db.Exec(q, user.ID, user.Email, user.Password); err != nil {
+	if _, err := str.db.Exec(q, user.ID, user.Email, user.Password, user.Cell); err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && errDuplicate == pqErr.Code.Name() {
-			return "", models.ErrConflict
+			return "", users.ErrConflict
 		}
 		return "", err
 	}
@@ -32,13 +31,13 @@ func (str *userStore) Save(user models.User) (string, error) {
 	return user.ID, nil
 }
 
-func (str *userStore) RetrieveByID(email string) (models.User, error) {
+func (str *userStore) RetrieveByID(email string) (users.User, error) {
 	q := `SELECT password FROM users WHERE email = $1`
 
-	user := models.User{}
+	user := users.User{}
 	if err := str.db.QueryRow(q, email).Scan(&user.Password); err != nil {
 		if err == sql.ErrNoRows {
-			return user, models.ErrNotFound
+			return user, users.ErrNotFound
 		}
 		return user, err
 	}
