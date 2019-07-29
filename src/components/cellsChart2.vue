@@ -1,12 +1,13 @@
 <template>
-  <div id="chart2container">
+  <div id="cellChart2container">
     <div class="chart2Title">
       <i class="fa fa-th-large"></i>
-      <h1>Remera total collected</h1>
+      <h1>{{getActiveCell}} total collected</h1>
       <span class="fa fa-cog"></span>
     </div>
     <div class="chart2">
       <canvas id="Chart-2"></canvas>
+      <div id="legend"></div>
     </div>
   </div>
 </template>
@@ -18,35 +19,50 @@ export default {
       Percentage: 60
     };
   },
+  computed: {
+    getActiveCell() {
+      return this.$store.getters.getActiveCell;
+    }
+  },
   mounted() {
-    this.drawChart();
+    if (this.$route.name == "cells") {
+      this.drawChart();
+    }
   },
   methods: {
     drawChart() {
       let chartcanvas = document.getElementById("Chart-2").getContext("2d");
+
       Chart.defaults.global.defaultFontSize = 15;
       Chart.defaults.global.legend.position = "right";
       Chart.defaults.global.legend.labels.boxWidth = 0;
-      Chart.defaults.global.tooltips.enabled = false;
       var value = this.Percentage;
       var chartData = {
         type: "doughnut",
         data: {
-          labels: [`UMUTEKANO: ${value}% `],
+          labels: [`Umutekano`],
           datasets: [
             {
               data: [value, 100 - value],
-              backgroundColor: ["#58C5AD", "#f9f9f9"],
-              hoverBackgroundColor: ["#58C5AD", "#f9f9f9"],
-              hoverBorderColor: ["#58C5AD", "#ffffff"]
+              backgroundColor: ["#219fea", "#f9f9f9"],
+              hoverBackgroundColor: ["#219fea", "#f9f9f9"],
+              hoverBorderColor: ["#219fea", "#ffffff"]
             }
           ]
         },
         options: {
+          legendCallback: function(chart) {
+            var text = `<span> ${value}%</span> Umutekano`;
+            return text;
+          },
+          tooltips: { enabled: false },
+          legend: {
+            display: false
+          },
           elements: {
             center: {
               text: `${value}%`,
-              color: "#58C5AD", // Default is #000000
+              color: "#219fea", // Default is #000000
               fontStyle: "Arial", // Default is Arial
               sidePadding: 20 // Defualt is 20 (as a percentage)
             }
@@ -61,25 +77,19 @@ export default {
             }
           },
           maintainAspectRatio: false,
-          legend: {
-            label: {
-              fontsize: 19
-            },
-            labels: {
-              padding: 20
-            }
-          },
           layout: {
             padding: {
-              left: 10,
-              right: 15,
+              left: 0,
+              right: 200,
               top: 15,
               bottom: 15
             }
           }
         }
       };
-      let chart = new Chart(chartcanvas, chartData);
+      window.chart = new Chart(chartcanvas, chartData);
+      let legendContainer = document.getElementById("legend");
+      legendContainer.innerHTML = chart.generateLegend();
       Chart.pluginService.register({
         beforeDraw: function(chart) {
           if (chart.config.options.elements.center) {
@@ -115,6 +125,6 @@ export default {
 
 
 <style>
-@import url("../assets/css/chart2.css");
+@import url("../assets/css/cellsChart2.css");
 </style>
 

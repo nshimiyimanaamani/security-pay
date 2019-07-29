@@ -2,7 +2,7 @@
   <div id="chart2container">
     <div class="chart2Title">
       <i class="fa fa-th-large"></i>
-      <h1>Remera total collected</h1>
+      <h1>{{getActiveSector}} total collected</h1>
       <span class="fa fa-cog"></span>
     </div>
     <div class="chart2">
@@ -19,21 +19,28 @@ export default {
       Percentage: 60
     };
   },
+  computed: {
+    getActiveSector() {
+      return this.$store.getters.getActiveSector;
+    }
+  },
   mounted() {
-    this.drawChart();
+    if (this.$route.name == "dashboard") {
+      this.drawChart();
+    }
   },
   methods: {
     drawChart() {
       let chartcanvas = document.getElementById("Chart-2").getContext("2d");
+
       Chart.defaults.global.defaultFontSize = 15;
       Chart.defaults.global.legend.position = "right";
       Chart.defaults.global.legend.labels.boxWidth = 0;
-      Chart.defaults.global.tooltips.enabled = false;
       var value = this.Percentage;
       var chartData = {
         type: "doughnut",
         data: {
-          labels: [`UMUTEKANO: ${value}% `],
+          labels: [`Umutekano`],
           datasets: [
             {
               data: [value, 100 - value],
@@ -44,6 +51,14 @@ export default {
           ]
         },
         options: {
+          legendCallback: function(chart) {
+            var text = `<span> ${value}%</span> Umutekano`;
+            return text;
+          },
+          tooltips: { enabled: false },
+          legend: {
+            display: false
+          },
           elements: {
             center: {
               text: `${value}%`,
@@ -62,38 +77,10 @@ export default {
             }
           },
           maintainAspectRatio: false,
-          legend: {
-            display: false
-          },
-          legendCallback: function(chart) {
-            // Return the HTML string here.
-            console.log(chart.data.datasets[0]);
-            var text = [];
-            text.push('<ul class="' + chart.id + '-legend">');
-            for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
-              text.push(
-                '<li><span id="legend-' +
-                  i +
-                  '-item" style="background-color:' +
-                  chart.data.datasets[0].backgroundColor[i] +
-                  '"   onclick="updateDataset(event, ' +
-                  "'" +
-                  i +
-                  "'" +
-                  ')">'
-              );
-              if (chart.data.labels[i]) {
-                text.push(chart.data.labels[i]);
-              }
-              text.push("</span></li>");
-            }
-            text.push("</ul>");
-            return text.join("");
-          },
           layout: {
             padding: {
-              left: 10,
-              right: 15,
+              left: 0,
+              right: 200,
               top: 15,
               bottom: 15
             }
@@ -101,7 +88,8 @@ export default {
         }
       };
       window.chart = new Chart(chartcanvas, chartData);
-      chart.generateLegend();
+      let legendContainer = document.getElementById("legend");
+      legendContainer.innerHTML = chart.generateLegend();
       Chart.pluginService.register({
         beforeDraw: function(chart) {
           if (chart.config.options.elements.center) {
@@ -136,7 +124,7 @@ export default {
 </script>
 
 
-<style>
+<style scoped>
 @import url("../assets/css/chart2.css");
 </style>
 

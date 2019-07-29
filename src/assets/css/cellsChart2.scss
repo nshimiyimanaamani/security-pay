@@ -1,4 +1,4 @@
-#chart2container {
+#cellChart2container {
   position: relative;
   border-radius: 10px 10px 0 0;
   background: white;
@@ -8,8 +8,8 @@
 
   .chart2Title {
     padding: 8px;
+    background: #219fea !important;
     border-radius: 10px 10px 0 0;
-    background: #3db3fa;
     display: flex;
 
     h1 {
@@ -53,7 +53,7 @@
       font-size: 35px;
       letter-spacing: 1px;
       line-height: 50px;
-      color: #58c5ad;
+      color: #219fea;
       font-weight: normal;
     }
   }

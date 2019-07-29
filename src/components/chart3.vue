@@ -2,7 +2,7 @@
   <div id="chart3container">
     <div class="chart3Title">
       <i class="fa fa-th-large"></i>
-      <h1>Remera sector</h1>
+      <h1>{{getActiveSector}} sector</h1>
       <span class="fa fa-cog"></span>
     </div>
     <div class="chart3">
@@ -27,10 +27,21 @@ export default {
     };
   },
   mounted() {
-    this.drawChart(this.pay);
+    if (this.$route.name == "dashboard") {
+      this.drawChart(this.pay, this.getCellsArray);
+    }
+  },
+  computed: {
+    getActiveSector() {
+      return this.$store.getters.getActiveSector;
+    },
+    getCellsArray() {
+      chart.update();
+      return this.$store.getters.getCellsArray;
+    }
   },
   methods: {
-    drawChart(payData) {
+    drawChart(payData, cellsArray) {
       let Chart3Container = document.getElementById("Chart-3").getContext("2d");
       Chart.defaults.global.defaultFontSize = 15;
       Chart.defaults.scale.ticks.beginAtZero = true;
@@ -96,15 +107,7 @@ export default {
       let chart3 = new Chart(Chart3Container, {
         type: "bar",
         data: {
-          labels: [
-            "CELL A",
-            "CELL B",
-            "CELL C",
-            "CELL D",
-            "CELL E",
-            "CELL F",
-            "CELL G"
-          ],
+          labels: cellsArray,
           datasets: [
             {
               type: "line",
@@ -190,8 +193,8 @@ export default {
           },
           layout: {
             padding: {
-              left: 20,
-              right: 50,
+              left: 10,
+              right: 20,
               top: 25,
               bottom: 0
             }
@@ -204,6 +207,6 @@ export default {
 </script>
 
 
-<style>
+<style scoped>
 @import url("../assets/css/chart3.css");
 </style>

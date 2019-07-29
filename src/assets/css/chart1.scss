@@ -1,40 +1,31 @@
 #chart1container {
   position: relative;
-  width: 35vw;
-  box-shadow: 0 0 5px #888;
   border-radius: 10px 10px 0 0;
   background: white;
-  margin-left: 40px;
+  width: 98%;
+  margin: auto;
+  box-shadow: 0 5px 5px #00000030;
   .chart1Title {
-    position: relative;
-    height: 50px;
+    padding: 8px;
     border-radius: 10px 10px 0 0;
-    background-color: #3db3fa;
+    background: #3db3fa !important;
+    display: flex;
 
     h1 {
       color: #ffffff;
-      font-size: 14px;
-      line-height: 30px;
+      font-size: 15px;
       letter-spacing: 1.3px;
-      text-align: center;
-      padding-top: 7px;
       margin: auto;
       text-transform: uppercase;
     }
     .fa-cog {
-      position: absolute;
-      top: 9px;
-      right: 30px;
-      position: absolute;
-      font-size: 29px;
+      font-size: 25px;
+      margin: auto 15px;
       color: white;
     }
     .fa-th-large {
-      position: absolute;
-      top: 10px;
-      left: 30px;
-      position: absolute;
-      font-size: 25px;
+      font-size: 23px;
+      margin: auto 15px;
       color: white;
     }
   }

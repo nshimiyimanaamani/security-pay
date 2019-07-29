@@ -41,31 +41,102 @@
       margin-left: inherit;
     }
   }
+
+  .AddPropertymodal {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #00000090 !important;
+    z-index: 1000;
+
+    .form {
+      width: fit-content;
+      background: white;
+      position: absolute;
+      top: 10%;
+      left: 0;
+      right: 0;
+      bottom: auto;
+      margin: auto;
+      height: fit-content;
+      padding: 20px;
+      border-radius: 5px;
+
+      .form-control {
+        margin-top: 5px;
+      }
+
+      legend {
+        font-size: 15px;
+        width: 98%;
+        margin: auto;
+        color: #00000090;
+      }
+
+      .loader {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: #dbdbdba8;
+
+        .v-spinner {
+          text-align: center;
+          width: fit-content;
+          height: 25%;
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          margin: auto;
+
+          .v-clip {
+            border-width: 3px !important;
+          }
+
+          &::after {
+            content: "please wait...";
+            display: block;
+          }
+        }
+      }
+    }
+  }
 }
+
 .dashboardBody {
   grid-row: 2;
   grid-column: 2;
   background: #f5f5f5;
   min-height: 90vh;
+  overflow: hidden;
 }
+
 .sidebarLinks {
   padding: 0;
   position: absolute;
   width: 100%;
   margin-top: 30px !important;
+
   a {
     text-decoration: none !important;
+
     .dropdown {
       float: right;
       background: transparent;
       color: white;
+
       ul {
         transform: translate3d(-160px, 32px, 0px) !important;
         padding: 0;
-        max-width: 210px;
+        width: 209px;
         max-height: 300px;
         overflow-x: hidden;
-        overflow-y: scroll;
+        overflow-y: auto;
 
         &::-webkit-scrollbar {
           width: 8px;
@@ -102,9 +173,11 @@
       color: #ffffff;
       font-size: 25px;
       opacity: 0;
+
       &:hover {
         background: #36c5d241;
       }
+
       span {
         vertical-align: top;
       }
@@ -118,9 +191,11 @@
     font-size: 13px;
     letter-spacing: 1px;
     border-top: 1px solid #3db3fa;
+
     &:hover {
       color: #ffffff;
       background: #88f2fbb0;
+
       button {
         opacity: 1;
         color: white;
@@ -193,9 +268,11 @@
     border-radius: 7px;
   }
 }
+
 .vs__actions {
   float: right;
 }
+
 #modal {
   .modal-title {
     text-align: center;
@@ -239,9 +316,11 @@
       margin: 0 3px;
     }
   }
+
   .buttons {
     display: flex;
     flex-flow: row-reverse;
+
     button {
       margin: 0 3px;
       outline: none;
@@ -270,9 +349,11 @@
     width: 45%;
     float: left;
   }
+
   .buttons {
     width: fit-content;
     margin-left: auto;
+
     .btn {
       margin-left: 15px;
     }

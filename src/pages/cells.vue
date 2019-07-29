@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-container">
+  <div class="cells-container">
     <div class="chart-1">
       <chart1/>
     </div>
@@ -17,7 +17,7 @@ import chart1 from "../components/cellsChart1.vue";
 import chart2 from "../components/cellsChart2.vue";
 import chart3 from "../components/cellsChart3.vue";
 export default {
-  name: "dashboard",
+  name: "cells",
   components: {
     chart1,
     chart2,
@@ -26,5 +26,5 @@ export default {
 };
 </script>
 <style>
-@import url("../assets/css/dashboard.css");
+@import url("../assets/css/cells.css");
 </style>

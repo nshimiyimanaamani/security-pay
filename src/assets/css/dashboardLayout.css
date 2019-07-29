@@ -51,6 +51,77 @@
   margin-left: inherit;
 }
 
+.dashboardWrapper .AddPropertymodal {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #00000090 !important;
+  z-index: 1000;
+}
+
+.dashboardWrapper .AddPropertymodal .form {
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  background: white;
+  position: absolute;
+  top: 10%;
+  left: 0;
+  right: 0;
+  bottom: auto;
+  margin: auto;
+  height: -webkit-fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.dashboardWrapper .AddPropertymodal .form .form-control {
+  margin-top: 5px;
+}
+
+.dashboardWrapper .AddPropertymodal .form legend {
+  font-size: 15px;
+  width: 98%;
+  margin: auto;
+  color: #00000090;
+}
+
+.dashboardWrapper .AddPropertymodal .form .loader {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #dbdbdba8;
+}
+
+.dashboardWrapper .AddPropertymodal .form .loader .v-spinner {
+  text-align: center;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  height: 25%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+.dashboardWrapper .AddPropertymodal .form .loader .v-spinner .v-clip {
+  border-width: 3px !important;
+}
+
+.dashboardWrapper .AddPropertymodal .form .loader .v-spinner::after {
+  content: "please wait...";
+  display: block;
+}
+
 .dashboardBody {
   -ms-grid-row: 2;
   grid-row: 2;
@@ -58,6 +129,7 @@
   grid-column: 2;
   background: #f5f5f5;
   min-height: 90vh;
+  overflow: hidden;
 }
 
 .sidebarLinks {
@@ -81,10 +153,10 @@
   -webkit-transform: translate3d(-160px, 32px, 0px) !important;
           transform: translate3d(-160px, 32px, 0px) !important;
   padding: 0;
-  max-width: 210px;
+  width: 209px;
   max-height: 300px;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .sidebarLinks a .dropdown ul::-webkit-scrollbar {

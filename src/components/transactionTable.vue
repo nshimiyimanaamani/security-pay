@@ -14,7 +14,7 @@
                 <i class="fa fa-caret-down"></i>
               </th>
               <th>
-                Narrative3
+                Narrative
                 <i class="fa fa-caret-down"></i>
               </th>
               <th>
@@ -26,24 +26,22 @@
           <tbody>
             <tr v-for="(trans , index) in transactionData" :key="index">
               <td>
-                <div></div>
-                <i v-if="trans.success == 'true'" class="fa fa-check-circle"></i>
-                <i v-else-if="trans.success == 'false'" class="fa fa-times-circle"></i>
-                <p>{{trans.date}}</p>
+                <i class="fa fa-check-circle"></i>
+                <p>12:35,22 March 2019</p>
               </td>
               <td>
-                <div v-if="trans.paymentMethod == 'mtn'" class="mtn">
+                <div v-if="trans.method == 'mtn' || 'MTN'" class="mtn">
                   <span>mtn</span>
                 </div>
-                <div v-else-if="trans.paymentMethod == 'airtel'" class="airtel">
+                <div v-else-if="trans.method == 'airtel' || 'AIRTEL'" class="airtel">
                   <span>airtel</span>
                 </div>
-                <div v-else-if="trans.paymentMethod == 'bk'" class="bk">
+                <div v-else-if="trans.method == 'bk' || 'BK'" class="bk">
                   <span>bk</span>
                 </div>&nbsp;
-                <p class="customerName">{{trans.payee}}</p>
+                <p class="customerName">Customer Name</p>
               </td>
-              <td>{{trans.narrator}}</td>
+              <td>Umutekano</td>
               <td>
                 {{trans.amount}}
                 <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
@@ -57,60 +55,37 @@
 </template>
 
 <script>
+import axios from "axios";
+import { asyncLoading } from "vuejs-loading-plugin";
 export default {
   data() {
     return {
-      transactionData: [
-        {
-          success: "true",
-          date: "12:35,22 March 2019",
-          paymentMethod: "mtn",
-          payee: "customer1",
-          narrator: "Umutekano",
-          amount: "4000 Rwf"
-        },
-        {
-          success: "true",
-          date: "12:35,22 March 2019",
-          paymentMethod: "airtel",
-          payee: "customer2",
-          narrator: "Umutekano",
-          amount: "3000 Rwf"
-        },
-        {
-          success: "true",
-          date: "12:35,22 March 2019",
-          paymentMethod: "mtn",
-          payee: "customer3",
-          narrator: "Umutekano",
-          amount: "500 Rwf"
-        },
-        {
-          success: "true",
-          date: "12:35,22 March 2019",
-          paymentMethod: "mtn",
-          payee: "customer4",
-          narrator: "Umutekano",
-          amount: "5000 Rwf"
-        },
-        {
-          success: "true",
-          date: "12:35,22 March 2019",
-          paymentMethod: "bk",
-          payee: "customer5",
-          narrator: "Umutekano",
-          amount: "2500 Rwf"
-        },
-        {
-          success: "false",
-          date: "12:35,22 March 2019",
-          paymentMethod: "bk",
-          payee: "customer6",
-          narrator: "Umutekano",
-          amount: "2000 Rwf"
-        }
-      ]
+      transactionData: [],
     };
+  },
+  computed: {
+    endpoint() {
+      return this.$store.state.endPoint;
+    }
+  },
+  mounted() {
+    const getTransactions = new Promise((resolve, reject) => {
+      axios
+        .get(`${this.endpoint}/transactions/?offset=0&limit=5`)
+        .then(res => {
+          if(res.status == 200){
+          this.transactionData = res.data.transactions;
+          resolve(res);
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          reject(err);
+        });
+    });
+    asyncLoading(getTransactions)
+    .then(res=>{console.log(res)})
+    .catch(err=>{console.log(err)})
   }
 };
 </script>

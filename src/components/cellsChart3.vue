@@ -1,8 +1,8 @@
 <template>
-  <div id="chart3container">
+  <div id="cellChart3container">
     <div class="chart3Title">
       <i class="fa fa-th-large"></i>
-      <h1>Remera sector</h1>
+      <h1>{{getActiveCell}} sector</h1>
       <span class="fa fa-cog"></span>
     </div>
     <div class="chart3">
@@ -23,14 +23,37 @@ export default {
         CELLE: [3, 2, 1, 20],
         CELLF: [3, 2, 1, 90],
         CELLG: [3, 2, 1, 30]
-      }
+      },
+      text: "hello"
     };
   },
+  computed: {
+    getActiveCell() {
+      return this.$store.getters.getActiveCell;
+    },
+    getVillageArray() {
+      return this.$store.getters.getVillageArray;
+    }
+  },
   mounted() {
-    this.drawChart(this.pay);
+    if (this.$route.name == "cells") {
+      this.drawChart(this.pay, this.getVillageArray);
+    }
+    setInterval(() => {
+      // this.updateChart();
+    }, 3000);
+  },
+  watch: {
+    getVillageArray: {
+      handler: "updateChart",
+      immediate: true
+    }
   },
   methods: {
-    drawChart(payData) {
+    updateChart() {
+      // this.drawChart(null,null);
+    },
+    drawChart(payData, villageArray) {
       let Chart3Container = document.getElementById("Chart-3").getContext("2d");
       Chart.defaults.global.defaultFontSize = 15;
       Chart.defaults.scale.ticks.beginAtZero = true;
@@ -96,15 +119,7 @@ export default {
       let chart3 = new Chart(Chart3Container, {
         type: "bar",
         data: {
-          labels: [
-            "village A",
-            "village B",
-            "village C",
-            "village D",
-            "village E",
-            "village F",
-            "village G"
-          ],
+          labels: villageArray,
           datasets: [
             {
               type: "line",
@@ -120,9 +135,9 @@ export default {
                 payData.CELLG[3]
               ],
               backgroundColor: "transparent",
-              borderColor: "#46A9D4",
+              borderColor: "#2578c1",
               borderWidth: 5,
-              borderDash: [5, 5],
+              borderDash: [9, 5],
               pointBackgroundColor: "#fff",
               pointBorderWidth: 1,
               pointRadius: 8,
@@ -139,8 +154,8 @@ export default {
                 payData.CELLF[3],
                 payData.CELLG[3]
               ],
-              backgroundColor: "#58c5ad",
-              borderColor: "#58c5ad",
+              backgroundColor: "#219fea",
+              borderColor: "#219fea",
               borderWidth: 1
             }
           ]
@@ -162,7 +177,7 @@ export default {
               {
                 ticks: {
                   callback: function(value, index, values) {
-                    return value + " ";
+                    return value + "% ";
                   },
                   max: 100,
                   min: 0,
@@ -190,8 +205,8 @@ export default {
           },
           layout: {
             padding: {
-              left: 20,
-              right: 50,
+              left: 10,
+              right: 20,
               top: 25,
               bottom: 0
             }
@@ -205,5 +220,5 @@ export default {
 
 
 <style>
-@import url("../assets/css/chart3.css");
+@import url("../assets/css/cellsChart3.css");
 </style>

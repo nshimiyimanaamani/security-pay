@@ -1,88 +1,73 @@
 body {
   background: #f9f9f9;
+  font-family: Arial, Helvetica, sans-serif;
 }
 .registerPage {
-  display: grid;
   position: relative;
-  grid-template-rows: 136px 200px;
   width: 50vw;
-  left: 24.5vw;
-  font-family: FThin;
+  margin: auto;
   height: 100vh;
+  color: #0000007a;
 }
 .registerTitle {
-  grid-row: 1;
   position: relative;
-  left: 110px;
-  top: 65px;
-  width: 480px;
-  color: #615f5f;
+  margin: auto;
+  top: 70px;
+  width: 290px;
   text-align: center;
-  font-size: 2.5rem;
-  font-weight: 100;
-  letter-spacing: 0.2px;
   line-height: 20px;
+  letter-spacing: 0.8px;
+  font-size: 15.4px;
 }
 .registerTitle p {
   margin: 0;
   text-align: left;
-  left: 95px;
+  left: 18px;
   position: relative;
-  letter-spacing: 1px;
 }
 .registerTitle #paypack {
-  font-size: 72px;
-  font-family: Arial, Helvetica, sans-serif;
-  letter-spacing: 1.5px;
-  line-height: 28px;
+  font-size: 65px;
+  line-height: 10px;
   color: #3db3fa;
 }
 .registerTitle #easy {
-  font-size: 1.8rem;
-  letter-spacing: 0.8px;
-  top: 15px;
+  top: 8px;
   text-align: center;
   position: relative;
 }
 .registerForm {
-  grid-row: 2;
   position: relative;
-  left: 165px;
-  top: 15rem;
-  min-height: 200px;
-  width: 60%;
+  margin: auto;
+  top: 14rem;
+  width: 57%;
 }
 .registerUsername input {
-  padding: 15px;
-  width: 90%;
+  padding: 10px 0 10px 15px;
+  width: 100%;
   border: 1px solid #bdbdbd;
   background: transparent;
-  opacity: 0.74;
-  border-radius: 15px;
-  margin: 10px 1%;
-  font-family: FRegular;
-  font-size: 18px;
+  border-radius: 10px;
+  margin: 10px auto;
+  font-size: 15px;
 }
 .registerPassword input {
-  padding: 15px;
-  width: 90%;
+  padding: 10px 0 10px 15px;
+  width: 100%;
   border: 1px solid #bdbdbd;
   background: transparent;
-  opacity: 0.74;
-  margin: 10px 1%;
-  border-radius: 15px;
-  font-family: FRegular;
-  font-size: 18px;
+  border-radius: 10px;
+  margin: 10px auto;
+  font-size: 15px;
 }
 .registerBtn a button {
-  padding: 10px;
-  margin: 10px 1%;
-  width: 90%;
-  border-radius: 15px;
+  padding: 5px;
+  margin: 10px auto;
+  width: 100%;
+  border-radius: 10px;
   border: none;
   background-color: #3db3fa;
   cursor: pointer;
-  font-family: FThin;
+  font-family: ubuntu;
   text-decoration: none;
   color: white;
   font-size: 30px;
@@ -90,11 +75,9 @@ body {
   line-height: 35px;
 }
 .registerBtn #forgot {
-  color: #706c6c;
   letter-spacing: 0.8px;
-  font-size: 20px;
+  font-size: 15px;
   float: right;
-  margin-right: 40px;
 }
 .registerBtn #forgot a {
   text-decoration: none;
