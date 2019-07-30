@@ -10,6 +10,7 @@ Vue.use(Vuex);
 export const store = new Vuex.Store({
   state: {
     endPoint: `https://paypack-backend-qahoqfdr3q-uc.a.run.app/api`,
+    token: null,
     active_sector: "remera",
     active_cell: "",
     cells_array: [],
@@ -103,6 +104,7 @@ export const store = new Vuex.Store({
     getActiveCell: state => state.active_cell,
     getActiveVillage: state => state.active_village,
     getVillageArray: state => state.village_array,
-    getActiveSector: state => state.active_sector
+    getActiveSector: state => state.active_sector,
+    getToken: state => state.token
   }
 });

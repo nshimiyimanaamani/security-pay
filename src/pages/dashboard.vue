@@ -1,13 +1,13 @@
 <template>
   <div class="dashboard-container">
     <div class="chart-1">
-      <chart1/>
+      <chart1 />
     </div>
     <div class="chart-2">
-      <chart2/>
+      <chart2 />
     </div>
     <div class="chart-3">
-      <chart3/>
+      <chart3 />
     </div>
   </div>
 </template>
