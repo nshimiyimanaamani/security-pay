@@ -22,7 +22,7 @@ body {
 .registerTitle p {
   margin: 0;
   text-align: left;
-  left: 18px;
+  left: 25px;
   position: relative;
 }
 .registerTitle #paypack {
@@ -36,43 +36,54 @@ body {
   position: relative;
 }
 .registerForm {
-  position: relative;
+ position: relative;
   margin: auto;
-  top: 14rem;
-  width: 57%;
+  top: 35%;
+  width: 50%;
+}
+.registerForm fieldset{
+  margin-bottom: 0
 }
 .registerUsername input {
-  padding: 10px 0 10px 15px;
+   padding: 10px 0 10px 15px;
   width: 100%;
   border: 1px solid #bdbdbd;
   background: transparent;
   border-radius: 10px;
-  margin: 10px auto;
+  margin: 8px auto;
   font-size: 15px;
+  height: 40px
 }
 .registerPassword input {
-  padding: 10px 0 10px 15px;
+   padding: 10px 0 10px 15px;
   width: 100%;
   border: 1px solid #bdbdbd;
   background: transparent;
   border-radius: 10px;
-  margin: 10px auto;
+  margin: 8px auto;
   font-size: 15px;
+  height: 40px
 }
 .registerBtn a button {
-  padding: 5px;
-  margin: 10px auto;
+    padding: 5px;
+  margin: 9px auto;
   width: 100%;
   border-radius: 10px;
   border: none;
   background-color: #3db3fa;
   cursor: pointer;
-  font-family: ubuntu;
+  font-family: ubuntu !important;
   text-decoration: none;
   color: white;
-  font-size: 30px;
-  letter-spacing: 2px;
+  font-size: 25px;
+  letter-spacing: 1px;
   line-height: 35px;
+}
+.registerBtn .loading{
+  position: relative;
+  right: 20%;
+  top: 5px;
+  float: right
 }
 .registerBtn #forgot {
   letter-spacing: 0.8px;

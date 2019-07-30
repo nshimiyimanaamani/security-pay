@@ -11,21 +11,31 @@
           <br />public fees
         </span>
       </div>
-      <div class="registerForm">
-        <div class="registerUsername">
-          <input type="email" name="username" id="username" placeholder="Email..." required />
-        </div>
-        <div class="registerPassword">
-          <input type="password" name="password" id="password" placeholder="Password..." required />
-        </div>
+      <b-form class="registerForm" @submit.prevent="register">
+        <b-form-group class="registerUsername">
+          <b-form-input
+            type="email"
+            v-model="form.email"
+            id="username"
+            placeholder="Email..."
+            required
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group class="registerPassword">
+          <b-form-input
+            type="password"
+            v-model="form.password"
+            id="password"
+            placeholder="Password..."
+            required
+          ></b-form-input>
+        </b-form-group>
         <div class="registerBtn">
           <a>
-            <button @click="register">
+            <button>
               Register
-              <div class="lds-css ng-scope" v-if="this.loading">
-                <div class="lds-rolling">
-                  <div></div>
-                </div>
+              <div class="loading" v-show="loading">
+                <clip-loader :loading="loading" :color="color" :size="size"></clip-loader>
               </div>
             </button>
           </a>
@@ -35,7 +45,7 @@
             <a href="#">Get HELP</a>
           </span>
         </div>
-      </div>
+      </b-form>
     </div>
   </div>
 </template>
@@ -43,45 +53,47 @@
 <script>
 import axios from "axios";
 export default {
+  data() {
+    return {
+      loading: false,
+      color: "#fff",
+      size: "25px",
+      form: {
+        email: "",
+        password: "",
+        cell: "admin"
+      }
+    };
+  },
   computed: {
-    loading() {
-      return this.$store.state.loading;
-    },
-    endpoint(){
-      return this.$store.state.endPoint;
+    endpoint() {
+      return this.$store.getters.getEndpoint;
     }
   },
   methods: {
     register() {
-      let email = document.querySelector("#username").value;
-      let password = document.querySelector("#password").value;
-
-      if (email != undefined && password != undefined) {
-        this.$store.state.loading = true;
+      if (this.form.email != "" && this.form.password != "") {
+        this.loading = true;
         axios
-          .post(`${this.endpoint}/users/`, {
-            email: `${email}`,
-            password: `${password}`
+          .post(`${this.endpoint}/users/`,{
+            email: this.form.email,
+            password: this.form.password,
+            cell: this.form.cell
           })
           .then(res => {
             console.log(res.data);
-            let text = "User Successfully Registered";
-            this.confirmation(text);
-            this.$store.state.loading = false;
+            this.$router.push('/')
+            this.$snotify.success(`user successfully registered!`);
+            this.loading = false;
           })
           .catch(err => {
             console.log(err);
-            let text = "User Not Registered";
-            this.confirmation(text);
-            this.$store.state.loading = false;
+            this.loading = false;
+            this.$snotify.error(
+              `user registration Failed! please try again Later `
+            );
           });
       }
-    },
-    confirmation(text) {
-      this.$bvModal.msgBoxOk(text, {
-        title: "Confirmation",
-        centered: true
-      });
     }
   }
 };
