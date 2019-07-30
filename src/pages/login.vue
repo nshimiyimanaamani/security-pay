@@ -11,16 +11,16 @@
           <br />public fees
         </span>
       </div>
-      <div class="loginForm">
-        <div class="loginUsername">
-          <input type="email" name="username" id="username" placeholder="Email..." />
-        </div>
-        <div class="loginPassword">
-          <input type="password" name="password" id="password" placeholder="Password..." />
-        </div>
+      <b-form class="loginForm" @submit="login()">
+        <b-form-group class="loginUsername">
+          <b-form-input type="email" id="username" v-model="form.email" required placeholder="Email..."></b-form-input>
+        </b-form-group>
+        <b-form-group class="loginPassword">
+          <b-form-input type="password" id="password" v-model="form.password" required placeholder="password..."></b-form-input>
+        </b-form-group>
         <div class="loginBtn">
           <a>
-            <button @click="login">
+            <button type="submit" @click="login">
               Log In
               <div class="loading" v-show="loading">
                 <clip-loader :loading="loading" :color="color" :size="size"></clip-loader>
@@ -34,15 +34,8 @@
             <a href="#">Get HELP</a>
           </span>
         </div>
-      </div>
+      </b-form>
     </div>
-    <b-modal id="error-message" hide-footer>
-      <template slot="modal-title" class="text-center">Confirmation</template>
-      <div class="d-block">
-        <h3>user not found, try using right credentials</h3>
-      </div>
-      <b-button block @click="$bvModal.hide('error-message')">OK</b-button>
-    </b-modal>
   </div>
 </template>
 
@@ -53,44 +46,40 @@ export default {
     return {
       loading: false,
       color: "#fff",
-      size: "25px"
+      size: "25px",
+      form:{
+        email:"",
+        password:""
+      }
     }
   },
   computed: {
     endpoint() {
-      return this.$store.state.endPoint;
+      return this.$store.getters.getEndpoint;
     }
   },
   methods: {
-    login() {
-      window.location.pathname = "/dashboard";
-      let email = document.querySelector("#username").value;
-      let password = document.querySelector("#password").value;
-      // if (email != "" && password != "") {
-      //   this.$store.state.loading = true;
-      //   axios
-      //     .post(`${this.endpoint}/users/tokens`, {
-      //       email: `${email}`,
-      //       password: `${password}`
-      //     })
-      //     .then(res => {
-      //       console.log(res.data);
-      //       window.location.pathname = "/dashboard";
-      //       this.$store.state.loading = false;
-      //     })
-      //     .catch(err => {
-      //       console.log(err);
-      //       let text = "User Not Found";
-      //       // this.confirmation(text);
-      //       this.$bvModal.show("error-message");
-      //       this.$store.state.loading = false;
-      //     });
-      // }
-    },
-    confirmation(text) {
-      this.$bvModal.msgBoxOk(text, {
-        title: "Confirmation"
-      });
+    login(e) {
+      e.preventDefault();
+      if (this.form.email != "" && this.form.password != "") {
+        this.loading = true;
+        axios
+          .post(`${this.endpoint}/users/tokens`, {
+            email: this.form.email,
+            password: this.form.password
+          })
+          .then(res => {
+            this.$router.push('/dashboard')
+            this.loading = false;
+          })
+          .catch(err => {
+            console.log(err);
+             this.$snotify.error(
+            `unregistered user! please register...`
+          );
+            this.loading = false;
+          });
+      }
     }
   }
 };
