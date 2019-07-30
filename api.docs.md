@@ -16,7 +16,7 @@ Registering a new user.
     - request body: 
     ```
     {
-        "email":"user@example.com", "password":"12345"
+        "email":"user@example.com", "password":"12345", "cell:admin"
     }
     ```
     - response body:
