@@ -85,7 +85,9 @@ func handleAddProperty(svc properties.Service, w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	property, err = svc.AddProperty(property)
+	token := r.Header.Get("Authorization")
+
+	property, err = svc.AddProperty(token, property)
 	if err != nil {
 		EncodeError(w, err)
 		return
@@ -116,13 +118,14 @@ func handleUpdateProperty(svc properties.Service, w http.ResponseWriter, r *http
 
 	vars := mux.Vars(r)
 	property.ID = vars["id"]
+	token := r.Header.Get("Authorization")
 
 	if err = property.Validate(); err != nil {
 		EncodeError(w, err)
 		return
 	}
 
-	err = svc.UpdateProperty(property)
+	err = svc.UpdateProperty(token, property)
 	if err != nil {
 		EncodeError(w, err)
 		return
@@ -146,10 +149,10 @@ func handleViewProperty(svc properties.Service, w http.ResponseWriter, r *http.R
 	var err error
 
 	vars := mux.Vars(r)
-
 	id := vars["id"]
+	token := r.Header.Get("Authorization")
 
-	property, err := svc.ViewProperty(id)
+	property, err := svc.ViewProperty(token, id)
 	if err != nil {
 		EncodeError(w, err)
 		return
@@ -174,20 +177,20 @@ func handleListByOwner(svc properties.Service, w http.ResponseWriter, r *http.Re
 	var err error
 
 	vars := mux.Vars(r)
+	token := r.Header.Get("Authorization")
 
 	offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 	if err != nil {
 		EncodeError(w, err)
 		return
 	}
-
 	limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 	if err != nil {
 		EncodeError(w, err)
 		return
 	}
 
-	page, err := svc.ListPropertiesByOwner(vars["owner"], offset, limit)
+	page, err := svc.ListPropertiesByOwner(token, vars["owner"], offset, limit)
 	if err != nil {
 		EncodeError(w, err)
 		return
@@ -224,20 +227,20 @@ func handleListBySector(svc properties.Service, w http.ResponseWriter, r *http.R
 	var err error
 
 	vars := mux.Vars(r)
+	token := r.Header.Get("Authorization")
 
 	offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 	if err != nil {
 		EncodeError(w, err)
 		return
 	}
-
 	limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 	if err != nil {
 		EncodeError(w, err)
 		return
 	}
 
-	page, err := svc.ListPropertiesBySector(vars["sector"], offset, limit)
+	page, err := svc.ListPropertiesBySector(token, vars["sector"], offset, limit)
 	if err != nil {
 		EncodeError(w, err)
 		return
@@ -274,20 +277,20 @@ func handleListByCell(svc properties.Service, w http.ResponseWriter, r *http.Req
 	var err error
 
 	vars := mux.Vars(r)
+	token := r.Header.Get("Authorization")
 
 	offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 	if err != nil {
 		EncodeError(w, err)
 		return
 	}
-
 	limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 	if err != nil {
 		EncodeError(w, err)
 		return
 	}
 
-	page, err := svc.ListPropertiesByCell(vars["cell"], offset, limit)
+	page, err := svc.ListPropertiesByCell(token, vars["cell"], offset, limit)
 	if err != nil {
 		EncodeError(w, err)
 		return
@@ -324,20 +327,20 @@ func handleListByVillage(svc properties.Service, w http.ResponseWriter, r *http.
 	var err error
 
 	vars := mux.Vars(r)
+	token := r.Header.Get("Authorization")
 
 	offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 	if err != nil {
 		EncodeError(w, err)
 		return
 	}
-
 	limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 	if err != nil {
 		EncodeError(w, err)
 		return
 	}
 
-	page, err := svc.ListPropertiesByVillage(vars["village"], offset, limit)
+	page, err := svc.ListPropertiesByVillage(token, vars["village"], offset, limit)
 	if err != nil {
 		EncodeError(w, err)
 		return
@@ -378,6 +381,8 @@ func handleCreateOwner(svc properties.Service, w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	token := r.Header.Get("Authorization")
+
 	var owner properties.Owner
 
 	if err = json.NewDecoder(r.Body).Decode(&owner); err != nil {
@@ -389,8 +394,7 @@ func handleCreateOwner(svc properties.Service, w http.ResponseWriter, r *http.Re
 		EncodeError(w, err)
 		return
 	}
-
-	owner.ID, err = svc.CreateOwner(owner)
+	owner.ID, err = svc.CreateOwner(token, owner)
 	if err != nil {
 		EncodeError(w, err)
 		return
@@ -421,13 +425,14 @@ func handleUpdateOwner(svc properties.Service, w http.ResponseWriter, r *http.Re
 
 	vars := mux.Vars(r)
 	owner.ID = vars["id"]
+	token := r.Header.Get("Authorization")
 
 	if err = owner.Validate(); err != nil {
 		EncodeError(w, err)
 		return
 	}
 
-	err = svc.UpdateOwner(owner)
+	err = svc.UpdateOwner(token, owner)
 	if err != nil {
 		EncodeError(w, err)
 		return
@@ -452,8 +457,9 @@ func handleViewOwner(svc properties.Service, w http.ResponseWriter, r *http.Requ
 	vars := mux.Vars(r)
 
 	id := vars["id"]
+	token := r.Header.Get("Authorization")
 
-	owner, err := svc.ViewOwner(id)
+	owner, err := svc.ViewOwner(token, id)
 	if err != nil {
 		EncodeError(w, err)
 		return
@@ -476,6 +482,7 @@ func handleListOwners(svc properties.Service, w http.ResponseWriter, r *http.Req
 	var err error
 
 	vars := mux.Vars(r)
+	token := r.Header.Get("Authorization")
 
 	offset, err := strconv.ParseUint(vars["offset"], 10, 64)
 	if err != nil {
@@ -489,7 +496,7 @@ func handleListOwners(svc properties.Service, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	page, err := svc.ListOwners(offset, limit)
+	page, err := svc.ListOwners(token, offset, limit)
 	if err != nil {
 		EncodeError(w, err)
 		return
@@ -524,12 +531,12 @@ func handleSearchOwner(svc properties.Service, w http.ResponseWriter, r *http.Re
 	var err error
 
 	vars := mux.Vars(r)
-
 	fname := vars["fname"]
 	lname := vars["lname"]
 	phone := vars["phone"]
+	token := r.Header.Get("Authorization")
 
-	owner, err := svc.FindOwner(fname, lname, phone)
+	owner, err := svc.FindOwner(token, fname, lname, phone)
 	if err != nil {
 		EncodeError(w, err)
 		return

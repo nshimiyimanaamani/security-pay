@@ -82,20 +82,26 @@ func TestUserRegisterEndpoint(t *testing.T) {
 	invalidData := toJSON(users.User{Email: invalidEmail, Password: "password"})
 	invalidFieldData := fmt.Sprintf(`{"email": "%s", "pass": "%s"}`, user.Email, user.Password)
 
+	res := toJSON(registrationRes{user.Email})
+	conflictRes := toJSON(errRes{"user already exists"})
+	invalidEntityRes := toJSON(errRes{"invalid entity format"})
+	unsupportedContentRes := toJSON(errRes{"unsupported content type"})
+
 	cases := []struct {
 		desc        string
 		req         string
 		contentType string
 		status      int
+		res         string
 	}{
-		{"register new user", data, contentType, http.StatusCreated},
-		{"register existing user", data, contentType, http.StatusConflict},
-		{"register user with invalid email address", invalidData, contentType, http.StatusBadRequest},
-		{"register user with invalid request format", "{", contentType, http.StatusBadRequest},
-		{"register user with empty JSON request", "{}", contentType, http.StatusBadRequest},
-		{"register user with empty request", "", contentType, http.StatusBadRequest},
-		{"register user with invalid field name", invalidFieldData, contentType, http.StatusBadRequest},
-		{"register user with missing content type", data, "", http.StatusUnsupportedMediaType},
+		{"register new user", data, contentType, http.StatusCreated, res},
+		{"register existing user", data, contentType, http.StatusConflict, conflictRes},
+		{"register user with invalid email address", invalidData, contentType, http.StatusBadRequest, invalidEntityRes},
+		{"register user with invalid request format", "{", contentType, http.StatusBadRequest, invalidEntityRes},
+		{"register user with empty JSON request", "{}", contentType, http.StatusBadRequest, invalidEntityRes},
+		{"register user with empty request", "", contentType, http.StatusBadRequest, invalidEntityRes},
+		{"register user with invalid field name", invalidFieldData, contentType, http.StatusBadRequest, invalidEntityRes},
+		{"register user with missing content type", data, "", http.StatusUnsupportedMediaType, unsupportedContentRes},
 	}
 
 	for _, tc := range cases {
@@ -110,6 +116,11 @@ func TestUserRegisterEndpoint(t *testing.T) {
 		res, err := req.make()
 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		body, err := ioutil.ReadAll(res.Body)
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		data := strings.Trim(string(body), "\n")
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.Equal(t, tc.res, data, fmt.Sprintf("%s: expected body %s got %s", tc.desc, tc.res, data))
 	}
 }
 
@@ -122,11 +133,15 @@ func TestUserLoginEndpoint(t *testing.T) {
 
 	user := users.User{Email: "user@example.com", Password: "password", Cell: "admin"}
 
-	tokenData := toJSON(map[string]string{"token": user.Email})
 	data := toJSON(user)
 	invalidData := toJSON(users.User{Email: "user@example.com", Password: "invalid_password"})
 	invalidEmailData := toJSON(users.User{Email: invalidEmail, Password: "password"})
 	nonexistentData := toJSON(users.User{Email: "non-existentuser@example.com", Password: "pass"})
+
+	tokenRes := toJSON(map[string]string{"token": user.Email})
+	invalidEntityRes := toJSON(errRes{"invalid entity format"})
+	invalidCredsRes := toJSON(errRes{"missing or invalid credentials provided"})
+	unsupportedContentRes := toJSON(errRes{"unsupported content type"})
 
 	_, err := svc.Register(user)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -138,14 +153,62 @@ func TestUserLoginEndpoint(t *testing.T) {
 		status      int
 		res         string
 	}{
-		{"login with valid credentials", data, contentType, http.StatusCreated, tokenData},
-		{"login with invalid credentials", invalidData, contentType, http.StatusForbidden, ""},
-		{"login with invalid email address", invalidEmailData, contentType, http.StatusBadRequest, ""},
-		{"login non-existent user", nonexistentData, contentType, http.StatusForbidden, ""},
-		{"login with invalid request format", "{", contentType, http.StatusBadRequest, ""},
-		{"login with empty JSON request", "{}", contentType, http.StatusBadRequest, ""},
-		{"login with empty request", "", contentType, http.StatusBadRequest, ""},
-		{"login with missing content type", data, "", http.StatusUnsupportedMediaType, ""},
+		{
+			desc:        "login with valid credentials",
+			req:         data,
+			contentType: contentType,
+			status:      http.StatusCreated,
+			res:         tokenRes,
+		},
+		{
+			desc:        "login with invalid credentials",
+			req:         invalidData,
+			contentType: contentType,
+			status:      http.StatusForbidden,
+			res:         invalidCredsRes,
+		},
+		{
+			desc:        "login with invalid email address",
+			req:         invalidEmailData,
+			contentType: contentType,
+			status:      http.StatusBadRequest,
+			res:         invalidEntityRes,
+		},
+		{
+			desc:        "login non-existent user",
+			req:         nonexistentData,
+			contentType: contentType,
+			status:      http.StatusForbidden,
+			res:         invalidCredsRes,
+		},
+		{
+			desc:        "login with invalid request format",
+			req:         "{",
+			contentType: contentType,
+			status:      http.StatusBadRequest,
+			res:         invalidEntityRes,
+		},
+		{
+			desc:        "login with empty JSON request",
+			req:         "{}",
+			contentType: contentType,
+			status:      http.StatusBadRequest,
+			res:         invalidEntityRes,
+		},
+		{
+			desc:        "login with empty request",
+			req:         "",
+			contentType: contentType,
+			status:      http.StatusBadRequest,
+			res:         invalidEntityRes,
+		},
+		{
+			desc:        "login with missing content type",
+			req:         data,
+			contentType: "",
+			status:      http.StatusUnsupportedMediaType,
+			res:         unsupportedContentRes,
+		},
 	}
 
 	for _, tc := range cases {
@@ -167,4 +230,12 @@ func TestUserLoginEndpoint(t *testing.T) {
 		assert.Equal(t, tc.res, token, fmt.Sprintf("%s: expected body %s got %s", tc.desc, tc.res, token))
 	}
 
+}
+
+type registrationRes struct {
+	ID string `json:"id"`
+}
+
+type errRes struct {
+	Message string `json:"message"`
 }

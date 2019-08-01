@@ -53,6 +53,8 @@ Record a new transaction.
 * `POST /transactions`:
     - contentType:`application/json`
 
+    - HEADERS:`["Authorization"]`
+
     - request body: 
     ```
     {
@@ -71,6 +73,9 @@ Note that the `property` must be a valid uuid and you can generate them with at 
 Get a transaction given it's id
 * `GET /transactions/:id`
     - example: `transactions/c48e8607-1834-4b81-a935-7cb30d4e7416`
+
+    -  HEADERS:`["Authorization"]`
+
     - response body: 
     ```
     {
@@ -83,6 +88,9 @@ Get a transaction given it's id
 Get a list a subset of transactions given an offset and the limit
 * `GET /transactions/?offset=0&limit=5`
     - example using httpie: `http  "localhost:8081/api/transactions/?offset=0&limit=5"`
+
+     HEADERS:`["Authorization"]`
+
     - response body:
 ``` 
 {
@@ -122,6 +130,9 @@ Get a list a subset of transactions given an offset and the limit
 Add a property object to a owner portofolio given their uid
 * `/properties/`
     - method: `POST`
+
+    -  HEADERS:`["Authorization"]`
+    
     - request body: 
     ```
     {
@@ -145,6 +156,9 @@ Retrieve a property given it's uid
 Add a new owner to the reperitory(require before adding properties)
 * `/properties/owners/`
     - method: `POST`
+
+    - HEADERS:`["Authorization"]`
+
     - request body: 
     ```
     {
@@ -160,7 +174,11 @@ Add a new owner to the reperitory(require before adding properties)
 Retrieve a property given it's uid
 * `/properties/owners/:id`
     - method: `GET`
+
+    -  HEADERS:`["Authorization"]`
+
     - request body: `empty`
+
     - response body: 
     ```
     {
@@ -173,6 +191,9 @@ Retrieve a property given it's uid
 Search and retrieve an owner given their first name and phone number
 * `/properties/owners/search/?fname=n&lname=m&phone=o`
     - method: `GET`
+
+    -  HEADERS:`["Authorization"]`
+
     - request body: `empty`
     - response body: 
     ```
@@ -186,6 +207,7 @@ Search and retrieve an owner given their first name and phone number
 Retrieve a subset of owners as a list given an offset and a limit
 * `/properties/owners/?offset=n&limit=m`
     - method: `GET`
+    - HEADERS:`["Authorization"]`
     - request body: `empty`
     - response body:
     ```
@@ -219,6 +241,7 @@ Retrieve a subset of owners as a list given an offset and a limit
 Retrieve properties given the owner
 * `/properties/owners/properties/{owner}?offset=0&limit=5`
     - method: `GET`
+    - HEADERS:`["Authorization"]`
     - request body: `empty`
     - response body: 
     ```
@@ -252,4 +275,8 @@ Retrieve properties given the sector, cell and village of their location
 * `"/properties/sectors/:sector/cells/:cell/villages/:village/?offset=n&limit=m`
 
 
-**Note**: To try it out check this cloud run endpoint https://paypack-backend-qahoqfdr3q-uc.a.run.app/api/
+**Notice**: 
+* all the endpoints except the users endpoints now require an`Authorization` header which contains the token 
+acquired after a successful login.
+    
+* To try it out check this cloud run endpoint https://paypack-backend-qahoqfdr3q-uc.a.run.app/api/

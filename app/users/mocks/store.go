@@ -47,5 +47,5 @@ func (str *userStoreMock) Save(user users.User) (string, error) {
 
 	str.users[user.Email] = user
 
-	return str.users[user.Email].ID, nil
+	return user.Email, nil
 }

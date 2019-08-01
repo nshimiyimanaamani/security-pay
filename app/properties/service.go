@@ -25,48 +25,48 @@ var (
 type Service interface {
 	// AddProperty adds a unique property entity. Taking a property entity it returns
 	// it's unique id an an nil error if the operation is successful
-	AddProperty(Property) (Property, error)
+	AddProperty(token string, prop Property) (Property, error)
 
 	// Update property modifies the mutable fields of the given property entity.
 	// it returns the updated property an  nil error if the operation is a success.
-	UpdateProperty(Property) error
+	UpdateProperty(token string, prop Property) error
 
 	// ViewProperty returns a property entity and a nil error if the operation
 	// is successful given its unique id.
-	ViewProperty(string) (Property, error)
+	ViewProperty(token, uid string) (Property, error)
 
 	// ListPropertiesByOwner returns a list of properties that belong to a given owner
 	// withing a given range(offset, limit).
-	ListPropertiesByOwner(string, uint64, uint64) (PropertyPage, error)
+	ListPropertiesByOwner(token, owner string, offset, limit uint64) (PropertyPage, error)
 
 	// ListPropertiesBySector returns a lists of properties in the given sector
 	// withing the given range(offset, limit).
-	ListPropertiesBySector(string, uint64, uint64) (PropertyPage, error)
+	ListPropertiesBySector(token, sector string, offset, limit uint64) (PropertyPage, error)
 
 	// ListPropertiesByCell returns a lists of properties in the given cell
 	// withing the given range(offset, limit).
-	ListPropertiesByCell(string, uint64, uint64) (PropertyPage, error)
+	ListPropertiesByCell(token, cell string, offset, limit uint64) (PropertyPage, error)
 
 	// ListPropertiesByVillage returns a lists of properties in the given village
 	// withing the given range(offset, limit).
-	ListPropertiesByVillage(string, uint64, uint64) (PropertyPage, error)
+	ListPropertiesByVillage(token, village string, offset, limit uint64) (PropertyPage, error)
 
 	// CreateOwner adds a new property adn returns his id if the operation is a success
-	CreateOwner(Owner) (string, error)
+	CreateOwner(token string, owner Owner) (string, error)
 
 	// Update owner updates the given owner and returns a nil error if
 	// the operation is a success.
-	UpdateOwner(Owner) error
+	UpdateOwner(token string, owner Owner) error
 
 	// ViewOwner returns a owner entity given it's id and returns\
 	// a non-nil error the operation failed
-	ViewOwner(string) (Owner, error)
+	ViewOwner(token, id string) (Owner, error)
 
 	// Listowners returns a subset(offset, limit) of owners and a non-nil error
-	ListOwners(uint64, uint64) (OwnerPage, error)
+	ListOwners(token string, offset, limit uint64) (OwnerPage, error)
 
 	// FindOwner owners finds a owner given their fname, lname and phone.
-	FindOwner(string, string, string) (Owner, error)
+	FindOwner(token, fname, lname, phone string) (Owner, error)
 }
 
 var _ Service = (*propertyService)(nil)
@@ -75,65 +75,91 @@ type propertyService struct {
 	idp        app.IdentityProvider
 	owners     OwnerStore
 	properties PropertyStore
+	auth       AuthBackend
 }
 
 // New instatiates a new property service
-func New(idp app.IdentityProvider, owners OwnerStore, properties PropertyStore) Service {
+func New(idp app.IdentityProvider, owners OwnerStore, properties PropertyStore, auth AuthBackend) Service {
 	return &propertyService{
 		idp:        idp,
 		owners:     owners,
 		properties: properties,
+		auth:       auth,
 	}
 }
 
-func (svc *propertyService) AddProperty(property Property) (Property, error) {
-	if err := property.Validate(); err != nil {
+func (svc *propertyService) AddProperty(token string, prop Property) (Property, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
 		return Property{}, err
 	}
-	property.ID = svc.idp.ID()
+	if err := prop.Validate(); err != nil {
+		return Property{}, err
+	}
+	prop.ID = svc.idp.ID()
 
-	id, err := svc.properties.Save(property)
+	id, err := svc.properties.Save(prop)
 	if err != nil {
 		return Property{}, err
 	}
 
-	property.ID = id
-	return property, nil
+	prop.ID = id
+	return prop, nil
 }
 
-func (svc *propertyService) UpdateProperty(property Property) error {
-	if err := property.Validate(); err != nil {
+func (svc *propertyService) UpdateProperty(token string, prop Property) error {
+	if _, err := svc.auth.Identity(token); err != nil {
 		return err
 	}
-	return svc.properties.UpdateProperty(property)
+	if err := prop.Validate(); err != nil {
+		return err
+	}
+	return svc.properties.UpdateProperty(prop)
 }
 
-func (svc *propertyService) ViewProperty(id string) (Property, error) {
-	return svc.properties.RetrieveByID(id)
+func (svc *propertyService) ViewProperty(token, uid string) (Property, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return Property{}, err
+	}
+	return svc.properties.RetrieveByID(uid)
 }
 
-func (svc *propertyService) ListPropertiesByOwner(id string, offset, limit uint64) (PropertyPage, error) {
-	owner, err := svc.owners.Retrieve(id)
+func (svc *propertyService) ListPropertiesByOwner(token, owner string, offset, limit uint64) (PropertyPage, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return PropertyPage{}, err
+	}
+	found, err := svc.owners.Retrieve(owner)
 	if err != nil {
 		return PropertyPage{}, err
 	}
-	return svc.properties.RetrieveByOwner(owner.ID, offset, limit)
+	return svc.properties.RetrieveByOwner(found.ID, offset, limit)
 }
 
-func (svc *propertyService) ListPropertiesBySector(sector string, offset, limit uint64) (PropertyPage, error) {
+func (svc *propertyService) ListPropertiesBySector(token, sector string, offset, limit uint64) (PropertyPage, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return PropertyPage{}, err
+	}
 	return svc.properties.RetrieveBySector(sector, offset, limit)
 }
 
-func (svc *propertyService) ListPropertiesByCell(cell string, offset, limit uint64) (PropertyPage, error) {
+func (svc *propertyService) ListPropertiesByCell(token, cell string, offset, limit uint64) (PropertyPage, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return PropertyPage{}, err
+	}
 	return svc.properties.RetrieveByCell(cell, offset, limit)
 }
 
-func (svc *propertyService) ListPropertiesByVillage(village string, offset, limit uint64) (PropertyPage, error) {
+func (svc *propertyService) ListPropertiesByVillage(token, village string, offset, limit uint64) (PropertyPage, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return PropertyPage{}, err
+	}
 	return svc.properties.RetrieveByVillage(village, offset, limit)
 }
 
 // CreateOwner adds a new property adn returns his id if the operation is a success
-func (svc *propertyService) CreateOwner(owner Owner) (string, error) {
+func (svc *propertyService) CreateOwner(token string, owner Owner) (string, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return "", err
+	}
 	if err := owner.Validate(); err != nil {
 		return "", err
 	}
@@ -143,20 +169,35 @@ func (svc *propertyService) CreateOwner(owner Owner) (string, error) {
 
 // Update owner updates the given owner and returns a nil error if
 // the operation is a success.
-func (svc *propertyService) UpdateOwner(owner Owner) error {
+func (svc *propertyService) UpdateOwner(token string, owner Owner) error {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return err
+	}
+	if err := owner.Validate(); err != nil {
+		return err
+	}
 	return svc.owners.Update(owner)
 }
 
 // ViewOwner returns a owner entity given it's id and returns\
 // a non-nil error the operation failed
-func (svc *propertyService) ViewOwner(id string) (Owner, error) {
+func (svc *propertyService) ViewOwner(token, id string) (Owner, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return Owner{}, err
+	}
 	return svc.owners.Retrieve(id)
 }
 
-func (svc *propertyService) ListOwners(offset, limit uint64) (OwnerPage, error) {
+func (svc *propertyService) ListOwners(token string, offset, limit uint64) (OwnerPage, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return OwnerPage{}, err
+	}
 	return svc.owners.RetrieveAll(offset, limit)
 }
 
-func (svc *propertyService) FindOwner(fname, lname, phone string) (Owner, error) {
+func (svc *propertyService) FindOwner(token, fname, lname, phone string) (Owner, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return Owner{}, err
+	}
 	return svc.owners.FindOwner(fname, lname, phone)
 }

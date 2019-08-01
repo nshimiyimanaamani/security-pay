@@ -12,7 +12,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
-	adapters "github.com/rugwirobaker/paypack-backend/api/http/transactions"
+	endpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/transactions/mocks"
 	"github.com/stretchr/testify/assert"
@@ -20,6 +20,9 @@ import (
 )
 
 const (
+	email   = "user@gmail.com"
+	token   = "token"
+	wrong   = "wrong"
 	wrongID = 0
 )
 
@@ -51,15 +54,16 @@ func (tr testRequest) make() (*http.Response, error) {
 	return tr.client.Do(req)
 }
 
-func newService() transactions.Service {
-	store := mocks.NewTransactionStore()
+func newService(tokens map[string]string) transactions.Service {
+	auth := mocks.NewAuthBackend(tokens)
 	idp := mocks.NewIdentityProvider()
-	return transactions.New(idp, store)
+	store := mocks.NewTransactionStore()
+	return transactions.New(idp, store, auth)
 }
 
 func newServer(svc transactions.Service) *httptest.Server {
 	mux := mux.NewRouter()
-	adapters.MakeAdapter(mux)(svc)
+	endpoints.MakeAdapter(mux)(svc)
 	return httptest.NewServer(mux)
 }
 
@@ -69,7 +73,7 @@ func toJSON(data interface{}) string {
 }
 
 func TestRecordTransaction(t *testing.T) {
-	svc := newService()
+	svc := newService(map[string]string{token: email})
 	ts := newServer(svc)
 
 	defer ts.Close()
@@ -82,14 +86,57 @@ func TestRecordTransaction(t *testing.T) {
 		desc        string
 		req         string
 		contentType string
+		token       string
 		status      int
 	}{
-		{"record a valid transaction", data, contentType, http.StatusCreated},
-		{"record transaction with invalid property", invalidData, contentType, http.StatusBadRequest},
-		{"record transaction with invalid request format", "{", contentType, http.StatusBadRequest},
-		{"record transaction with empty JSON request", "{}", contentType, http.StatusBadRequest},
-		{"record transaction with empty request", "", contentType, http.StatusBadRequest},
-		{"record transaction with missing content type", data, "", http.StatusUnsupportedMediaType},
+		{
+			desc:        "record a valid transaction",
+			req:         data,
+			contentType: contentType,
+			token:       token,
+			status:      http.StatusCreated,
+		},
+		{
+			desc:        "record transaction with invalid property",
+			req:         invalidData,
+			contentType: contentType,
+			status:      http.StatusBadRequest,
+		},
+		{
+			desc:        "record transaction with invalid request format",
+			req:         "{",
+			contentType: contentType,
+			token:       token,
+			status:      http.StatusBadRequest,
+		},
+		{
+			desc:        "record transaction with empty JSON request",
+			req:         "{}",
+			contentType: contentType,
+			token:       token,
+			status:      http.StatusBadRequest,
+		},
+		{
+			desc:        "record transaction with empty request",
+			req:         "",
+			contentType: contentType,
+			token:       token,
+			status:      http.StatusBadRequest,
+		},
+		{
+			desc:        "record transaction with missing content type",
+			req:         data,
+			contentType: "",
+			token:       token,
+			status:      http.StatusUnsupportedMediaType,
+		},
+		{
+			desc:        "record a invalid transaction",
+			req:         data,
+			contentType: contentType,
+			token:       wrong,
+			status:      http.StatusForbidden,
+		},
 	}
 
 	for _, tc := range cases {
@@ -98,6 +145,7 @@ func TestRecordTransaction(t *testing.T) {
 			method:      http.MethodPost,
 			url:         fmt.Sprintf("%s/", ts.URL),
 			contentType: tc.contentType,
+			token:       tc.token,
 			body:        strings.NewReader(tc.req),
 		}
 
@@ -108,13 +156,13 @@ func TestRecordTransaction(t *testing.T) {
 }
 
 func TestViewTransaction(t *testing.T) {
-	svc := newService()
+	svc := newService(map[string]string{token: email})
 	ts := newServer(svc)
 
 	defer ts.Close()
 	client := ts.Client()
 
-	strx, err := svc.RecordTransaction(transaction)
+	strx, err := svc.RecordTransaction(token, transaction)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	trxRes := transRes{
@@ -125,28 +173,36 @@ func TestViewTransaction(t *testing.T) {
 	}
 
 	data := toJSON(trxRes)
-	notFoundMessage := toJSON(errRes{"non-existent entity"})
-	// invalidEntityMessage := toJSON(errRes{"invalid entity format"})
-	// unsupportedContentMessage := toJSON(errRes{"unsupported content type"})
+	notFoundRes := toJSON(errRes{"non-existent entity"})
+	invalidCredsRes := toJSON(errRes{"missing or invalid credentials provided"})
 
 	cases := []struct {
-		desc        string
-		id          string
-		contentType string
-		status      int
-		res         string
+		desc   string
+		id     string
+		token  string
+		status int
+		res    string
 	}{
 		{
 			desc:   "view existing transaction",
 			id:     strx.ID,
+			token:  token,
 			status: http.StatusOK,
 			res:    data,
 		},
 		{
 			desc:   "view non-existent transaction",
 			id:     strconv.FormatUint(wrongID, 10),
+			token:  token,
 			status: http.StatusNotFound,
-			res:    notFoundMessage,
+			res:    notFoundRes,
+		},
+		{
+			desc:   "view transaction with invalid token",
+			id:     strx.ID,
+			token:  wrong,
+			status: http.StatusForbidden,
+			res:    invalidCredsRes,
 		},
 	}
 
@@ -154,6 +210,7 @@ func TestViewTransaction(t *testing.T) {
 		req := testRequest{
 			client: client,
 			method: http.MethodGet,
+			token:  tc.token,
 			url:    fmt.Sprintf("%s/%s", ts.URL, tc.id),
 		}
 
@@ -168,7 +225,7 @@ func TestViewTransaction(t *testing.T) {
 }
 
 func TestListTransactions(t *testing.T) {
-	svc := newService()
+	svc := newService(map[string]string{token: email})
 	ts := newServer(svc)
 
 	defer ts.Close()
@@ -177,7 +234,7 @@ func TestListTransactions(t *testing.T) {
 	data := []transRes{}
 
 	for i := 0; i < 100; i++ {
-		trx, err := svc.RecordTransaction(transaction)
+		trx, err := svc.RecordTransaction(token, transaction)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		trxRes := transRes{
@@ -193,26 +250,37 @@ func TestListTransactions(t *testing.T) {
 
 	cases := []struct {
 		desc   string
+		token  string
 		status int
 		url    string
 		res    []transRes
 	}{
 		{
 			desc:   "get a list of transactions",
+			token:  token,
 			status: http.StatusOK,
 			url:    fmt.Sprintf("%s?offset=%d&limit=%d", transactionURL, 0, 5),
 			res:    data[0:5],
 		},
 		{
 			desc:   "get a list of transactions with negative offset",
+			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?offset=%d&limit=%d", transactionURL, -1, 5),
 			res:    nil,
 		},
 		{
 			desc:   "get a list of transactions with negative limit",
+			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?offset=%d&limit=%d", transactionURL, 1, -5),
+			res:    nil,
+		},
+		{
+			desc:   "list transactions with invalid credentials",
+			token:  wrong,
+			status: http.StatusForbidden,
+			url:    fmt.Sprintf("%s?offset=%d&limit=%d", transactionURL, 0, 5),
 			res:    nil,
 		},
 	}
@@ -221,6 +289,7 @@ func TestListTransactions(t *testing.T) {
 		req := testRequest{
 			client: client,
 			method: http.MethodGet,
+			token:  tc.token,
 			url:    tc.url,
 		}
 

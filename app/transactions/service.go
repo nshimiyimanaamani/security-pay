@@ -25,28 +25,28 @@ var (
 //Service defines the transaction service API
 type Service interface {
 	// RecordTransaction adds a new transaction record
-	RecordTransaction(Transaction) (Transaction, error)
+	RecordTransaction(token string, trx Transaction) (Transaction, error)
 
 	// ViewTransaction retrieves data about the transaction identified with the provided ID,
-	ViewTransaction(string) (Transaction, error)
+	ViewTransaction(token, uid string) (Transaction, error)
 
 	// ListTransactions retrieves data about subset of transactions that belongs to the
 	// user identified by the provided key.
-	ListTransactions(uint64, uint64) (TransactionPage, error)
+	ListTransactions(token string, offset, limit uint64) (TransactionPage, error)
 
 	// ListTransactionsByProperty retrieves data about a subset of transactions that belong to
 	// a property identified by the given id. i.e filer by property
-	ListTransactionsByProperty(string, uint64, uint64) (TransactionPage, error)
+	ListTransactionsByProperty(token, prop string, offset, limit uint64) (TransactionPage, error)
 
 	// ListTransactionByDate retrieves data about a subset of transactions that were made using
 	// a given method.
-	ListTransactionsByMethod(string, uint64, uint64) (TransactionPage, error)
+	ListTransactionsByMethod(token, meth string, offset, limit uint64) (TransactionPage, error)
 
-	// ListTransactionByDate retrieves data about a subset of transactions that during a given month.
-	ListTransactionsByMonth(string, uint64, uint64) (TransactionPage, error)
+	// // ListTransactionByDate retrieves data about a subset of transactions that during a given month.
+	// ListTransactionsByMonth(string, uint64, uint64) (TransactionPage, error)
 
-	// ListTransactionByDate retrieves data about a subset of transactions that during a given year.
-	ListTransactionsByYear(string, uint64, uint64) (TransactionPage, error)
+	// // ListTransactionByDate retrieves data about a subset of transactions that during a given year.
+	// ListTransactionsByYear(string, uint64, uint64) (TransactionPage, error)
 }
 
 var _ Service = (*transactionsService)(nil)
@@ -54,54 +54,71 @@ var _ Service = (*transactionsService)(nil)
 type transactionsService struct {
 	idp   app.IdentityProvider
 	store Store
+	auth  AuthBackend
 }
 
 //New instantiates a new transaxtions service
-func New(idp app.IdentityProvider, store Store) Service {
+func New(idp app.IdentityProvider, store Store, auth AuthBackend) Service {
 	return &transactionsService{
 		idp:   idp,
 		store: store,
+		auth:  auth,
 	}
 }
 
-func (svc *transactionsService) RecordTransaction(transaction Transaction) (Transaction, error) {
-	if err := transaction.Validate(); err != nil {
+func (svc *transactionsService) RecordTransaction(token string, trx Transaction) (Transaction, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return Transaction{}, err
+	}
+	if err := trx.Validate(); err != nil {
 		return Transaction{}, err
 	}
 
-	transaction.ID = svc.idp.ID()
+	trx.ID = svc.idp.ID()
 
-	id, err := svc.store.Save(transaction)
+	id, err := svc.store.Save(trx)
 	if err != nil {
 		return Transaction{}, err
 	}
-	transaction.ID = id
+	trx.ID = id
 
-	transaction.DateRecorded = time.Now()
+	trx.DateRecorded = time.Now()
 
-	return transaction, nil
+	return trx, nil
 }
 
-func (svc *transactionsService) ViewTransaction(id string) (Transaction, error) {
-	return svc.store.RetrieveByID(id)
+func (svc *transactionsService) ViewTransaction(token, uid string) (Transaction, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return Transaction{}, err
+	}
+	return svc.store.RetrieveByID(uid)
 }
 
-func (svc *transactionsService) ListTransactions(offset uint64, limit uint64) (TransactionPage, error) {
+func (svc *transactionsService) ListTransactions(token string, offset, limit uint64) (TransactionPage, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return TransactionPage{}, err
+	}
 	return svc.store.RetrieveAll(offset, limit), nil
 }
 
-func (svc *transactionsService) ListTransactionsByProperty(id string, offset, limit uint64) (TransactionPage, error) {
-	return svc.store.RetrieveByProperty(id, offset, limit), nil
+func (svc *transactionsService) ListTransactionsByProperty(token, prop string, offset, limit uint64) (TransactionPage, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return TransactionPage{}, err
+	}
+	return svc.store.RetrieveByProperty(prop, offset, limit), nil
 }
 
-func (svc *transactionsService) ListTransactionsByMethod(method string, offset, limit uint64) (TransactionPage, error) {
-	return svc.store.RetrieveByMethod(method, offset, limit), nil
+func (svc *transactionsService) ListTransactionsByMethod(token, meth string, offset, limit uint64) (TransactionPage, error) {
+	if _, err := svc.auth.Identity(token); err != nil {
+		return TransactionPage{}, err
+	}
+	return svc.store.RetrieveByMethod(meth, offset, limit), nil
 }
 
-func (svc *transactionsService) ListTransactionsByMonth(month string, offset, limit uint64) (TransactionPage, error) {
-	return TransactionPage{}, nil
-}
+// func (svc *transactionsService) ListTransactionsByMonth(month string, offset, limit uint64) (TransactionPage, error) {
+// 	return TransactionPage{}, nil
+// }
 
-func (svc *transactionsService) ListTransactionsByYear(year string, offset, limit uint64) (TransactionPage, error) {
-	return TransactionPage{}, nil
-}
+// func (svc *transactionsService) ListTransactionsByYear(year string, offset, limit uint64) (TransactionPage, error) {
+// 	return TransactionPage{}, nil
+// }

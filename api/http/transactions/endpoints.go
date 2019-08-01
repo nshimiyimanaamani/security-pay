@@ -25,7 +25,9 @@ func MakeAdapter(router *mux.Router) func(svc transactions.Service) {
 			handleListTransaction(svc, w, r)
 		}).Queries("offset", "{offset}", "limit", "{limit}").Methods("GET")
 
-		//router.HandleFunc("/{property}", func(w http.ResponseWriter, r *http.Request) {}).Methods("GET")
+		// router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+
+		// }).Queries("property", "{property}", "offset", "{offset}", "limit", "{limit}").Methods("GET")
 
 		// router.HandleFunc("/{method}", func(w http.ResponseWriter, r *http.Request) {}).Methods("GET")
 
@@ -55,7 +57,9 @@ func handleRecordTransaction(svc transactions.Service, w http.ResponseWriter, r 
 		return
 	}
 
-	transaction, err = svc.RecordTransaction(transaction)
+	token := r.Header.Get("Authorization")
+
+	transaction, err = svc.RecordTransaction(token, transaction)
 	if err != nil {
 		EncodeError(w, err)
 		return
@@ -76,8 +80,9 @@ func handleViewTransaction(svc transactions.Service, w http.ResponseWriter, r *h
 	vars := mux.Vars(r)
 
 	id := vars["id"]
+	token := r.Header.Get("Authorization")
 
-	transaction, err := svc.ViewTransaction(id)
+	transaction, err := svc.ViewTransaction(token, id)
 	if err != nil {
 		EncodeError(w, err)
 		return
@@ -113,14 +118,11 @@ func handleListTransaction(svc transactions.Service, w http.ResponseWriter, r *h
 		return
 	}
 
-	// if offset == 0 || limit == 0 {
-	// 	EncodeError(w, transactions.ErrInvalidEntity)
-	// 	return
-	// }
-
 	var page transactions.TransactionPage
 
-	page, err = svc.ListTransactions(offset, limit)
+	token := r.Header.Get("Authorization")
+
+	page, err = svc.ListTransactions(token, offset, limit)
 	if err != nil {
 		EncodeError(w, err)
 		return

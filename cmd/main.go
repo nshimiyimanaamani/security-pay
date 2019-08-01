@@ -15,9 +15,9 @@ import (
 	"github.com/gorilla/mux"
 	paypack "github.com/rugwirobaker/paypack-backend"
 	prtEndpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
-	trxAdapters "github.com/rugwirobaker/paypack-backend/api/http/transactions"
-	usersAdapters "github.com/rugwirobaker/paypack-backend/api/http/users"
-	verionAdapters "github.com/rugwirobaker/paypack-backend/api/http/version"
+	trxEndpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
+	usersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/users"
+	verionEndpoints "github.com/rugwirobaker/paypack-backend/api/http/version"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/users"
@@ -80,8 +80,8 @@ func main() {
 	defer db.Close()
 
 	users := newUserService(db, cfg.secret)
-	transactions := newTransactionService(db)
-	properties := newPropertyService(db)
+	transactions := newTransactionService(db, users)
+	properties := newPropertyService(db, users)
 
 	go func() {
 		ch := make(chan os.Signal, 1)
@@ -140,17 +140,19 @@ func newUserService(db *sql.DB, secret string) users.Service {
 	return users.New(hasher, tempid, idp, store)
 }
 
-func newTransactionService(db *sql.DB) transactions.Service {
+func newTransactionService(db *sql.DB, users users.Service) transactions.Service {
 	idp := uuid.New()
 	store := postgres.NewTransactionStore(db)
-	return transactions.New(idp, store)
+	auth := transactions.NewAuthBackend(users)
+	return transactions.New(idp, store, auth)
 }
 
-func newPropertyService(db *sql.DB) properties.Service {
+func newPropertyService(db *sql.DB, users users.Service) properties.Service {
 	idp := uuid.New()
-	propStore := postgres.NewPropertyStore(db)
-	ownerStore := postgres.NewOwnerStore(db)
-	return properties.New(idp, ownerStore, propStore)
+	props := postgres.NewPropertyStore(db)
+	owners := postgres.NewOwnerStore(db)
+	auth := properties.NewAuthBackend(users)
+	return properties.New(idp, owners, props, auth)
 }
 
 func startHTTPServer(ctx context.Context,
@@ -168,13 +170,13 @@ func startHTTPServer(ctx context.Context,
 	router := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(false)
 
 	versionRoute := router.PathPrefix("/version").Subrouter()
-	verionAdapters.MakeEndpoint(versionRoute)
+	verionEndpoints.MakeEndpoint(versionRoute)
 
 	userRoutes := router.PathPrefix("/users").Subrouter()
-	usersAdapters.MakeAdapter(userRoutes)(users)
+	usersEndpoints.MakeAdapter(userRoutes)(users)
 
 	trxRoutes := router.PathPrefix("/transactions").Subrouter()
-	trxAdapters.MakeAdapter(trxRoutes)(trx)
+	trxEndpoints.MakeAdapter(trxRoutes)(trx)
 
 	prtRoutes := router.PathPrefix("/properties").Subrouter()
 	prtEndpoints.MakeEndpoint(prtRoutes)(prt)

@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/rugwirobaker/paypack-backend/app/users"
+
 	transport "github.com/rugwirobaker/paypack-backend/api/http"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 )
@@ -50,6 +52,8 @@ func EncodeError(w http.ResponseWriter, err error) {
 		w.WriteHeader(http.StatusNotFound)
 	case properties.ErrConflict:
 		w.WriteHeader(http.StatusConflict)
+	case users.ErrUnauthorizedAccess:
+		w.WriteHeader(http.StatusForbidden)
 	case errUnsupportedContentType:
 		w.WriteHeader(http.StatusUnsupportedMediaType)
 	case io.ErrUnexpectedEOF:

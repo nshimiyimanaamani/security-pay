@@ -38,6 +38,8 @@ func EncodeResponse(w http.ResponseWriter, response interface{}) error {
 func EncodeError(w http.ResponseWriter, err error) {
 	w.Header().Set("Content-Type", contentType)
 
+	var errMessage = newErrorMessage(err.Error())
+
 	switch err {
 	case users.ErrInvalidEntity:
 		w.WriteHeader(http.StatusBadRequest)
@@ -50,19 +52,22 @@ func EncodeError(w http.ResponseWriter, err error) {
 	case errUnsupportedContentType:
 		w.WriteHeader(http.StatusUnsupportedMediaType)
 	case io.ErrUnexpectedEOF:
+		errMessage = newErrorMessage(users.ErrInvalidEntity.Error())
 		w.WriteHeader(http.StatusBadRequest)
 	case io.EOF:
+		errMessage = newErrorMessage(users.ErrInvalidEntity.Error())
 		w.WriteHeader(http.StatusBadRequest)
 
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
+
 	}
+	json.NewEncoder(w).Encode(errMessage)
 }
 
 //CheckContentType middleware checks content typ
 func CheckContentType(r *http.Request) error {
 	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
-		//logger.Warn("Invalid or missing content type.")
 		return errUnsupportedContentType
 	}
 	return nil
