@@ -13,14 +13,12 @@
 </template>
 
 <script>
-import HelloWorld from "../components/HelloWorld.vue";
 import chart1 from "../components/chart1.vue";
 import chart2 from "../components/chart2.vue";
 import chart3 from "../components/chart3.vue";
 export default {
   name: "dashboard",
   components: {
-    HelloWorld,
     chart1,
     chart2,
     chart3

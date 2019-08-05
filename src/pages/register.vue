@@ -67,7 +67,7 @@ export default {
   },
   computed: {
     endpoint() {
-      return process.env.VUE_APP_API_ENDPOINT
+      return process.env.VUE_APP_PAYPACK_API
     }
   },
   methods: {

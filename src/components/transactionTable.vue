@@ -65,7 +65,7 @@ export default {
   },
   computed: {
     endpoint() {
-      return this.$store.state.endPoint;
+      return process.env.VUE_APP_PAYPACK_API
     }
   },
   mounted() {
