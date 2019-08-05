@@ -157,7 +157,7 @@ export default {
   },
   computed: {
     endpoint() {
-      return this.$store.getters.getEndpoint;
+      return process.env.VUE_APP_API_ENDPOINT
     },
     getActiveCell() {
       this.sidebar.active_cell = this.$store.getters.getActiveCell;
