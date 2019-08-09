@@ -6,15 +6,14 @@ import Vuex from "vuex";
 import {
   Promise
 } from "core-js";
+import axios from 'axios'
 
 Vue.use(Vuex);
 
 export const store = new Vuex.Store({
   state: {
-    status: {
-      token: null,
-      isloggedin: false
-    },
+    token: localStorage.getItem('token') || null,
+    endpoint: process.env.VUE_APP_PAYPACK_API,
     active_sector: "remera",
     active_cell: "",
     cells_array: [],
@@ -89,11 +88,15 @@ export const store = new Vuex.Store({
           state.village_array[state.village_array.indexOf(res.changed)];
       }
     },
-    set_token(state, token) {
-      if (token != null && token != '') {
-        state.status.token = token
-        state.status.isloggedin = true
+    login(state, token) {
+      if (token) {
+        localStorage.setItem('token', token)
+        state.token = localStorage.getItem('token')
       }
+    },
+    logout(state) {
+      localStorage.removeItem('token')
+      state.token = null
     }
   },
   actions: {
@@ -110,22 +113,39 @@ export const store = new Vuex.Store({
         resolve();
       });
     },
-    set_token({
+    login({
       commit
-    }, token) {
-      return new Promise((resolve)=>{
-        commit('set_token', token);
-        resolve()
+    }, data) {
+      return new Promise((resolve, reject) => {
+        axios
+          .post(`${this.state.endpoint}/users/tokens`, {
+            email: data.email,
+            password: data.password
+          })
+          .then(res => {
+            commit('login', res.data.token)
+            resolve(res.data.token)
+          })
+          .catch(err => {
+            console.log(err)
+            reject(err)
+          })
       })
+    },
+    logout({
+      commit
+    }) {
+      commit('logout')
     }
   },
   getters: {
+    getEndpoint: state => state.endpoint,
     getSector: state => state.sector,
     getCellsArray: state => state.cells_array,
     getActiveCell: state => state.active_cell,
     getActiveVillage: state => state.active_village,
     getVillageArray: state => state.village_array,
     getActiveSector: state => state.active_sector,
-    getStatus: state => state.status
+    token: state => state.token
   }
 });

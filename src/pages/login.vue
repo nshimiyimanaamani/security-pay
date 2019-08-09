@@ -52,7 +52,6 @@
 </template>
 
 <script>
-import axios from "axios";
 export default {
   data() {
     return {
@@ -67,33 +66,28 @@ export default {
   },
   computed: {
     endpoint() {
-      return process.env.VUE_APP_PAYPACK_API
+      return this.$store.getters.getEndpoint;
     },
-    status() {
-      return this.$store.getters.getStatus;
+    token() {
+      return this.$store.getters.token;
     }
   },
-
   methods: {
     login() {
       if (this.form.email != "" && this.form.password != "") {
+        const data = {
+          email: this.form.email,
+          password: this.form.password
+        };
         this.loading = true;
-        axios
-          .post(`${this.endpoint}/users/tokens`, {
-            email: this.form.email,
-            password: this.form.password
-          })
+        this.$store
+          .dispatch("login", data)
           .then(res => {
-            this.$store.dispatch("set_token", res.data.token).then(res => {
-              axios.defaults.headers.common["Authorization"] = this.status.token;
-              this.$router.push("/dashboard");
-            });
-            this.loading = false;
+              this.loading = false
           })
           .catch(err => {
             console.log(err);
-            this.$snotify.error(`unregistered user! please register...`);
-            this.loading = false;
+            this.loading = false
           });
       }
     }

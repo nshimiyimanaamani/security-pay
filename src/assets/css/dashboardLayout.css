@@ -240,47 +240,38 @@
           box-shadow: 2px 0 5px #888;
   min-height: 55px;
   width: 100%;
-}
-
-.top-nav .dropdown {
-  float: left;
-  cursor: pointer;
-  left: 15px;
-  top: 4px;
-}
-
-.top-nav .dropdown button {
-  background: transparent;
-  border: 1.5px solid #3db3fa;
-  width: 110px;
-  text-align: left;
-  color: #3db3fa;
-  border-radius: 7px;
-  font-size: 19px;
-  padding: 3px 0 3px 7px;
-}
-
-.top-nav .dropdown i {
-  float: right;
-  font-size: 43px;
-  margin: -2px 0 0 -25px;
-  color: #3db3fa;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
 }
 
 .top-nav .search {
-  float: right;
-  padding: 6px 30px 0px 0px;
+  display: inline-block;
+  margin-bottom: 0;
+  white-space: nowrap;
+  vertical-align: middle;
+  padding: 6px 12px;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin-left: auto;
 }
 
 .top-nav .search input {
   padding: 5px 0 5px 20px;
   width: 250px;
-  margin: 4px 20px 0 0px;
   border-radius: 7px;
-  border-color: #3db3fa;
   border: 2px solid #3db3fa;
   font-size: 15px;
   -webkit-text-fill-color: #3db3fa;
+}
+
+.top-nav .logout {
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin-left: 0;
+  padding: 6px 12px;
 }
 
 .router-link-active li {
@@ -323,7 +314,7 @@
   background-image: none;
   border: 1px solid #ccc;
   border-radius: 4px;
-  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s;
+  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
           box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }

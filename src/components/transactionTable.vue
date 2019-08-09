@@ -51,45 +51,43 @@
         </table>
       </div>
     </div>
+    <pulse-loader class="pulse" :loading="loading" :color="color" :size="size"></pulse-loader>
   </div>
 </template>
 
 <script>
-import axios from "axios";
-import { asyncLoading } from "vuejs-loading-plugin";
 export default {
   data() {
     return {
-      transactionData: [],
+      loading: false,
+      color: "#3db3fa",
+      size: "12px",
+      transactionData: []
     };
   },
   computed: {
     endpoint() {
-      return process.env.VUE_APP_PAYPACK_API
+      return this.$store.getters.getEndpoint;
     }
   },
   mounted() {
-    const getTransactions = new Promise((resolve, reject) => {
-      axios
-        .get(`${this.endpoint}/transactions/?offset=0&limit=5`)
-        .then(res => {
-          if(res.status == 200){
+    this.loading = true;
+    this.axios
+      .get(`${this.endpoint}/transactions/?offset=0&limit=5`)
+      .then(res => {
+        if (res.status == 200) {
           this.transactionData = res.data.transactions;
-          resolve(res);
-          }
-        })
-        .catch(err => {
-          console.log(err);
-          reject(err);
-        });
-    });
-    asyncLoading(getTransactions)
-    .then(res=>{console.log(res)})
-    .catch(err=>{console.log(err)})
+          this.loading = false;
+        }
+      })
+      .catch(err => {
+        this.loading = false;
+        console.log(err);
+      });
   }
 };
 </script>
 
-<style>
+<style scoped>
 @import url("../assets/css/transactionTable.css");
 </style>
