@@ -13,12 +13,15 @@ export default {
       this.axios.defaults.headers.common["Authorization"] = this.token;
     }
   },
+  destroyed(){
+    console.log('destroyed')
+  },
   computed: {
     token() {
       return this.$store.getters.token;
     }
   },
-  updated() {
+  beforeUpdate() {
     this.authenticate();
   },
   methods: {

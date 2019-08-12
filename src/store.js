@@ -12,7 +12,7 @@ Vue.use(Vuex);
 
 export const store = new Vuex.Store({
   state: {
-    token: localStorage.getItem('token') || null,
+    token: sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '',
     endpoint: process.env.VUE_APP_PAYPACK_API,
     active_sector: "remera",
     active_cell: "",
@@ -90,12 +90,12 @@ export const store = new Vuex.Store({
     },
     login(state, token) {
       if (token) {
-        localStorage.setItem('token', token)
-        state.token = localStorage.getItem('token')
+        sessionStorage.setItem('token', token)
+        state.token = sessionStorage.getItem('token')
       }
     },
     logout(state) {
-      localStorage.removeItem('token')
+      sessionStorage.removeItem('token')
       state.token = null
     }
   },
