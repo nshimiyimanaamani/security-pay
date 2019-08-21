@@ -41,7 +41,7 @@
           <li>Bank Accounts</li>
         </router-link>
         <router-link to="/reports">
-          <li>Reports</li>
+          <li>Properties</li>
         </router-link>
         <router-link to="#">
           <li>Penalties</li>
