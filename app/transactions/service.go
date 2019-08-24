@@ -98,21 +98,21 @@ func (svc *transactionsService) ListTransactions(token string, offset, limit uin
 	if _, err := svc.auth.Identity(token); err != nil {
 		return TransactionPage{}, err
 	}
-	return svc.store.RetrieveAll(offset, limit), nil
+	return svc.store.RetrieveAll(offset, limit)
 }
 
 func (svc *transactionsService) ListTransactionsByProperty(token, prop string, offset, limit uint64) (TransactionPage, error) {
 	if _, err := svc.auth.Identity(token); err != nil {
 		return TransactionPage{}, err
 	}
-	return svc.store.RetrieveByProperty(prop, offset, limit), nil
+	return svc.store.RetrieveByProperty(prop, offset, limit)
 }
 
 func (svc *transactionsService) ListTransactionsByMethod(token, meth string, offset, limit uint64) (TransactionPage, error) {
 	if _, err := svc.auth.Identity(token); err != nil {
 		return TransactionPage{}, err
 	}
-	return svc.store.RetrieveByMethod(meth, offset, limit), nil
+	return svc.store.RetrieveByMethod(meth, offset, limit)
 }
 
 // func (svc *transactionsService) ListTransactionsByMonth(month string, offset, limit uint64) (TransactionPage, error) {

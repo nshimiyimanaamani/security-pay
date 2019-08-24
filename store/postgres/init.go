@@ -58,18 +58,10 @@ func migrateDB(db *sql.DB) error {
 						password 	CHAR(60)	 NOT NULL,
 						PRIMARY  	KEY (id)
 					)`,
-					`CREATE TABLE IF NOT EXISTS transactions (
-						id 			UUID,
-						property 	UUID,
-						amount    	VARCHAR(254),
-						method  	VARCHAR(254),
-						PRIMARY KEY	(id)
-					)`,
 				},
 
 				Down: []string{
 					"DROP TABLE users",
-					"DROP TABLE transactions",
 				},
 			},
 			{
@@ -94,10 +86,22 @@ func migrateDB(db *sql.DB) error {
 						FOREIGN KEY(owner) references owners(id) ON DELETE CASCADE ON UPDATE CASCADE,
 						PRIMARY 	KEY(id)
 					)`,
+					`CREATE TABLE IF NOT EXISTS transactions (
+						id 			UUID,
+						madeby 		UUID,
+						madefor		UUID,
+						amount    	VARCHAR(254),
+						method  	VARCHAR(254),
+						FOREIGN KEY(madefor) references properties(id) ON DELETE CASCADE ON UPDATE CASCADE,
+						FOREIGN KEY(madeby) references owners(id) ON DELETE CASCADE ON UPDATE CASCADE,
+						PRIMARY KEY	(id)
+					)`,
 				},
 
 				Down: []string{
+					"DROP TABLE owners",
 					"DROP TABLE properties",
+					"DROP TABLE transactions",
 				},
 			},
 			{

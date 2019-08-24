@@ -10,17 +10,17 @@ type Store interface {
 	RetrieveByID(string) (Transaction, error)
 
 	// RetrieveAll retrieves the subset of transactions owned by the specified property.
-	RetrieveAll(uint64, uint64) TransactionPage
+	RetrieveAll(uint64, uint64) (TransactionPage, error)
 
 	// RetrieveByMethod retrieves the subset of transactions that where made using the given method.
-	RetrieveByProperty(string, uint64, uint64) TransactionPage
+	RetrieveByProperty(string, uint64, uint64) (TransactionPage, error)
 
 	// RetrieveByMethod retrieves the subset of transactions that where made using the given method.
-	RetrieveByMethod(string, uint64, uint64) TransactionPage
+	RetrieveByMethod(string, uint64, uint64) (TransactionPage, error)
 
 	// RetrieveByMonth retrieves the subset of transactions that where made during the given month.
-	RetrieveByMonth(string, uint64, uint64) TransactionPage
+	RetrieveByMonth(string, uint64, uint64) (TransactionPage, error)
 
 	// RetrieveByYear retrieves the subset of transactions that where made using the given year.
-	RetrieveByYear(string, uint64, uint64) TransactionPage
+	RetrieveByYear(string, uint64, uint64) (TransactionPage, error)
 }

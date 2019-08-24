@@ -44,14 +44,14 @@ func (str *transactionStoreMock) RetrieveByID(id string) (transactions.Transacti
 	return val, nil
 }
 
-func (str *transactionStoreMock) RetrieveAll(offset, limit uint64) transactions.TransactionPage {
+func (str *transactionStoreMock) RetrieveAll(offset, limit uint64) (transactions.TransactionPage, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
 	items := make([]transactions.Transaction, 0)
 
 	if offset < 0 || limit <= 0 {
-		return transactions.TransactionPage{}
+		return transactions.TransactionPage{}, nil
 	}
 
 	first := uint64(offset) + 1
@@ -73,17 +73,17 @@ func (str *transactionStoreMock) RetrieveAll(offset, limit uint64) transactions.
 		Transactions: items,
 	}
 
-	return page
+	return page, nil
 }
 
-func (str *transactionStoreMock) RetrieveByProperty(property string, offset, limit uint64) transactions.TransactionPage {
+func (str *transactionStoreMock) RetrieveByProperty(property string, offset, limit uint64) (transactions.TransactionPage, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
 	items := make([]transactions.Transaction, 0)
 
 	if offset < 0 || limit <= 0 {
-		return transactions.TransactionPage{}
+		return transactions.TransactionPage{}, nil
 	}
 
 	first := uint64(offset) + 1
@@ -92,7 +92,7 @@ func (str *transactionStoreMock) RetrieveByProperty(property string, offset, lim
 	//check whether the tranaction belongs to a given property
 	for _, v := range str.transactions {
 		id, _ := strconv.ParseUint(v.ID, 10, 64)
-		if v.Property == property && id >= first && id < last {
+		if v.MadeFor ==property && id >= first && id < last {
 			items = append(items, v)
 		}
 	}
@@ -105,10 +105,10 @@ func (str *transactionStoreMock) RetrieveByProperty(property string, offset, lim
 		Transactions: items,
 	}
 
-	return page
+	return page, nil
 }
 
-func (str *transactionStoreMock) RetrieveByMethod(method string, offset, limit uint64) transactions.TransactionPage {
+func (str *transactionStoreMock) RetrieveByMethod(method string, offset, limit uint64) (transactions.TransactionPage, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -116,7 +116,7 @@ func (str *transactionStoreMock) RetrieveByMethod(method string, offset, limit u
 	items := make([]transactions.Transaction, 0)
 
 	if offset < 0 || limit <= 0 {
-		return transactions.TransactionPage{}
+		return transactions.TransactionPage{}, nil
 	}
 
 	first := uint64(offset) + 1
@@ -138,19 +138,19 @@ func (str *transactionStoreMock) RetrieveByMethod(method string, offset, limit u
 		Transactions: items,
 	}
 
-	return page
+	return page, nil
 }
 
-func (str *transactionStoreMock) RetrieveByMonth(month string, offset, limit uint64) transactions.TransactionPage {
+func (str *transactionStoreMock) RetrieveByMonth(month string, offset, limit uint64) (transactions.TransactionPage, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
-	return transactions.TransactionPage{}
+	return transactions.TransactionPage{}, nil
 }
 
-func (str *transactionStoreMock) RetrieveByYear(year string, offset, limit uint64) transactions.TransactionPage {
+func (str *transactionStoreMock) RetrieveByYear(year string, offset, limit uint64) (transactions.TransactionPage, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
-	return transactions.TransactionPage{}
+	return transactions.TransactionPage{}, nil
 }

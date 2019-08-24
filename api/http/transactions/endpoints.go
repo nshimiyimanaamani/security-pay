@@ -89,10 +89,13 @@ func handleViewTransaction(svc transactions.Service, w http.ResponseWriter, r *h
 	}
 
 	response := viewTransRes{
-		ID:       transaction.ID,
-		Property: transaction.Property,
-		Amount:   transaction.Amount,
-		Method:   transaction.Method,
+		ID:           transaction.ID,
+		Property:     transaction.MadeFor,
+		Owner:        transaction.MadeBy,
+		Amount:       transaction.Amount,
+		Method:       transaction.Method,
+		Address:      transaction.Address,
+		DateRecorded: transaction.DateRecorded,
 	}
 
 	if err = EncodeResponse(w, response); err != nil {
@@ -139,10 +142,12 @@ func handleListTransaction(svc transactions.Service, w http.ResponseWriter, r *h
 
 	for _, transaction := range page.Transactions {
 		view := viewTransRes{
-			ID:       transaction.ID,
-			Property: transaction.Property,
-			Amount:   transaction.Amount,
-			Method:   transaction.Method,
+			Property:     transaction.MadeFor,
+			Owner:        transaction.MadeBy,
+			Amount:       transaction.Amount,
+			Method:       transaction.Method,
+			Address:      transaction.Address,
+			DateRecorded: transaction.DateRecorded,
 		}
 		response.Transactions = append(response.Transactions, view)
 	}

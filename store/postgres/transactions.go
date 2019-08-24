@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"database/sql"
-	"log"
+	"fmt"
 
 	"github.com/lib/pq"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
@@ -21,11 +21,11 @@ func NewTransactionStore(db *sql.DB) transactions.Store {
 
 func (str *transactionStore) Save(trx transactions.Transaction) (string, error) {
 	q := `
-		INSERT INTO transactions (id, property, 
-		amount, method, date_recorded) VALUES ($1, $2, $3, $4, $5) RETURNING id
+		INSERT INTO transactions (id, madefor, madeby, 
+		amount, method, date_recorded) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
 	`
 
-	_, err := str.db.Exec(q, trx.ID, trx.Property, trx.Amount, trx.Method, trx.DateRecorded)
+	_, err := str.db.Exec(q, trx.ID, trx.MadeFor, trx.MadeBy, trx.Amount, trx.Method, trx.DateRecorded)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && errDuplicate == pqErr.Code.Name() {
 			return "", transactions.ErrConflict
@@ -35,47 +35,94 @@ func (str *transactionStore) Save(trx transactions.Transaction) (string, error) 
 	return trx.ID, nil
 }
 
+//seletect trx[id, amount, method, recorded]; properties[sector, cell, village] owner[fname, lname]
 func (str *transactionStore) RetrieveByID(id string) (transactions.Transaction, error) {
 	q := `
-		SELECT id, property, 
-		amount, method, date_recorded FROM transactions WHERE id = $1
+		SELECT 
+			transactions.amount, transactions.method, transactions.date_recorded,
+			properties.sector, properties.cell, properties.village,
+			owners.fname, owners.lname
+		FROM 
+			transactions
+		INNER JOIN 
+			properties ON transactions.madefor=properties.id
+		INNER JOIN 
+			owners ON transactions.madeby=owners.id
+		WHERE transactions.id = $1
 	`
 
 	var trx = transactions.Transaction{}
 
-	err := str.db.QueryRow(q, id).Scan(&trx.ID, &trx.Property, &trx.Amount, &trx.Method, &trx.Method)
+	var sector, cell, village string
+
+	var fname, lname string
+
+	err := str.db.QueryRow(q, id).Scan(
+		&trx.Amount, &trx.Method, &trx.DateRecorded,
+		&sector, &cell, &village, &fname, &lname,
+	)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
 			return trx, transactions.ErrNotFound
 		}
+		return trx, err
+	}
+	if sector != "" && cell != "" && village != "" {
+		trx.Address["sector"] = sector
+		trx.Address["cell"] = cell
+		trx.Address["village"] = village
+	}
+	if fname != "" && lname != "" {
+		trx.MadeBy = fmt.Sprintf("%s %s", fname, lname)
 	}
 	return trx, nil
 }
 
-func (str *transactionStore) RetrieveAll(offset uint64, limit uint64) transactions.TransactionPage {
+func (str *transactionStore) RetrieveAll(offset uint64, limit uint64) (transactions.TransactionPage, error) {
 	q := `
-		SELECT id, property, 
-		amount, method, date_recorded FROM transactions ORDER BY id LIMIT $1 OFFSET $2
+	SELECT 
+		transactions.amount, transactions.method, transactions.date_recorded,
+		properties.sector, properties.cell, properties.village,
+		owners.fname, owners.lname
+	FROM 
+		transactions
+	INNER JOIN 
+		properties ON transactions.madefor=properties.id
+	INNER JOIN 
+		owners ON transactions.madeby=owners.id 
+	ORDER BY transactions.id LIMIT $1 OFFSET $2
 	`
 
 	var items = []transactions.Transaction{}
 
 	rows, err := str.db.Query(q, limit, offset)
 	if err != nil {
-		//tr.log.Error(fmt.Sprintf("Failed to retrieve transactions due to %s", err))
-		log.Printf("Failed to retrieve transactions due to %s", err)
-		return transactions.TransactionPage{}
+		return transactions.TransactionPage{}, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		c := transactions.Transaction{}
-		if err := rows.Scan(&c.ID, &c.Property, &c.Amount, &c.Method, &c.DateRecorded); err != nil {
-			//tr.log.Error(fmt.Sprintf("Failed to retrieve transactions due to %s", err))
-			log.Printf("Failed to retrieve transactions due to %s", err)
-			return transactions.TransactionPage{}
+
+		var sector, cell, village string
+
+		var fname, lname string
+
+		if err := rows.Scan(
+			&c.Amount, &c.Method, &c.DateRecorded,
+			&sector, &cell, &village, &fname, &lname,
+		); err != nil {
+			return transactions.TransactionPage{}, err
+		}
+		if sector != "" && cell != "" && village != "" {
+			c.Address["sector"] = sector
+			c.Address["cell"] = cell
+			c.Address["village"] = village
+		}
+		if fname != "" && lname != "" {
+			c.MadeBy = fmt.Sprintf("%s %s", fname, lname)
 		}
 		items = append(items, c)
 	}
@@ -84,8 +131,7 @@ func (str *transactionStore) RetrieveAll(offset uint64, limit uint64) transactio
 
 	var total uint64
 	if err := str.db.QueryRow(q).Scan(&total); err != nil {
-		log.Printf("Failed to retrieve transactions due to %s", err)
-		return transactions.TransactionPage{}
+		return transactions.TransactionPage{}, err
 	}
 
 	page := transactions.TransactionPage{
@@ -96,41 +142,62 @@ func (str *transactionStore) RetrieveAll(offset uint64, limit uint64) transactio
 			Limit:  limit,
 		},
 	}
-	return page
+	return page, nil
 }
 
-func (str *transactionStore) RetrieveByProperty(property string, offset, limit uint64) transactions.TransactionPage {
+func (str *transactionStore) RetrieveByProperty(property string, offset, limit uint64) (transactions.TransactionPage, error) {
 	q := `
-		SELECT id, property, amount, method, 
-		date_recorded FROM transactions WHERE property = $1 ORDER BY id LIMIT $2 OFFSET $3
+	SELECT 
+		transactions.amount, transactions.method, transactions.date_recorded,
+		properties.sector, properties.cell, properties.village,
+		owners.fname, owners.lname
+	FROM 
+		transactions
+	INNER JOIN 
+		properties ON transactions.madefor=properties.id
+	INNER JOIN 
+		owners ON transactions.madeby=owners.id 
+	WHERE 
+		transactions.madefor = $1 
+	ORDER BY transactions.id LIMIT $2 OFFSET $3
 	`
 
 	var items = []transactions.Transaction{}
 
 	rows, err := str.db.Query(q, property, limit, offset)
 	if err != nil {
-		//tr.log.Error(fmt.Sprintf("Failed to retrieve transactions due to %s", err))
-		log.Printf("Failed to retrieve transactions due to %s", err)
-		return transactions.TransactionPage{}
+		return transactions.TransactionPage{}, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		c := transactions.Transaction{}
-		if err := rows.Scan(&c.ID, &c.Property, &c.Amount, &c.Method, &c.DateRecorded); err != nil {
-			//tr.log.Error(fmt.Sprintf("Failed to retrieve transactions due to %s", err))
-			log.Printf("Failed to count transactions due to %s", err)
-			return transactions.TransactionPage{}
+		var sector, cell, village string
+
+		var fname, lname string
+
+		if err := rows.Scan(
+			&c.Amount, &c.Method, &c.DateRecorded,
+			&sector, &cell, &village, &fname, &lname,
+		); err != nil {
+			return transactions.TransactionPage{}, err
+		}
+		if sector != "" && cell != "" && village != "" {
+			c.Address["sector"] = sector
+			c.Address["cell"] = cell
+			c.Address["village"] = village
+		}
+		if fname != "" && lname != "" {
+			c.MadeBy = fmt.Sprintf("%s %s", fname, lname)
 		}
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM transactions WHERE property = $1`
+	q = `SELECT COUNT(*) FROM transactions WHERE madefor = $1`
 
 	var total uint64
 	if err := str.db.QueryRow(q, property).Scan(&total); err != nil {
-		log.Printf("Failed to count transactions due to %s", err)
-		return transactions.TransactionPage{}
+		return transactions.TransactionPage{}, err
 	}
 
 	page := transactions.TransactionPage{
@@ -141,31 +208,53 @@ func (str *transactionStore) RetrieveByProperty(property string, offset, limit u
 			Limit:  limit,
 		},
 	}
-	return page
+	return page, err
 }
 
-func (str *transactionStore) RetrieveByMethod(method string, offset, limit uint64) transactions.TransactionPage {
+func (str *transactionStore) RetrieveByMethod(method string, offset, limit uint64) (transactions.TransactionPage, error) {
 	q := `
-		SELECT id, property, amount, method,
-		date_recorded FROM transactions WHERE method = $1 ORDER BY id LIMIT $2 OFFSET $3
+		SELECT 
+			transactions.amount, transactions.method, transactions.date_recorded,
+			properties.sector, properties.cell, properties.village,
+			owners.fname, owners.lname
+		FROM 
+			transactions
+		INNER JOIN 
+			properties ON transactions.madefor=properties.id
+		INNER JOIN 
+			owners ON transactions.madeby=owners.id
+		WHERE 
+			transactions.method = $1 
+		ORDER BY transactions.id LIMIT $2 OFFSET $3
 	`
 
 	var items = []transactions.Transaction{}
 
 	rows, err := str.db.Query(q, method, limit, offset)
 	if err != nil {
-		//tr.log.Error(fmt.Sprintf("Failed to retrieve transactions due to %s", err))
-		log.Printf("Failed to retrieve transactions due to %s", err)
-		return transactions.TransactionPage{}
+		return transactions.TransactionPage{}, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		c := transactions.Transaction{}
-		if err := rows.Scan(&c.ID, &c.Property, &c.Amount, &c.Method, &c.DateRecorded); err != nil {
-			//tr.log.Error(fmt.Sprintf("Failed to retrieve transactions due to %s", err))
-			log.Printf("Failed to retrieve transactions due to %s", err)
-			return transactions.TransactionPage{}
+		var sector, cell, village string
+
+		var fname, lname string
+
+		if err := rows.Scan(
+			&c.Amount, &c.Method, &c.DateRecorded,
+			&sector, &cell, &village, &fname, &lname,
+		); err != nil {
+			return transactions.TransactionPage{}, err
+		}
+		if sector != "" && cell != "" && village != "" {
+			c.Address["sector"] = sector
+			c.Address["cell"] = cell
+			c.Address["village"] = village
+		}
+		if fname != "" && lname != "" {
+			c.MadeBy = fmt.Sprintf("%s %s", fname, lname)
 		}
 		items = append(items, c)
 	}
@@ -174,8 +263,7 @@ func (str *transactionStore) RetrieveByMethod(method string, offset, limit uint6
 
 	var total uint64
 	if err := str.db.QueryRow(q, method).Scan(&total); err != nil {
-		log.Printf("Failed to count transactions due to %s", err)
-		return transactions.TransactionPage{}
+		return transactions.TransactionPage{}, err
 	}
 
 	page := transactions.TransactionPage{
@@ -186,13 +274,13 @@ func (str *transactionStore) RetrieveByMethod(method string, offset, limit uint6
 			Limit:  limit,
 		},
 	}
-	return page
+	return page, nil
 }
 
-func (str *transactionStore) RetrieveByMonth(string, uint64, uint64) transactions.TransactionPage {
-	return transactions.TransactionPage{}
+func (str *transactionStore) RetrieveByMonth(string, uint64, uint64) (transactions.TransactionPage, error) {
+	return transactions.TransactionPage{}, nil
 }
 
-func (str *transactionStore) RetrieveByYear(string, uint64, uint64) transactions.TransactionPage {
-	return transactions.TransactionPage{}
+func (str *transactionStore) RetrieveByYear(string, uint64, uint64) (transactions.TransactionPage, error) {
+	return transactions.TransactionPage{}, nil
 }

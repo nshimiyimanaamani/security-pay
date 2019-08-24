@@ -2,6 +2,7 @@ package transactions
 
 import (
 	"net/http"
+	"time"
 
 	transport "github.com/rugwirobaker/paypack-backend/api/http"
 )
@@ -9,10 +10,7 @@ import (
 var _ transport.Response = (*recordTransRes)(nil)
 
 type recordTransRes struct {
-	ID       string `json:"id,omitempty"`
-	Property string `json:"property,omitempty"`
-	Amount   string `json:"amount,omitempty"`
-	Method   string `json:"method,omitempty"`
+	ID string `json:"id,omitempty"`
 }
 
 func (res recordTransRes) Code() int {
@@ -28,10 +26,13 @@ func (res recordTransRes) Empty() bool {
 }
 
 type viewTransRes struct {
-	ID       string `json:"id,omitempty"`
-	Property string `json:"property,omitempty"`
-	Amount   string `json:"amount,omitempty"`
-	Method   string `json:"method,omitempty"`
+	ID           string            `json:"id,omitempty"`
+	Property     string            `json:"property,omitempty"`
+	Owner        string            `json:"owner,omitempty"`
+	Amount       string            `json:"amount,omitempty"`
+	Address      map[string]string `json:"address,omitempty"`
+	Method       string            `json:"method,omitempty"`
+	DateRecorded time.Time         `json:"recorded,omitempty"`
 }
 
 func (res viewTransRes) Code() int {
