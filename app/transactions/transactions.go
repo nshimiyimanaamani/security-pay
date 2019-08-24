@@ -7,7 +7,9 @@ import (
 //Transaction defines a payment made for a property(i.e house).
 type Transaction struct {
 	ID           string
-	Property     string
+	MadeFor      string
+	MadeBy       string
+	Address      map[string]string
 	Amount       string
 	Method       string
 	DateRecorded time.Time
@@ -29,7 +31,7 @@ type TransactionPage struct {
 //Validate ensure that all Transaction's field are of the valid format
 //and returns a non nil error if it's not
 func (tr *Transaction) Validate() error {
-	if tr.Amount == "" || tr.Method == "" || tr.Property == "" {
+	if tr.Amount == "" || tr.Method == "" || tr.MadeFor == "" || tr.MadeBy == "" {
 		return ErrInvalidEntity
 	}
 	return nil

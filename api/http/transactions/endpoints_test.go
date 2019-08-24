@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gorilla/mux"
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
@@ -28,7 +29,7 @@ const (
 
 var (
 	contentType = "application/json"
-	transaction = transactions.Transaction{Amount: "1000.00", Method: "BK", Property: "1000-4433-3343"}
+	transaction = transactions.Transaction{Amount: "1000.00", Method: "BK", MadeFor: "1000-4433-3343", MadeBy: "1000-4433-3343"}
 )
 
 type testRequest struct {
@@ -167,7 +168,8 @@ func TestViewTransaction(t *testing.T) {
 
 	trxRes := transRes{
 		ID:       strx.ID,
-		Property: strx.Property,
+		Property: strx.MadeFor,
+		Owner:    strx.MadeBy,
 		Amount:   strx.Amount,
 		Method:   strx.Method,
 	}
@@ -238,8 +240,8 @@ func TestListTransactions(t *testing.T) {
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		trxRes := transRes{
-			ID:       trx.ID,
-			Property: trx.Property,
+			Property: trx.MadeFor,
+			Owner:    trx.MadeBy,
 			Amount:   trx.Amount,
 			Method:   trx.Method,
 		}
@@ -311,10 +313,13 @@ type errRes struct {
 }
 
 type transRes struct {
-	ID       string `json:"id,omitempty"`
-	Property string `json:"property,omitempty"`
-	Amount   string `json:"amount,omitempty"`
-	Method   string `json:"method,omitempty"`
+	ID           string            `json:"id,omitempty"`
+	Property     string            `json:"property,omitempty"`
+	Owner        string            `json:"owner,omitempty"`
+	Amount       string            `json:"amount,omitempty"`
+	Address      map[string]string `json:"address,omitempty"`
+	Method       string            `json:"method,omitempty"`
+	DateRecorded time.Time         `json:"recorded,omitempty"`
 }
 
 type transPageRes struct {

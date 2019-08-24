@@ -12,10 +12,11 @@ import (
 )
 
 var transaction = transactions.Transaction{
-	ID:       "1000-4433-3343",
-	Amount:   "1000.00",
-	Method:   "BK",
-	Property: "1000-4433-3343",
+	ID:      "1000-4433-3343",
+	Amount:  "1000.00",
+	Method:  "BK",
+	MadeFor: "1000-4433-3343",
+	MadeBy:  "1000-4433-3343",
 }
 
 func newService(tokens map[string]string) transactions.Service {
@@ -176,7 +177,7 @@ func TestListTransactionsByProperty(t *testing.T) {
 	for i := uint64(0); i < n; i++ {
 		//change transaction property for half the transactiona
 		if i >= uint64(5) {
-			transaction.Property = "1000-4433-0000"
+			transaction.MadeFor = "1000-4433-0000"
 		}
 		svc.RecordTransaction(token, transaction)
 	}
@@ -193,7 +194,7 @@ func TestListTransactionsByProperty(t *testing.T) {
 		{
 			desc:     "list all transactions for an existing property",
 			token:    token,
-			property: transaction.Property,
+			property: transaction.MadeFor,
 			offset:   0,
 			limit:    n,
 			size:     n / 2,
@@ -202,7 +203,7 @@ func TestListTransactionsByProperty(t *testing.T) {
 		{
 			desc:     "list the last transaction for an existing property",
 			token:    token,
-			property: transaction.Property,
+			property: transaction.MadeFor,
 			offset:   n - 1,
 			limit:    n,
 			size:     1,
@@ -212,7 +213,7 @@ func TestListTransactionsByProperty(t *testing.T) {
 		{
 			desc:     "list half the transaction for an existing property",
 			token:    token,
-			property: transaction.Property,
+			property: transaction.MadeFor,
 			offset:   n / 2,
 			limit:    n,
 			size:     n / 2,
@@ -221,7 +222,7 @@ func TestListTransactionsByProperty(t *testing.T) {
 		{
 			desc:     "list with zero limit",
 			token:    token,
-			property: transaction.Property,
+			property: transaction.MadeFor,
 			offset:   1,
 			limit:    0,
 			size:     0,
@@ -230,7 +231,7 @@ func TestListTransactionsByProperty(t *testing.T) {
 		{
 			desc:     "list transactions with invalid token",
 			token:    wrong,
-			property: transaction.Property,
+			property: transaction.MadeFor,
 			offset:   0,
 			limit:    n,
 			size:     0,
@@ -253,7 +254,7 @@ func TestListTransactionsByMethod(t *testing.T) {
 	for i := uint64(0); i < n; i++ {
 		//change transaction property for half the transactiona
 		if i >= uint64(5) {
-			transaction.Property = "1000-4433-0000"
+			transaction.MadeFor = "1000-4433-0000"
 		}
 		svc.RecordTransaction(token, transaction)
 	}

@@ -14,6 +14,7 @@ func TestTransactionValidate(t *testing.T) {
 	amount := "5000.00"
 	method := "BK"
 	property := "1000-4433-34343"
+	owner := "1000-4433-34343"
 
 	cases := []struct {
 		desc  string
@@ -21,9 +22,11 @@ func TestTransactionValidate(t *testing.T) {
 		err   error
 	}{
 		{
-			desc:  "validate user with valid data",
-			tranx: transactions.Transaction{ID: id, Amount: amount, Method: method, Property: property},
-			err:   nil,
+			desc: "validate user with valid data",
+			tranx: transactions.Transaction{
+				ID: id, Amount: amount, Method: method, MadeBy: owner, MadeFor: property,
+			},
+			err: nil,
 		},
 		{
 			desc:  "validate user with invalid data",
