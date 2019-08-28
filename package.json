@@ -18,14 +18,17 @@
     "chart.js": "^2.8.0",
     "core-js": "^2.6.5",
     "jquery": "^3.4.1",
+    "jspdf": "^1.5.3",
+    "jspdf-autotable": "^3.2.2",
     "popper.js": "^1.15.0",
     "vue": "^2.6.10",
+    "vue-axios": "^2.1.4",
     "vue-chartjs": "^3.4.2",
     "vue-router": "^3.0.3",
+    "vue-snotify": "^3.2.1",
     "vue-spinner": "^1.0.3",
     "vuejs-loading-plugin": "^1.0.5",
-    "vuex": "^3.1.1",
-    "vue-snotify":"^3.2.1"
+    "vuex": "^3.1.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.7.0",

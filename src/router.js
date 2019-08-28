@@ -10,18 +10,17 @@ import transactions from "./pages/transactions.vue";
 import dashboardLayout from "./Layouts/dashboardLayout.vue";
 import village from "./pages/village.vue";
 import cells from "./pages/cells.vue";
+import reports from './pages/reports.vue'
 
 Vue.use(Router);
 
 export default new Router({
   mode: "history",
-  routes: [
-    {
+  routes: [{
       path: "/",
       name: "main",
       component: startPage,
-      children: [
-        {
+      children: [{
           path: "/",
           name: "login",
           component: login
@@ -37,8 +36,7 @@ export default new Router({
       path: "/dashboard",
       name: "dashboardLayout",
       component: dashboardLayout,
-      children: [
-        {
+      children: [{
           path: "/dashboard",
           name: "dashboard",
           component: dashboard
@@ -57,6 +55,11 @@ export default new Router({
           path: "/cells",
           name: "cells",
           component: cells
+        },
+        {
+          path: '/reports',
+          name: 'reports',
+          component: reports
         }
       ]
     }

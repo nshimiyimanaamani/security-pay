@@ -11,16 +11,28 @@
           <br />public fees
         </span>
       </div>
-      <b-form class="loginForm" @submit="login()">
+      <b-form class="loginForm" @submit.prevent="login()">
         <b-form-group class="loginUsername">
-          <b-form-input type="email" id="username" v-model="form.email" required placeholder="Email..."></b-form-input>
+          <b-form-input
+            type="email"
+            id="username"
+            v-model="form.email"
+            required
+            placeholder="Email..."
+          ></b-form-input>
         </b-form-group>
         <b-form-group class="loginPassword">
-          <b-form-input type="password" id="password" v-model="form.password" required placeholder="password..."></b-form-input>
+          <b-form-input
+            type="password"
+            id="password"
+            v-model="form.password"
+            required
+            placeholder="password..."
+          ></b-form-input>
         </b-form-group>
         <div class="loginBtn">
           <a>
-            <button type="submit" @click="login">
+            <button type="submit">
               Log In
               <div class="loading" v-show="loading">
                 <clip-loader :loading="loading" :color="color" :size="size"></clip-loader>
@@ -40,44 +52,42 @@
 </template>
 
 <script>
-import axios from "axios";
 export default {
-  data(){
+  data() {
     return {
       loading: false,
       color: "#fff",
       size: "25px",
-      form:{
-        email:"",
-        password:""
+      form: {
+        email: "",
+        password: ""
       }
-    }
+    };
   },
   computed: {
     endpoint() {
       return this.$store.getters.getEndpoint;
+    },
+    token() {
+      return this.$store.getters.token;
     }
   },
   methods: {
-    login(e) {
-      e.preventDefault();
+    login() {
       if (this.form.email != "" && this.form.password != "") {
+        const data = {
+          email: this.form.email,
+          password: this.form.password
+        };
         this.loading = true;
-        axios
-          .post(`${this.endpoint}/users/tokens`, {
-            email: this.form.email,
-            password: this.form.password
-          })
+        this.$store
+          .dispatch("login", data)
           .then(res => {
-            this.$router.push('/dashboard')
-            this.loading = false;
+              this.loading = false
           })
           .catch(err => {
             console.log(err);
-             this.$snotify.error(
-            `unregistered user! please register...`
-          );
-            this.loading = false;
+            this.loading = false
           });
       }
     }

@@ -40,8 +40,8 @@
         <router-link to="/transactions">
           <li>Bank Accounts</li>
         </router-link>
-        <router-link to="#">
-          <li>Services</li>
+        <router-link to="/reports">
+          <li>Reports</li>
         </router-link>
         <router-link to="#">
           <li>Penalties</li>
@@ -52,16 +52,11 @@
       </button>
     </div>
     <div class="top-nav">
-      <div class="dropdown">
-        <b-dropdown id="dropdown-left" class="m-md-6" text="YTD">
-          <b-dropdown-item>First Action</b-dropdown-item>
-          <b-dropdown-item>Second Action</b-dropdown-item>
-          <b-dropdown-item>Third Action</b-dropdown-item>
-        </b-dropdown>
-        <i class="fa fa-caret-down"></i>
-      </div>
       <div class="search">
         <input type="search" name="search" id="search" placeholder="Search..." />
+      </div>
+      <div class="logout">
+        <b-button class="btn-info" @click.prevent="logout">Logout</b-button>
       </div>
     </div>
     <div class="dashboardBody">
@@ -125,9 +120,6 @@
 </template>
 
 <script>
-import { setInterval } from "timers";
-import axios from "axios";
-import { asyncLoading } from "vuejs-loading-plugin";
 export default {
   data() {
     return {
@@ -203,7 +195,7 @@ export default {
     search(e) {
       e.preventDefault();
       this.loading = true;
-      axios
+      this.axios
         .get(
           `${this.endpoint}/properties/owners/search/?fname=${this.form.fname}&lname=${this.form.lname}&phone=${this.form.phoneNo}`
         )
@@ -217,7 +209,7 @@ export default {
         })
         .catch(err => {
           this.$snotify.warning(`Oops! user not found. Creating user...`);
-          axios
+          this.axios
             .post(`${this.endpoint}/properties/owners/`, {
               fname: this.form.fname,
               lname: this.form.lname,
@@ -235,11 +227,13 @@ export default {
             });
         });
     },
-
+    logout() {
+      this.$store.dispatch("logout");
+    },
     onSubmit(evt) {
       evt.preventDefault();
       this.loading = true;
-      axios
+      this.axios
         .post(`${this.endpoint}/properties/`, {
           cell: this.form.cells,
           owner: this.form.user_id,

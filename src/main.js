@@ -16,10 +16,13 @@ import {
   SnotifyPosition
 } from 'vue-snotify'
 import "../node_modules/chart.js/dist/Chart.js";
+import axios from 'axios'
+import VueAxios from 'vue-axios'
 
 Vue.component('clip-loader', ClipLoader);
 Vue.component('pulse-loader', pulseLoader);
 
+Vue.use(VueAxios, axios)
 Vue.use(BootstrapVue);
 Vue.use(VueLoading)
 Vue.use(Snotify, {

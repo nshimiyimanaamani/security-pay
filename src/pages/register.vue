@@ -51,7 +51,6 @@
 </template>
 
 <script>
-import axios from "axios";
 export default {
   data() {
     return {
@@ -67,14 +66,14 @@ export default {
   },
   computed: {
     endpoint() {
-      return this.$store.getters.getEndpoint;
+      return this.$store.getters.getEndpoint
     }
   },
   methods: {
     register() {
       if (this.form.email != "" && this.form.password != "") {
         this.loading = true;
-        axios
+        this.axios
           .post(`${this.endpoint}/users/`,{
             email: this.form.email,
             password: this.form.password,
