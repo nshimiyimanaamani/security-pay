@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  backend:                        # backend api
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: backend
+    depends_on:
+       - database
+    environment:
+      PAYPACK_DB_HOST:   ${DATABASE_HOST}
+      PAYPACK_DB_PORT:   ${DATABASE_PORT}
+      PAYPACK_DB_USER:   ${DATABASE_USER}
+      PAYPACK_DB:        ${DATABASE_NAME}
+      PAYPACK_DB_PASS:   ${DATABASE_PASSWORD}
+      PAYPACK_LOG_LEVEL: ${LOG_LEVEL}
+      PORT: "8081"
+    restart: always
+
+  database:
+    image: postgres:alpine
+    container_name: database
+    environment:
+      POSTGRES_USER: ${DATABASE_HOST}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    ports:
+       - "5433:5432"
+    volumes:
+       - data:/var/lib/postgresql/data
+    restart: on-failure
+
+volumes: 
+  data:

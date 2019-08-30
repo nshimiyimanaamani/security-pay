@@ -36,51 +36,51 @@ jobs:
       - run: 
           name: Run Test Coverage
           command: make lint
-  publish:
-    docker:
-      - image: google/cloud-sdk
+  # publish:
+  #   docker:
+  #     - image: google/cloud-sdk
 
-    steps:
-      - checkout
+  #   steps:
+  #     - checkout
       
-      - setup_remote_docker
+  #     - setup_remote_docker
 
-      - run: 
-          name: Install Tools
-          command: apt-get install make
+  #     - run: 
+  #         name: Install Tools
+  #         command: apt-get install make
 
-      -  run:  
-          name: Authorize gcloud
-          command: |
-            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
-            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
-            gcloud auth configure-docker
+  #     -  run:  
+  #         name: Authorize gcloud
+  #         command: |
+  #           echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+  #           gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+  #           gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+  #           gcloud auth configure-docker
 
-      - run:
-          name: Build Docker Image
-          command: |
-              export GIT_COMMIT=$(git rev-parse --short HEAD)
-              export IMAGE=${MODULE}:${GIT_COMMIT}
-              docker build -t  $IMAGE .
+  #     - run:
+  #         name: Build Docker Image
+  #         command: |
+  #             export GIT_COMMIT=$(git rev-parse --short HEAD)
+  #             export IMAGE=${MODULE}:${GIT_COMMIT}
+  #             docker build -t  $IMAGE .
       
-      - run:
-          name: Publish Docker Image
-          command: |
-             export GIT_COMMIT=$(git rev-parse --short HEAD)
-             export IMAGE=${MODULE}:${GIT_COMMIT}
-             echo $IMAGE
-             docker tag ${IMAGE} ${REGISTRY}/${GOOGLE_PROJECT_ID}/${IMAGE}
-             docker push ${REGISTRY}/${GOOGLE_PROJECT_ID}/${IMAGE}
+  #     - run:
+  #         name: Publish Docker Image
+  #         command: |
+  #            export GIT_COMMIT=$(git rev-parse --short HEAD)
+  #            export IMAGE=${MODULE}:${GIT_COMMIT}
+  #            echo $IMAGE
+  #            docker tag ${IMAGE} ${REGISTRY}/${GOOGLE_PROJECT_ID}/${IMAGE}
+  #            docker push ${REGISTRY}/${GOOGLE_PROJECT_ID}/${IMAGE}
 workflows:
   version: 2
   build-deploy:
     jobs:
       - build
       
-      - publish:
-          requires:
-            - build
-          filters:
-             branches:
-              only: master
+      # - publish:
+      #     requires:
+      #       - build
+      #     filters:
+      #        branches:
+      #         only: master

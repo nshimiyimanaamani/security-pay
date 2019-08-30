@@ -15,3 +15,6 @@ secrets
 runner.conf
 
 #config.yml
+.env
+
+data
