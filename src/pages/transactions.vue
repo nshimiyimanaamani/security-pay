@@ -1,56 +1,12 @@
 <template>
   <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>
-                Today
-                <i class="fa fa-caret-down"></i>
-              </th>
-              <th>
-                Payment Method
-                <i class="fa fa-caret-down"></i>
-              </th>
-              <th>
-                Narrative
-                <i class="fa fa-caret-down"></i>
-              </th>
-              <th>
-                Amount
-                <i class="fa fa-caret-down"></i>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(trans , index) in transactionData" :key="index">
-              <td>
-                <i class="fa fa-check-circle"></i>
-                <p>12:35,22 March 2019</p>
-              </td>
-              <td>
-                <div v-if="trans.method == 'mtn' || 'MTN'" class="mtn">
-                  <span>mtn</span>
-                </div>
-                <div v-else-if="trans.method == 'airtel' || 'AIRTEL'" class="airtel">
-                  <span>airtel</span>
-                </div>
-                <div v-else-if="trans.method == 'bk' || 'BK'" class="bk">
-                  <span>bk</span>
-                </div>&nbsp;
-                <p class="customerName">Customer Name</p>
-              </td>
-              <td>Umutekano</td>
-              <td>
-                {{trans.amount}}
-                <i class="fa fa-ellipsis-v" style="float:right;margin-right:10px"></i>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <b-table bordered :items="table.items" :fields="table.fields" small>
+      <template slot="method" slot-scope="data">
+        <div :class="data.value">
+          <span>{{data.value}}</span>
+        </div>
+      </template>
+    </b-table>
     <pulse-loader class="pulse" :loading="loading" :color="color" :size="size"></pulse-loader>
   </div>
 </template>
@@ -62,7 +18,16 @@ export default {
       loading: false,
       color: "#3db3fa",
       size: "12px",
-      transactionData: []
+      transactionData: [],
+      table: {
+        fields: {
+          id: { label: "id", sortable: false },
+          property: { label: "property ID", sortable: false },
+          method: { label: "Method of payment", sortable: true },
+          amount: { label: "Amount", sortable: true }
+        },
+        items: []
+      }
     };
   },
   computed: {
@@ -71,20 +36,34 @@ export default {
     }
   },
   mounted() {
-    this.loading = true;
-    this.axios
-      .get(`${this.endpoint}/transactions/?offset=1&limit=100`)
-      .then(res => {
-        if (res.status == 200) {
-          this.transactionData = res.data.transactions;
-          this.loading = false;
-          console.log(res.data.transactions)
-        }
-      })
-      .catch(err => {
-        this.loading = false;
-        console.log(err);
+    this.requestItems();
+  },
+  methods: {
+    requestItems() {
+      this.loading = true;
+      const promise = new Promise((resolve, reject) => {
+        this.axios
+          .get(this.endpoint + "/transactions/?offset=1&limit=100")
+          .then(res => {
+            if (res.status == 200) {
+              resolve(res.data.transactions);
+            }
+          })
+          .catch(err => {
+            reject(err);
+          });
       });
+      promise
+        .then(res => {
+          this.table.items = res;
+          this.loading = false;
+        })
+        .catch(err => {
+          this.loading = false;
+          this.table.items = [];
+          console.log(err);
+        });
+    }
   }
 };
 </script>

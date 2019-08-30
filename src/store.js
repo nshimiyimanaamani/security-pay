@@ -96,7 +96,8 @@ export const store = new Vuex.Store({
     },
     logout(state) {
       sessionStorage.removeItem('token')
-      state.token = null
+      state.token = null;
+      Vue.$destroy()
     }
   },
   actions: {

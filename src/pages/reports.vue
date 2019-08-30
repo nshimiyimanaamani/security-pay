@@ -21,7 +21,7 @@
               <option :value="null">select cell</option>
             </b-form-select>
           </b-form-group>
-          <b-form-group label="village" v-show="select.cell">
+          <b-form-group label="village" v-show="select.sector && select.cell">
             <b-form-select v-model="select.village" :options="select.villageOptions">
               <option :value="null">select village</option>
             </b-form-select>
@@ -130,28 +130,42 @@ export default {
     },
     "select.sector"() {
       handler: {
-        this.select.cellOptions = new Array();
-        const cellOptions = this.items.filter(
-          sec => sec.sector == this.select.sector
-        );
-        cellOptions.forEach(element => {
-          if (this.select.cellOptions.indexOf(element.cell) == -1) {
-            this.select.cellOptions.push(element.cell);
-          }
-        });
+        if (this.select.sector) {
+          this.select.cellOptions = [];
+          const cellOptions = this.items.filter(
+            sec => sec.sector == this.select.sector
+          );
+          cellOptions.forEach(element => {
+            if (this.select.cellOptions.indexOf(element.cell) == -1) {
+              this.select.cellOptions = [
+                ...this.select.cellOptions,
+                element.cell
+              ];
+            }
+          });
+        } else {
+          this.select.cellOptions = [];
+        }
       }
     },
     "select.cell"() {
       handler: {
-        this.villageOptions = new Array();
-        const villageOptions = this.items.filter(
-          res => res.cell == this.select.cell
-        );
-        villageOptions.forEach(element => {
-          if (this.select.villageOptions.indexOf(element.village) == -1) {
-            this.select.villageOptions.push(element.village);
-          }
-        });
+        if (this.select.cell) {
+          this.select.villageOptions = [];
+          const villageOptions = this.items.filter(
+            res => res.cell == this.select.cell
+          );
+          villageOptions.forEach(element => {
+            if (this.select.villageOptions.indexOf(element.village) == -1) {
+              this.select.villageOptions = [
+                ...this.select.villageOptions,
+                element.village
+              ];
+            }
+          });
+        } else {
+          this.select.villageOptions = [];
+        }
       }
     }
   },
@@ -234,14 +248,18 @@ export default {
           this.tableItems = filtered;
           this.selected = this.select.sector;
         }
+        this.$refs.dropdown.hide(true);
+      } else if (!this.select.sector) {
+        this.tableItems = this.items;
+        this.$refs.dropdown.hide(true);
       }
-      this.$refs.dropdown.hide(true);
     },
     clearFilter() {
       this.select.sector = null;
       this.select.cell = null;
       this.select.village = null;
       this.tableItems = this.items;
+      this.selected = this.activeSector;
       this.$refs.dropdown.hide(true);
     },
     download() {

@@ -3,7 +3,7 @@
     <div class="container1">
       <div class="container-title">
         <i class="fa fa-th-large"></i>
-        <h1>{{getActiveVillage}}</h1>
+        <h1>{{activeVillage}}</h1>
         <span class="fa fa-cog"></span>
       </div>
       <div class="container-body">
@@ -67,7 +67,7 @@
     <div class="container2">
       <div class="container-title">
         <i class="fa fa-th-large"></i>
-        <h1> {{getActiveVillage}} </h1>
+        <h1>{{activeVillage}}</h1>
         <span class="fa fa-cog"></span>
       </div>
       <div class="container-body">
@@ -236,11 +236,28 @@ export default {
       red: "#f3573c"
     };
   },
-   computed:{
-    getActiveVillage(){
-      return this.$store.getters.getActiveVillage
+  computed: {
+    endpoint() {
+      return this.$store.getters.getEndpoint;
+    },
+    activeVillage() {
+      return this.$store.getters.getActiveVillage;
+    },
+    activeCell(){
+      return this.$store.getters.getActiveCell
     }
   },
+  mounted() {
+    this.axios
+      .get(
+        this.endpoint +
+          `/properties/sectors/remera/cells/${this.activeCell}?offset=1&limit=100`
+      )
+      .then(res => {
+        console.log(res.data);
+      })
+      .catch(err => console.log(err));
+  }
 };
 </script>
 <style>
