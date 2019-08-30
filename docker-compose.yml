@@ -22,7 +22,7 @@ services:
     image: postgres:alpine
     container_name: database
     environment:
-      POSTGRES_USER: ${DATABASE_HOST}
+      POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
     ports:
