@@ -41,5 +41,8 @@ Other directories:
  ## API docs
  Checkout the REST API docs at [api](api.docs.md)
 
+ ## DEVELOPMENT
+
+ To setup a local development environment check out these [instructions](DEVELOPMENT.md)
 
  check the endpoint documentantion detials at https://github.com/rugwirobaker/paypack-backend/blob/master/docs.md
