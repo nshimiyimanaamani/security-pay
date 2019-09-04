@@ -1,19 +1,30 @@
+/* eslint-disable operator-linebreak */
+/* eslint-disable eqeqeq */
+/* eslint-disable no-array-constructor */
+/* eslint-disable camelcase */
+/* eslint-disable space-before-function-paren */
+/* eslint-disable spaced-comment */
+/* eslint-disable standard/computed-property-even-spacing */
+/* eslint-disable indent */
 /* eslint-disable key-spacing */
 /* eslint-disable semi */
 /* eslint-disable quotes */
 import Vue from "vue";
 import Vuex from "vuex";
-import {
-  Promise
-} from "core-js";
-import axios from 'axios'
+import { Promise } from "core-js";
+import axios from "axios";
 
 Vue.use(Vuex);
 
 export const store = new Vuex.Store({
   state: {
-    token: sessionStorage.getItem('token') ? sessionStorage.getItem('token') : '',
+    token: sessionStorage.getItem("token")
+      ? sessionStorage.getItem("token")
+      : "",
     endpoint: process.env.VUE_APP_PAYPACK_API,
+    navbar: {
+      searchData: []
+    },
     active_sector: "remera",
     active_cell: "",
     cells_array: [],
@@ -65,11 +76,11 @@ export const store = new Vuex.Store({
       if (res.toUpdate == "cell") {
         //updating cell must update village too
         state.active_cell = state.cells_array[
-            state.cells_array.indexOf(res.changed)
-          ] ?
-          (state.active_cell =
-            state.cells_array[state.cells_array.indexOf(res.changed)]) :
-          (state.active_cell = state.cells_array[0]);
+          state.cells_array.indexOf(res.changed)
+        ]
+          ? (state.active_cell =
+              state.cells_array[state.cells_array.indexOf(res.changed)])
+          : (state.active_cell = state.cells_array[0]);
 
         let village_array = new Array(); //start updating villages
         state.sector[state.active_cell].forEach(element => {
@@ -90,33 +101,27 @@ export const store = new Vuex.Store({
     },
     login(state, token) {
       if (token) {
-        sessionStorage.setItem('token', token)
-        state.token = sessionStorage.getItem('token')
+        sessionStorage.setItem("token", token);
+        state.token = sessionStorage.getItem("token");
       }
     },
     logout(state) {
-      sessionStorage.removeItem('token')
+      sessionStorage.removeItem("token");
       state.token = null;
-      Vue.$destroy()
+      Vue.$destroy();
     }
   },
   actions: {
-    startup_function({
-      commit
-    }) {
+    startup_function({ commit }) {
       commit("on_startup");
     },
-    updatePlace({
-      commit
-    }, res) {
-      return new Promise((resolve) => {
+    updatePlace({ commit }, res) {
+      return new Promise(resolve => {
         commit("updatePlace", res);
         resolve();
       });
     },
-    login({
-      commit
-    }, data) {
+    login({ commit }, data) {
       return new Promise((resolve, reject) => {
         axios
           .post(`${this.state.endpoint}/users/tokens`, {
@@ -124,19 +129,17 @@ export const store = new Vuex.Store({
             password: data.password
           })
           .then(res => {
-            commit('login', res.data.token)
-            resolve(res.data.token)
+            commit("login", res.data.token);
+            resolve(res.data.token);
           })
           .catch(err => {
-            console.log(err)
-            reject(err)
-          })
-      })
+            console.log(err);
+            reject(err);
+          });
+      });
     },
-    logout({
-      commit
-    }) {
-      commit('logout')
+    logout({ commit }) {
+      commit("logout");
     }
   },
   getters: {
@@ -147,6 +150,7 @@ export const store = new Vuex.Store({
     getActiveVillage: state => state.active_village,
     getVillageArray: state => state.village_array,
     getActiveSector: state => state.active_sector,
-    token: state => state.token
+    token: state => state.token,
+    searchData: state => state.navbar.searchData
   }
 });

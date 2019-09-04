@@ -31,15 +31,9 @@
           <b-button variant="danger" size="sm" @click.prevent="clearFilter">Clear</b-button>
         </b-dropdown-form>
       </b-dropdown>
-      <b-progress :max="100" variant="info" v-show="loading.progress">
-        <b-progress-bar :value="width">
-          <strong>{{ width.toFixed() }}%</strong>
-        </b-progress-bar>
-      </b-progress>
       <b-button @click.prevent="download" class="download btn-info">Download</b-button>
     </div>
     <b-table id="data-table" bordered striped hover small :items="tableItems" :fields="fields">
-      <template slot="owner" slot-scope="data">{{ data.value.fname }} {{ data.value.lname }}</template>
     </b-table>
     <pulse-loader class="reports-loader" :loading="loading.request" :color="color" :size="size"></pulse-loader>
   </div>
@@ -73,10 +67,6 @@ export default {
         owner: {
           label: "Full name",
           sortable: true
-        },
-        "owner.phone": {
-          label: "Phone number",
-          sortable: false
         },
         sector: {
           label: "sector",
@@ -183,37 +173,39 @@ export default {
         )
         .then(res => {
           this.items = new Array();
-          this.loading.progress = true;
-          for (const key in res.data.properties) {
-            if (res.data.properties.hasOwnProperty(key)) {
-              const element = res.data.properties[key];
-              this.axios
-                .get(`${this.endpoint}/properties/owners/${element.owner}`)
-                .then(result => {
-                  element.owner = result.data;
-                  this.items = [...this.items, element];
-                  const width = (
-                    (this.items.length * 100) /
-                    res.data.properties.length
-                  ).toFixed();
-                  for (let i = 0; i <= width; i++) {
-                    if (i > this.width) {
-                      this.width = i;
-                    }
-                  }
-                  if (res.data.properties.length == this.items.length) {
-                    this.loading.request = false;
-                    setTimeout(() => {
-                      this.loading.progress = false;
-                    }, 1000);
-                  }
-                })
-                .catch(err => {
-                  console.log(err);
-                  this.loading.progress = false;
-                });
-            }
-          }
+          console.log(res.data);
+          this.loading.request = false;
+          this.items = res.data.properties
+          // for (const key in res.data.properties) {
+          //   if (res.data.properties.hasOwnProperty(key)) {
+          //     const element = res.data.properties[key];
+          //     this.axios
+          //       .get(`${this.endpoint}/properties/owners/${element.owner}`)
+          //       .then(result => {
+          //         element.owner = result.data;
+          //         this.items = [...this.items, element];
+          //         const width = (
+          //           (this.items.length * 100) /
+          //           res.data.properties.length
+          //         ).toFixed();
+          //         for (let i = 0; i <= width; i++) {
+          //           if (i > this.width) {
+          //             this.width = i;
+          //           }
+          //         }
+          //         if (res.data.properties.length == this.items.length) {
+          //           this.loading.request = false;
+          //           setTimeout(() => {
+          //             this.loading.progress = false;
+          //           }, 1000);
+          //         }
+          //       })
+          //       .catch(err => {
+          //         console.log(err);
+          //         this.loading.progress = false;
+          //       });
+          //   }
+          // }
         })
         .catch(err => {
           console.log(err);

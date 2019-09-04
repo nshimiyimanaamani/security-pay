@@ -52,9 +52,6 @@
       </button>
     </div>
     <div class="top-nav">
-      <div class="search">
-        <input type="search" name="search" id="search" placeholder="Search..." />
-      </div>
       <div class="logout">
         <b-button class="btn-info" @click.prevent="logout">Logout</b-button>
       </div>
@@ -126,6 +123,9 @@ export default {
       modalShow: false,
       toggleForms: false,
       userAvailable: false,
+      state: {
+        disableSearch: true
+      },
       loading: false,
       size: "10px",
       color: "#167df0",
@@ -175,6 +175,9 @@ export default {
     },
     getPropertyVillage() {
       return this.village();
+    },
+    searchData() {
+      return this.$store.getters.searchData;
     }
   },
   mounted() {
@@ -182,6 +185,7 @@ export default {
     this.getCellsArray;
     this.getActivevillage;
     this.getVillageArray;
+    console.log(this.searchData);
   },
   methods: {
     update(res) {
