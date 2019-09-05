@@ -39,9 +39,9 @@ func (str *transactionStore) Save(trx transactions.Transaction) (string, error) 
 func (str *transactionStore) RetrieveByID(id string) (transactions.Transaction, error) {
 	q := `
 		SELECT 
-			transactions.amount, transactions.method, transactions.date_recorded,
-			properties.sector, properties.cell, properties.village,
-			owners.fname, owners.lname
+			transactions.id, transactions.amount, transactions.method, 
+			transactions.date_recorded, properties.sector, properties.cell, 
+			properties.village, owners.fname, owners.lname
 		FROM 
 			transactions
 		INNER JOIN 
@@ -58,7 +58,7 @@ func (str *transactionStore) RetrieveByID(id string) (transactions.Transaction, 
 	var fname, lname string
 
 	err := str.db.QueryRow(q, id).Scan(
-		&trx.Amount, &trx.Method, &trx.DateRecorded,
+		&trx.ID, &trx.Amount, &trx.Method, &trx.DateRecorded,
 		&sector, &cell, &village, &fname, &lname,
 	)
 	if err != nil {
@@ -83,9 +83,9 @@ func (str *transactionStore) RetrieveByID(id string) (transactions.Transaction, 
 func (str *transactionStore) RetrieveAll(offset uint64, limit uint64) (transactions.TransactionPage, error) {
 	q := `
 	SELECT 
-		transactions.amount, transactions.method, transactions.date_recorded,
-		properties.sector, properties.cell, properties.village,
-		owners.fname, owners.lname
+		transactions.id, transactions.amount, transactions.method, 
+		transactions.date_recorded, properties.sector, properties.cell, 
+		properties.village, owners.fname, owners.lname
 	FROM 
 		transactions
 	INNER JOIN 
@@ -111,7 +111,7 @@ func (str *transactionStore) RetrieveAll(offset uint64, limit uint64) (transacti
 		var fname, lname string
 
 		if err := rows.Scan(
-			&c.Amount, &c.Method, &c.DateRecorded,
+			&c.ID, &c.Amount, &c.Method, &c.DateRecorded,
 			&sector, &cell, &village, &fname, &lname,
 		); err != nil {
 			return transactions.TransactionPage{}, err
@@ -148,9 +148,9 @@ func (str *transactionStore) RetrieveAll(offset uint64, limit uint64) (transacti
 func (str *transactionStore) RetrieveByProperty(property string, offset, limit uint64) (transactions.TransactionPage, error) {
 	q := `
 	SELECT 
-		transactions.amount, transactions.method, transactions.date_recorded,
-		properties.sector, properties.cell, properties.village,
-		owners.fname, owners.lname
+		transactions.id, transactions.amount, transactions.method, 
+		transactions.date_recorded, properties.sector, properties.cell, 
+		properties.village, owners.fname, owners.lname
 	FROM 
 		transactions
 	INNER JOIN 
@@ -177,7 +177,7 @@ func (str *transactionStore) RetrieveByProperty(property string, offset, limit u
 		var fname, lname string
 
 		if err := rows.Scan(
-			&c.Amount, &c.Method, &c.DateRecorded,
+			&c.ID, &c.Amount, &c.Method, &c.DateRecorded,
 			&sector, &cell, &village, &fname, &lname,
 		); err != nil {
 			return transactions.TransactionPage{}, err
@@ -214,9 +214,9 @@ func (str *transactionStore) RetrieveByProperty(property string, offset, limit u
 func (str *transactionStore) RetrieveByMethod(method string, offset, limit uint64) (transactions.TransactionPage, error) {
 	q := `
 		SELECT 
-			transactions.amount, transactions.method, transactions.date_recorded,
-			properties.sector, properties.cell, properties.village,
-			owners.fname, owners.lname
+			transactions.id,transactions.amount, transactions.method, 
+			transactions.date_recorded, properties.sector, properties.cell, 
+			properties.village, owners.fname, owners.lname
 		FROM 
 			transactions
 		INNER JOIN 
@@ -243,7 +243,7 @@ func (str *transactionStore) RetrieveByMethod(method string, offset, limit uint6
 		var fname, lname string
 
 		if err := rows.Scan(
-			&c.Amount, &c.Method, &c.DateRecorded,
+			&c.ID, &c.Amount, &c.Method, &c.DateRecorded,
 			&sector, &cell, &village, &fname, &lname,
 		); err != nil {
 			return transactions.TransactionPage{}, err
