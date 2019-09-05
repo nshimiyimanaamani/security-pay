@@ -142,6 +142,7 @@ func handleListTransaction(svc transactions.Service, w http.ResponseWriter, r *h
 
 	for _, transaction := range page.Transactions {
 		view := viewTransRes{
+			ID:           transaction.ID,
 			Property:     transaction.MadeFor,
 			Owner:        transaction.MadeBy,
 			Amount:       transaction.Amount,

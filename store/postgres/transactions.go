@@ -51,7 +51,9 @@ func (str *transactionStore) RetrieveByID(id string) (transactions.Transaction, 
 		WHERE transactions.id = $1
 	`
 
-	var trx = transactions.Transaction{}
+	var trx = transactions.Transaction{
+		Address: make(map[string]string),
+	}
 
 	var sector, cell, village string
 
@@ -104,7 +106,9 @@ func (str *transactionStore) RetrieveAll(offset uint64, limit uint64) (transacti
 	defer rows.Close()
 
 	for rows.Next() {
-		c := transactions.Transaction{}
+		c := transactions.Transaction{
+			Address: make(map[string]string),
+		}
 
 		var sector, cell, village string
 
@@ -171,7 +175,9 @@ func (str *transactionStore) RetrieveByProperty(property string, offset, limit u
 	defer rows.Close()
 
 	for rows.Next() {
-		c := transactions.Transaction{}
+		c := transactions.Transaction{
+			Address: make(map[string]string),
+		}
 		var sector, cell, village string
 
 		var fname, lname string
@@ -237,7 +243,9 @@ func (str *transactionStore) RetrieveByMethod(method string, offset, limit uint6
 	defer rows.Close()
 
 	for rows.Next() {
-		c := transactions.Transaction{}
+		c := transactions.Transaction{
+			Address: make(map[string]string),
+		}
 		var sector, cell, village string
 
 		var fname, lname string

@@ -240,6 +240,7 @@ func TestListTransactions(t *testing.T) {
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		trxRes := transRes{
+			ID:       trx.ID,
 			Property: trx.MadeFor,
 			Owner:    trx.MadeBy,
 			Amount:   trx.Amount,

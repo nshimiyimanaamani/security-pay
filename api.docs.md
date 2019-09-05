@@ -58,7 +58,10 @@ Record a new transaction.
     - request body: 
     ```
     {
-        "amount":"1000", "method":"MTN", "property":"83232d60-c527-4b92-a45a-c451ca217a4e"
+        "amount":"1000", 
+        "method":"MTN", 
+        "madefor":"83232d60-c527-4b92-a45a-c451ca217a4e"
+        "madeby=f21265be-3d4b-4961-aef2-1a3514f07684"
     }
     ```
     - response body: `
