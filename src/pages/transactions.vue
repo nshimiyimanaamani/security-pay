@@ -1,53 +1,73 @@
 <template>
-  <div class="transactions-container">
-    <div class="transaction-title">
-      <div class="year-selector">
-        YTD
-        <i class="fa fa-caret-down"/>
-      </div>
-      <br>
-      <div class="paragraph">RWF 9,974.55</div>
-      <br>
-      <div class="bottom-text">
-        <div class="contributer1">
-          <span class="separator">|</span>
-          <span class="text">
-            BK Acc
-            <br>
-            <span class="small">500 M</span>
-          </span>
+  <div class="container">
+    <b-table bordered :items="table.items" :fields="table.fields" small>
+      <template slot="method" slot-scope="data">
+        <div :class="data.value">
+          <span>{{data.value}}</span>
         </div>
-        <div class="contributer2">
-          <span class="separator">|</span>
-          <span class="text">
-            MTN MoMo
-            <br>
-            <span class="small">60 M</span>
-          </span>
-        </div>
-        <div class="contributer3">
-          <span class="separator">|</span>
-          <span class="text">
-            Airtel Money
-            <br>
-            <span class="small">79 M</span>
-          </span>
-        </div>
-      </div>
-    </div>
-    <div class="transaction-body">
-      <transactionTable/>
-    </div>
+      </template>
+    </b-table>
+    <pulse-loader class="pulse" :loading="loading" :color="color" :size="size"></pulse-loader>
   </div>
 </template>
 
 <script>
-import transactionTable from "../components/transactionTable.vue";
 export default {
-  components: { transactionTable }
+  data() {
+    return {
+      loading: false,
+      color: "#3db3fa",
+      size: "12px",
+      transactionData: [],
+      table: {
+        fields: {
+          id: { label: "id", sortable: false },
+          property: { label: "property ID", sortable: false },
+          method: { label: "Method of payment", sortable: true },
+          amount: { label: "Amount", sortable: true }
+        },
+        items: []
+      }
+    };
+  },
+  computed: {
+    endpoint() {
+      return this.$store.getters.getEndpoint;
+    }
+  },
+  mounted() {
+    this.requestItems();
+  },
+  methods: {
+    requestItems() {
+      this.loading = true;
+      const promise = new Promise((resolve, reject) => {
+        this.axios
+          .get(this.endpoint + "/transactions/?offset=1&limit=100")
+          .then(res => {
+            if (res.status == 200) {
+              resolve(res.data.transactions);
+            }
+          })
+          .catch(err => {
+            reject(err);
+          });
+      });
+      promise
+        .then(res => {
+          this.table.items = res;
+          this.loading = false;
+        })
+        .catch(err => {
+          this.loading = false;
+          this.table.items = [];
+          console.log(err);
+        });
+    }
+  }
 };
 </script>
 
-<style>
-@import url("../assets/css/transactions.css");
+<style scoped>
+@import url("../assets/css/transactionTable.css");
 </style>
