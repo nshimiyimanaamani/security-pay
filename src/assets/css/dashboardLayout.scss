@@ -3,7 +3,6 @@
   grid-template-columns: 210px auto;
   grid-template-rows: 55px auto;
   position: relative;
-  background: #f5f5f5;
   .dashboardSidebar {
     grid-column: 1;
     grid-row: 1/1;
@@ -111,9 +110,8 @@
 .dashboardBody {
   grid-row: 2;
   grid-column: 2;
-  background: #f5f5f5;
+  background: ghostwhite;
   min-height: 90vh;
-  overflow: hidden;
 }
 
 .sidebarLinks {
@@ -237,8 +235,8 @@
 
   .logout {
     width: fit-content;
-    margin-left: 0;
-    padding: 6px 12px
+    padding: 10px 30px;
+    margin-left: auto;
   }
 }
 .router-link-active li {

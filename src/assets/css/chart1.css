@@ -1,11 +1,11 @@
 #chart1container {
   position: relative;
-  border-radius: 10px 10px 0 0;
+  border-radius: 10px 10px 5px 5px;
   background: white;
   width: 98%;
   margin: auto;
-  -webkit-box-shadow: 0 5px 5px #00000030;
-          box-shadow: 0 5px 5px #00000030;
+  -webkit-box-shadow: 0 2px 7px #00000025;
+          box-shadow: 0 2px 7px #00000025;
 }
 
 #chart1container .chart1Title {

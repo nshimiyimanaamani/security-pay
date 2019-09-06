@@ -1,15 +1,6 @@
 .container {
-  width: 92%;
-  margin-top: 35px;
-  margin-left: 35px;
-
-  tbody tr:nth-child(even) {
-    background: white;
-
-    &:nth-child(odd) {
-      background: transparent;
-    }
-  }
+  padding: 60px 20px 0;
+  width: auto;
 }
 
 .container .pulse {
@@ -22,89 +13,71 @@
   }
 }
 
-.fa-check-circle {
-  float: left;
-  position: relative;
-  top: 0px;
-  margin-right: 10px;
-  font-size: 20px;
-  color: #6aad1d;
-}
-
-.fa-times-circle {
-  float: left;
-  position: relative;
-  top: 0px;
-  margin-right: 10px;
-  font-size: 20px;
-  color: #ff2323;
-}
-
 tbody td {
   vertical-align: initial !important;
 }
 
 .mtn {
-  height: 30px;
-  width: 55px;
-  border-radius: 5px;
-  float: left;
+  width: 30%;
+  border-radius: 3px;
+  min-width: fit-content;
   background: white;
-  margin-top: -3px;
+  padding: 5px 0;
   box-shadow: 1px 1px 4px #9a9797;
+  text-align: center;
+  user-select: none;
+  margin: auto;
+  cursor: text;
 
   span {
     font-size: 15px;
     text-transform: uppercase;
-    padding: 12px;
-    vertical-align: -webkit-baseline-middle;
     font-weight: bold;
+    padding: 0 5px;
     color: #f9b004;
   }
 }
 
 .airtel {
-  width: 55px;
-  border-radius: 5px;
-  float: left;
-  height: 30px;
+  width: 30%;
+  margin: auto;
+  min-width: fit-content;
+  border-radius: 3px;
   background: #f93d3d;
-  margin-top: -3px;
   box-shadow: 1px 1px 5px #9a9797;
+  padding: 5px 0;
+  user-select: none;
+  cursor: text;
+  text-align: center;
 
   span {
     font-size: 12px;
     text-transform: uppercase;
-    padding: 6.5px;
-    position: relative;
-    top: 4px;
     font-weight: bold;
+    padding: 0 5px;
     color: white;
   }
 }
 
 .bk {
-  width: 55px;
-  border-radius: 5px;
-  float: left;
+  width: 30%;
+  min-width: fit-content;
+  border-radius: 3px;
   background: white;
   box-shadow: 1px 1px 4px #9a9797;
-  height: 30px;
-  margin-top: -3px;
+  height: fit-content;
   text-align: center;
+  margin: auto;
+  padding: 5px 0;
+  cursor: text;
+  user-select: none;
 
   span {
     color: #3d3d65;
     font-size: 15px;
-    vertical-align: -webkit-baseline-middle;
     letter-spacing: 1px;
     text-transform: uppercase;
+    padding: 0 5px;
     font-weight: bold;
   }
-}
-
-.customerName {
-  display: inline;
-  padding-left: 10px;
-  text-transform: capitalize;
 }
