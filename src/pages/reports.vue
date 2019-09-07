@@ -33,8 +33,7 @@
       </b-dropdown>
       <b-button @click.prevent="download" class="download btn-info">Download</b-button>
     </div>
-    <b-table id="data-table" bordered striped hover small :items="tableItems" :fields="fields">
-    </b-table>
+    <b-table id="data-table" bordered striped hover small :items="tableItems" :fields="fields"></b-table>
     <pulse-loader class="reports-loader" :loading="loading.request" :color="color" :size="size"></pulse-loader>
   </div>
 </template>
@@ -175,37 +174,7 @@ export default {
           this.items = new Array();
           console.log(res.data);
           this.loading.request = false;
-          this.items = res.data.properties
-          // for (const key in res.data.properties) {
-          //   if (res.data.properties.hasOwnProperty(key)) {
-          //     const element = res.data.properties[key];
-          //     this.axios
-          //       .get(`${this.endpoint}/properties/owners/${element.owner}`)
-          //       .then(result => {
-          //         element.owner = result.data;
-          //         this.items = [...this.items, element];
-          //         const width = (
-          //           (this.items.length * 100) /
-          //           res.data.properties.length
-          //         ).toFixed();
-          //         for (let i = 0; i <= width; i++) {
-          //           if (i > this.width) {
-          //             this.width = i;
-          //           }
-          //         }
-          //         if (res.data.properties.length == this.items.length) {
-          //           this.loading.request = false;
-          //           setTimeout(() => {
-          //             this.loading.progress = false;
-          //           }, 1000);
-          //         }
-          //       })
-          //       .catch(err => {
-          //         console.log(err);
-          //         this.loading.progress = false;
-          //       });
-          //   }
-          // }
+          this.items = res.data.properties;
         })
         .catch(err => {
           console.log(err);
@@ -224,6 +193,7 @@ export default {
             );
             this.tableItems = filtered;
             this.selected = this.select.village;
+            return filtered;
           } else if (!this.select.village) {
             const filtered = this.items.filter(
               item =>
@@ -232,6 +202,7 @@ export default {
             );
             this.tableItems = filtered;
             this.selected = this.select.cell;
+            return filtered;
           }
         } else if (!this.select.cell) {
           const filtered = this.items.filter(
@@ -239,10 +210,12 @@ export default {
           );
           this.tableItems = filtered;
           this.selected = this.select.sector;
+          return filtered;
         }
         this.$refs.dropdown.hide(true);
       } else if (!this.select.sector) {
         this.tableItems = this.items;
+        return this.items;
         this.$refs.dropdown.hide(true);
       }
     },
