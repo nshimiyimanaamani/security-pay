@@ -13,24 +13,38 @@
         <b-dropdown-form>
           <b-form-group label="sector">
             <b-form-select v-model="select.sector" :options="select.sectorOptions">
-              <option :value="null">select sector</option>
+              <option value>select sector</option>
             </b-form-select>
           </b-form-group>
           <b-form-group label="cell" v-show="select.sector">
             <b-form-select v-model="select.cell" :options="select.cellOptions">
-              <option :value="null">select cell</option>
+              <option value>select cell</option>
             </b-form-select>
           </b-form-group>
           <b-form-group label="village" v-show="select.sector && select.cell">
             <b-form-select v-model="select.village" :options="select.villageOptions">
-              <option :value="null">select village</option>
+              <option value>select village</option>
             </b-form-select>
           </b-form-group>
           <b-dropdown-divider></b-dropdown-divider>
-          <b-button variant="primary" size="sm" @click.prevent="filter">Ok</b-button>
+          <b-button variant="primary" size="sm" @click.prevent="tableItems = filter()">Ok</b-button>
           <b-button variant="danger" size="sm" @click.prevent="clearFilter">Clear</b-button>
         </b-dropdown-form>
       </b-dropdown>
+      <div class="search">
+        <b-form-input
+          placeholder="search user..."
+          size="sm"
+          v-model="search.name"
+          list="search-datalist-id"
+        ></b-form-input>
+        <b-button @click="search.name = ''">
+          <i class="fa fa-times"></i>
+        </b-button>
+        <datalist id="search-datalist-id">
+          <option v-for="name in search.datalist" :key="name">{{ name }}</option>
+        </datalist>
+      </div>
       <b-button @click.prevent="download" class="download btn-info">Download</b-button>
     </div>
     <b-table id="data-table" bordered striped hover small :items="tableItems" :fields="fields"></b-table>
@@ -53,10 +67,14 @@ export default {
         progress: false,
         request: false
       },
+      search: {
+        name: "",
+        datalist: []
+      },
       select: {
-        sector: null,
-        cell: null,
-        village: null,
+        sector: "",
+        cell: "",
+        village: "",
         sectorOptions: [],
         cellOptions: [],
         villageOptions: []
@@ -105,7 +123,7 @@ export default {
   watch: {
     items() {
       handler: {
-        this.tableItems = this.items;
+        this.tableItems = this.filter();
         this.select.sectorOptions = new Array();
         if (this.items.length > 0) {
           this.selected = this.items[0].sector;
@@ -156,6 +174,20 @@ export default {
           this.select.villageOptions = [];
         }
       }
+    },
+    "search.name"() {
+      handler: {
+        this.search.datalist = new Array();
+        this.tableItems = this.filter().filter(obj => {
+          this.search.datalist.push(obj.owner);
+          return obj.owner
+            .toLowerCase()
+            .includes(this.search.name.toLowerCase());
+        });
+        while (this.search.datalist.length > 5) {
+          this.search.datalist.pop();
+        }
+      }
     }
   },
   mounted() {
@@ -172,9 +204,9 @@ export default {
         )
         .then(res => {
           this.items = new Array();
-          console.log(res.data);
           this.loading.request = false;
           this.items = res.data.properties;
+          console.log(this.items);
         })
         .catch(err => {
           console.log(err);
@@ -182,47 +214,21 @@ export default {
         });
     },
     filter() {
-      if (this.select.sector) {
-        if (this.select.cell) {
-          if (this.select.village) {
-            const filtered = this.items.filter(
-              item =>
-                item.sector == this.select.sector &&
-                item.cell == this.select.cell &&
-                item.village == this.select.village
-            );
-            this.tableItems = filtered;
-            this.selected = this.select.village;
-            return filtered;
-          } else if (!this.select.village) {
-            const filtered = this.items.filter(
-              item =>
-                item.sector == this.select.sector &&
-                item.cell == this.select.cell
-            );
-            this.tableItems = filtered;
-            this.selected = this.select.cell;
-            return filtered;
-          }
-        } else if (!this.select.cell) {
-          const filtered = this.items.filter(
-            item => item.sector == this.select.sector
-          );
-          this.tableItems = filtered;
-          this.selected = this.select.sector;
-          return filtered;
-        }
-        this.$refs.dropdown.hide(true);
-      } else if (!this.select.sector) {
-        this.tableItems = this.items;
-        return this.items;
-        this.$refs.dropdown.hide(true);
-      }
+      this.$refs.dropdown.hide(true);
+      return this.items.filter(item => {
+        return (
+          item.sector
+            .toLowerCase()
+            .includes(this.select.sector.toLowerCase()) &&
+          item.cell.toLowerCase().includes(this.select.cell.toLowerCase()) &&
+          item.village.toLowerCase().includes(this.select.village.toLowerCase())
+        );
+      });
     },
     clearFilter() {
-      this.select.sector = null;
-      this.select.cell = null;
-      this.select.village = null;
+      this.select.sector = "";
+      this.select.cell = "";
+      this.select.village = "";
       this.tableItems = this.items;
       this.selected = this.activeSector;
       this.$refs.dropdown.hide(true);
@@ -289,7 +295,7 @@ export default {
   display: flex;
 }
 .controllers .download {
-  margin-left: auto;
+  margin-left: 10px;
   outline: none;
 }
 .reports-loader::before {
@@ -352,5 +358,17 @@ export default {
 }
 .dropdown-menu form {
   outline: none !important;
+}
+.table-container .controllers .search {
+  display: flex;
+  margin-left: auto;
+}
+.table-container .controllers .search input {
+  height: 100%;
+  border-radius: 5px 0 0 5px;
+}
+.table-container .controllers .search > button {
+  border-radius: 0 5px 5px 0;
+  color: slategrey;
 }
 </style>

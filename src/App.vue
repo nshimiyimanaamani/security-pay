@@ -1,29 +1,28 @@
 <template>
   <div id="app">
     <vue-snotify></vue-snotify>
-    <router-view :key="key" />
+    <b-alert :show="!isOnline" variant="danger" class="text-center offline-indicator" dismissible>
+      <b>OFFLINE!</b> Please check your internet connection...
+    </b-alert>
+    <router-view />
   </div>
 </template>
 <script>
 export default {
-  data() {
-    return {
-      key: 0
-    };
-  },
   beforeMount() {
     this.$store.dispatch("startup_function");
+    this.$store.dispatch("checkConnection");
     this.authenticate();
     if (this.token) {
       this.axios.defaults.headers.common["Authorization"] = this.token;
     }
   },
-  destroyed() {
-    console.log("destroyed");
-  },
   computed: {
     token() {
       return this.$store.getters.token;
+    },
+    isOnline() {
+      return this.$store.getters.isOnline;
     }
   },
   beforeUpdate() {
@@ -32,15 +31,23 @@ export default {
   methods: {
     authenticate() {
       if (this.token) {
-        if (this.$route.name == "login") {
+        if (this.$route.name === "login" || this.$route.name === "register") {
           this.$router.push("/dashboard");
           this.axios.defaults.headers.common["Authorization"] = this.token;
         }
       } else if (!this.token) {
-        this.$router.push("/");
-        this.key++;
+        if (this.$route.name === "register") {
+          this.$route.push("/register");
+        } else if (this.$route.name === "login") {
+          this.$router.push("/");
+        } else {
+          this.$route.push("/");
+        }
         delete this.axios.defaults.headers.common["Authorization"];
       }
+    },
+    checkConnection() {
+      return navigator.onLine;
     }
   },
   watch: {
@@ -55,4 +62,14 @@ export default {
 
 <style>
 @import url("./assets/css/main.css");
+.offline-indicator {
+  position: absolute;
+  z-index: 1000;
+  left: 0;
+  top: 5px;
+  right: 0;
+  width: 50%;
+  padding: 6px 35px;
+  margin: auto;
+}
 </style>

@@ -22,9 +22,7 @@ export const store = new Vuex.Store({
       ? sessionStorage.getItem("token")
       : "",
     endpoint: process.env.VUE_APP_PAYPACK_API,
-    navbar: {
-      searchData: []
-    },
+    isOnline: navigator.onLine,
     active_sector: "remera",
     active_cell: "",
     cells_array: [],
@@ -109,6 +107,9 @@ export const store = new Vuex.Store({
       sessionStorage.removeItem("token");
       state.token = null;
       Vue.$destroy();
+    },
+    checkConnection(state, data) {
+      state.isOnline = data;
     }
   },
   actions: {
@@ -140,6 +141,12 @@ export const store = new Vuex.Store({
     },
     logout({ commit }) {
       commit("logout");
+    },
+    checkConnection({ commit }) {
+      return new Promise(resolve => {
+        commit("checkConnection", navigator.onLine);
+        resolve(navigator.onLine);
+      });
     }
   },
   getters: {
@@ -151,6 +158,6 @@ export const store = new Vuex.Store({
     getVillageArray: state => state.village_array,
     getActiveSector: state => state.active_sector,
     token: state => state.token,
-    searchData: state => state.navbar.searchData
+    isOnline: state => state.isOnline
   }
 });

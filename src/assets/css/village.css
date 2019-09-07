@@ -7,70 +7,111 @@
   border: 1px solid lightgray;
   border-top: none;
   margin-bottom: 20px;
-}
-
-.village-wrapper .container .card > .card-body {
   background: white;
   -webkit-box-shadow: 0px 5px 10px #e0d5d5;
           box-shadow: 0px 5px 10px #e0d5d5;
   padding: 20px;
-  -webkit-columns: 25em;
-          columns: 25em;
+  -webkit-columns: 2 35rem;
+          columns: 2 35rem;
+  -webkit-column-gap: 10px;
+          column-gap: 10px;
 }
 
-.village-wrapper .container .card > .card-body .card-body {
-  margin: 5px;
-  width: 100%;
-  display: inline-block;
-}
-
-.village-wrapper .container .card > .card-body .card-body .card-body {
+.village-wrapper .container .card .card-body > section {
   border: 1px solid #cec4c4;
-  border-radius: 4px;
   padding: 5px 10px;
   width: 100%;
   min-width: 280px;
+  margin: 0;
+  position: relative;
+  margin-bottom: 10px;
+  display: block;
+  -webkit-column-break-inside: avoid;
+          break-inside: avoid;
+  -webkit-column-span: inherit;
+          column-span: inherit;
 }
 
-.village-wrapper .container .card > .card-body .card-body .card-body .card-header {
+.village-wrapper .container .card .card-body > section .card-header {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   text-transform: capitalize;
 }
 
-.village-wrapper .container .card > .card-body .card-body .card-body .card-header p:last-child {
-  margin-left: auto;
-  width: 60px;
+.village-wrapper .container .card .card-body > section .card-header p:last-child {
+  width: 20%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-left: auto;
 }
 
-.village-wrapper .container .card > .card-body .card-footer {
-  display: block;
-}
-
-.village-wrapper .container .card > .card-body .card-footer .card-group {
+.village-wrapper .container .card .card-body > section .card-footer {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  padding-bottom: 3px;
 }
 
-.village-wrapper .container .card > .card-body .card-footer .card-group article {
+.village-wrapper .container .card .card-body > section .card-footer article {
   width: 100%;
+  padding-right: 10px;
+  display: block;
 }
 
-.village-wrapper .container .card > .card-body .card-footer .card-group article .progress {
-  margin-left: 0;
-  margin-bottom: 0;
-  height: 5px;
-  width: 97%;
+.village-wrapper .container .card .card-body > section .card-footer article .progress {
+  width: 100%;
+  height: 7px;
 }
 
-.village-wrapper .container .card > .card-body .card-footer .card-group .fa-ellipsis-v {
-  margin-top: auto;
+.village-wrapper .container .card .card-body > section .card-footer i {
+  margin-left: auto;
+}
+
+.village-wrapper .container .card .card-body > section .more-data hr {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border: 0;
+  border-top: 1px solid #c3c2c2;
+}
+
+.village-wrapper .container .card .card-body > section .more-data article {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+}
+
+.village-wrapper .container .card .card-body > section .more-data article p {
+  position: absolute;
+  margin-left: 20%;
+}
+
+.village-wrapper .container .error {
+  border: 1px solid lightgray;
+  border-top: none;
+  margin-bottom: 20px;
+  background: white;
+  -webkit-box-shadow: 0px 5px 10px #e0d5d5;
+          box-shadow: 0px 5px 10px #e0d5d5;
+  padding: 20px;
+}
+
+.village-wrapper .container .error article {
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: auto;
+}
+
+.village-wrapper .container .error article i {
+  font-size: 70px;
+  color: #e6d828;
+}
+
+.village-wrapper .container .error article label {
+  margin: 15px;
+  display: block;
 }
 
 .village-wrapper .container-title {

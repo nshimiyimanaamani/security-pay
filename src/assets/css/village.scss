@@ -7,63 +7,148 @@
       border: 1px solid lightgray;
       border-top: none;
       margin-bottom: 20px;
-    }
-
-    .card > .card-body {
       background: white;
       box-shadow: 0px 5px 10px #e0d5d5;
       padding: 20px;
-      columns: 25em;
+      columns: 2 35rem;
+      column-gap: 10px;
 
-      .card-body {
-        margin: 5px;
-        width: 100%;
-        display: inline-block;
-      }
-
-      .card-body .card-body {
+      .card-body > section {
         border: 1px solid #cec4c4;
-        border-radius: 4px;
         padding: 5px 10px;
         width: 100%;
         min-width: 280px;
+        margin: 0;
+        position: relative;
+        margin-bottom: 10px;
+        display: block;
+        break-inside: avoid;
+        column-span: inherit;
 
         .card-header {
           display: flex;
           text-transform: capitalize;
 
           p:last-child {
-            margin-left: auto;
-            width: 60px;
+            width: 20%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-left: auto;
           }
         }
-      }
-      .card-footer {
-        display: block;
-
-        .card-group {
+        .card-footer {
           display: flex;
-          padding-bottom: 3px;
-
           article {
             width: 100%;
+            padding-right: 10px;
+            display: block;
 
             .progress {
-              margin-left: 0;
-              margin-bottom: 0;
-              height: 5px;
-              width: 97%;
+              width: 100%;
+              height: 7px;
             }
           }
-          .fa-ellipsis-v {
-            margin-top: auto;
+          i {
+            margin-left: auto;
+          }
+        }
+        .more-data {
+          hr {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border: 0;
+            border-top: 1px solid #c3c2c2;
+          }
+          article {
+            display: flex;
+            position: relative;
+
+            p {
+              position: absolute;
+              margin-left: 20%;
+            }
           }
         }
       }
     }
+    .error {
+      border: 1px solid lightgray;
+      border-top: none;
+      margin-bottom: 20px;
+      background: white;
+      box-shadow: 0px 5px 10px #e0d5d5;
+      padding: 20px;
+
+      article {
+        width: fit-content;
+        margin: auto;
+        i {
+          font-size: 70px;
+          color: #e6d828;
+        }
+        label {
+          margin: 15px;
+          display: block;
+        }
+      }
+    }
+
+    //   .card-body .card-body {
+    //     border: 1px solid #cec4c4;
+    //     padding: 5px 10px;
+    //     width: 100%;
+    //     min-width: 280px;
+    //     margin: 0;
+    //     position: relative;
+    //     margin-bottom: 10px;
+    //     display: inline-block;
+
+    //     .card-header {
+    //       display: flex;
+    //       text-transform: capitalize;
+
+    //       p:last-child {
+    //         margin-left: auto;
+    //         width: 60px;
+    //         white-space: nowrap;
+    //         overflow: hidden;
+    //         text-overflow: ellipsis;
+    //       }
+    //     }
+    //   }
+    //   .card-footer {
+    //     display: block;
+
+    //     .card-group {
+    //       display: flex;
+    //       padding-bottom: 3px;
+
+    //       article {
+    //         width: 100%;
+
+    //         .progress {
+    //           margin-left: 0;
+    //           margin-bottom: 0;
+    //           height: 5px;
+    //           width: 97%;
+    //         }
+    //       }
+    //       .fa-ellipsis-v {
+    //         margin-top: auto;
+    //       }
+    //     }
+    //   }
+    //   .show article,
+    //   .collapsing article {
+    //     display: flex;
+    //     p {
+    //       position: absolute;
+    //       margin-left: 25%;
+    //       text-transform: capitalize;
+    //     }
+    //   }
+    // }
   }
   .container-title {
     padding: 8px;
