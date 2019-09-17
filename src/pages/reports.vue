@@ -38,7 +38,7 @@
           v-model="search.name"
           list="search-datalist-id"
         ></b-form-input>
-        <b-button @click="search.name = ''">
+        <b-button variant="info" @click="search.name = ''">
           <i class="fa fa-times"></i>
         </b-button>
         <datalist id="search-datalist-id">
@@ -47,7 +47,12 @@
       </div>
       <b-button @click.prevent="download" class="download btn-info">Download</b-button>
     </div>
-    <b-table id="data-table" bordered striped hover small :items="tableItems" :fields="fields"></b-table>
+    <b-table id="data-table" bordered striped hover small :items="tableItems" :fields="fields">
+      <template v-slot:cell(due)="data">{{data.item.due}} Rwf</template>
+      <template v-slot:cell(index)="data">
+        <article style="text-align:center">{{data.index + 1}}</article>
+      </template>
+    </b-table>
     <pulse-loader class="reports-loader" :loading="loading.request" :color="color" :size="size"></pulse-loader>
   </div>
 </template>
@@ -80,28 +85,37 @@ export default {
         villageOptions: []
       },
       size: "5px",
-      fields: {
-        owner: {
+      fields: [
+        {
+          key: "index",
+          label: "NO"
+        },
+        {
+          key: "owner",
           label: "Full name",
           sortable: true
         },
-        sector: {
+        {
+          key: "sector",
           label: "sector",
           sortable: true
         },
-        cell: {
+        {
+          key: "cell",
           label: "cell",
           sortable: true
         },
-        village: {
+        {
+          key: "village",
           label: "village",
           sortable: true
         },
-        due: {
+        {
+          key: "due",
           label: "amount",
           sortable: false
         }
-      },
+      ],
       items: [],
       tableItems: []
     };
@@ -297,6 +311,8 @@ export default {
 .controllers .download {
   margin-left: 10px;
   outline: none;
+  padding: 2px 10px;
+  height: fit-content;
 }
 .reports-loader::before {
   display: inline;
@@ -327,13 +343,13 @@ export default {
 }
 .filter-dropdown legend {
   font-size: 14px;
-  margin-bottom: 5px;
   font-weight: bold;
 }
 .filter-dropdown select {
   width: 100%;
+  font-size: 14px;
   margin: 0;
-  height: 30px;
+  height: auto;
   border-radius: 3px;
   border-color: #cacaca;
 }
@@ -346,6 +362,9 @@ export default {
 }
 .filter-dropdown button {
   float: right;
+  height: fit-content;
+  padding: 2px 10px;
+  font-size: 16px;
 }
 .filter-dropdown .dropdown-menu {
   min-width: 200px;
@@ -355,6 +374,7 @@ export default {
   font-size: 12px !important;
   padding: 4px 10px !important;
   margin-left: 6px;
+  width: 45%;
 }
 .dropdown-menu form {
   outline: none !important;
@@ -368,7 +388,16 @@ export default {
   border-radius: 5px 0 0 5px;
 }
 .table-container .controllers .search > button {
-  border-radius: 0 5px 5px 0;
-  color: slategrey;
+  border-radius: 0 4px 4px 0;
+  color: white;
+  height: fit-content;
+  padding: 2px 10px;
+}
+table thead th {
+  font-size: 14px;
+}
+table td {
+  text-transform: capitalize;
+  font-size: 14px;
 }
 </style>

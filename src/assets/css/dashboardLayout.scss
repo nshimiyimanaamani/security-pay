@@ -28,25 +28,27 @@
     background: #50e3c2;
     color: white;
     font-size: 16px;
-    line-height: 30px;
-    height: 50px;
+    line-height: 1;
+    height: fit-content;
     position: absolute;
-    width: 90%;
-    margin-left: 8px;
-    border-radius: 10px;
+    width: 85%;
+    margin: auto;
+    border-radius: 5px;
     border: none;
     bottom: 20px;
+    padding: 10px 0;
+    left: 0;
+    right: 0;
 
     i {
-      font-size: 30px;
-      float: left;
-      margin-left: inherit;
+      font-size: 27px;
+      vertical-align: sub;
     }
   }
 
   .AddPropertymodal {
-    height: 100%;
-    width: 100%;
+    height: 100vh;
+    width: 100vw;
     position: absolute;
     top: 0;
     left: 0;
@@ -57,7 +59,7 @@
       width: fit-content;
       background: white;
       position: absolute;
-      top: 10%;
+      top: 17%;
       left: 0;
       right: 0;
       bottom: auto;
@@ -178,14 +180,23 @@
       color: #ffffff;
       font-size: 25px;
       opacity: 0;
+      border: none;
 
       &:hover {
         background: #36c5d241;
+
       }
 
       span {
         vertical-align: top;
       }
+    }
+
+    .show>.dropdown-toggle {
+      background-color: #36c5d241 !important;
+      border: none;
+      opacity: 1;
+      border: none
     }
   }
 

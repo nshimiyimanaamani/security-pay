@@ -10,9 +10,11 @@
   background: white;
   -webkit-box-shadow: 0px 5px 10px #e0d5d5;
           box-shadow: 0px 5px 10px #e0d5d5;
-  padding: 20px;
-  -webkit-columns: 2 35rem;
-          columns: 2 35rem;
+}
+
+.village-wrapper .container .card > .card-body {
+  -webkit-columns: 2 20rem;
+          columns: 2 20rem;
   -webkit-column-gap: 10px;
           column-gap: 10px;
 }
@@ -37,6 +39,8 @@
   display: -ms-flexbox;
   display: flex;
   text-transform: capitalize;
+  padding: 0;
+  background: inherit;
 }
 
 .village-wrapper .container .card .card-body > section .card-header p:last-child {
@@ -51,6 +55,8 @@
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  padding: 0;
+  background: inherit;
 }
 
 .village-wrapper .container .card .card-body > section .card-footer article {
@@ -66,6 +72,13 @@
 
 .village-wrapper .container .card .card-body > section .card-footer i {
   margin-left: auto;
+  cursor: pointer;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
 }
 
 .village-wrapper .container .card .card-body > section .more-data hr {
@@ -94,14 +107,14 @@
   background: white;
   -webkit-box-shadow: 0px 5px 10px #e0d5d5;
           box-shadow: 0px 5px 10px #e0d5d5;
-  padding: 20px;
+  padding-top: 50px;
 }
 
 .village-wrapper .container .error article {
   width: -webkit-fit-content;
   width: -moz-fit-content;
   width: fit-content;
-  margin: auto;
+  margin: 30px auto;
 }
 
 .village-wrapper .container .error article i {
@@ -115,7 +128,7 @@
 }
 
 .village-wrapper .container-title {
-  padding: 8px;
+  padding: 10px;
   border-radius: 10px 10px 0 0;
   background-color: #3db3fa;
   display: -webkit-box;

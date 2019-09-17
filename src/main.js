@@ -12,8 +12,6 @@ import VueLoading from 'vuejs-loading-plugin'
 import ClipLoader from 'vue-spinner/src/ClipLoader.vue'
 import pulseLoader from 'vue-spinner/src/PulseLoader.vue'
 import Snotify from 'vue-snotify';
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
 import {
   SnotifyPosition
 } from 'vue-snotify'

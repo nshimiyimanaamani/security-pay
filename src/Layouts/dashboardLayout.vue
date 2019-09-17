@@ -10,10 +10,6 @@
           <li>
             Cells
             <b-dropdown>
-              <template slot="button-content">
-                <span class="fa fa-caret-down"></span>
-              </template>
-              <!-- <v-select></v-select> -->
               <b-dropdown-item
                 @click="update({toUpdate: 'cell', changed: cell})"
                 v-for="cell in sidebar.cells_array"
@@ -26,9 +22,6 @@
           <li>
             Village
             <b-dropdown>
-              <template slot="button-content">
-                <span class="fa fa-caret-down"></span>
-              </template>
               <b-dropdown-item
                 @click="update({toUpdate: 'village', changed: village})"
                 v-for="village in sidebar.village_array"
@@ -86,12 +79,7 @@
             <b-form-input disabled v-model="form.lname" placeholder="surname..."></b-form-input>
           </b-form-group>
           <b-form-group class="phone" label="Phone number:">
-            <b-form-input
-              type="number"
-              disabled
-              v-model="form.phoneNo"
-              placeholder="Phone Number..."
-            ></b-form-input>
+            <b-input type="number" disabled v-model="form.phoneNo" placeholder="Phone Number..."></b-input>
           </b-form-group>
           <b-form-group class="amount" label="Payment Due:">
             <b-form-input type="number" v-model="form.amount" placeholder="Amount..."></b-form-input>

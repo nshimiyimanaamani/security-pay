@@ -20,12 +20,11 @@ export default {
       size: "12px",
       transactionData: [],
       table: {
-        fields: {
-          id: { label: "id", sortable: false },
-          property: { label: "property ID", sortable: false },
-          method: { label: "Method of payment", sortable: true },
-          amount: { label: "Amount", sortable: true }
-        },
+        fields: [
+          { key: "property", label: "property ID", sortable: false },
+          { key: "method", label: "Method of payment", sortable: true },
+          { key: "amount", label: "Amount", sortable: false }
+        ],
         items: []
       }
     };

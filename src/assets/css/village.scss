@@ -9,11 +9,13 @@
       margin-bottom: 20px;
       background: white;
       box-shadow: 0px 5px 10px #e0d5d5;
-      padding: 20px;
-      columns: 2 35rem;
-      column-gap: 10px;
 
-      .card-body > section {
+      >.card-body {
+        columns: 2 20rem;
+        column-gap: 10px;
+      }
+
+      .card-body>section {
         border: 1px solid #cec4c4;
         padding: 5px 10px;
         width: 100%;
@@ -28,6 +30,8 @@
         .card-header {
           display: flex;
           text-transform: capitalize;
+          padding: 0;
+          background: inherit;
 
           p:last-child {
             width: 20%;
@@ -37,8 +41,12 @@
             margin-left: auto;
           }
         }
+
         .card-footer {
           display: flex;
+          padding: 0;
+          background: inherit;
+
           article {
             width: 100%;
             padding-right: 10px;
@@ -49,10 +57,15 @@
               height: 7px;
             }
           }
+
           i {
             margin-left: auto;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-end;
           }
         }
+
         .more-data {
           hr {
             margin-top: 20px;
@@ -60,6 +73,7 @@
             border: 0;
             border-top: 1px solid #c3c2c2;
           }
+
           article {
             display: flex;
             position: relative;
@@ -72,86 +86,34 @@
         }
       }
     }
+
     .error {
       border: 1px solid lightgray;
       border-top: none;
       margin-bottom: 20px;
       background: white;
       box-shadow: 0px 5px 10px #e0d5d5;
-      padding: 20px;
+      padding-top: 50px;
 
       article {
         width: fit-content;
-        margin: auto;
+        margin: 30px auto;
+
         i {
           font-size: 70px;
           color: #e6d828;
         }
+
         label {
           margin: 15px;
           display: block;
         }
       }
     }
-
-    //   .card-body .card-body {
-    //     border: 1px solid #cec4c4;
-    //     padding: 5px 10px;
-    //     width: 100%;
-    //     min-width: 280px;
-    //     margin: 0;
-    //     position: relative;
-    //     margin-bottom: 10px;
-    //     display: inline-block;
-
-    //     .card-header {
-    //       display: flex;
-    //       text-transform: capitalize;
-
-    //       p:last-child {
-    //         margin-left: auto;
-    //         width: 60px;
-    //         white-space: nowrap;
-    //         overflow: hidden;
-    //         text-overflow: ellipsis;
-    //       }
-    //     }
-    //   }
-    //   .card-footer {
-    //     display: block;
-
-    //     .card-group {
-    //       display: flex;
-    //       padding-bottom: 3px;
-
-    //       article {
-    //         width: 100%;
-
-    //         .progress {
-    //           margin-left: 0;
-    //           margin-bottom: 0;
-    //           height: 5px;
-    //           width: 97%;
-    //         }
-    //       }
-    //       .fa-ellipsis-v {
-    //         margin-top: auto;
-    //       }
-    //     }
-    //   }
-    //   .show article,
-    //   .collapsing article {
-    //     display: flex;
-    //     p {
-    //       position: absolute;
-    //       margin-left: 25%;
-    //       text-transform: capitalize;
-    //     }
-    //   }
-    // }
   }
+
   .container-title {
-    padding: 8px;
+    padding: 10px;
     border-radius: 10px 10px 0 0;
     background-color: #3db3fa;
     display: flex;
@@ -163,11 +125,13 @@
       margin: auto;
       text-transform: uppercase;
     }
+
     .fa-cog {
       font-size: 25px;
       margin: auto 15px;
       color: white;
     }
+
     .fa-th-large {
       font-size: 23px;
       margin: auto 15px;
