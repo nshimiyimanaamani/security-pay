@@ -22,6 +22,7 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/lib/pq v1.1.1
+	github.com/matoous/go-nanoid v1.1.0
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
