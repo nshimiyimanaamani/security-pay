@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
@@ -32,7 +33,7 @@ func TestSave(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    uuid.New().ID(),
+		ID:    nanoid.New().ID(),
 		Owner: owner.ID,
 		Due:   float64(1000),
 	}
@@ -91,7 +92,7 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    uuid.New().ID(),
+		ID:    nanoid.New().ID(),
 		Owner: owner.ID,
 		Due:   float64(1000),
 	}
@@ -142,7 +143,7 @@ func TestRetrieveAll(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    uuid.New().ID(),
+		ID:    nanoid.New().ID(),
 		Owner: owner.ID,
 		Due:   float64(1000),
 	}
@@ -205,7 +206,7 @@ func TestRetrieveByProperty(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    uuid.New().ID(),
+		ID:    nanoid.New().ID(),
 		Owner: owner.ID,
 		Due:   float64(1000),
 	}
@@ -276,7 +277,7 @@ func TestRetrieveByMethod(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    uuid.New().ID(),
+		ID:    nanoid.New().ID(),
 		Owner: owner.ID,
 		Due:   float64(1000),
 	}
@@ -346,7 +347,7 @@ func TestUpdateTransaction(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    uuid.New().ID(),
+		ID:    nanoid.New().ID(),
 		Owner: owner.ID,
 		Due:   float64(1000),
 	}

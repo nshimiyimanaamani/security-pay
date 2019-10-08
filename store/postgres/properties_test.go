@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
@@ -23,8 +24,19 @@ func TestSaveProperty(t *testing.T) {
 	owner.ID = id
 
 	new := properties.Property{
-		ID:    uuid.New().ID(),
+		ID:    nanoid.New().ID(),
 		Owner: owner.ID,
+		Address: properties.Address{
+			Sector:  "Remera",
+			Cell:    "Gishushu",
+			Village: "Ingabo",
+		},
+		Due: float64(1000),
+	}
+
+	invalid := properties.Property{
+		ID:    wrongValue,
+		Owner: "invalid",
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -50,18 +62,9 @@ func TestSaveProperty(t *testing.T) {
 			err:      properties.ErrConflict,
 		},
 		{
-			desc: "save property with invalid id",
-			property: properties.Property{
-				ID:    wrongValue,
-				Owner: "Eugene Mugabo",
-				Address: properties.Address{
-					Sector:  "Remera",
-					Cell:    "Gishushu",
-					Village: "Ingabo",
-				},
-				Due: float64(1000),
-			},
-			err: properties.ErrInvalidEntity,
+			desc:     "save property with invalid owner id",
+			property: invalid,
+			err:      properties.ErrInvalidEntity,
 		},
 	}
 	for _, tc := range cases {
@@ -82,7 +85,7 @@ func TestUpdateProperty(t *testing.T) {
 	owner.ID = id
 
 	property := properties.Property{
-		ID:    uuid.New().ID(),
+		ID:    nanoid.New().ID(),
 		Owner: owner.ID,
 		Address: properties.Address{
 			Sector:  "Remera",
@@ -109,7 +112,7 @@ func TestUpdateProperty(t *testing.T) {
 		{
 			desc: "update non existant property",
 			property: properties.Property{
-				ID:    uuid.New().ID(),
+				ID:    nanoid.New().ID(),
 				Owner: uuid.New().ID(),
 				Address: properties.Address{
 					Sector:  "Remera",
@@ -121,10 +124,10 @@ func TestUpdateProperty(t *testing.T) {
 			err: properties.ErrNotFound,
 		},
 		{
-			desc: "udpate property with invalid id",
+			desc: "udpate property with invalid owner id",
 			property: properties.Property{
-				ID:    wrongValue,
-				Owner: owner.ID,
+				ID:    nanoid.New().ID(),
+				Owner: wrongValue,
 				Address: properties.Address{
 					Sector:  "Remera",
 					Cell:    "Gishushu",
@@ -137,7 +140,7 @@ func TestUpdateProperty(t *testing.T) {
 		{
 			desc: "udpate property with invalid owner",
 			property: properties.Property{
-				ID:    uuid.New().ID(),
+				ID:    nanoid.New().ID(),
 				Owner: wrongValue,
 				Address: properties.Address{
 					Sector:  "Remera",
@@ -169,7 +172,7 @@ func TestRetrieveByID(t *testing.T) {
 
 	owner.ID = oid
 	property := properties.Property{
-		ID:    uuid.New().ID(),
+		ID:    nanoid.New().ID(),
 		Owner: owner.ID,
 		Address: properties.Address{
 			Sector:  "Gasabo",
@@ -187,7 +190,7 @@ func TestRetrieveByID(t *testing.T) {
 		err  error
 	}{
 		{"retrieve existing property", pid, nil},
-		{"retrieve non-existing property", uuid.New().ID(), properties.ErrNotFound},
+		{"retrieve non-existing property", nanoid.New().ID(), properties.ErrNotFound},
 		{"retrieve with malformed id", wrongValue, properties.ErrNotFound},
 	}
 
@@ -216,7 +219,7 @@ func TestRetrieveByOwner(t *testing.T) {
 
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
-			ID:    uuid.New().ID(),
+			ID:    nanoid.New().ID(),
 			Owner: owner.ID,
 			Address: properties.Address{
 				Sector:  sector,
@@ -286,7 +289,7 @@ func TestRetrieveBySector(t *testing.T) {
 
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
-			ID:    uuid.New().ID(),
+			ID:    nanoid.New().ID(),
 			Owner: owner.ID,
 			Address: properties.Address{
 				Sector:  sector,
@@ -356,7 +359,7 @@ func TestRetrieveByCell(t *testing.T) {
 
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
-			ID:    uuid.New().ID(),
+			ID:    nanoid.New().ID(),
 			Owner: owner.ID,
 			Address: properties.Address{
 				Sector:  sector,
@@ -426,7 +429,7 @@ func TestRetrieveByVillage(t *testing.T) {
 
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
-			ID:    uuid.New().ID(),
+			ID:    nanoid.New().ID(),
 			Owner: owner.ID,
 			Address: properties.Address{
 				Sector:  sector,
