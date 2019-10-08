@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -19,7 +20,7 @@ import (
 	prtEndpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
 	trxEndpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	usersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/users"
-	verionEndpoints "github.com/rugwirobaker/paypack-backend/api/http/version"
+	"github.com/rugwirobaker/paypack-backend/api/http/version"
 	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
@@ -27,6 +28,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/users/bcrypt"
 	"github.com/rugwirobaker/paypack-backend/app/users/jwt"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
+	"github.com/rugwirobaker/paypack-backend/build"
 	"github.com/rugwirobaker/paypack-backend/logger"
 	"github.com/rugwirobaker/paypack-backend/nova"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
@@ -67,6 +69,8 @@ const (
 	envPaymentToken    = "PAYPACK_PAYMENT_TOKEN"
 )
 
+var vers = flag.Bool("version", false, "Print version information and exit")
+
 type config struct {
 	logLevel       string
 	dbConfig       postgres.Config
@@ -77,6 +81,11 @@ type config struct {
 }
 
 func main() {
+	flag.Parse()
+	if *vers {
+		fmt.Println(build.String())
+		os.Exit(0)
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 
 	cfg := loadConfig()
@@ -212,8 +221,7 @@ func startHTTPServer(ctx context.Context,
 
 	router.HandleFunc("/healthz", health.Health).Methods(http.MethodGet)
 
-	versionRoute := router.PathPrefix("/version").Subrouter()
-	verionEndpoints.MakeEndpoint(versionRoute)
+	router.HandleFunc("version", version.Build).Methods(http.MethodGet)
 
 	userRoutes := router.PathPrefix("/users").Subrouter()
 	usersEndpoints.MakeAdapter(userRoutes)(users)

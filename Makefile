@@ -1,79 +1,50 @@
-.DEFAULT_GOAL = help
+VERSION = "unset"
+DATE=$(shell date -u +%Y-%m-%d-%H:%M:%S-%Z)
 
-commit	:= $(shell git rev-parse --short HEAD)
-goVersion	:= $(shell go version | cut -c12-19)
-os			:= $(shell go version | cut -c21-25)
-arch		:= $(shell go version | cut -c27-31)
+GOFILES=$(shell go list ./... | grep -v /vendor/)
+IMAGE_DEV_TAG=dev
+IMAGE_TAG:=tag
+PROJECTNAME=$(shell basename "$(PWD)"
+GOPROXY =$("https://proxy.golang.org")
+BUILD_FLAGS = "-X github.com/rugwirobaker/paypack-backend/build.version=$(VERSION) -X github.com/rugwirobaker/paypack-backend/build.buildDate=$(DATE)"
 
+all: help
 
-module		:= $(shell basename "${PWD}")
-package  	:= github.com/rugwirobaker/$(module)
-packages 	:= $(shell go list ./... | grep -v /vendor/)
-registry 	:= gcr.io
-projectID 	:= paypack
-image    	:= $(module):$(commit)
+build:  	## build development paypack binary
+	@echo "> building binary..."
+	@CGO_ENABLED=0 go build -o bin/paypack ./cmd/.
 
-all:: install
-all:: test build image
+clean:		## remove build artifacts
+	@echo "> removing artifacts..."
+	@rm -r bin/*
 
-build:   ## compile application binary into bin directory
-	@echo "  >  building binary..."
-	@CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o \
-	/bin/paypack -ldflags="-w -s -X ${package}/version.Service=${projectID}-backend \
-	-X ${package}/version.GitCommit=${commit} \
-	-X ${package}/version.GoVersion=${goVersion} \
-	-X ${package}/version.main.GOOS=${os} \
-	-X ${package}/version.main.GOARCH=${arch}" ./cmd/.
-
-test:  ## run unit tests
-	@echo "  >  running unit tests..."
-	@go test -v $(packages)
-
-bench:  ## run benchmarks and generate report
-	@echo "  >  running benchmark tests..."
-	@go test -bench=. -v $(packages)
-
-
-
-check: lint test ## assertain complaince
-
-clean: ## clean out artefacts
-	@echo "  >  cleaning..."
-	@rm -f bin/$(module)
-
-coverage::   ## generate test coverage report
-	@echo ">  making test coverage report..."
-	@go test -cover $(packages)
-
-dev:  	      ## start development environment
+dev:  		## start development environment
 	@echo "> starting dev environment..."
 	@docker-compose up -d
-
-dev-build:    ## start development environment
-	@echo "> rebuilding dev environment..."
+dev-build:  ## rebuild development environment
+	@echo "> starting dev environment..."
 	@docker-compose up -d --build
-
-dev-teardown: ## clean out development containers
+dev-teardown: ## clean up the development artifacts
 	@echo "> cleaning dev environment..."
-	@docker-compose down -v
+		@docker-compose down -v
+image: 		## build docker image
+	@echo "> building docker image..."
 
-image:
-	@echo "  >  building docker image..."
-	@docker build -t $(image) .
+install: 	## install client cli
+	@echo "> installing cli..."
 
-install:  ## install and verify package dependencies
-	@echo "  >  installing dependencies..."
-	@go mod tidy
+release:	## build the paypack server with version number
+	@echo "> creating release binaries..."
+	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOPROXY) go build -ldflags $(BUILD_FLAGS) -o bin/paypack_windows ./cmd/.
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOPROXY) go build -ldflags $(BUILD_FLAGS) -o bin/paypack_linux ./cmd/.
+	@CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GOPROXY) go build -ldflags $(BUILD_FLAGS) -o bin/paypack_darwin ./cmd/.
 
-lint:  # apply linting rules
-	@echo "  >  linting code..."
-	@golint $(packages)
+test:		## run unit tests
+	@echo "> running unit tests..."
+	@go test $(GOFILES)
 
-push:
-	@echo "  >  pushing docker image..."
-	@docker tag $(image) $(registry)/$(projectID)/$(image)
-	@docker push $(registry)/$(projectID)/$(image)
-
+tidy:		## install dependencies
+	@echo "> downloading dependincies..."
 
 .PHONY: help
 help:
