@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var token = os.Getenv("TOKEN")
+var token = os.Getenv("PAYPACK_PAYMENT_TOKEN")
 
 func newGateway() payment.Gateway {
 	cfg := &nova.Config{

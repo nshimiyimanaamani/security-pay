@@ -10,6 +10,7 @@ BUILD_FLAGS = "-X github.com/rugwirobaker/paypack-backend/build.version=$(VERSIO
 
 all: help
 
+.PHONY: build
 build:  	## build development paypack binary
 	@echo "> building binary..."
 	@CGO_ENABLED=0 go build -o bin/paypack ./cmd/.
@@ -29,10 +30,6 @@ dev-teardown: ## clean up the development artifacts
 		@docker-compose down -v
 image: 		## build docker image
 	@echo "> building docker image..."
-
-install: 	## install client cli
-	@echo "> installing cli..."
-
 release:	## build the paypack server with version number
 	@echo "> creating release binaries..."
 	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOPROXY) go build -ldflags $(BUILD_FLAGS) -o bin/paypack_windows ./cmd/.

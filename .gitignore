@@ -16,5 +16,6 @@ runner.conf
 
 #config.yml
 .env
+.env.test
 
 data

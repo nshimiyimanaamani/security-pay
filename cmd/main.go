@@ -14,13 +14,14 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	paypack "github.com/rugwirobaker/paypack-backend"
+	"github.com/rugwirobaker/paypack-backend"
 	"github.com/rugwirobaker/paypack-backend/api/http/health"
 	paymentEndpoints "github.com/rugwirobaker/paypack-backend/api/http/payment"
 	prtEndpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
 	trxEndpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	usersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/users"
 	"github.com/rugwirobaker/paypack-backend/api/http/version"
+	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
@@ -181,7 +182,7 @@ func newTransactionService(db *sql.DB, users users.Service) transactions.Service
 }
 
 func newPropertyService(db *sql.DB, users users.Service) properties.Service {
-	idp := uuid.New()
+	idp := nanoid.New()
 	props := postgres.NewPropertyStore(db)
 	owners := postgres.NewOwnerStore(db)
 	auth := properties.NewAuthBackend(users)
