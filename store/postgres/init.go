@@ -87,11 +87,13 @@ func migrateDB(db *sql.DB) error {
 						PRIMARY 	KEY(id)
 					)`,
 					`CREATE TABLE IF NOT EXISTS transactions (
-						id 			UUID,
-						madeby 		UUID,
-						madefor		UUID,
-						amount    	VARCHAR(254),
-						method  	VARCHAR(254),
+						id 				UUID,
+						madeby 			UUID,
+						madefor			UUID,
+						amount    		VARCHAR(254),
+						method  		VARCHAR(254),
+						date_modified 	TIMESTAMP,
+						is_valid    	BOOLEAN DEFAULT false,
 						FOREIGN KEY(madefor) references properties(id) ON DELETE CASCADE ON UPDATE CASCADE,
 						FOREIGN KEY(madeby) references owners(id) ON DELETE CASCADE ON UPDATE CASCADE,
 						PRIMARY KEY	(id)

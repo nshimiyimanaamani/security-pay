@@ -292,3 +292,28 @@ func (str *transactionStore) RetrieveByMonth(string, uint64, uint64) (transactio
 func (str *transactionStore) RetrieveByYear(string, uint64, uint64) (transactions.TransactionPage, error) {
 	return transactions.TransactionPage{}, nil
 }
+
+func (str *transactionStore) UpdateTransaction(tx transactions.Transaction) error {
+	q := `UPDATE transactions SET date_modified=$1, is_valid=TRUE WHERE id=$2 AND is_valid=FALSE;`
+
+	res, err := str.db.Exec(q, tx.DateRecorded, tx.ID)
+	if err != nil {
+		pqErr, ok := err.(*pq.Error)
+		if ok {
+			switch pqErr.Code.Name() {
+			case errInvalid, errTruncation:
+				return transactions.ErrInvalidEntity
+			}
+		}
+		return err
+	}
+
+	cnt, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if cnt == 0 {
+		return transactions.ErrNotFound
+	}
+	return nil
+}

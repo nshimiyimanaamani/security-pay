@@ -9,6 +9,8 @@ type Store interface {
 	// RetrieveByID retreives a transaction identified by the given id.
 	RetrieveByID(string) (Transaction, error)
 
+	UpdateTransaction(tx Transaction) error
+
 	// RetrieveAll retrieves the subset of transactions owned by the specified property.
 	RetrieveAll(uint64, uint64) (TransactionPage, error)
 

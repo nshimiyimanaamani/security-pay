@@ -15,9 +15,9 @@ services:
       PAYPACK_DB:        ${DATABASE_NAME}
       PAYPACK_DB_PASS:   ${DATABASE_PASSWORD}
       PAYPACK_LOG_LEVEL: ${LOG_LEVEL}
-      PORT: "8081"
+      PORT: "8000"
     ports:
-      - "8081:8081"  
+      - "8000:8000"  
     restart: always
 
   database:

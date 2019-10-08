@@ -334,6 +334,85 @@ func TestRetrieveByMethod(t *testing.T) {
 	}
 }
 
+func TestUpdateTransaction(t *testing.T) {
+	repo := postgres.NewTransactionStore(db)
+	props := postgres.NewPropertyStore(db)
+	ows := postgres.NewOwnerStore(db)
+
+	defer CleanDB(t, "transactions", "properties", "owners")
+
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	_, err := ows.Save(owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	property := properties.Property{
+		ID:    uuid.New().ID(),
+		Owner: owner.ID,
+		Due:   float64(1000),
+	}
+	_, err = props.Save(property)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	method := "kcb"
+
+	transaction := transactions.Transaction{
+		ID:           uuid.New().ID(),
+		MadeBy:       owner.ID,
+		MadeFor:      property.ID,
+		Amount:       amount,
+		Method:       method,
+		DateRecorded: time.Now(),
+	}
+
+	unsaved := transactions.Transaction{
+		ID:           uuid.New().ID(),
+		MadeBy:       owner.ID,
+		MadeFor:      property.ID,
+		Amount:       amount,
+		Method:       method,
+		DateRecorded: time.Now(),
+	}
+
+	invalid := transactions.Transaction{
+		ID:           "invalid",
+		MadeBy:       owner.ID,
+		MadeFor:      property.ID,
+		Amount:       amount,
+		Method:       method,
+		DateRecorded: time.Now(),
+	}
+
+	_, err = repo.Save(transaction)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	cases := []struct {
+		desc        string
+		transaction transactions.Transaction
+		err         error
+	}{
+		{
+			desc:        "update existing transaction",
+			transaction: transaction,
+			err:         nil,
+		},
+		{
+			desc:        "update non-existing transaction",
+			transaction: unsaved,
+			err:         transactions.ErrNotFound,
+		},
+		{
+			desc:        "update with invalid data",
+			transaction: invalid,
+			err:         transactions.ErrInvalidEntity,
+		},
+	}
+
+	for _, tc := range cases {
+		err := repo.UpdateTransaction(tc.transaction)
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+	}
+}
+
 func TestRetrieveByMonth(t *testing.T) {}
 
 func TestRetrieveByYear(t *testing.T) {}

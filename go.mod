@@ -1,6 +1,6 @@
 module github.com/rugwirobaker/paypack-backend
 
-go 1.12
+go 1.12.9
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
@@ -19,7 +19,7 @@ require (
 	github.com/gobuffalo/packr v1.30.1 // indirect
 	github.com/google/go-cmp v0.3.0 // indirect
 	github.com/gorilla/handlers v1.4.0
-	github.com/gorilla/mux v1.7.2
+	github.com/gorilla/mux v1.7.3
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/lib/pq v1.1.1
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
@@ -38,4 +38,5 @@ require (
 	google.golang.org/appengine v1.6.1 // indirect
 	gopkg.in/gorp.v1 v1.7.2 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
+
 )

@@ -19,7 +19,7 @@ all:: test build image
 build:   ## compile application binary into bin directory
 	@echo "  >  building binary..."
 	@CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o \
-	bin/app -ldflags="-w -s -X ${package}/version.Service=${projectID}-backend \
+	/bin/paypack -ldflags="-w -s -X ${package}/version.Service=${projectID}-backend \
 	-X ${package}/version.GitCommit=${commit} \
 	-X ${package}/version.GoVersion=${goVersion} \
 	-X ${package}/version.main.GOOS=${os} \

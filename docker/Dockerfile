@@ -1,10 +1,13 @@
 #build stage
-FROM golang:1.12.1 AS build-stage 
+FROM golang:1.12.9 AS builder
 
 LABEL MAINTAINER="rugwirobaker@gmail.com"
-LABEL service="paypack-backend"
-LABEL daemon="/bin/backend"
+
+WORKDIR $GOPATH/src/github.com/rugwirobaker/paypack-backend
+
 ENV GO111MODULE=on
+
+#ENV GOPROXY="https://proxy.golang.org"
 
 WORKDIR /src
 RUN mkdir /user && \
@@ -21,10 +24,10 @@ RUN make build
 FROM scratch
 
 EXPOSE 8080
-CMD ["/bin/backend"]
-COPY --from=build-stage /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=build-stage /user/group /user/passwd /etc/
-COPY --from=build-stage /src/bin/app /bin/backend
+CMD ["/bin/paypack"]
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /user/group /user/passwd /etc/
+COPY --from=builder /bin/paypack /bin/paypack
 
 
 

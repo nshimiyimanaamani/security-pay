@@ -92,7 +92,7 @@ func (str *transactionStoreMock) RetrieveByProperty(property string, offset, lim
 	//check whether the tranaction belongs to a given property
 	for _, v := range str.transactions {
 		id, _ := strconv.ParseUint(v.ID, 10, 64)
-		if v.MadeFor ==property && id >= first && id < last {
+		if v.MadeFor == property && id >= first && id < last {
 			items = append(items, v)
 		}
 	}
@@ -153,4 +153,8 @@ func (str *transactionStoreMock) RetrieveByYear(year string, offset, limit uint6
 	defer str.mu.Unlock()
 
 	return transactions.TransactionPage{}, nil
+}
+
+func (str *transactionStoreMock) UpdateTransaction(tx transactions.Transaction) error {
+	return nil
 }

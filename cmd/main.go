@@ -14,10 +14,13 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	paypack "github.com/rugwirobaker/paypack-backend"
+	"github.com/rugwirobaker/paypack-backend/api/http/health"
+	paymentEndpoints "github.com/rugwirobaker/paypack-backend/api/http/payment"
 	prtEndpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
 	trxEndpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	usersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/users"
 	verionEndpoints "github.com/rugwirobaker/paypack-backend/api/http/version"
+	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/users"
@@ -25,45 +28,52 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/users/jwt"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/logger"
+	"github.com/rugwirobaker/paypack-backend/nova"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 )
 
 const (
-	defLogLevel      = "error"
-	defDBHost        = "localhost"
-	defDBPort        = "5432"
-	defDBUser        = "paypack"
-	defDBPass        = "paypack"
-	defDBName        = "users"
-	defDBSSLMode     = "disable"
-	defDBSSLCert     = ""
-	defDBSSLKey      = ""
-	defDBSSLRootCert = ""
-	defHTTPPort      = "8080"
-	defSecret        = "users"
-	defServerCert    = ""
-	defServerKey     = ""
-	envLogLevel      = "PAYPACK_LOG_LEVEL"
-	envDBHost        = "PAYPACK_DB_HOST"
-	envDBPort        = "PAYPACK_DB_PORT"
-	envDBUser        = "PAYPACK_DB_USER"
-	envDBPass        = "PAYPACK_DB_PASS"
-	envDBName        = "PAYPACK_DB"
-	envDBSSLMode     = "PAYPACK_DB_SSL_MODE"
-	envDBSSLCert     = "PAYPACK_DB_SSL_CERT"
-	envDBSSLKey      = "PAYPACK_DB_SSL_KEY"
-	envDBSSLRootCert = "PAYPACK_DB_SSL_ROOT_CERT"
-	envHTTPPort      = "PORT"
-	envSecret        = "PAYPACK_SECRET"
-	envServerCert    = "PAYPACK_SERVER_CERT"
-	envServerKey     = "PAYPACK_SERVER_KEY"
+	defLogLevel        = "error"
+	defDBHost          = "localhost"
+	defDBPort          = "5432"
+	defDBUser          = "paypack"
+	defDBPass          = "paypack"
+	defDBName          = "users"
+	defDBSSLMode       = "disable"
+	defDBSSLCert       = ""
+	defDBSSLKey        = ""
+	defDBSSLRootCert   = ""
+	defHTTPPort        = "8080"
+	defSecret          = "users"
+	defServerCert      = ""
+	defServerKey       = ""
+	defPaymentEndpoint = ""
+	defPaymentToken    = ""
+	envLogLevel        = "PAYPACK_LOG_LEVEL"
+	envDBHost          = "PAYPACK_DB_HOST"
+	envDBPort          = "PAYPACK_DB_PORT"
+	envDBUser          = "PAYPACK_DB_USER"
+	envDBPass          = "PAYPACK_DB_PASS"
+	envDBName          = "PAYPACK_DB"
+	envDBSSLMode       = "PAYPACK_DB_SSL_MODE"
+	envDBSSLCert       = "PAYPACK_DB_SSL_CERT"
+	envDBSSLKey        = "PAYPACK_DB_SSL_KEY"
+	envDBSSLRootCert   = "PAYPACK_DB_SSL_ROOT_CERT"
+	envHTTPPort        = "PORT"
+	envSecret          = "PAYPACK_SECRET"
+	envServerCert      = "PAYPACK_SERVER_CERT"
+	envServerKey       = "PAYPACK_SERVER_KEY"
+	envPaymentEndpoint = "PAYPACK_PAYMENT_ENDPOINT"
+	envPaymentToken    = "PAYPACK_PAYMENT_TOKEN"
 )
 
 type config struct {
-	logLevel string
-	dbConfig postgres.Config
-	httpPort string
-	secret   string
+	logLevel       string
+	dbConfig       postgres.Config
+	paymentEndoint string
+	paymentToken   string
+	httpPort       string
+	secret         string
 }
 
 func main() {
@@ -79,9 +89,21 @@ func main() {
 	db := connectToDB(cfg.dbConfig, logger)
 	defer db.Close()
 
+	novaCfg := &nova.Config{
+		Endpoint: cfg.paymentEndoint,
+		Token:    cfg.paymentToken,
+	}
+	pGateway := nova.New(novaCfg)
+
 	users := newUserService(db, cfg.secret)
 	transactions := newTransactionService(db, users)
 	properties := newPropertyService(db, users)
+	payment := newPaymentService(db, pGateway)
+
+	opts := paymentEndpoints.HandlerOpts{
+		Service: payment,
+		Logger:  logger,
+	}
 
 	go func() {
 		ch := make(chan os.Signal, 1)
@@ -97,7 +119,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 		defer cancel()
-		startHTTPServer(ctx, users, transactions, properties, cfg.httpPort, logger)
+		startHTTPServer(ctx, users, transactions, properties, opts, cfg.httpPort, logger)
 	}()
 
 	wg.Wait()
@@ -116,10 +138,12 @@ func loadConfig() config {
 		SSLRootCert: paypack.Env(envDBSSLRootCert, defDBSSLRootCert),
 	}
 	return config{
-		logLevel: paypack.Env(envLogLevel, defLogLevel),
-		dbConfig: dbConfig,
-		httpPort: paypack.Env(envHTTPPort, defHTTPPort),
-		secret:   paypack.Env(envSecret, defSecret),
+		logLevel:       paypack.Env(envLogLevel, defLogLevel),
+		dbConfig:       dbConfig,
+		paymentEndoint: paypack.Env(envPaymentEndpoint, defPaymentEndpoint),
+		paymentToken:   paypack.Env(envPaymentToken, defPaymentToken),
+		httpPort:       paypack.Env(envHTTPPort, defHTTPPort),
+		secret:         paypack.Env(envSecret, defSecret),
 	}
 }
 
@@ -155,10 +179,27 @@ func newPropertyService(db *sql.DB, users users.Service) properties.Service {
 	return properties.New(idp, owners, props, auth)
 }
 
+func newPaymentService(db *sql.DB, gw payment.Gateway) payment.Service {
+	transactions := postgres.NewTransactionStore(db)
+	properties := postgres.NewPropertyStore(db)
+
+	repoOptions := &payment.RepoOptions{
+		Transactions: transactions,
+		Properties:   properties,
+	}
+	repo := payment.NewRepo(repoOptions)
+	opts := &payment.ServiceOptions{
+		Gateway:    gw,
+		Repository: repo,
+	}
+	return payment.New(opts)
+}
+
 func startHTTPServer(ctx context.Context,
 	users users.Service,
 	trx transactions.Service,
 	prt properties.Service,
+	paymentOptions paymentEndpoints.HandlerOpts,
 	port string, logger logger.Logger,
 ) {
 	cors := handlers.CORS(
@@ -168,6 +209,8 @@ func startHTTPServer(ctx context.Context,
 	)
 
 	router := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(false)
+
+	router.HandleFunc("/healthz", health.Health).Methods(http.MethodGet)
 
 	versionRoute := router.PathPrefix("/version").Subrouter()
 	verionEndpoints.MakeEndpoint(versionRoute)
@@ -180,6 +223,9 @@ func startHTTPServer(ctx context.Context,
 
 	prtRoutes := router.PathPrefix("/properties").Subrouter()
 	prtEndpoints.MakeEndpoint(prtRoutes)(prt)
+
+	paymentRoutes := router.PathPrefix("/payment").Subrouter()
+	paymentEndpoints.RegisterHandlers(paymentRoutes, &paymentOptions)
 
 	s := &http.Server{
 		Addr:        fmt.Sprintf(":%s", port),

@@ -23,6 +23,9 @@ For new feature you can also open an issue describing why it's needed.
     DATABASE_PASSWORD=password
     LOG_LEVEL=info
     PAYPACK_SECRET=e9Z0e23e23r23r23tdqdqwfqwfqwfq
+    PAYPACK_PAYMENT_ENDPOINT=https://novapay.rw/api/v1/novapay/initialize-payment
+    PAYPACK_PAYMENT_TOKEN=sDclmEn3b0oh3M1QfQN5hLYf1ATWpKtQ
+
     ```
 2. run the following command to start the stack`[database | api]`:
     

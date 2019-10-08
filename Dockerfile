@@ -1,5 +1,5 @@
 #build stage
-FROM golang:1.12.1 AS build-stage 
+FROM golang:1.12.9 AS build-stage 
 
 LABEL MAINTAINER="rugwirobaker@gmail.com"
 LABEL service="paypack-backend"

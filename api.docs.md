@@ -287,6 +287,14 @@ Retrieve properties given the sector and cell of their location
 Retrieve properties given the sector, cell and village of their location
 * `"/properties/sectors/:sector/cells/:cell/villages/:village/?offset=n&limit=m`
 
+***payment**: endpoints to make and validate payment
+* `/payment/initialize`
+    - request_body:
+        {
+            "code":"3124jifr",
+            "amount": 5,
+            "phone":"+250789000111"
+        }
 
 **Notice**: 
 * all the endpoints except the users endpoints now require an`Authorization` header which contains the token 
