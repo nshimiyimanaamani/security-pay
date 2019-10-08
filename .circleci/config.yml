@@ -21,21 +21,12 @@ jobs:
             export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
             go version
       - run: 
-          name: Run Code Linter
-          command: |
-            go get -u golang.org/x/lint/golint
-            make lint
-
-      - run: 
           name: Run Build
           command: make build
 
       - run:
           name: Run Unit Tests 
           command: make test
-      - run: 
-          name: Run Test Coverage
-          command: make lint
   # publish:
   #   docker:
   #     - image: google/cloud-sdk
