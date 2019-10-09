@@ -20,7 +20,7 @@ func (s Status) String() string {
 type Payment struct {
 	ID     string  `json:"id,omitempty"`
 	Code   string  `json:"code,omitempty"`
-	Amount float64 `json:"amount,omitempty"`
+	Amount float64 `json:"amount,string,omitempty"`
 	Phone  string  `json:"phone,omitempty"`
 }
 

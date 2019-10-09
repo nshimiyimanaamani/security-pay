@@ -27,7 +27,7 @@ dev-build:  ## rebuild development environment
 	@docker-compose up -d --build
 dev-teardown: ## clean up the development artifacts
 	@echo "> cleaning dev environment..."
-		@docker-compose down -v
+	@docker-compose down -v
 image: 		## build docker image
 	@echo "> building docker image..."
 release:	## build the paypack server with version number
