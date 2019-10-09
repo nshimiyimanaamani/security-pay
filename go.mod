@@ -38,6 +38,5 @@ require (
 	golang.org/x/crypto v0.0.0-20190621222207-cc06ce4a13d4
 	google.golang.org/appengine v1.6.1 // indirect
 	gopkg.in/gorp.v1 v1.7.2 // indirect
-	gotest.tools v2.2.0+incompatible // indirect
 
 )

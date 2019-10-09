@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/rugwirobaker/paypack-backend/app/payment"
@@ -26,6 +29,10 @@ type gateway struct {
 
 // New instantiates the novapay api gateway
 func New(cfg *Config) payment.Gateway {
+	if cfg.Endpoint == "" || cfg.Token == "" {
+		log.Println(fmt.Sprintf("could not create gateway: unacceptable nova configuration"))
+		os.Exit(1)
+	}
 	var timeout = Timeout
 
 	if cfg.TimeOut != 0 {
