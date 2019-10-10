@@ -13,7 +13,7 @@ COPY . .
 
 ARG VERSION="unset"
 
-RUN DATE="$(date -u +%Y-%m-%d-%H:%M:%S-%Z)" && GO111MODULE=on CGO_ENABLED=0 GOPROXY="https://proxy.golang.org"\ go build -ldflags "-X github.com/rugwirobaker/paypack-backend/build.version=$VERSION -X github.com/rugwirobaker/paypack-backend/build.buildDate=$DATE" -o /bin/paypack ./cmd/.
+RUN DATE="$(date -u +%Y-%m-%d-%H:%M:%S-%Z)" && GO111MODULE=on CGO_ENABLED=0 go build -ldflags "-X github.com/rugwirobaker/paypack-backend/build.version=$VERSION -X github.com/rugwirobaker/paypack-backend/build.buildDate=$DATE" -o /bin/paypack ./cmd/.
 
 
 #package stage
