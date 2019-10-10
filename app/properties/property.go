@@ -3,9 +3,10 @@ package properties
 // Property defines a property(house) data model
 type Property struct {
 	Address
-	ID    string
-	Owner string
-	Due   float64 `json:"due,string,omitempty"`
+	ID      string
+	Owner   string
+	OwnerID string
+	Due     float64 `json:"due,string,omitempty"`
 }
 
 // PropertyPage represents a list of transaction.

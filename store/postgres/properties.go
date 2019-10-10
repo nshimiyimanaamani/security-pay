@@ -69,7 +69,8 @@ func (str *propertiesStore) RetrieveByID(id string) (properties.Property, error)
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell,  
-			properties.village, properties.due, owners.fname, owners.lname 
+			properties.village, properties.due, 
+			owners.id, owners.fname, owners.lname 
 		FROM 
 			properties
 		INNER JOIN 
@@ -82,7 +83,7 @@ func (str *propertiesStore) RetrieveByID(id string) (properties.Property, error)
 	var fname, lname string
 
 	if err := str.db.QueryRow(q, id).Scan(
-		&prt.ID, &prt.Sector, &prt.Cell, &prt.Village, &prt.Due, &fname, &lname,
+		&prt.ID, &prt.Sector, &prt.Cell, &prt.Village, &prt.Due, &prt.OwnerID, &fname, &lname,
 	); err != nil {
 		empty := properties.Property{}
 
@@ -100,13 +101,14 @@ func (str *propertiesStore) RetrieveByID(id string) (properties.Property, error)
 func (str *propertiesStore) RetrieveByOwner(owner string, offset, limit uint64) (properties.PropertyPage, error) {
 	q := `SELECT 
 			properties.id, properties.sector, properties.cell, 
-			properties.village, properties.due, owners.fname, owners.lname 
+			properties.village, properties.due, 
+			owners.id, owners.fname, owners.lname 
 		FROM 
 			properties
 		INNER JOIN
 			owners ON properties.owner=owners.id
 		WHERE 
-			properties.owner = $1 ORDER BY id LIMIT $2 OFFSET $3
+			properties.owner = $1 ORDER BY properties.id LIMIT $2 OFFSET $3
 	`
 
 	var items = []properties.Property{}
@@ -123,7 +125,7 @@ func (str *propertiesStore) RetrieveByOwner(owner string, offset, limit uint64) 
 		var fname, lname string
 
 		if err := rows.Scan(
-			&c.ID, &c.Sector, &c.Cell, &c.Village, &c.Due, &fname, &lname,
+			&c.ID, &c.Sector, &c.Cell, &c.Village, &c.Due, &c.OwnerID, &fname, &lname,
 		); err != nil {
 			return properties.PropertyPage{}, err
 		}
@@ -155,13 +157,14 @@ func (str *propertiesStore) RetrieveBySector(sector string, offset, limit uint64
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
-			properties.village, properties.due, owners.fname, owners.lname 
+			properties.village, properties.due, 
+			owners.id, owners.fname, owners.lname 
 		FROM 
 			properties
 		INNER JOIN
 			owners ON properties.owner=owners.id 
 		WHERE 
-			properties.sector = $1 ORDER BY id LIMIT $2 OFFSET $3
+			properties.sector = $1 ORDER BY  properties.id LIMIT $2 OFFSET $3
 	`
 
 	var items = []properties.Property{}
@@ -178,7 +181,7 @@ func (str *propertiesStore) RetrieveBySector(sector string, offset, limit uint64
 		var fname, lname string
 
 		if err := rows.Scan(
-			&c.ID, &c.Sector, &c.Cell, &c.Village, &c.Due, &fname, &lname,
+			&c.ID, &c.Sector, &c.Cell, &c.Village, &c.Due, &c.OwnerID, &fname, &lname,
 		); err != nil {
 			return properties.PropertyPage{}, err
 		}
@@ -208,12 +211,13 @@ func (str *propertiesStore) RetrieveByCell(cell string, offset, limit uint64) (p
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
-			properties.village, properties.due, owners.fname, owners.lname 
+			properties.village, properties.due, 
+			owners.id, owners.fname, owners.lname 
 		FROM 
 			properties
 		INNER JOIN
 			owners ON properties.owner=owners.id 	
-		WHERE properties.cell = $1 ORDER BY id LIMIT $2 OFFSET $3
+		WHERE properties.cell = $1 ORDER BY properties.id LIMIT $2 OFFSET $3
 	`
 
 	var items = []properties.Property{}
@@ -230,7 +234,7 @@ func (str *propertiesStore) RetrieveByCell(cell string, offset, limit uint64) (p
 		var fname, lname string
 
 		if err := rows.Scan(
-			&c.ID, &c.Sector, &c.Cell, &c.Village, &c.Due, &fname, &lname,
+			&c.ID, &c.Sector, &c.Cell, &c.Village, &c.Due, &c.OwnerID, &fname, &lname,
 		); err != nil {
 			return properties.PropertyPage{}, err
 		}
@@ -260,12 +264,13 @@ func (str *propertiesStore) RetrieveByVillage(village string, offset, limit uint
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
-			properties.village, properties.due, owners.fname, owners.lname 
+			properties.village, properties.due, 
+			owners.id, owners.fname, owners.lname 
 		FROM 
 			properties
 		INNER JOIN
 			owners ON properties.owner=owners.id 
-		WHERE properties.village = $1 ORDER BY id LIMIT $2 OFFSET $3
+		WHERE properties.village = $1 ORDER BY properties.id LIMIT $2 OFFSET $3
 	`
 
 	var items = []properties.Property{}
@@ -281,7 +286,7 @@ func (str *propertiesStore) RetrieveByVillage(village string, offset, limit uint
 		var fname, lname string
 
 		if err := rows.Scan(
-			&c.ID, &c.Sector, &c.Cell, &c.Village, &c.Due, &fname, &lname,
+			&c.ID, &c.Sector, &c.Cell, &c.Village, &c.Due, &c.OwnerID, &fname, &lname,
 		); err != nil {
 			return properties.PropertyPage{}, err
 		}
