@@ -35,11 +35,6 @@ func TestSaveOwner(t *testing.T) {
 			owner: new,
 			err:   properties.ErrConflict,
 		},
-		{
-			desc:  "save owner with invalid id",
-			owner: properties.Owner{ID: wrongValue, Fname: "rugwiro", Lname: "james", Phone: "0784677882"},
-			err:   properties.ErrInvalidEntity,
-		},
 	}
 
 	for _, tc := range cases {
@@ -74,11 +69,6 @@ func TestUpdateOwner(t *testing.T) {
 			desc:  "update non-existant owner",
 			owner: properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"},
 			err:   properties.ErrNotFound,
-		},
-		{
-			desc:  "update owner with invalid id",
-			owner: properties.Owner{ID: wrongValue, Fname: "rugwiro", Lname: "james", Phone: "0784677882"},
-			err:   properties.ErrInvalidEntity,
 		},
 	}
 

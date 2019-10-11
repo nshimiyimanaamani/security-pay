@@ -11,7 +11,7 @@ import (
 
 func TestTransactionValidate(t *testing.T) {
 	id := "1000-4433-34343"
-	amount := "5000.00"
+	amount := 5000.00
 	method := "BK"
 	property := "1000-4433-34343"
 	owner := "1000-4433-34343"

@@ -70,7 +70,7 @@ func migrateDB(db *sql.DB) error {
 
 				Up: []string{
 					`CREATE TABLE IF NOT EXISTS owners (
-						id	   		UUID,
+						id	   		TEXT,
 						fname  		VARCHAR(1024) NOT NULL,
 						lname  		VARCHAR(1024) NOT NULL,
 						phone  		VARCHAR(15)   NOT NULL,
@@ -79,7 +79,7 @@ func migrateDB(db *sql.DB) error {
 
 					`CREATE TABLE IF NOT EXISTS properties (
 						id			TEXT,
-						owner		UUID		 NOT NULL,
+						owner		TEXT		 NOT NULL,
 						sector		VARCHAR(254) NOT NULL,
 						cell		VARCHAR(254) NOT NULL,
 						village		VARCHAR(254) NOT NULL,
@@ -88,8 +88,8 @@ func migrateDB(db *sql.DB) error {
 					)`,
 					`CREATE TABLE IF NOT EXISTS transactions (
 						id 				UUID,
-						madeby 			UUID,
-						madefor			VARCHAR(12),
+						madeby 			TEXT,
+						madefor			TEXT,
 						amount    		VARCHAR(254),
 						method  		VARCHAR(254),
 						date_modified 	TIMESTAMP,

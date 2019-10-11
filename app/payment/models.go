@@ -39,8 +39,8 @@ type Validation struct {
 
 // Property ...
 type Property struct {
-	ID    string
-	Owner string
+	ID      string
+	OwnerID string
 }
 
 // Transaction ...

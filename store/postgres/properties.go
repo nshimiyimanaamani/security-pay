@@ -30,6 +30,8 @@ func (str *propertiesStore) Save(pro properties.Property) (string, error) {
 			switch pqErr.Code.Name() {
 			case errDuplicate:
 				return "", properties.ErrConflict
+			case errFK:
+				return "", properties.ErrNotFound
 			case errInvalid, errTruncation:
 				return "", properties.ErrInvalidEntity
 			}

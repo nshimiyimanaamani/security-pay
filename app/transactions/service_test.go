@@ -13,7 +13,7 @@ import (
 
 var transaction = transactions.Transaction{
 	ID:      "1000-4433-3343",
-	Amount:  "1000.00",
+	Amount:  1000.00,
 	Method:  "BK",
 	MadeFor: "1000-4433-3343",
 	MadeBy:  "1000-4433-3343",
@@ -44,7 +44,7 @@ func TestRecordTransaction(t *testing.T) {
 		{
 			desc:        "add invalid transaction",
 			token:       token,
-			transaction: transactions.Transaction{Amount: "1000.00"},
+			transaction: transactions.Transaction{Amount: 1000.00},
 			err:         transactions.ErrInvalidEntity,
 		},
 		{

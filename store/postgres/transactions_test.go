@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	amount     = "2000.00"
+	amount     = 2000.00
 	wrongValue = "wrong"
 )
 

@@ -41,7 +41,7 @@ func (svc service) Initilize(r Payment) (Message, error) {
 	transaction := Transaction{
 		ID:           uuid.New().ID(),
 		MadeFor:      property.ID,
-		MadeBy:       property.Owner,
+		MadeBy:       property.OwnerID,
 		Amount:       r.Amount,
 		Method:       "mtn",
 		DateRecorded: time.Now(),

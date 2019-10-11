@@ -10,7 +10,7 @@ Get version information
 ## users service
 
 Registering a new user.
-* `POST /users`:
+* `POST /users/`:
     - contentType:`application/json`
     
     - request body: 
@@ -27,7 +27,7 @@ Registering a new user.
     ```
 
 Login a user.
-* `POST /users`:
+* `POST /users/tokens`:
     - contentType:`application/json`
     
     - request body: 

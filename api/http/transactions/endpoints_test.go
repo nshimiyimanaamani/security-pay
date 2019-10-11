@@ -29,7 +29,7 @@ const (
 
 var (
 	contentType = "application/json"
-	transaction = transactions.Transaction{Amount: "1000.00", Method: "BK", MadeFor: "1000-4433-3343", MadeBy: "1000-4433-3343"}
+	transaction = transactions.Transaction{Amount: 1000.00, Method: "BK", MadeFor: "1000-4433-3343", MadeBy: "1000-4433-3343"}
 )
 
 type testRequest struct {
@@ -81,7 +81,7 @@ func TestRecordTransaction(t *testing.T) {
 	client := ts.Client()
 
 	data := toJSON(transaction)
-	invalidData := toJSON(transactions.Transaction{Amount: "1000.00", Method: "BK"})
+	invalidData := toJSON(transactions.Transaction{Amount: 1000.00, Method: "BK"})
 
 	cases := []struct {
 		desc        string
@@ -317,7 +317,7 @@ type transRes struct {
 	ID           string            `json:"id,omitempty"`
 	Property     string            `json:"property,omitempty"`
 	Owner        string            `json:"owner,omitempty"`
-	Amount       string            `json:"amount,omitempty"`
+	Amount       float64           `json:"amount,omitempty"`
 	Address      map[string]string `json:"address,omitempty"`
 	Method       string            `json:"method,omitempty"`
 	DateRecorded time.Time         `json:"recorded,omitempty"`

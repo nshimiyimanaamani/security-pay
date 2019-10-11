@@ -29,7 +29,8 @@ func (repo *repository) SaveTransaction(tx Transaction) (string, error) {
 	stx := transactions.Transaction{
 		ID:           tx.ID,
 		MadeFor:      tx.MadeFor,
-		Amount:       "",
+		MadeBy:       tx.MadeBy,
+		Amount:       tx.Amount,
 		Method:       tx.Method,
 		DateRecorded: tx.DateRecorded,
 	}
@@ -41,7 +42,7 @@ func (repo *repository) UpdateTransaction(tx Transaction) error {
 	stx := transactions.Transaction{
 		ID:           tx.ID,
 		MadeFor:      tx.MadeFor,
-		Amount:       "",
+		Amount:       tx.Amount,
 		Method:       tx.Method,
 		DateRecorded: tx.DateRecorded,
 	}
@@ -56,8 +57,8 @@ func (repo *repository) RetrieveProperty(id string) (Property, error) {
 	}
 
 	property := Property{
-		ID:    pro.ID,
-		Owner: pro.Owner,
+		ID:      pro.ID,
+		OwnerID: pro.OwnerID,
 	}
 	return property, nil
 }

@@ -29,7 +29,7 @@ type viewTransRes struct {
 	ID           string            `json:"id,omitempty"`
 	Property     string            `json:"property,omitempty"`
 	Owner        string            `json:"owner,omitempty"`
-	Amount       string            `json:"amount,omitempty"`
+	Amount       float64           `json:"amount,omitempty"`
 	Address      map[string]string `json:"address,omitempty"`
 	Method       string            `json:"method,omitempty"`
 	DateRecorded time.Time         `json:"recorded,omitempty"`

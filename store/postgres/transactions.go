@@ -27,8 +27,14 @@ func (str *transactionStore) Save(trx transactions.Transaction) (string, error) 
 
 	_, err := str.db.Exec(q, trx.ID, trx.MadeFor, trx.MadeBy, trx.Amount, trx.Method, trx.DateRecorded)
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok && errDuplicate == pqErr.Code.Name() {
-			return "", transactions.ErrConflict
+		pqErr, ok := err.(*pq.Error)
+		if ok {
+			switch pqErr.Code.Name() {
+			case errDuplicate:
+				return "", transactions.ErrConflict
+			case errInvalid, errTruncation:
+				return "", transactions.ErrInvalidEntity
+			}
 		}
 		return "", err
 	}

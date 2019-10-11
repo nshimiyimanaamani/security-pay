@@ -10,7 +10,7 @@ type Transaction struct {
 	MadeFor      string
 	MadeBy       string
 	Address      map[string]string
-	Amount       string
+	Amount       float64
 	Method       string
 	DateRecorded time.Time
 }
@@ -31,7 +31,7 @@ type TransactionPage struct {
 //Validate ensure that all Transaction's field are of the valid format
 //and returns a non nil error if it's not
 func (tr *Transaction) Validate() error {
-	if tr.Amount == "" || tr.Method == "" || tr.MadeFor == "" || tr.MadeBy == "" {
+	if tr.Amount == 0 || tr.Method == "" || tr.MadeFor == "" || tr.MadeBy == "" {
 		return ErrInvalidEntity
 	}
 	return nil
