@@ -18,13 +18,13 @@ func TestSaveProperty(t *testing.T) {
 
 	defer CleanDB(t, "properties", "owners")
 
-	owner := properties.Owner{ID: nanoid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{ID: nanoid.New(nil).ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	id, err := ows.Save(owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	owner.ID = id
 
 	new := properties.Property{
-		ID:    nanoid.New().ID(),
+		ID:    nanoid.New(nil).ID(),
 		Owner: owner.ID,
 		Address: properties.Address{
 			Sector:  "Remera",
@@ -79,13 +79,13 @@ func TestUpdateProperty(t *testing.T) {
 
 	defer CleanDB(t, "properties", "owners")
 
-	owner := properties.Owner{ID: nanoid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{ID: nanoid.New(nil).ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	id, err := ows.Save(owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	owner.ID = id
 
 	property := properties.Property{
-		ID:    nanoid.New().ID(),
+		ID:    nanoid.New(nil).ID(),
 		Owner: owner.ID,
 		Address: properties.Address{
 			Sector:  "Remera",
@@ -112,7 +112,7 @@ func TestUpdateProperty(t *testing.T) {
 		{
 			desc: "update non existant property",
 			property: properties.Property{
-				ID:    nanoid.New().ID(),
+				ID:    nanoid.New(nil).ID(),
 				Owner: uuid.New().ID(),
 				Address: properties.Address{
 					Sector:  "Remera",
@@ -126,7 +126,7 @@ func TestUpdateProperty(t *testing.T) {
 		{
 			desc: "udpate property with invalid owner id",
 			property: properties.Property{
-				ID:    nanoid.New().ID(),
+				ID:    nanoid.New(nil).ID(),
 				Owner: wrongValue,
 				Address: properties.Address{
 					Sector:  "Remera",
@@ -140,7 +140,7 @@ func TestUpdateProperty(t *testing.T) {
 		{
 			desc: "udpate property with invalid owner",
 			property: properties.Property{
-				ID:    nanoid.New().ID(),
+				ID:    nanoid.New(nil).ID(),
 				Owner: wrongValue,
 				Address: properties.Address{
 					Sector:  "Remera",
@@ -172,7 +172,7 @@ func TestRetrieveByID(t *testing.T) {
 
 	owner.ID = oid
 	property := properties.Property{
-		ID:    nanoid.New().ID(),
+		ID:    nanoid.New(nil).ID(),
 		Owner: owner.ID,
 		Address: properties.Address{
 			Sector:  "Gasabo",
@@ -190,7 +190,7 @@ func TestRetrieveByID(t *testing.T) {
 		err  error
 	}{
 		{"retrieve existing property", pid, nil},
-		{"retrieve non-existing property", nanoid.New().ID(), properties.ErrNotFound},
+		{"retrieve non-existing property", nanoid.New(nil).ID(), properties.ErrNotFound},
 		{"retrieve with malformed id", wrongValue, properties.ErrNotFound},
 	}
 
@@ -219,7 +219,7 @@ func TestRetrieveByOwner(t *testing.T) {
 
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
-			ID:    nanoid.New().ID(),
+			ID:    nanoid.New(nil).ID(),
 			Owner: owner.ID,
 			Address: properties.Address{
 				Sector:  sector,
@@ -289,7 +289,7 @@ func TestRetrieveBySector(t *testing.T) {
 
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
-			ID:    nanoid.New().ID(),
+			ID:    nanoid.New(nil).ID(),
 			Owner: owner.ID,
 			Address: properties.Address{
 				Sector:  sector,
@@ -359,7 +359,7 @@ func TestRetrieveByCell(t *testing.T) {
 
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
-			ID:    nanoid.New().ID(),
+			ID:    nanoid.New(nil).ID(),
 			Owner: owner.ID,
 			Address: properties.Address{
 				Sector:  sector,
@@ -429,7 +429,7 @@ func TestRetrieveByVillage(t *testing.T) {
 
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
-			ID:    nanoid.New().ID(),
+			ID:    nanoid.New(nil).ID(),
 			Owner: owner.ID,
 			Address: properties.Address{
 				Sector:  sector,

@@ -33,7 +33,7 @@ func TestSave(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    nanoid.New().ID(),
+		ID:    nanoid.New(nil).ID(),
 		Owner: owner.ID,
 		Due:   float64(1000),
 	}
@@ -92,7 +92,7 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    nanoid.New().ID(),
+		ID:    nanoid.New(nil).ID(),
 		Owner: owner.ID,
 		Due:   float64(1000),
 	}
@@ -143,7 +143,7 @@ func TestRetrieveAll(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    nanoid.New().ID(),
+		ID:    nanoid.New(nil).ID(),
 		Owner: owner.ID,
 		Due:   float64(1000),
 	}
@@ -206,7 +206,7 @@ func TestRetrieveByProperty(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    nanoid.New().ID(),
+		ID:    nanoid.New(nil).ID(),
 		Owner: owner.ID,
 		Due:   float64(1000),
 	}
@@ -277,7 +277,7 @@ func TestRetrieveByMethod(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    nanoid.New().ID(),
+		ID:    nanoid.New(nil).ID(),
 		Owner: owner.ID,
 		Due:   float64(1000),
 	}
@@ -347,7 +347,7 @@ func TestUpdateTransaction(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    nanoid.New().ID(),
+		ID:    nanoid.New(nil).ID(),
 		Owner: owner.ID,
 		Due:   float64(1000),
 	}
@@ -404,7 +404,7 @@ func TestUpdateTransaction(t *testing.T) {
 		{
 			desc:        "update with invalid data",
 			transaction: invalid,
-			err:         transactions.ErrInvalidEntity,
+			err:         transactions.ErrNotFound,
 		},
 	}
 

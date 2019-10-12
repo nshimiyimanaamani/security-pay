@@ -175,14 +175,20 @@ func newUserService(db *sql.DB, secret string) users.Service {
 }
 
 func newTransactionService(db *sql.DB, users users.Service) transactions.Service {
-	idp := uuid.New()
+	cfg := &nanoid.Config{
+		Length: transactions.Length, Alphabet: transactions.Alphabet,
+	}
+	idp := nanoid.New(cfg)
 	store := postgres.NewTransactionStore(db)
 	auth := transactions.NewAuthBackend(users)
 	return transactions.New(idp, store, auth)
 }
 
 func newPropertyService(db *sql.DB, users users.Service) properties.Service {
-	idp := nanoid.New()
+	cfg := &nanoid.Config{
+		Length: properties.Length, Alphabet: properties.Alphabet,
+	}
+	idp := nanoid.New(cfg)
 	props := postgres.NewPropertyStore(db)
 	owners := postgres.NewOwnerStore(db)
 	auth := properties.NewAuthBackend(users)

@@ -22,6 +22,12 @@ var (
 	ErrNotFound = errors.New("non-existent entity")
 )
 
+// nanoid conf
+var (
+	Alphabet = "1234567890abcdefghijklmnopqrstuvwxyz"
+	Length   = 64
+)
+
 //Service defines the transaction service API
 type Service interface {
 	// RecordTransaction adds a new transaction record

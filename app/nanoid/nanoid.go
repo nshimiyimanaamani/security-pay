@@ -7,20 +7,34 @@ import (
 
 // nanoid settings
 const (
-	Alphabet = "1234567890ABCDEF"
-	Length   = 8
+	Alphabet = "1234567890"
+	Length   = 15
 )
 
 var _ app.IdentityProvider = (*nanoidIdentityProvider)(nil)
 
-type nanoidIdentityProvider struct{}
+type nanoidIdentityProvider struct {
+	length   int
+	alphabet string
+}
+
+// Config contains nanoid initialzation config
+type Config struct {
+	Length   int
+	Alphabet string
+}
 
 // New instantiates a UUID identity provider.
-func New() app.IdentityProvider {
-	return &nanoidIdentityProvider{}
+func New(c *Config) app.IdentityProvider {
+	idp := &nanoidIdentityProvider{Length, Alphabet}
+	if c != nil {
+		idp.alphabet = c.Alphabet
+		idp.length = c.Length
+	}
+	return idp
 }
 
 func (idp *nanoidIdentityProvider) ID() string {
-	id, _ := gonanoid.Generate(Alphabet, Length)
+	id, _ := gonanoid.Generate(idp.alphabet, idp.length)
 	return id
 }

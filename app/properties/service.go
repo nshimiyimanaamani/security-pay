@@ -21,6 +21,12 @@ var (
 	ErrNotFound = errors.New("non-existent entity")
 )
 
+// nanoid settings
+const (
+	Alphabet = "1234567890ABCDEF"
+	Length   = 8
+)
+
 // Service defines the properties(houses) api
 type Service interface {
 	// AddProperty adds a unique property entity. Taking a property entity it returns

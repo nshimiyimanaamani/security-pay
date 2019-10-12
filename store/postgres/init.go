@@ -87,7 +87,7 @@ func migrateDB(db *sql.DB) error {
 						PRIMARY 	KEY(id)
 					)`,
 					`CREATE TABLE IF NOT EXISTS transactions (
-						id 				UUID,
+						id 				TEXT,
 						madeby 			TEXT,
 						madefor			TEXT,
 						amount    		VARCHAR(254),
