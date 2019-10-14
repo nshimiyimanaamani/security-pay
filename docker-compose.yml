@@ -4,7 +4,7 @@ services:
   backend:                        # backend api
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: Dockerfile
     container_name: backend
     depends_on:
        - database
