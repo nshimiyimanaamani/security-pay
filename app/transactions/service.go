@@ -25,7 +25,7 @@ var (
 // nanoid conf
 var (
 	Alphabet = "1234567890abcdefghijklmnopqrstuvwxyz"
-	Length   = 64
+	Length   = 20
 )
 
 //Service defines the transaction service API
