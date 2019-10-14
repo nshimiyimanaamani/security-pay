@@ -3,7 +3,7 @@ package properties
 import (
 	"errors"
 
-	"github.com/rugwirobaker/paypack-backend/app"
+	"github.com/rugwirobaker/paypack-backend/app/identity"
 )
 
 var (
@@ -78,14 +78,14 @@ type Service interface {
 var _ Service = (*propertyService)(nil)
 
 type propertyService struct {
-	idp        app.IdentityProvider
+	idp        identity.Provider
 	owners     OwnerStore
 	properties PropertyStore
 	auth       AuthBackend
 }
 
 // New instatiates a new property service
-func New(idp app.IdentityProvider, owners OwnerStore, properties PropertyStore, auth AuthBackend) Service {
+func New(idp identity.Provider, owners OwnerStore, properties PropertyStore, auth AuthBackend) Service {
 	return &propertyService{
 		idp:        idp,
 		owners:     owners,

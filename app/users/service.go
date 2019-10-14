@@ -3,7 +3,7 @@ package users
 import (
 	"errors"
 
-	"github.com/rugwirobaker/paypack-backend/app"
+	"github.com/rugwirobaker/paypack-backend/app/identity"
 )
 
 var (
@@ -43,12 +43,12 @@ var _ Service = (*usersService)(nil)
 type usersService struct {
 	hasher  Hasher
 	tempIdp TempIdentityProvider
-	idp     app.IdentityProvider
+	idp     identity.Provider
 	store   Store
 }
 
 //New instanciates a new Service.
-func New(hasher Hasher, tempIdp TempIdentityProvider, idp app.IdentityProvider, store Store) Service {
+func New(hasher Hasher, tempIdp TempIdentityProvider, idp identity.Provider, store Store) Service {
 	return &usersService{hasher: hasher, tempIdp: tempIdp, idp: idp, store: store}
 }
 

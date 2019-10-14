@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/rugwirobaker/paypack-backend/app"
+	"github.com/rugwirobaker/paypack-backend/app/identity"
 )
 
-var _ app.IdentityProvider = (*identityProviderMock)(nil)
+var _ identity.Provider = (*identityProviderMock)(nil)
 
 type identityProviderMock struct {
 	mu      sync.Mutex
@@ -16,7 +16,7 @@ type identityProviderMock struct {
 
 // NewIdentityProvider creates "mirror" identity provider, i.e. generated
 // token will hold value provided by the caller.
-func NewIdentityProvider() app.IdentityProvider {
+func NewIdentityProvider() identity.Provider {
 	return &identityProviderMock{}
 }
 

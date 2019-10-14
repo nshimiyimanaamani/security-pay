@@ -3,7 +3,13 @@ package payment
 import (
 	"time"
 
-	"github.com/rugwirobaker/paypack-backend/app/uuid"
+	"github.com/rugwirobaker/paypack-backend/app/identity"
+)
+
+// nanoid conf
+var (
+	Alphabet = "1234567890abcdefghijklmnopqrstuvwxyz"
+	Length   = 64
 )
 
 // Service is the api interface to the payment module
@@ -16,10 +22,12 @@ type Service interface {
 // ServiceOptions simplifies New func signature
 type ServiceOptions struct {
 	Gateway    Gateway
+	IDP        identity.Provider
 	Repository Repository
 }
 type service struct {
 	gateway    Gateway
+	idp        identity.Provider
 	repository Repository
 }
 
@@ -27,6 +35,7 @@ type service struct {
 func New(opts *ServiceOptions) Service {
 	return &service{
 		gateway:    opts.Gateway,
+		idp:        opts.IDP,
 		repository: opts.Repository,
 	}
 }
@@ -39,7 +48,7 @@ func (svc service) Initilize(r Payment) (Message, error) {
 	}
 
 	transaction := Transaction{
-		ID:           uuid.New().ID(),
+		ID:           svc.idp.ID(),
 		MadeFor:      property.ID,
 		MadeBy:       property.OwnerID,
 		Amount:       r.Amount,

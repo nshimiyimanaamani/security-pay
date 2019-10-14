@@ -204,8 +204,16 @@ func newPaymentService(db *sql.DB, gw payment.Gateway) payment.Service {
 		Properties:   properties,
 	}
 	repo := payment.NewRepo(repoOptions)
+
+	cfg := &nanoid.Config{
+		Length: payment.Length, Alphabet: payment.Alphabet,
+	}
+
+	idp := nanoid.New(cfg)
+
 	opts := &payment.ServiceOptions{
 		Gateway:    gw,
+		IDP:        idp,
 		Repository: repo,
 	}
 	return payment.New(opts)

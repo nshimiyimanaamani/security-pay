@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/rugwirobaker/paypack-backend/app"
+	"github.com/rugwirobaker/paypack-backend/app/identity"
 )
 
 var (
@@ -58,13 +58,13 @@ type Service interface {
 var _ Service = (*transactionsService)(nil)
 
 type transactionsService struct {
-	idp   app.IdentityProvider
+	idp   identity.Provider
 	store Store
 	auth  AuthBackend
 }
 
 //New instantiates a new transaxtions service
-func New(idp app.IdentityProvider, store Store, auth AuthBackend) Service {
+func New(idp identity.Provider, store Store, auth AuthBackend) Service {
 	return &transactionsService{
 		idp:   idp,
 		store: store,
