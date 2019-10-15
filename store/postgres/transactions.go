@@ -300,7 +300,7 @@ func (str *transactionStore) RetrieveByYear(string, uint64, uint64) (transaction
 }
 
 func (str *transactionStore) UpdateTransaction(tx transactions.Transaction) error {
-	q := `UPDATE transactions SET date_modified=$1, is_valid=TRUE WHERE id=$2 AND is_valid=FALSE;`
+	q := `UPDATE transactions SET date_modified=$1, is_valid=TRUE WHERE id=$2;`
 
 	res, err := str.db.Exec(q, tx.DateRecorded, tx.ID)
 	if err != nil {
