@@ -27,51 +27,34 @@ jobs:
       - run:
           name: Run Unit Tests 
           command: make test
-  # publish:
-  #   docker:
-  #     - image: google/cloud-sdk
+  publish:
+    docker:
+      - image: google/cloud-sdk
 
-  #   steps:
-  #     - checkout
+    steps:
+      - checkout
       
-  #     - setup_remote_docker
-
-  #     - run: 
-  #         name: Install Tools
-  #         command: apt-get install make
-
-  #     -  run:  
-  #         name: Authorize gcloud
-  #         command: |
-  #           echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
-  #           gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-  #           gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
-  #           gcloud auth configure-docker
-
-  #     - run:
-  #         name: Build Docker Image
-  #         command: |
-  #             export GIT_COMMIT=$(git rev-parse --short HEAD)
-  #             export IMAGE=${MODULE}:${GIT_COMMIT}
-  #             docker build -t  $IMAGE .
+      - setup_remote_docker
       
-  #     - run:
-  #         name: Publish Docker Image
-  #         command: |
-  #            export GIT_COMMIT=$(git rev-parse --short HEAD)
-  #            export IMAGE=${MODULE}:${GIT_COMMIT}
-  #            echo $IMAGE
-  #            docker tag ${IMAGE} ${REGISTRY}/${GOOGLE_PROJECT_ID}/${IMAGE}
-  #            docker push ${REGISTRY}/${GOOGLE_PROJECT_ID}/${IMAGE}
+      -  run:  
+          name: login to github registry
+          command: |
+              docker login docker.pkg.github.com -u $GITHUB_USERNAME -p $GITHUB_TOKEN
+
+      - run:
+          name: Publish Docker Image
+          command: |
+             docker build -t docker.pkg.github.com/rugwirobaker/paypack-backend/paypack:latest
+             docker push docker.pkg.github.com/rugwirobaker/paypack-backend/paypack:latest
 workflows:
   version: 2
   build-deploy:
     jobs:
       - build
       
-      # - publish:
-      #     requires:
-      #       - build
-      #     filters:
-      #        branches:
-      #         only: master
+      - publish:
+          requires:
+            - build
+          filters:
+             branches:
+              only: master
