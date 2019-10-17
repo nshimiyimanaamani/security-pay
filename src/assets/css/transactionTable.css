@@ -3,6 +3,22 @@
   width: auto;
 }
 
+.container table thead th.table-name {
+  width: 20rem;
+}
+
+.container table thead th.table-icon {
+  width: 10rem;
+}
+
+.container table thead th.table-amount {
+  width: 10rem;
+}
+
+.container table thead th.table-date {
+  width: 10rem;
+}
+
 .container .pulse {
   margin: 25px auto;
 }
@@ -22,7 +38,7 @@ tbody td {
 }
 
 .mtn {
-  width: 30%;
+  width: 50%;
   border-radius: 3px;
   min-width: -webkit-fit-content;
   min-width: -moz-fit-content;
@@ -49,7 +65,7 @@ tbody td {
 }
 
 .airtel {
-  width: 30%;
+  width: 50%;
   margin: auto;
   min-width: -webkit-fit-content;
   min-width: -moz-fit-content;
@@ -76,7 +92,7 @@ tbody td {
 }
 
 .bk {
-  width: 30%;
+  width: 50%;
   min-width: -webkit-fit-content;
   min-width: -moz-fit-content;
   min-width: fit-content;

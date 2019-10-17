@@ -21,7 +21,6 @@
             <i class="fa fa-ellipsis-v" v-b-toggle.collapse="''+index"></i>
           </b-card-footer>
           <b-collapse :id="'' + index" class="more-data">
-            <hr />
             <article>
               <label for="sector">Sector:</label>
               <p>{{house.sector}}</p>

@@ -10,22 +10,23 @@
       background: white;
       box-shadow: 0px 5px 10px #e0d5d5;
 
-      >.card-body {
-        columns: 2 20rem;
-        column-gap: 10px;
-      }
-
       .card-body>section {
         border: 1px solid #cec4c4;
         padding: 5px 10px;
-        width: 100%;
-        min-width: 280px;
+        width: 49%;
         margin: 0;
         position: relative;
         margin-bottom: 10px;
         display: block;
         break-inside: avoid;
-        column-span: inherit;
+
+        &:nth-child(even) {
+          float: right;
+        }
+
+        &:nth-child(odd) {
+          float: left;
+        }
 
         .card-header {
           display: flex;
@@ -44,13 +45,15 @@
 
         .card-footer {
           display: flex;
-          padding: 0;
+          padding: 10px 0px 0;
           background: inherit;
 
           article {
             width: 100%;
             padding-right: 10px;
             display: block;
+
+            font-size: 14px;
 
             .progress {
               width: 100%;
@@ -67,16 +70,20 @@
         }
 
         .more-data {
-          hr {
-            margin-top: 20px;
-            margin-bottom: 10px;
-            border: 0;
-            border-top: 1px solid #c3c2c2;
-          }
+          position: absolute;
+          background: white;
+          z-index: 100;
+          width: 100.5%;
+          margin: 6px -11px;
+          border: 1px solid;
+          border-top: none;
+          border-color: inherit;
+          padding: 10px 10px 0;
 
           article {
             display: flex;
             position: relative;
+            font-size: 14px;
 
             p {
               position: absolute;
@@ -93,7 +100,7 @@
       margin-bottom: 20px;
       background: white;
       box-shadow: 0px 5px 10px #e0d5d5;
-      padding-top: 50px;
+      padding-top: 1px;
 
       article {
         width: fit-content;
@@ -115,7 +122,7 @@
   .container-title {
     padding: 10px;
     border-radius: 10px 10px 0 0;
-    background-color: #3db3fa;
+    background-color: darkcyan;
     display: flex;
 
     h1 {

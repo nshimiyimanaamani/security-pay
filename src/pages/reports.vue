@@ -1,6 +1,7 @@
 <template>
   <div class="table-container">
     <h4 class="title text-center" v-show="selected">{{title}}</h4>
+    <hr />
     <div class="controllers">
       <b-dropdown
         id="dropdown-dropright"
@@ -11,25 +12,48 @@
       >
         <template slot="button-content">Filter By</template>
         <b-dropdown-form>
-          <b-form-group label="sector">
-            <b-form-select v-model="select.sector" :options="select.sectorOptions">
-              <option value>select sector</option>
-            </b-form-select>
-          </b-form-group>
-          <b-form-group label="cell" v-show="select.sector">
-            <b-form-select v-model="select.cell" :options="select.cellOptions">
-              <option value>select cell</option>
-            </b-form-select>
-          </b-form-group>
-          <b-form-group label="village" v-show="select.sector && select.cell">
-            <b-form-select v-model="select.village" :options="select.villageOptions">
-              <option value>select village</option>
-            </b-form-select>
-          </b-form-group>
-          <b-dropdown-divider></b-dropdown-divider>
-          <b-button variant="primary" size="sm" @click.prevent="tableItems = filter()">Ok</b-button>
-          <b-button variant="danger" size="sm" @click.prevent="clearFilter">Clear</b-button>
+          <b-card-body class="p-2">
+            <b-form-group label="sector">
+              <b-form-select v-model="select.sector" :options="select.sectorOptions">
+                <option value>select sector</option>
+              </b-form-select>
+            </b-form-group>
+            <b-form-group label="cell" v-show="select.sector">
+              <b-form-select v-model="select.cell" :options="select.cellOptions">
+                <option value>select cell</option>
+              </b-form-select>
+            </b-form-group>
+            <b-form-group label="village" v-show="select.sector && select.cell">
+              <b-form-select v-model="select.village" :options="select.villageOptions">
+                <option value>select village</option>
+              </b-form-select>
+            </b-form-group>
+          </b-card-body>
+          <b-card-body class="p-2">
+            <b-form-group>
+              <template v-slot:label>
+                <b>Choose your flavours:</b>
+                <br />
+                <b-form-checkbox
+                  v-model="select.selectAll"
+                  aria-describedby="columns"
+                  aria-controls="columns"
+                  @change="allSelected"
+                >{{ (select.selectAll) ? 'Un-select All' : 'Select All' }}</b-form-checkbox>
+              </template>
+              <b-form-checkbox-group
+                id="columns"
+                v-model="select.shownColumn"
+                :options="columns"
+                size="sm"
+                name="columns"
+                stacked
+              ></b-form-checkbox-group>
+            </b-form-group>
+          </b-card-body>
         </b-dropdown-form>
+        <b-button variant="primary" size="sm" @click.prevent="tableItems = filter()">Ok</b-button>
+        <b-button variant="danger" size="sm" @click.prevent="clearFilter">Clear</b-button>
       </b-dropdown>
       <div class="search">
         <b-form-input
@@ -47,13 +71,33 @@
       </div>
       <b-button @click.prevent="download" class="download btn-info">Download</b-button>
     </div>
-    <b-table id="data-table" bordered striped hover small :items="tableItems" :fields="fields">
+    <b-table
+      id="data-table"
+      bordered
+      striped
+      hover
+      small
+      :items="tableItems"
+      :fields="fields"
+      :busy="loading.request"
+      show-empty
+    >
       <template v-slot:cell(due)="data">{{data.item.due}} Rwf</template>
       <template v-slot:cell(index)="data">
-        <article style="text-align:center">{{data.index + 1}}</article>
+        <article class="text-center">{{data.index + 1}}</article>
+      </template>
+      <template v-slot:table-busy>
+        <div class="text-center my-2">
+          <b-spinner class="align-middle"></b-spinner>
+          <strong>Loading...</strong>
+        </div>
+      </template>
+      <template v-slot:empty="scope">
+        <h5
+          class="text-center my-4"
+        >{{search.name ? search.name+' "is not availble in the list"':'No user Found!'}}</h5>
       </template>
     </b-table>
-    <pulse-loader class="reports-loader" :loading="loading.request" :color="color" :size="size"></pulse-loader>
   </div>
 </template>
 
@@ -82,7 +126,9 @@ export default {
         village: "",
         sectorOptions: [],
         cellOptions: [],
-        villageOptions: []
+        villageOptions: [],
+        shownColumn: [],
+        selectAll: true
       },
       size: "5px",
       fields: [
@@ -132,9 +178,20 @@ export default {
         this.$store.getters.getActiveSector.charAt(0).toUpperCase() +
         this.$store.getters.getActiveSector.slice(1);
       return Fsector;
+    },
+    columns() {
+      let array = [];
+      this.fields.forEach(i => array.push(i.label));
+      return array;
     }
   },
   watch: {
+    "select.shownColumn"() {
+      handler: {
+        this.select.selectAll =
+          this.columns.length == this.select.shownColumn.length ? true : false;
+      }
+    },
     items() {
       handler: {
         this.tableItems = this.filter();
@@ -206,6 +263,7 @@ export default {
   },
   mounted() {
     this.loadData();
+    this.select.shownColumn = this.columns;
   },
   methods: {
     loadData() {
@@ -218,9 +276,9 @@ export default {
         )
         .then(res => {
           this.items = new Array();
-          this.loading.request = false;
           this.items = res.data.properties;
-          console.log(this.items);
+          console.warn(this.items);
+          this.loading.request = false;
         })
         .catch(err => {
           console.log(err);
@@ -229,6 +287,18 @@ export default {
     },
     filter() {
       this.$refs.dropdown.hide(true);
+
+      //disabling some of the columns
+
+      this.fields.forEach(value => {
+        if (!this.select.shownColumn.includes(value.label)) {
+          value.tdClass = "d-none";
+          value.thClass = "d-none";
+        } else {
+          delete value.tdClass;
+          delete value.thClass;
+        }
+      });
       return this.items.filter(item => {
         return (
           item.sector
@@ -239,6 +309,9 @@ export default {
         );
       });
     },
+    allSelected(checked) {
+      this.select.shownColumn = checked ? this.columns.slice() : [];
+    },
     clearFilter() {
       this.select.sector = "";
       this.select.cell = "";
@@ -248,9 +321,11 @@ export default {
       this.$refs.dropdown.hide(true);
     },
     download() {
-      if (this.loading.progress) {
-        this.$snotify.error("Please wait while the list is being completed");
-      } else if (!this.loading.progress && !this.loading.request) {
+      if (this.loading.request && !this.tableItems.length) {
+        this.$snotify.error(
+          "No Data available to download! refresh page to retry"
+        );
+      } else if (!this.loading.request && this.tableItems.length) {
         const doc = new jsPDF();
         const date = new Date();
         const months = [
@@ -301,7 +376,11 @@ export default {
 
 <style>
 .table-container {
-  padding: 40px;
+  padding: 20px 40px;
+}
+.table-container > h4.title {
+  font-size: 20px;
+  text-transform: capitalize;
 }
 .controllers {
   margin: 10px 0;
@@ -313,12 +392,6 @@ export default {
   outline: none;
   padding: 2px 10px;
   height: fit-content;
-}
-.reports-loader::before {
-  display: inline;
-  font-weight: bold;
-  content: "loading";
-  user-select: none;
 }
 .controllers button {
   outline: none !important;
@@ -344,6 +417,7 @@ export default {
 .filter-dropdown legend {
   font-size: 14px;
   font-weight: bold;
+  padding-bottom: 5px;
 }
 .filter-dropdown select {
   width: 100%;
@@ -354,7 +428,7 @@ export default {
   border-color: #cacaca;
 }
 .filter-dropdown .form-group {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 .filter-dropdown hr {
   margin-top: 10px;
@@ -370,14 +444,17 @@ export default {
   min-width: 200px;
   margin: 0 2px 0;
 }
-.dropdown-menu form button {
-  font-size: 12px !important;
-  padding: 4px 10px !important;
-  margin-left: 6px;
-  width: 45%;
+.dropdown-menu > button {
+  font-size: 13px !important;
+  padding: 5px 20px !important;
+  margin: 0 10px 0 0;
+  width: fit-content;
 }
 .dropdown-menu form {
   outline: none !important;
+  display: flex !important;
+  width: 400px !important;
+  padding: 5px !important;
 }
 .table-container .controllers .search {
   display: flex;

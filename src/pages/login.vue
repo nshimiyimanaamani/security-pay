@@ -67,9 +67,6 @@ export default {
   computed: {
     endpoint() {
       return this.$store.getters.getEndpoint;
-    },
-    token() {
-      return this.$store.getters.token;
     }
   },
   methods: {
@@ -80,14 +77,17 @@ export default {
           password: this.form.password
         };
         this.loading = true;
-        this.$store
-          .dispatch("login", data)
+        this.axios
+          .post(this.endpoint + "/users/tokens", data)
           .then(res => {
-              this.loading = false
+            sessionStorage.setItem("token", res.data.token);
+            this.$router.push("dashboard");
+            this.loading = false;
           })
           .catch(err => {
-            console.log(err);
-            this.loading = false
+            console.warn(err);
+            delete sessionStorage.getItem("token");
+            this.loading = false;
           });
       }
     }

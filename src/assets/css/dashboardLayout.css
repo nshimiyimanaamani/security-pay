@@ -16,9 +16,10 @@
   position: fixed;
   width: 210px;
   top: 0;
+  z-index: 1001;
   height: 100vh;
   color: white;
-  background: #3db3fa;
+  background: #17a2b8;
 }
 
 .dashboardWrapper .dashboardSidebar h1 {
@@ -221,7 +222,7 @@
   text-transform: uppercase;
   font-size: 13px;
   letter-spacing: 1px;
-  border-top: 1px solid #3db3fa;
+  border-top: 1px solid #17a2b8;
 }
 
 .sidebarLinks li:hover {
@@ -241,11 +242,10 @@
   -ms-grid-column-span: 1;
   grid-column: 2/3;
   background: white;
-  position: -webkit-sticky;
-  position: sticky;
+  position: fixed;
   top: 0;
   height: 55px;
-  z-index: 999;
+  z-index: 1000;
   -webkit-box-shadow: 2px 0 5px #888;
           box-shadow: 2px 0 5px #888;
   min-height: 55px;

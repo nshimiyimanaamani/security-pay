@@ -12,26 +12,24 @@
           box-shadow: 0px 5px 10px #e0d5d5;
 }
 
-.village-wrapper .container .card > .card-body {
-  -webkit-columns: 2 20rem;
-          columns: 2 20rem;
-  -webkit-column-gap: 10px;
-          column-gap: 10px;
-}
-
 .village-wrapper .container .card .card-body > section {
   border: 1px solid #cec4c4;
   padding: 5px 10px;
-  width: 100%;
-  min-width: 280px;
+  width: 49%;
   margin: 0;
   position: relative;
   margin-bottom: 10px;
   display: block;
   -webkit-column-break-inside: avoid;
           break-inside: avoid;
-  -webkit-column-span: inherit;
-          column-span: inherit;
+}
+
+.village-wrapper .container .card .card-body > section:nth-child(even) {
+  float: right;
+}
+
+.village-wrapper .container .card .card-body > section:nth-child(odd) {
+  float: left;
 }
 
 .village-wrapper .container .card .card-body > section .card-header {
@@ -55,7 +53,7 @@
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  padding: 0;
+  padding: 10px 0px 0;
   background: inherit;
 }
 
@@ -63,6 +61,7 @@
   width: 100%;
   padding-right: 10px;
   display: block;
+  font-size: 14px;
 }
 
 .village-wrapper .container .card .card-body > section .card-footer article .progress {
@@ -81,11 +80,16 @@
           align-items: flex-end;
 }
 
-.village-wrapper .container .card .card-body > section .more-data hr {
-  margin-top: 20px;
-  margin-bottom: 10px;
-  border: 0;
-  border-top: 1px solid #c3c2c2;
+.village-wrapper .container .card .card-body > section .more-data {
+  position: absolute;
+  background: white;
+  z-index: 100;
+  width: 100.5%;
+  margin: 6px -11px;
+  border: 1px solid;
+  border-top: none;
+  border-color: inherit;
+  padding: 10px 10px 0;
 }
 
 .village-wrapper .container .card .card-body > section .more-data article {
@@ -93,6 +97,7 @@
   display: -ms-flexbox;
   display: flex;
   position: relative;
+  font-size: 14px;
 }
 
 .village-wrapper .container .card .card-body > section .more-data article p {
@@ -107,7 +112,7 @@
   background: white;
   -webkit-box-shadow: 0px 5px 10px #e0d5d5;
           box-shadow: 0px 5px 10px #e0d5d5;
-  padding-top: 50px;
+  padding-top: 1px;
 }
 
 .village-wrapper .container .error article {
@@ -130,7 +135,7 @@
 .village-wrapper .container-title {
   padding: 10px;
   border-radius: 10px 10px 0 0;
-  background-color: #3db3fa;
+  background-color: darkcyan;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;

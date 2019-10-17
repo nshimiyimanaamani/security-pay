@@ -156,7 +156,7 @@ export default {
       return this.$store.getters.getVillageArray;
     },
     getSector() {
-      return this.$store.getters.getSector;
+      return this.$store.getters.getSectorArray;
     },
     getPropertyCell() {
       return this.cells();
@@ -173,7 +173,6 @@ export default {
     this.getCellsArray;
     this.getActivevillage;
     this.getVillageArray;
-    console.log(this.searchData);
   },
   methods: {
     update(res) {

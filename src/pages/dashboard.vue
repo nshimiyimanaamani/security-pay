@@ -19,7 +19,10 @@
           <h1 class>{{activeSector}} TOTAL COLLECTED</h1>
           <i class="fa fa-cog"></i>
         </b-card-header>
-        <doughnut-chart :chart-data="chart2Data" :style="style"></doughnut-chart>
+        <div class="chart" style="height:100%;position: relative">
+          <doughnut-chart :chart-data="chart2Data" :style="style"></doughnut-chart>
+          <div class="center-text">{{percentage}}%</div>
+        </div>
       </b-card-body>
       <!-- end of chart 2 -->
     </div>
@@ -63,27 +66,30 @@ export default {
   computed: {
     activeSector() {
       this.fetchData();
-      return this.$store.getters.getActiveCell;
+      return this.$store.getters.getActiveSector;
     },
     style() {
       return {
         height: "85%",
-        "font-size": "15px"
+        "font-size": "15px",
+        content: "60%"
       };
+    },
+    percentage() {
+      const data = this.chart2Data.datasets[0].data;
+      const percentage = (data[0] * 100) / (data[0] + data[1]);
+      return percentage.toFixed();
     }
   },
   beforeMount() {
     this.fetchData();
   },
-  mounted() {
-    console.warn(this.chart3Data.datasets[0]);
-  },
   methods: {
     fetchData() {
       window.Chart.defaults.global.defaultFontSize = 13.5;
-      this.chart1Data = this.fillData();
-      this.chart2Data = this.fillData();
-      this.chart3Data = this.fillData();
+      this.chart1Data = this.fillData(["BK Acc", "MTN", "AIRTEL"], 3);
+      this.chart2Data = this.fill2Data(["abishyuye", "abasigaye"], 2);
+      this.chart3Data = this.fillData(["BK Acc", "MTN", "AIRTEL"], 3);
       this.chart3Data.datasets.push({
         label: "Data",
         backgroundColor: "transparent",
@@ -94,25 +100,42 @@ export default {
         type: "line"
       });
     },
-    fillData() {
+    fillData(labels, num) {
       const data = {
-        labels: ["BK Acc", "MTN", "AIRTEL"],
+        labels: labels,
         datasets: [
           {
             label: "Data",
             backgroundColor: "#008b8bb3",
-            data: [
-              this.getRandomInt(),
-              this.getRandomInt(),
-              this.getRandomInt()
-            ]
+            data: this.getRandomInt(num)
           }
         ]
       };
       return data;
     },
-    getRandomInt() {
+    fill2Data(labels, num) {
+      const data = {
+        labels: labels,
+        datasets: [
+          {
+            label: "Data",
+            backgroundColor: ["#008b8bb3", "#e4e4ec"],
+            borderColor: "white",
+            data: this.getRandomInt(num)
+          }
+        ]
+      };
+      return data;
+    },
+    rand() {
       return Math.floor(Math.random() * (50 - 5 + 1)) + 5;
+    },
+    getRandomInt(j) {
+      let randArray = [];
+      for (let i = 0; i < j; i++) {
+        randArray.push(this.rand());
+      }
+      return randArray;
     }
   }
 };

@@ -1,6 +1,24 @@
 .container {
   padding: 60px 20px 0;
   width: auto;
+
+  table thead {
+    th.table-name {
+      width: 20rem
+    }
+
+    th.table-icon {
+      width: 10rem
+    }
+
+    th.table-amount {
+      width: 10rem;
+    }
+
+    th.table-date {
+      width: 10rem;
+    }
+  }
 }
 
 .container .pulse {
@@ -21,8 +39,9 @@ tbody td {
   vertical-align: initial !important;
 }
 
+
 .mtn {
-  width: 30%;
+  width: 50%;
   border-radius: 3px;
   min-width: fit-content;
   background: white;
@@ -43,7 +62,7 @@ tbody td {
 }
 
 .airtel {
-  width: 30%;
+  width: 50%;
   margin: auto;
   min-width: fit-content;
   border-radius: 3px;
@@ -64,7 +83,7 @@ tbody td {
 }
 
 .bk {
-  width: 30%;
+  width: 50%;
   min-width: fit-content;
   border-radius: 3px;
   background: white;

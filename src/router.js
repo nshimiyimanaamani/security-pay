@@ -2,6 +2,7 @@
 /* eslint-disable quotes */
 import Vue from "vue";
 import Router from "vue-router";
+import axios from 'axios';
 import login from "./pages/login.vue";
 import register from "./pages/register.vue";
 import startPage from "./Layouts/main.vue";
@@ -14,7 +15,7 @@ import reports from './pages/reports.vue'
 
 Vue.use(Router);
 
-export default new Router({
+let router = new Router({
   mode: "history",
   routes: [{
       path: "/",
@@ -23,12 +24,18 @@ export default new Router({
       children: [{
           path: "/",
           name: "login",
-          component: login
+          component: login,
+          meta: {
+            guest: true
+          }
         },
         {
           path: "/register",
           name: "register",
-          component: register
+          component: register,
+          meta: {
+            guest: true
+          }
         }
       ]
     },
@@ -39,29 +46,74 @@ export default new Router({
       children: [{
           path: "/dashboard",
           name: "dashboard",
-          component: dashboard
+          component: dashboard,
+          meta: {
+            requireAuth: true
+          }
         },
         {
           path: "/transactions",
           name: "transactions",
-          component: transactions
+          component: transactions,
+          meta: {
+            requireAuth: true
+          }
         },
         {
           path: "/village",
           name: "village",
-          component: village
+          component: village,
+          meta: {
+            requireAuth: true
+          }
         },
         {
           path: "/cells",
           name: "cells",
-          component: cells
+          component: cells,
+          meta: {
+            requireAuth: true
+          }
         },
         {
           path: '/reports',
           name: 'reports',
-          component: reports
+          component: reports,
+          meta: {
+            requireAuth: true
+          }
         }
       ]
     }
   ]
 });
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requireAuth)) {
+    if (!sessionStorage.getItem('token')) {
+      next(
+        //   {
+        //   path: '/',
+        //   params: {
+        //     nextUrl: to.fullPath
+        //   }
+        // }
+      )
+    } else {
+      axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('token');
+      next()
+    }
+  } else if (to.matched.some(record => record.meta.guest)) {
+    if (!sessionStorage.getItem('token')) {
+      next()
+    } else {
+      next({
+        name: 'dashboard'
+      })
+    }
+  } else {
+    next()
+  }
+})
+
+export default router
