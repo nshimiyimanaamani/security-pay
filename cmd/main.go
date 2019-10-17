@@ -236,7 +236,7 @@ func startHTTPServer(ctx context.Context,
 
 	router.HandleFunc("/healthz", health.Health).Methods(http.MethodGet)
 
-	router.HandleFunc("version", version.Build).Methods(http.MethodGet)
+	router.HandleFunc("/version", version.Build).Methods(http.MethodGet)
 
 	userRoutes := router.PathPrefix("/users").Subrouter()
 	usersEndpoints.MakeAdapter(userRoutes)(users)

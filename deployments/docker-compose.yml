@@ -1,0 +1,82 @@
+version: '3'
+
+networks:
+  proxy:
+    external: true
+  backend:
+    external: false
+
+volumes:
+  data:
+
+services:
+  proxy:                       # traefik reverse-proxy
+    image: traefik 
+    container_name: proxy
+    command: --api --docker
+    ports:
+      - "${PROXY_HTTP_PORT}:${PROXY_HTTP_PORT}"
+      - "443:443" 
+    environment: 
+      GCE_PROJECT: paypack
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.frontend.rule=Host:paypack.quarksgroup.com;PathPrefixStrip:/monitor"
+      - "traefik.frontend.auth.basic.usersFile=./.htpasswd"
+      - "traefik.port=8080"
+      - "traefik.protocol=http"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock 
+      - ${GCP_KEY_PATH}:/root/keys/keyfile.json
+      - $PWD/traefik.toml:/traefik.toml
+      - $PWD/acme.json:/acme.json
+      - $PWD/.htpasswd:/.htpasswd
+    networks:
+      - proxy
+
+   database:
+    image: postgres:alpine
+    container_name: database
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    ports:
+       - "5433:5432"
+    volumes:
+       - data:/var/lib/postgresql/data
+    restart: on-failure
+
+    networks:
+     -  backend
+    expose:
+      - "5432"
+    labels:
+      - traefik.enable=false
+  
+  backend:                        # backend api
+    image: docker.pkg.github.com/rugwirobaker/paypack-backend/paypack:${BACKEND_STABLE_TAG}
+    container_name: backend
+    restart: always
+    networks:
+      - proxy
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.backend=backend"
+      - "traefik.frontend.rule=:Host:paypack.quarksgroup.com;PathPrefix:/api"
+      - "traefik.port=8000"
+      - "traefik.protocol=http"
+
+    depends_on:
+       - database
+    environment:
+      PAYPACK_DB_HOST:   ${DATABASE_HOST}
+      PAYPACK_DB_PORT:   ${DATABASE_PORT}
+      PAYPACK_DB_USER:   ${DATABASE_USER}
+      PAYPACK_DB:        ${DATABASE_NAME}
+      PAYPACK_DB_PASS:   ${DATABASE_PASSWORD}
+      PAYPACK_LOG_LEVEL: ${LOG_LEVEL}
+      PORT: "8000"
