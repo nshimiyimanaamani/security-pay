@@ -35,7 +35,7 @@ services:
     networks:
       - proxy
 
-   database:
+  database:
     image: postgres:alpine
     container_name: database
     environment:
