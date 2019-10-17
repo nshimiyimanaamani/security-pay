@@ -44,7 +44,7 @@ jobs:
       - run:
           name: Publish Docker Image
           command: |
-             docker build -t docker.pkg.github.com/rugwirobaker/paypack-backend/paypack:latest
+             docker build -t docker.pkg.github.com/rugwirobaker/paypack-backend/paypack:latest .
              docker push docker.pkg.github.com/rugwirobaker/paypack-backend/paypack:latest
 workflows:
   version: 2
