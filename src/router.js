@@ -91,14 +91,12 @@ let router = new Router({
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requireAuth)) {
     if (!sessionStorage.getItem('token')) {
-      next(
-        //   {
-        //   path: '/',
-        //   params: {
-        //     nextUrl: to.fullPath
-        //   }
-        // }
-      )
+      next({
+        path: '/',
+        params: {
+          nextUrl: to.fullPath
+        }
+      })
     } else {
       axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('token');
       next()

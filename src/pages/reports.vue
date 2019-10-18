@@ -132,35 +132,13 @@ export default {
       },
       size: "5px",
       fields: [
-        {
-          key: "index",
-          label: "NO"
-        },
-        {
-          key: "owner",
-          label: "Full name",
-          sortable: true
-        },
-        {
-          key: "sector",
-          label: "sector",
-          sortable: true
-        },
-        {
-          key: "cell",
-          label: "cell",
-          sortable: true
-        },
-        {
-          key: "village",
-          label: "village",
-          sortable: true
-        },
-        {
-          key: "due",
-          label: "amount",
-          sortable: false
-        }
+        { key: "index", label: "NO" },
+        { key: "owner", label: "Full name", sortable: true },
+        { key: "id", label: "House code", sortable: false },
+        { key: "sector", label: "sector", sortable: true },
+        { key: "cell", label: "Cell", sortable: true },
+        { key: "village", label: "Village", sortable: true },
+        { key: "due", label: "Amount", sortable: false }
       ],
       items: [],
       tableItems: []
