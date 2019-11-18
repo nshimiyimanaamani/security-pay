@@ -1,30 +1,56 @@
 <template>
-  <div class="container">
-    <b-table :items="table.items" :fields="table.fields" :busy="loading" show-empty bordered small>
-      <template v-slot:cell(method)="data">
-        <div :class="data.value">
-          <span>{{data.value}}</span>
-        </div>
-      </template>
-      <template v-slot:cell(recorded)="data">
-        <article class="text-center">{{data.value.slice(0,10)}}</article>
-      </template>
-      <template v-slot:cell(amount)="data">
-        <article class="text-center">{{data.value}} Frw</article>
-      </template>
-      <template v-slot:table-busy>
-        <div class="text-center my-2">
-          <b-spinner class="align-middle"></b-spinner>
-          <strong>Loading...</strong>
-        </div>
-      </template>
-      <template v-slot:empty="scope">
-        <label
-          class="container"
-          style="width: 100%;font-size: 17px;text-align: center;padding: 40px;"
-        >No records of transactions found!</label>
-      </template>
-    </b-table>
+  <div style="position: relative">
+    <div class="totals">
+      <div class="rows row1">RWF 9,986.55</div>
+      <div class="rows row2">
+        <span class="span1">
+          <p>BK Acc.</p>
+          <p>500 M</p>
+        </span>
+        <span class="span2">
+          <p>MTN MoMo</p>
+          <p>60 M</p>
+        </span>
+        <span class="span3">
+          <p>AIRTEL MONEY</p>
+          <p>79 M</p>
+        </span>
+      </div>
+    </div>
+    <div class="container">
+      <b-table
+        :items="table.items"
+        :fields="table.fields"
+        :busy="loading"
+        show-empty
+        bordered
+        small
+      >
+        <template v-slot:cell(method)="data">
+          <div :class="data.value">
+            <span>{{data.value}}</span>
+          </div>
+        </template>
+        <template v-slot:cell(recorded)="data">
+          <article class="text-center">{{data.value.slice(0,10)}}</article>
+        </template>
+        <template v-slot:cell(amount)="data">
+          <article class="text-center">{{Number(data.value).toLocaleString()}} Frw</article>
+        </template>
+        <template v-slot:table-busy>
+          <div class="text-center my-2">
+            <b-spinner class="align-middle"></b-spinner>
+            <strong>   Loading...</strong>
+          </div>
+        </template>
+        <template v-slot:empty="scope">
+          <label
+            class="container"
+            style="width: 100%;font-size: 17px;text-align: center;padding: 40px;"
+          >No records of transactions found!</label>
+        </template>
+      </b-table>
+    </div>
   </div>
 </template>
 

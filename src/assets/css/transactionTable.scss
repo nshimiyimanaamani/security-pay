@@ -1,5 +1,5 @@
 .container {
-  padding: 60px 20px 0;
+  padding: 1rem;
   width: auto;
 
   table thead {
@@ -17,6 +17,40 @@
 
     th.table-date {
       width: 10rem;
+    }
+  }
+}
+
+.totals {
+  height: 150px;
+  background: #17a2b8;
+  width: 100%;
+  padding: 15px;
+
+  .rows {
+    width: fit-content;
+    margin-left: auto;
+    margin-right: 3rem;
+    color: white;
+    text-transform: capitalize;
+  }
+
+  .row1 {
+    font-size: 25px;
+    font-weight: bold;
+    padding: 3% 0 0;
+    width: max-content;
+  }
+
+  .row2 {
+    padding: 10px 0;
+    display: flex;
+    width: max-content;
+
+    span {
+      margin-left: 20px;
+      border-left: 3px solid #eaeaea;
+      padding-left: 7px;
     }
   }
 }

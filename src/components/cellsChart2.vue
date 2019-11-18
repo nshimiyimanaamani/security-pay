@@ -8,6 +8,7 @@ export default {
     return {
       options: {
         responsive: true,
+        cutoutPercentage: 80,
         maintainAspectRatio: false,
         hover: { mode: null },
         tooltips: { enabled: false },

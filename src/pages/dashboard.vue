@@ -68,6 +68,9 @@ export default {
       this.fetchData();
       return this.$store.getters.getActiveSector;
     },
+    cellArray() {
+      return this.$store.getters.getCellsArray;
+    },
     style() {
       return {
         height: "85%",
@@ -89,7 +92,7 @@ export default {
       window.Chart.defaults.global.defaultFontSize = 13.5;
       this.chart1Data = this.fillData(["BK Acc", "MTN", "AIRTEL"], 3);
       this.chart2Data = this.fill2Data(["abishyuye", "abasigaye"], 2);
-      this.chart3Data = this.fillData(["BK Acc", "MTN", "AIRTEL"], 3);
+      this.chart3Data = this.fillData(this.cellArray, this.cellArray.length);
       this.chart3Data.datasets.push({
         label: "Data",
         backgroundColor: "transparent",

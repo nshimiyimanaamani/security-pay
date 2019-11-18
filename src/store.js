@@ -22,12 +22,12 @@ export const store = new Vuex.Store({
     token: sessionStorage.getItem("token") ?
       sessionStorage.getItem("token") : null,
     endpoint: process.env.VUE_APP_PAYPACK_API,
-    isOnline: navigator.onLine,
     active_sector: "remera",
     active_cell: "",
     cells_array: [],
     active_village: "",
     village_array: [],
+    villageByCell: [],
     sector: {
       "rukiri I": [
         "amajyambere",
@@ -97,13 +97,13 @@ export const store = new Vuex.Store({
           state.village_array[state.village_array.indexOf(res.changed)];
       }
     },
+    villageByCell(state, cell) {
+      state.villageByCell = state.sector[cell]
+    },
     logout(state) {
       delete sessionStorage.getItem("token");
       state.token = null;
     },
-    checkConnection(state, data) {
-      state.isOnline = data;
-    }
   },
   actions: {
     startup_function({
@@ -119,18 +119,15 @@ export const store = new Vuex.Store({
         resolve();
       });
     },
+    villageByCell({
+      commit
+    }, data) {
+      commit('villageByCell', data)
+    },
     logout({
       commit
     }) {
       commit("logout");
-    },
-    checkConnection({
-      commit
-    }) {
-      return new Promise(resolve => {
-        commit("checkConnection", navigator.onLine);
-        resolve(navigator.onLine);
-      });
     }
   },
   getters: {
@@ -142,6 +139,6 @@ export const store = new Vuex.Store({
     getVillageArray: state => state.village_array,
     getActiveSector: state => state.active_sector,
     token: state => state.token,
-    isOnline: state => state.isOnline
+    villageByCell: state => state.villageByCell
   }
 });

@@ -40,65 +40,19 @@
           <li>Penalties</li>
         </router-link>
       </ul>
-      <button id="btn" @click="modalShow = !modalShow">
-        <i class="fa fa-plus-circle" /> Add Properties
-      </button>
+      <p class="text-center powered" for="powered">
+          Powered By
+          <strong>Quarks Group.</strong>
+        </p>
     </div>
-    <div class="top-nav">
-      <div class="logout">
-        <b-button class="btn-info" @click.prevent="logout">Logout</b-button>
-      </div>
-    </div>
-    <div class="dashboardBody">
-      <router-view />
-    </div>
-    <div class="AddPropertymodal" v-show="modalShow">
-      <div class="form">
-        <b-form class="form1" v-show="!toggleForms">
-          <b-form-group label="Owner:">
-            <div class="names">
-              <b-form-input v-model="form.fname" required placeholder="First Name..."></b-form-input>
-              <b-form-input v-model="form.lname" required placeholder="Last Name..."></b-form-input>
-            </div>
-          </b-form-group>
-          <b-form-group label="Phone number:">
-            <b-form-input type="number" v-model="form.phoneNo"></b-form-input>
-          </b-form-group>
-
-          <div class="buttons">
-            <b-button type="submit" variant="primary" @click="search">Search</b-button>
-            <b-button variant="danger" @click="cancel">cancel</b-button>
-          </div>
-        </b-form>
-
-        <b-form @submit="onSubmit" v-show="toggleForms" class="form2">
-          <b-form-group class="phone" label="First Name:">
-            <b-form-input disabled v-model="form.fname" placeholder="First Name..."></b-form-input>
-          </b-form-group>
-          <b-form-group class="amount" label="Surname:">
-            <b-form-input disabled v-model="form.lname" placeholder="surname..."></b-form-input>
-          </b-form-group>
-          <b-form-group class="phone" label="Phone number:">
-            <b-input type="number" disabled v-model="form.phoneNo" placeholder="Phone Number..."></b-input>
-          </b-form-group>
-          <b-form-group class="amount" label="Payment Due:">
-            <b-form-input type="number" v-model="form.amount" placeholder="Amount..."></b-form-input>
-          </b-form-group>
-          <b-form-group label="cell:">
-            <b-form-select v-model="form.cells" :options="this.getPropertyCell" required></b-form-select>
-          </b-form-group>
-          <b-form-group label="village:">
-            <b-form-select v-model="form.village" :options="this.getPropertyVillage" required></b-form-select>
-          </b-form-group>
-          <div class="buttons">
-            <b-button variant="danger" @click="cancel">cancel</b-button>
-            <b-button type="submit" variant="primary">Submit</b-button>
-          </div>
-        </b-form>
-
-        <div class="loader" v-show="loading">
-          <pulse-loader :loading="loading" :color="color" :size="size"></pulse-loader>
+    <div class="rightSide">
+      <div class="top-nav">
+        <div class="logout">
+          <b-button class="btn-info" @click.prevent="logout">Logout</b-button>
         </div>
+      </div>
+      <div class="dashboardBody">
+        <router-view />
       </div>
     </div>
   </div>
@@ -108,30 +62,12 @@
 export default {
   data() {
     return {
-      modalShow: false,
-      toggleForms: false,
       userAvailable: false,
-      state: {
-        disableSearch: true
-      },
-      loading: false,
-      size: "10px",
-      color: "#167df0",
       sidebar: {
         active_cell: this.getActiveCell,
         cells_array: [],
         active_village: "",
         village_array: []
-      },
-      form: {
-        name: "",
-        fname: "",
-        lname: "",
-        phoneNo: "",
-        amount: "",
-        cells: null,
-        village: null,
-        user_id: ""
       }
     };
   },
@@ -163,9 +99,6 @@ export default {
     },
     getPropertyVillage() {
       return this.village();
-    },
-    searchData() {
-      return this.$store.getters.searchData;
     }
   },
   mounted() {
@@ -183,107 +116,8 @@ export default {
         this.getVillageArray;
       });
     },
-    search(e) {
-      e.preventDefault();
-      this.loading = true;
-      this.axios
-        .get(
-          `${this.endpoint}/properties/owners/search/?fname=${this.form.fname}&lname=${this.form.lname}&phone=${this.form.phoneNo}`
-        )
-        .then(res => {
-          this.form.user_id = res.data.id;
-          this.toggleForms = true;
-          this.loading = false;
-          this.$snotify.info(
-            `Existing user. proceeding to property registration...`
-          );
-        })
-        .catch(err => {
-          this.$snotify.warning(`Oops! user not found. Creating user...`);
-          this.axios
-            .post(`${this.endpoint}/properties/owners/`, {
-              fname: this.form.fname,
-              lname: this.form.lname,
-              phone: this.form.phoneNo
-            })
-            .then(res => {
-              this.form.user_id = res.data.id;
-              this.toggleForms = true;
-              this.loading = false;
-              this.$snotify.info(`User created. proceeding to registration...`);
-            })
-            .catch(err => {
-              this.loading = false;
-              this.$snotify.error(`Oops! user creation Failed`);
-            });
-        });
-    },
     logout() {
       this.$store.dispatch("logout");
-    },
-    onSubmit(evt) {
-      evt.preventDefault();
-      this.loading = true;
-      this.axios
-        .post(`${this.endpoint}/properties/`, {
-          cell: this.form.cells,
-          owner: this.form.user_id,
-          due: this.form.amount,
-          sector: "remera",
-          village: this.form.village
-        })
-        .then(res => {
-          this.$snotify.success(`Property registered successfully`);
-          this.loading = false;
-          this.modalShow = !this.modalShow;
-          (this.form.lname = ""),
-            (this.form.fname = ""),
-            (this.form.phoneNo = ""),
-            (this.form.amount = ""),
-            (this.form.cells = ""),
-            (this.form.village = "");
-          this.toggleForms = false;
-        })
-        .catch(err => {
-          this.$snotify.error(`Oops! property registration Failed`);
-          this.loading = false;
-        });
-    },
-
-    cancel(e) {
-      e.preventDefault();
-
-      this.modalShow = !this.modalShow;
-      (this.form.lname = ""),
-        (this.form.fname = ""),
-        (this.form.phoneNo = ""),
-        (this.form.amount = ""),
-        (this.form.cells = ""),
-        (this.form.village = "");
-      this.toggleForms = false;
-    },
-
-    cells() {
-      let main_array = [{ text: "Select cell", value: null }];
-      this.getCellsArray.forEach(element => {
-        main_array = [...main_array, element];
-      });
-      return main_array;
-    },
-
-    village() {
-      let main_array = [{ text: "Select village", value: null }];
-      if (this.form.cells == null) {
-        return main_array;
-      } else if (
-        this.form.cells != null &&
-        this.getSector[this.form.cells] != undefined
-      ) {
-        this.getSector[this.form.cells].forEach(element => {
-          main_array = [...main_array, element];
-        });
-        return main_array;
-      }
     }
   }
 };

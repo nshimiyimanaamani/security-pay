@@ -1,6 +1,11 @@
 <template>
   <div class="table-container">
-    <h4 class="title text-center" v-show="selected">{{title}}</h4>
+    <h4 class="title text-center" v-show="selected">
+      {{title}}
+      <b-button class="add-property mb-1" @click="modal.show = ! modal.show">
+        <i class="fa fa-plus-circle"></i> Property
+      </b-button>
+    </h4>
     <hr />
     <div class="controllers">
       <b-dropdown
@@ -32,7 +37,7 @@
           <b-card-body class="p-2">
             <b-form-group>
               <template v-slot:label>
-                <b>Choose your flavours:</b>
+                <b>Choose columns to display:</b>
                 <br />
                 <b-form-checkbox
                   v-model="select.selectAll"
@@ -80,16 +85,20 @@
       :items="tableItems"
       :fields="fields"
       :busy="loading.request"
+      :sort-by.sync="sortBy"
+      :sort-desc.sync="sortDesc"
       show-empty
+      :current-page="pagination.currentPage"
+      :per-page="pagination.perPage"
     >
-      <template v-slot:cell(due)="data">{{data.item.due}} Rwf</template>
+      <template v-slot:cell(due)="data">{{Number(data.item.due).toLocaleString()}} Rwf</template>
       <template v-slot:cell(index)="data">
         <article class="text-center">{{data.index + 1}}</article>
       </template>
       <template v-slot:table-busy>
         <div class="text-center my-2">
           <b-spinner class="align-middle"></b-spinner>
-          <strong>Loading...</strong>
+          <strong>   Loading...</strong>
         </div>
       </template>
       <template v-slot:empty="scope">
@@ -97,7 +106,121 @@
           class="text-center my-4"
         >{{search.name ? search.name+' "is not availble in the list"':'No user Found!'}}</h5>
       </template>
+      <template v-slot:custom-foot="items" v-if="!loading.request">
+        <b-tr v-if="select.shownColumn.includes('Amount')">
+          <b-td v-for="index in select.shownColumn" :key="index" variant="primary">
+            <div
+              v-if="index == select.shownColumn[select.shownColumn.indexOf('Amount')-1]"
+              class="text-danger"
+            >
+              <strong>TOTAL:</strong>
+            </div>
+            <div v-if="index == 'Amount'">
+              <strong>{{totals(items.items)}} Rwf</strong>
+            </div>
+          </b-td>
+        </b-tr>
+      </template>
     </b-table>
+    <b-pagination
+      size="sm"
+      v-model="pagination.currentPage"
+      :total-rows="pagination.totalRows"
+      :per-page="pagination.perPage"
+      align="fill"
+      class="my-0"
+      v-if="!loading.request"
+    />
+    <div class="add-property-modal" v-show="modal.show">
+      <!-- Modal content -->
+      <b-card class="mb-2 modal-body">
+        <h5 class="text-center mb-1">{{modal.title}}</h5>
+        <hr />
+        <b-form @submit.prevent="search_user" @reset="resetModal">
+          <b-form-group id="input-group-1" class="mb-2" label="First Name:" label-for="input-1">
+            <b-form-input
+              id="input-1"
+              v-model="modal.form.fname"
+              required
+              placeholder="First name"
+              :disabled="modal.switch"
+            ></b-form-input>
+          </b-form-group>
+
+          <b-form-group id="input-group-2" class="mb-2" label="Last Name:" label-for="input-2">
+            <b-form-input
+              id="input-2"
+              v-model="modal.form.lname"
+              :disabled="modal.switch"
+              required
+              placeholder="Last name"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group id="input-group-3" class="mb-2" label="Phone Number:" label-for="input-3">
+            <b-form-input
+              id="input-3"
+              v-model="modal.form.phone"
+              :state="checkNumber"
+              :disabled="modal.switch"
+              required
+              type="number"
+              placeholder="Phone number"
+            ></b-form-input>
+            <b-form-invalid-feedback
+              :state="checkNumber"
+            >Phone number must be greater or equal than 10.</b-form-invalid-feedback>
+          </b-form-group>
+          <b-form-group
+            id="input-group-4"
+            :label="'Due: '+ modal.form.due +' Rwf'"
+            label-for="range-1"
+            v-show="modal.switch"
+            class="mb-2"
+          >
+            <b-form-input
+              id="range-1"
+              v-model="modal.form.due"
+              type="range"
+              min="0"
+              max="10000"
+              step="500"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group
+            id="input-group-5"
+            class="mb-2"
+            label="Cell:"
+            label-for="input-4"
+            v-show="modal.switch"
+          >
+            <b-form-select v-model="modal.select.cell" :options="cellsOptions" class="mb-0">
+              <template v-slot:first>
+                <option :value="null" disabled>select a cell</option>
+              </template>
+            </b-form-select>
+          </b-form-group>
+          <b-form-group
+            id="input-group-6"
+            label="Village:"
+            label-for="input-5"
+            v-show="modal.switch"
+            class="mb-3"
+          >
+            <b-form-select v-model="modal.select.village" :options="villageOptions" class="mb-0">
+              <template v-slot:first>
+                <option :value="null" disabled>select a village</option>
+              </template>
+            </b-form-select>
+          </b-form-group>
+
+          <b-button type="submit" variant="primary">
+            {{modal.loading ? modal.btnContent+'ing' : modal.btnContent}}
+            <b-spinner v-show="modal.loading" small type="grow"></b-spinner>
+          </b-button>
+          <b-button type="reset" variant="danger">cancel</b-button>
+        </b-form>
+      </b-card>
+    </div>
   </div>
 </template>
 
@@ -116,6 +239,24 @@ export default {
         progress: false,
         request: false
       },
+      modal: {
+        show: false,
+        switch: false,
+        loading: false,
+        title: "Search House Owner",
+        btnContent: "Search",
+        form: {
+          fname: "",
+          lname: "",
+          phone: "",
+          id: "",
+          due: "500"
+        },
+        select: {
+          cell: null,
+          village: null
+        }
+      },
       search: {
         name: "",
         datalist: []
@@ -131,6 +272,8 @@ export default {
         selectAll: true
       },
       size: "5px",
+      sortBy: "owner",
+      sortDesc: false,
       fields: [
         { key: "index", label: "NO" },
         { key: "owner", label: "Full name", sortable: true },
@@ -141,26 +284,41 @@ export default {
         { key: "due", label: "Amount", sortable: false }
       ],
       items: [],
-      tableItems: []
+      tableItems: [],
+      pagination: {
+        perPage: 15,
+        currentPage: 1,
+        totalRows: 1
+      }
     };
   },
   computed: {
     endpoint() {
       return this.$store.getters.getEndpoint;
     },
+    cellsOptions() {
+      return this.$store.getters.getCellsArray;
+    },
+    villageOptions() {
+      return this.$store.getters.villageByCell;
+    },
     title() {
       return `List of users in ${this.selected}`;
     },
     activeSector() {
-      const Fsector =
-        this.$store.getters.getActiveSector.charAt(0).toUpperCase() +
-        this.$store.getters.getActiveSector.slice(1);
-      return Fsector;
+      return this.capitalize(this.$store.getters.getActiveSector);
     },
     columns() {
       let array = [];
       this.fields.forEach(i => array.push(i.label));
       return array;
+    },
+    checkNumber() {
+      if (this.modal.form.phone.length >= 1) {
+        return this.modal.form.phone.length >= 10;
+      } else {
+        return null;
+      }
     }
   },
   watch: {
@@ -237,6 +395,14 @@ export default {
           this.search.datalist.pop();
         }
       }
+    },
+    "modal.select.cell"() {
+      this.$store.dispatch("villageByCell", this.modal.select.cell);
+    },
+    tableItems() {
+      handler: {
+        this.pagination.totalRows = this.tableItems.length;
+      }
     }
   },
   mounted() {
@@ -255,7 +421,7 @@ export default {
         .then(res => {
           this.items = new Array();
           this.items = res.data.properties;
-          console.warn(this.items);
+          // console.warn(this.items);
           this.loading.request = false;
         })
         .catch(err => {
@@ -263,11 +429,105 @@ export default {
           this.loading.request = false;
         });
     },
+    search_user() {
+      if (!this.modal.switch) {
+        const fname = this.capitalize(this.modal.form.fname.trim());
+        const lname = this.capitalize(this.modal.form.lname.trim());
+        const phone = this.modal.form.phone.trim();
+        this.modal.loading = true;
+        this.axios
+          .get(
+            this.endpoint +
+              "/properties/owners/search/?fname=" +
+              fname +
+              "&lname=" +
+              lname +
+              "&phone=" +
+              phone
+          )
+          .then(res => {
+            this.modal.loading = false;
+            this.modal.switch = true;
+            this.modal.title = "Register Property";
+            this.modal.btnContent = "Register";
+            this.modal.form.id = res.data.id;
+            console.warn(res.data);
+          })
+          .catch(err => {
+            this.modal.loading = false;
+            const message =
+              fname +
+              " " +
+              lname +
+              " is not registered! Do you want to register this user?";
+            this.confirm(message).then(state => {
+              if (state === true) {
+                this.modal.loading = true;
+                this.axios
+                  .post(`${this.endpoint}/properties/owners/`, {
+                    fname: fname,
+                    lname: lname,
+                    phone: phone
+                  })
+                  .then(res => {
+                    this.modal.loading = false;
+                    this.modal.swith = true;
+                    this.$snotify.info(
+                      `User created. proceeding to registration...`
+                    );
+                  });
+              }
+            });
+          });
+      } else if (this.modal.switch) {
+        this.modal.loading = true;
+        this.axios
+          .post(this.endpoint + "/properties/", {
+            cell: this.modal.select.cell,
+            owner: this.modal.form.id,
+            due: this.modal.form.due.toString(),
+            sector: "remera",
+            village: this.modal.select.village
+          })
+          .then(res => {
+            this.resetModal();
+            this.loadData();
+            this.$snotify.info(`Property Registered successfully!`);
+          })
+          .catch(err => {
+            this.modal.loading = false;
+            this.$snotify.error(`Property Registration Failed!`);
+            console.warn(err);
+          });
+      }
+    },
+    resetModal() {
+      this.modal.show = false;
+      this.modal.switch = false;
+      this.modal.loading = false;
+      this.modal.title = "Search House Owner";
+      this.modal.btnContent = "Search";
+      this.modal.form.fname = "";
+      this.modal.form.lname = "";
+      this.modal.form.phone = "";
+      this.modal.form.id = "";
+      this.modal.form.due = "";
+      this.modal.select.cell = "";
+      this.modal.select.village = "";
+    },
+    totals(data) {
+      if (data) {
+        let total = 0;
+        data.forEach(element => {
+          total += Number(element.due);
+        });
+        return total.toLocaleString();
+      }
+    },
     filter() {
+      0;
       this.$refs.dropdown.hide(true);
-
       //disabling some of the columns
-
       this.fields.forEach(value => {
         if (!this.select.shownColumn.includes(value.label)) {
           value.tdClass = "d-none";
@@ -347,6 +607,22 @@ export default {
         });
         doc.save(`${this.title} of ${month}, ${year}.pdf`);
       }
+    },
+    capitalize(string) {
+      string.toLowerCase();
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    },
+    confirm(message) {
+      return this.$bvModal.msgBoxConfirm(message, {
+        title: "Please Confirm",
+        buttonSize: "sm",
+        okVariant: "danger",
+        okTitle: "YES",
+        cancelTitle: "NO",
+        footerClass: "p-3",
+        hideHeaderClose: false,
+        centered: true
+      });
     }
   }
 };
@@ -354,11 +630,50 @@ export default {
 
 <style>
 .table-container {
-  padding: 20px 40px;
+  padding: 15px 40px 5px;
+  position: relative;
+}
+hr {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 .table-container > h4.title {
   font-size: 20px;
   text-transform: capitalize;
+}
+.title .add-property {
+  float: right;
+  padding: 5px 10px;
+  height: fit-content;
+  background: #17a2b8;
+  border: none;
+  margin-top: -5px;
+}
+.add-property-modal {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  margin: auto;
+  background: #000000cc;
+}
+.add-property-modal .modal-body {
+  position: sticky;
+  -ms-flex: 1 1 auto;
+  -webkit-box-flex: 1;
+  flex: 1 1 auto;
+  padding: 0;
+  width: 40%;
+  top: 5rem;
+  margin: auto;
+}
+.modal-body form button {
+  float: right;
+  margin-left: 10px;
+  padding: 3px 15px;
 }
 .controllers {
   margin: 10px 0;

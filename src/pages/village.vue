@@ -43,8 +43,14 @@
       <section class="error" v-show="!houses.length">
         <article>
           <center>
-            <i class="fa fa-exclamation-triangle"></i>
-            <label for="error">No House found in {{activeVillage}}</label>
+            <div v-if="!state.loading">
+              <i class="fa fa-exclamation-triangle"></i>
+              <label for="error">No House found in {{activeVillage}}</label>
+            </div>
+            <div v-else-if="state.loading">
+              <b-spinner variant="primary" small type="grow" label="Spinning"></b-spinner>
+              <label>Loading...</label>
+            </div>
           </center>
         </article>
       </section>
@@ -56,6 +62,9 @@
 export default {
   data() {
     return {
+      state: {
+        loading: true
+      },
       months: [
         "January",
         "February",
@@ -100,14 +109,16 @@ export default {
   },
   methods: {
     loadData() {
+      this.state.loading = true;
       this.axios
         .get(this.endpoint + `/properties/sectors/remera?offset=1&limit=100`)
         .then(res => {
-          console.log(res.data);
+          this.state.loading = false;
           this.responseData = res.data.properties;
           this.filterBy_village();
         })
         .catch(err => {
+          this.state.loading = false;
           console.log(err);
           return [];
         });
