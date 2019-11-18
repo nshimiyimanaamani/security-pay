@@ -139,6 +139,43 @@ func migrateDB(db *sql.DB) error {
 					`ALTER TABLE users DROP COLUMN  cell;`,
 				},
 			},
+			{
+				Id: "paypack_6",
+
+				Up: []string{
+					`ALTER TABLE owners 
+						ADD UNIQUE (phone),
+					 	ADD COLUMN password VARCHAR(60) NOT NULL;
+					`,
+				},
+
+				Down: []string{
+					`ALTER TABLE owners 
+						DROP COLUMN  password;
+					`,
+				},
+			},
+			{
+				Id: "paypack_7",
+
+				Up: []string{
+					`CREATE TABLE IF NOT EXISTS messages (
+						id 			UUID,
+						title 		TEXT,
+						body  		TEXT,
+						hidden 		BOOLEAN DEFAULT false,
+						created_by	VARCHAR(15),
+						created_at 	TIMESTAMP,
+						updated_at  TIMESTAMP,
+						PRIMARY KEY(id)
+					)`,
+				},
+
+				Down: []string{
+					`DROP TABLE messages;
+					`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
