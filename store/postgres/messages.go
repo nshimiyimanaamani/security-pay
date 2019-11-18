@@ -42,7 +42,7 @@ func (str *messageStore) Retrieve(ctx context.Context, id string) (feedback.Mess
 	q := `SELECT id, title, body, created_by, created_at, updated_at FROM messages WHERE id=$1`
 
 	var msg = feedback.Message{}
-	if err := str.db.QueryRow(q, id).Scan(&msg.ID, &msg.Title, &msg.Body, &msg.CreatedBy, &msg.CreatedAt); err != nil {
+	if err := str.db.QueryRow(q, id).Scan(&msg.ID, &msg.Title, &msg.Body, &msg.CreatedBy, &msg.CreatedAt, &msg.UpdatedAt); err != nil {
 		empty := feedback.Message{}
 
 		pqErr, ok := err.(*pq.Error)
