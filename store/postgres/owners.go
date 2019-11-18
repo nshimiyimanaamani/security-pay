@@ -20,9 +20,9 @@ func NewOwnerStore(db *sql.DB) properties.OwnerStore {
 }
 
 func (str *ownerStore) Save(owner properties.Owner) (string, error) {
-	q := `INSERT INTO owners (id, fname, lname, phone) VALUES ($1, $2, $3, $4) RETURNING id;`
+	q := `INSERT INTO owners (id, fname, lname, phone, password) VALUES ($1, $2, $3, $4, $5) RETURNING id;`
 
-	_, err := str.db.Exec(q, &owner.ID, &owner.Fname, &owner.Lname, &owner.Phone)
+	_, err := str.db.Exec(q, &owner.ID, &owner.Fname, &owner.Lname, &owner.Phone, &owner.Password)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -39,9 +39,9 @@ func (str *ownerStore) Save(owner properties.Owner) (string, error) {
 }
 
 func (str *ownerStore) Update(owner properties.Owner) error {
-	q := `UPDATE owners SET fname=$1, lname=$2, phone=$3 WHERE id=$4;`
+	q := `UPDATE owners SET fname=$1, lname=$2, phone=$3, password=$4 WHERE id=$5;`
 
-	res, err := str.db.Exec(q, owner.Fname, owner.Lname, owner.Phone, owner.ID)
+	res, err := str.db.Exec(q, owner.Fname, owner.Lname, owner.Phone, owner.Password, owner.ID)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -64,11 +64,11 @@ func (str *ownerStore) Update(owner properties.Owner) error {
 }
 
 func (str *ownerStore) Retrieve(id string) (properties.Owner, error) {
-	q := `SELECT * FROM owners WHERE id = $1`
+	q := `SELECT id, fname, lname, phone, password FROM owners WHERE id = $1`
 
 	var owner properties.Owner
 
-	if err := str.db.QueryRow(q, id).Scan(&owner.ID, &owner.Fname, &owner.Lname, &owner.Phone); err != nil {
+	if err := str.db.QueryRow(q, id).Scan(&owner.ID, &owner.Fname, &owner.Lname, &owner.Phone, &owner.Password); err != nil {
 		empty := properties.Owner{}
 
 		pqErr, ok := err.(*pq.Error)
@@ -81,7 +81,7 @@ func (str *ownerStore) Retrieve(id string) (properties.Owner, error) {
 }
 
 func (str *ownerStore) FindOwner(fname, lname, phone string) (properties.Owner, error) {
-	q := `SELECT * FROM owners WHERE fname=$1 AND lname=$2 AND phone=$3;`
+	q := `SELECT id, fname, lname, phone FROM owners WHERE fname=$1 AND lname=$2 AND phone=$3;`
 
 	var owner properties.Owner
 
@@ -99,7 +99,7 @@ func (str *ownerStore) FindOwner(fname, lname, phone string) (properties.Owner, 
 }
 
 func (str *ownerStore) RetrieveAll(offset, limit uint64) (properties.OwnerPage, error) {
-	q := `SELECT * FROM owners ORDER BY id LIMIT $1 OFFSET $2;`
+	q := `SELECT id, fname, lname, phone FROM owners ORDER BY id LIMIT $1 OFFSET $2;`
 
 	var items = []properties.Owner{}
 
@@ -108,8 +108,10 @@ func (str *ownerStore) RetrieveAll(offset, limit uint64) (properties.OwnerPage, 
 		return properties.OwnerPage{}, err
 	}
 	defer rows.Close()
+
 	for rows.Next() {
 		c := properties.Owner{}
+
 		if err := rows.Scan(&c.ID, &c.Fname, &c.Lname, &c.Phone); err != nil {
 			return properties.OwnerPage{}, err
 		}
@@ -132,4 +134,20 @@ func (str *ownerStore) RetrieveAll(offset, limit uint64) (properties.OwnerPage, 
 		},
 	}
 	return page, nil
+}
+
+func (str *ownerStore) RetrieveByPhone(phone string) (properties.Owner, error) {
+	q := `SELECT id, fname, lname, phone, password FROM owners WHERE phone = $1`
+	var owner properties.Owner
+
+	if err := str.db.QueryRow(q, phone).Scan(&owner.ID, &owner.Fname, &owner.Lname, &owner.Phone, &owner.Password); err != nil {
+		empty := properties.Owner{}
+
+		pqErr, ok := err.(*pq.Error)
+		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
+			return empty, properties.ErrNotFound
+		}
+		return empty, err
+	}
+	return owner, nil
 }

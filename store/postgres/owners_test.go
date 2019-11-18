@@ -2,7 +2,10 @@ package postgres_test
 
 import (
 	"fmt"
+	"math/rand"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -13,12 +16,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var src = rand.NewSource(time.Now().UnixNano())
+
+const letterBytes = "0123456789"
+const (
+	letterIdxBits = 6                    // 6 bits to represent a letter index
+	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
+	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
+)
+
 func TestSaveOwner(t *testing.T) {
 	repo := postgres.NewOwnerStore(db)
 
 	defer CleanDB(t, "owners")
 
-	new := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	new := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882", Password: "password"}
 
 	cases := []struct {
 		desc  string
@@ -48,7 +60,7 @@ func TestUpdateOwner(t *testing.T) {
 
 	defer CleanDB(t, "owners")
 
-	new := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	new := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882", Password: "password"}
 
 	id, err := repo.Save(new)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -83,7 +95,7 @@ func TestRetrieveOwner(t *testing.T) {
 
 	defer CleanDB(t, "owners")
 
-	new := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	new := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882", Password: "password"}
 
 	id, err := repo.Save(new)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -111,7 +123,7 @@ func TestFindOwner(t *testing.T) {
 
 	defer CleanDB(t, "owners")
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882", Password: "password"}
 
 	id, err := repo.Save(owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -172,12 +184,14 @@ func TestRetrieveAllOwners(t *testing.T) {
 
 	for i := uint64(0); i < n; i++ {
 		p := properties.Owner{
-			ID:    uuid.New().ID(),
-			Fname: "James ",
-			Lname: "Rodriguez",
-			Phone: "0784677882",
+			ID:       uuid.New().ID(),
+			Fname:    "James ",
+			Lname:    "Rodriguez",
+			Phone:    random(15),
+			Password: "password",
 		}
-		repo.Save(p)
+		_, err := repo.Save(p)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 
 	cases := map[string]struct {
@@ -207,4 +221,51 @@ func TestRetrieveAllOwners(t *testing.T) {
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
 		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got %d\n", desc, err))
 	}
+}
+
+func TestRetrieveOwnerByPhone(t *testing.T) {
+	repo := postgres.NewOwnerStore(db)
+
+	defer CleanDB(t, "owners")
+
+	new := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882", Password: "password"}
+
+	_, err := repo.Save(new)
+
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	cases := []struct {
+		desc  string
+		phone string
+		err   error
+	}{
+		{"retrieve existing owner", new.Phone, nil},
+		{"retrieve non-existing owner", "0785460022", properties.ErrNotFound},
+		{"retrieve owner with malformed id", wrongValue, properties.ErrNotFound},
+	}
+
+	for _, tc := range cases {
+		_, err := repo.RetrieveByPhone(tc.phone)
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+	}
+}
+
+func random(n int) string {
+
+	sb := strings.Builder{}
+	sb.Grow(n)
+	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
+		if remain == 0 {
+			cache, remain = src.Int63(), letterIdxMax
+		}
+		if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
+			sb.WriteByte(letterBytes[idx])
+			i--
+		}
+		cache >>= letterIdxBits
+		remain--
+	}
+
+	return sb.String()
 }
