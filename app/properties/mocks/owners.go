@@ -111,3 +111,16 @@ func (str *ownerStoreMock) RetrieveAll(offset, limit uint64) (properties.OwnerPa
 
 	return page, nil
 }
+
+func (str *ownerStoreMock) RetrieveByPhone(phone string) (properties.Owner, error) {
+	str.mu.Lock()
+	defer str.mu.Unlock()
+
+	for _, ow := range str.owners {
+		if ow.Phone == phone {
+			return ow, nil
+		}
+	}
+
+	return properties.Owner{}, properties.ErrNotFound
+}

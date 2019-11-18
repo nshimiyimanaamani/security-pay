@@ -29,6 +29,33 @@ const (
 
 // Service defines the properties(houses) api
 type Service interface {
+	owners
+	properties
+}
+
+type owners interface {
+	// CreateOwner adds a new property adn returns his id if the operation is a success
+	CreateOwner(token string, owner Owner) (string, error)
+
+	// Update owner updates the given owner and returns a nil error if
+	// the operation is a success.
+	UpdateOwner(token string, owner Owner) error
+
+	// ViewOwner returns a owner entity given it's id and returns\
+	// a non-nil error the operation failed
+	ViewOwner(token, id string) (Owner, error)
+
+	// Listowners returns a subset(offset, limit) of owners and a non-nil error
+	ListOwners(token string, offset, limit uint64) (OwnerPage, error)
+
+	// FindOwner owners finds a owner given their fname, lname and phone.
+	FindOwner(token, fname, lname, phone string) (Owner, error)
+
+	// Owner mobile login
+	OwnerLogin(fname, lname, phone string) (string, error)
+}
+
+type properties interface {
 	// AddProperty adds a unique property entity. Taking a property entity it returns
 	// it's unique id an an nil error if the operation is successful
 	AddProperty(token string, prop Property) (Property, error)
@@ -56,23 +83,6 @@ type Service interface {
 	// ListPropertiesByVillage returns a lists of properties in the given village
 	// withing the given range(offset, limit).
 	ListPropertiesByVillage(token, village string, offset, limit uint64) (PropertyPage, error)
-
-	// CreateOwner adds a new property adn returns his id if the operation is a success
-	CreateOwner(token string, owner Owner) (string, error)
-
-	// Update owner updates the given owner and returns a nil error if
-	// the operation is a success.
-	UpdateOwner(token string, owner Owner) error
-
-	// ViewOwner returns a owner entity given it's id and returns\
-	// a non-nil error the operation failed
-	ViewOwner(token, id string) (Owner, error)
-
-	// Listowners returns a subset(offset, limit) of owners and a non-nil error
-	ListOwners(token string, offset, limit uint64) (OwnerPage, error)
-
-	// FindOwner owners finds a owner given their fname, lname and phone.
-	FindOwner(token, fname, lname, phone string) (Owner, error)
 }
 
 var _ Service = (*propertyService)(nil)
@@ -206,4 +216,9 @@ func (svc *propertyService) FindOwner(token, fname, lname, phone string) (Owner,
 		return Owner{}, err
 	}
 	return svc.owners.FindOwner(fname, lname, phone)
+}
+
+func (svc *propertyService) OwnerLogin(fname, lname, phone string) (string, error) {
+	svc.owners.FindOwner(fname, lname, phone)
+	return "", nil
 }

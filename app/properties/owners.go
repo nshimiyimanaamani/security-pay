@@ -4,10 +4,11 @@ import "github.com/ttacon/libphonenumber"
 
 //Owner defines a property owner
 type Owner struct {
-	ID    string
-	Fname string
-	Lname string
-	Phone string
+	ID       string
+	Fname    string
+	Lname    string
+	Phone    string
+	Password string
 }
 
 //OwnerPage ist of owners
@@ -45,4 +46,6 @@ type OwnerStore interface {
 
 	// RetrieveAll retrieves a subst of owners.
 	RetrieveAll(uint64, uint64) (OwnerPage, error)
+
+	RetrieveByPhone(string) (Owner, error)
 }
