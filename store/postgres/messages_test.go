@@ -44,7 +44,7 @@ func TestSaveMessage(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		err := repo.Save(ctx, tc.msg)
+		_, err := repo.Save(ctx, &tc.msg)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 
@@ -64,7 +64,7 @@ func TestUpdateMessage(t *testing.T) {
 
 	ctx := context.Background()
 
-	err := repo.Save(ctx, message)
+	saved, err := repo.Save(ctx, &message)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	cases := []struct {
@@ -74,7 +74,7 @@ func TestUpdateMessage(t *testing.T) {
 	}{
 		{
 			desc: "update existant message",
-			msg:  message,
+			msg:  *saved,
 			err:  nil,
 		},
 		{
@@ -105,7 +105,7 @@ func TestRetrieveMessage(t *testing.T) {
 
 	ctx := context.Background()
 
-	err := repo.Save(ctx, message)
+	saved, err := repo.Save(ctx, &message)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	cases := []struct {
@@ -113,7 +113,7 @@ func TestRetrieveMessage(t *testing.T) {
 		id   string
 		err  error
 	}{
-		{"retrieve existing message", message.ID, nil},
+		{"retrieve existing message", saved.ID, nil},
 		{"retrieve non-existing owner", uuid.New().ID(), feedback.ErrNotFound},
 		{"retrieve owner with malformed id", wrongValue, feedback.ErrNotFound},
 	}
@@ -139,14 +139,18 @@ func TestDeleteMessage(t *testing.T) {
 
 	ctx := context.Background()
 
-	err := repo.Save(ctx, message)
+	saved, err := repo.Save(ctx, &message)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	cases := []struct {
 		desc string
 		id   string
 		err  error
-	}{}
+	}{
+		{"delete existing message", saved.ID, nil},
+		{"delete non-existing owner", uuid.New().ID(), feedback.ErrNotFound},
+		{"delete owner with malformed id", wrongValue, feedback.ErrInvalidEntity},
+	}
 
 	for _, tc := range cases {
 		ctx := context.Background()

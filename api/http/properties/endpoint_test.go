@@ -367,7 +367,7 @@ func TestViewProperty(t *testing.T) {
 			res:    notFoundRes,
 		},
 		{
-			desc:   "view thing by passing invalid id",
+			desc:   "view property by passing invalid id",
 			id:     "invalid",
 			token:  token,
 			status: http.StatusNotFound,

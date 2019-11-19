@@ -15,12 +15,14 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend"
+	feedbackEndpoints "github.com/rugwirobaker/paypack-backend/api/http/feedback"
 	"github.com/rugwirobaker/paypack-backend/api/http/health"
 	paymentEndpoints "github.com/rugwirobaker/paypack-backend/api/http/payment"
 	prtEndpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
 	trxEndpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	usersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/users"
 	"github.com/rugwirobaker/paypack-backend/api/http/version"
+	"github.com/rugwirobaker/paypack-backend/app/feedback"
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
@@ -109,9 +111,14 @@ func main() {
 	transactions := newTransactionService(db, users)
 	properties := newPropertyService(db, users)
 	payment := newPaymentService(db, pGateway)
+	feedback := newFeedbackService(db)
 
-	opts := paymentEndpoints.HandlerOpts{
+	pOpts := paymentEndpoints.HandlerOpts{
 		Service: payment,
+		Logger:  logger,
+	}
+	fOpts := feedbackEndpoints.HandlerOpts{
+		Service: feedback,
 		Logger:  logger,
 	}
 
@@ -129,7 +136,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 		defer cancel()
-		startHTTPServer(ctx, users, transactions, properties, opts, cfg.httpPort, logger)
+		startHTTPServer(ctx, users, transactions, properties, pOpts, fOpts, cfg.httpPort, logger)
 	}()
 
 	wg.Wait()
@@ -219,11 +226,22 @@ func newPaymentService(db *sql.DB, gw payment.Gateway) payment.Service {
 	return payment.New(opts)
 }
 
+func newFeedbackService(db *sql.DB) feedback.Service {
+	repo := postgres.NewMessageStore(db)
+	idp := uuid.New()
+	opts := &feedback.Options{
+		Repo: repo,
+		Idp:  idp,
+	}
+	return feedback.New(opts)
+}
+
 func startHTTPServer(ctx context.Context,
 	users users.Service,
 	trx transactions.Service,
 	prt properties.Service,
 	paymentOptions paymentEndpoints.HandlerOpts,
+	feedbackOptions feedbackEndpoints.HandlerOpts,
 	port string, logger logger.Logger,
 ) {
 	cors := handlers.CORS(
@@ -249,6 +267,9 @@ func startHTTPServer(ctx context.Context,
 
 	paymentRoutes := router.PathPrefix("/payment").Subrouter()
 	paymentEndpoints.RegisterHandlers(paymentRoutes, &paymentOptions)
+
+	feedbackRoutes := router.PathPrefix("/feedback").Subrouter()
+	feedbackEndpoints.RegisterHandlers(feedbackRoutes, &feedbackOptions)
 
 	s := &http.Server{
 		Addr:        fmt.Sprintf(":%s", port),

@@ -17,7 +17,7 @@ func NewMessageStore(db *sql.DB) feedback.Repository {
 	return &messageStore{db}
 }
 
-func (str *messageStore) Save(ctx context.Context, msg feedback.Message) error {
+func (str *messageStore) Save(ctx context.Context, msg *feedback.Message) (*feedback.Message, error) {
 	q := `INSERT INTO messages(
 			id, title, body, created_by, created_at, updated_at
 		) VALUES ($1, $2, $3, $4, $5, $6)`
@@ -28,14 +28,14 @@ func (str *messageStore) Save(ctx context.Context, msg feedback.Message) error {
 		if ok {
 			switch pqErr.Code.Name() {
 			case errDuplicate:
-				return feedback.ErrConflict
+				return nil, feedback.ErrConflict
 			case errInvalid, errTruncation:
-				return feedback.ErrInvalidEntity
+				return nil, feedback.ErrInvalidEntity
 			}
 		}
-		return err
+		return nil, err
 	}
-	return nil
+	return msg, nil
 }
 
 func (str *messageStore) Retrieve(ctx context.Context, id string) (feedback.Message, error) {

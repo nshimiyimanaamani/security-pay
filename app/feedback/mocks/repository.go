@@ -16,27 +16,27 @@ type messageRepoMock struct {
 	messages map[string]feedback.Message
 }
 
-// NewMessageRepo ...
-func NewMessageRepo() feedback.Repository {
+// NewREPO ...
+func NewREPO() feedback.Repository {
 	return &messageRepoMock{
 		messages: make(map[string]feedback.Message),
 	}
 }
 
-func (repo *messageRepoMock) Save(ctx context.Context, msg feedback.Message) error {
+func (repo *messageRepoMock) Save(ctx context.Context, msg *feedback.Message) (*feedback.Message, error) {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 
 	for _, en := range repo.messages {
 		if en.ID == msg.ID {
-			return feedback.ErrConflict
+			return nil, feedback.ErrConflict
 		}
 	}
 	repo.counter++
 	msg.ID = strconv.FormatUint(repo.counter, 10)
-	repo.messages[msg.ID] = msg
+	repo.messages[msg.ID] = *msg
 
-	return nil
+	return msg, nil
 }
 
 func (repo *messageRepoMock) Retrieve(ctx context.Context, id string) (feedback.Message, error) {

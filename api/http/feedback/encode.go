@@ -1,4 +1,4 @@
-package properties
+package feedback
 
 import (
 	"encoding/json"
@@ -8,10 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rugwirobaker/paypack-backend/app/users"
-
 	ts "github.com/rugwirobaker/paypack-backend/api/http"
-	"github.com/rugwirobaker/paypack-backend/app/properties"
+	"github.com/rugwirobaker/paypack-backend/app/feedback"
+	"github.com/rugwirobaker/paypack-backend/app/users"
 )
 
 var (
@@ -19,11 +18,9 @@ var (
 	errUnsupportedContentType = errors.New("unsupported content type")
 )
 
-//EncodeResponse encoded the application response to the http ts
-func EncodeResponse(w http.ResponseWriter, response interface{}) error {
+func encode(w http.ResponseWriter, v interface{}) error {
 	w.Header().Set("Content-Type", contentType)
-
-	if ar, ok := response.(ts.Response); ok {
+	if ar, ok := v.(ts.Response); ok {
 		for k, v := range ar.Headers() {
 			w.Header().Set(k, v)
 		}
@@ -34,7 +31,7 @@ func EncodeResponse(w http.ResponseWriter, response interface{}) error {
 			return nil
 		}
 	}
-	return json.NewEncoder(w).Encode(response)
+	return json.NewEncoder(w).Encode(v)
 }
 
 //EncodeError encodes the application error to the http api
@@ -44,40 +41,39 @@ func EncodeError(w http.ResponseWriter, err error) {
 	var errMessage = newErrorMessage(err.Error())
 
 	switch err {
-	case properties.ErrInvalidEntity:
+	case feedback.ErrInvalidEntity:
 		w.WriteHeader(http.StatusBadRequest)
-	case properties.ErrUnauthorizedAccess:
-		w.WriteHeader(http.StatusForbidden)
-	case properties.ErrNotFound:
+	case feedback.ErrNotFound:
 		w.WriteHeader(http.StatusNotFound)
-	case properties.ErrConflict:
+	case feedback.ErrConflict:
 		w.WriteHeader(http.StatusConflict)
 	case users.ErrUnauthorizedAccess:
 		w.WriteHeader(http.StatusForbidden)
 	case errUnsupportedContentType:
 		w.WriteHeader(http.StatusUnsupportedMediaType)
 	case io.ErrUnexpectedEOF:
-		errMessage = newErrorMessage(properties.ErrInvalidEntity.Error())
+		errMessage = newErrorMessage(feedback.ErrInvalidEntity.Error())
 		w.WriteHeader(http.StatusBadRequest)
 	case io.EOF:
-		errMessage = newErrorMessage(properties.ErrInvalidEntity.Error())
+		errMessage = newErrorMessage(feedback.ErrInvalidEntity.Error())
 		w.WriteHeader(http.StatusBadRequest)
 
 	default:
 		switch err.(type) {
 		case *json.SyntaxError:
-			errMessage = newErrorMessage(properties.ErrInvalidEntity.Error())
+			errMessage = newErrorMessage(feedback.ErrInvalidEntity.Error())
 			w.WriteHeader(http.StatusBadRequest)
 		case *json.UnmarshalTypeError:
-			errMessage = newErrorMessage(properties.ErrInvalidEntity.Error())
+			errMessage = newErrorMessage(feedback.ErrInvalidEntity.Error())
 			w.WriteHeader(http.StatusBadRequest)
 		case *strconv.NumError:
-			errMessage = newErrorMessage(properties.ErrInvalidEntity.Error())
+			errMessage = newErrorMessage(feedback.ErrInvalidEntity.Error())
 			w.WriteHeader(http.StatusBadRequest)
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 	}
+
 	json.NewEncoder(w).Encode(errMessage)
 }
 

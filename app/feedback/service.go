@@ -14,15 +14,15 @@ var (
 
 	//ErrInvalidEntity indicates malformed entity specification (e.g.
 	//invalid username,  password, account).
-	ErrInvalidEntity = errors.New("invalid entity format")
+	ErrInvalidEntity = errors.New("invalid message entity")
 
 	// ErrNotFound indicates a non-existent entity request.
-	ErrNotFound = errors.New("non-existent entity")
+	ErrNotFound = errors.New("message entity not found")
 )
 
 // Service ...
 type Service interface {
-	Record(ctx context.Context, msg Message) error
+	Record(ctx context.Context, msg *Message) (*Message, error)
 	Retrieve(ctx context.Context, id string) (Message, error)
 	Update(ctx context.Context, msg Message) error
 	Delete(ctx context.Context, id string) error
@@ -33,11 +33,27 @@ type service struct {
 	repo Repository
 }
 
-func (svc *service) Record(ctx context.Context, msg Message) error {
+// Options ...
+type Options struct {
+	Idp  identity.Provider
+	Repo Repository
+}
 
-	msg.Validate()
+// New ...
+func New(opts *Options) Service {
+	return &service{
+		idp:  opts.Idp,
+		repo: opts.Repo,
+	}
+}
 
-	msg = *svc.newMsg(&msg)
+func (svc *service) Record(ctx context.Context, msg *Message) (*Message, error) {
+
+	if err := msg.Validate(); err != nil {
+		return nil, err
+	}
+
+	msg = svc.newMsg(msg)
 
 	return svc.repo.Save(ctx, msg)
 }
