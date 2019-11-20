@@ -86,7 +86,7 @@ func TestRecord(t *testing.T) {
 	defer srv.Close()
 	client := srv.Client()
 
-	msg := feedback.Message{Title: "title", Body: "body"}
+	msg := feedback.Message{Title: "title", Body: "body", Creator: "0784677882"}
 
 	validData := toJSON(msg)
 	invalidData := toJSON(feedback.Message{Title: "title"})
@@ -151,7 +151,7 @@ func TestRecord(t *testing.T) {
 		req := testRequest{
 			client:      client,
 			method:      http.MethodPost,
-			url:         fmt.Sprintf("%s/", srv.URL),
+			url:         fmt.Sprintf("%s/feedback", srv.URL),
 			contentType: tc.contentType,
 			token:       tc.token,
 			body:        strings.NewReader(tc.req),
@@ -178,7 +178,7 @@ func TestRetrieve(t *testing.T) {
 
 	ctx := context.Background()
 
-	msg := feedback.Message{Title: "title", Body: "body"}
+	msg := feedback.Message{Title: "title", Body: "body", Creator: "0784677882"}
 
 	saved, err := svc.Record(ctx, &msg)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -187,7 +187,7 @@ func TestRetrieve(t *testing.T) {
 		ID:        saved.ID,
 		Title:     saved.Title,
 		Body:      saved.Body,
-		CreatedBy: saved.CreatedBy,
+		Creator:   saved.Creator,
 		CreatedAt: saved.CreatedAt,
 		UpdatedAt: saved.UpdatedAt,
 	}
@@ -226,7 +226,7 @@ func TestRetrieve(t *testing.T) {
 		req := testRequest{
 			client: client,
 			method: http.MethodGet,
-			url:    fmt.Sprintf("%s/%s", srv.URL, tc.id),
+			url:    fmt.Sprintf("%s/feedback/%s", srv.URL, tc.id),
 		}
 
 		res, err := req.make()
@@ -249,7 +249,7 @@ func TestDelete(t *testing.T) {
 
 	ctx := context.Background()
 
-	msg := feedback.Message{Title: "title", Body: "body"}
+	msg := feedback.Message{Title: "title", Body: "body", Creator: "0784677882"}
 
 	saved, err := svc.Record(ctx, &msg)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -288,7 +288,7 @@ func TestDelete(t *testing.T) {
 		req := testRequest{
 			client: client,
 			method: http.MethodDelete,
-			url:    fmt.Sprintf("%s/%s", srv.URL, tc.id),
+			url:    fmt.Sprintf("%s/feedback/%s", srv.URL, tc.id),
 		}
 
 		res, err := req.make()
@@ -310,7 +310,7 @@ func TestUpdate(t *testing.T) {
 
 	ctx := context.Background()
 
-	msg := feedback.Message{Title: "title", Body: "body"}
+	msg := feedback.Message{Title: "title", Body: "body", Creator: "0784677882"}
 
 	saved, err := svc.Record(ctx, &msg)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -319,7 +319,7 @@ func TestUpdate(t *testing.T) {
 		ID:        saved.ID,
 		Title:     saved.Title,
 		Body:      saved.Body,
-		CreatedBy: saved.CreatedBy,
+		Creator:   saved.Creator,
 		CreatedAt: saved.CreatedAt,
 		UpdatedAt: saved.UpdatedAt,
 	}
@@ -394,7 +394,7 @@ func TestUpdate(t *testing.T) {
 		req := testRequest{
 			client:      client,
 			method:      http.MethodPut,
-			url:         fmt.Sprintf("%s/%s", srv.URL, tc.id),
+			url:         fmt.Sprintf("%s/feedback/%s", srv.URL, tc.id),
 			contentType: tc.contentType,
 			body:        strings.NewReader(tc.req),
 		}
@@ -414,7 +414,7 @@ type msgRes struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title,omitempty"`
 	Body      string    `json:"body,omitempty"`
-	CreatedBy string    `json:"created_by,omitempty"`
+	Creator   string    `json:"creator,omitempty"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"update_at,omitempty"`
 }

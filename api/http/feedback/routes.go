@@ -2,8 +2,8 @@ package feedback
 
 // feedback modules routes
 const (
-	RecodeRoute   = "/"
-	RetrieveRoute = "/{id}"
-	DeleteRoute   = "/{id}"
-	UpdateRoute   = "/{id}"
+	RecodeRoute   = "/feedback"
+	RetrieveRoute = "/feedback/{id}"
+	DeleteRoute   = "/feedback/{id}"
+	UpdateRoute   = "/feedback/{id}"
 )

@@ -95,7 +95,7 @@ func Retrieve(logger logger.Logger, svc feedback.Service) http.Handler {
 			ID:        req.ID,
 			Title:     req.Title,
 			Body:      req.Body,
-			CreatedBy: req.CreatedBy,
+			Creator: req.Creator,
 			CreatedAt: req.CreatedAt,
 			UpdatedAt: req.UpdatedAt,
 		}

@@ -1,5 +1,5 @@
 #build stage
-FROM golang:1.12.9 AS builder
+FROM golang:1.12 AS builder
 
 LABEL MAINTAINER="rugwirobaker@gmail.com"
 

@@ -31,7 +31,7 @@ func TestRecord(t *testing.T) {
 	}{
 		{
 			desc: "record valid message",
-			msg:  feedback.Message{Title: "title", Body: "body"},
+			msg:  feedback.Message{Title: "title", Body: "body", Creator: "0784677882"},
 			err:  nil,
 		},
 		{
@@ -42,6 +42,11 @@ func TestRecord(t *testing.T) {
 		{
 			desc: "record message without body",
 			msg:  feedback.Message{Body: "body"},
+			err:  feedback.ErrInvalidEntity,
+		},
+		{
+			desc: "record message without creator",
+			msg:  feedback.Message{Body: "body", Title: "title"},
 			err:  feedback.ErrInvalidEntity,
 		},
 	}
@@ -57,7 +62,7 @@ func TestRetrieve(t *testing.T) {
 	svc := newService()
 
 	ctx := context.Background()
-	msg := feedback.Message{Title: "title", Body: "body"}
+	msg := feedback.Message{Title: "title", Body: "body", Creator: "0784677882"}
 
 	saved, err := svc.Record(ctx, &msg)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -91,7 +96,7 @@ func TestUpdate(t *testing.T) {
 	svc := newService()
 
 	ctx := context.Background()
-	msg := feedback.Message{Title: "title", Body: "body"}
+	msg := feedback.Message{Title: "title", Body: "body", Creator: "0784677882"}
 
 	saved, err := svc.Record(ctx, &msg)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -125,8 +130,7 @@ func TestDelete(t *testing.T) {
 	svc := newService()
 
 	ctx := context.Background()
-	msg := feedback.Message{Title: "title", Body: "body"}
-
+	msg := feedback.Message{Title: "title", Body: "body", Creator: "0784677882"}
 	saved, err := svc.Record(ctx, &msg)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 

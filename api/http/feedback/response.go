@@ -10,7 +10,7 @@ type RecordRes struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title,omitempty"`
 	Body      string    `json:"body,omitempty"`
-	CreatedBy string    `json:"created_by,omitempty"`
+	Creator   string    `json:"creator,omitempty"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"update_at,omitempty"`
 }
@@ -35,7 +35,7 @@ type RetrieveRes struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title,omitempty"`
 	Body      string    `json:"body,omitempty"`
-	CreatedBy string    `json:"created_by,omitempty"`
+	Creator   string    `json:"creator,omitempty"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"update_at,omitempty"`
 }
@@ -60,7 +60,7 @@ type UpdateRes struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title,omitempty"`
 	Body      string    `json:"body,omitempty"`
-	CreatedBy string    `json:"created_by,omitempty"`
+	Creator   string    `json:"creator,omitempty"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"update_at,omitempty"`
 }

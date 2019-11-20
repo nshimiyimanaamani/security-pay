@@ -19,10 +19,10 @@ func NewMessageStore(db *sql.DB) feedback.Repository {
 
 func (str *messageStore) Save(ctx context.Context, msg *feedback.Message) (*feedback.Message, error) {
 	q := `INSERT INTO messages(
-			id, title, body, created_by, created_at, updated_at
+			id, title, body, creator, created_at, updated_at
 		) VALUES ($1, $2, $3, $4, $5, $6)`
 
-	_, err := str.db.Exec(q, &msg.ID, &msg.Title, &msg.Body, &msg.CreatedBy, &msg.CreatedAt, &msg.UpdatedAt)
+	_, err := str.db.Exec(q, &msg.ID, &msg.Title, &msg.Body, &msg.Creator, &msg.CreatedAt, &msg.UpdatedAt)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -39,10 +39,10 @@ func (str *messageStore) Save(ctx context.Context, msg *feedback.Message) (*feed
 }
 
 func (str *messageStore) Retrieve(ctx context.Context, id string) (feedback.Message, error) {
-	q := `SELECT id, title, body, created_by, created_at, updated_at FROM messages WHERE id=$1`
+	q := `SELECT id, title, body, creator, created_at, updated_at FROM messages WHERE id=$1`
 
 	var msg = feedback.Message{}
-	if err := str.db.QueryRow(q, id).Scan(&msg.ID, &msg.Title, &msg.Body, &msg.CreatedBy, &msg.CreatedAt, &msg.UpdatedAt); err != nil {
+	if err := str.db.QueryRow(q, id).Scan(&msg.ID, &msg.Title, &msg.Body, &msg.Creator, &msg.CreatedAt, &msg.UpdatedAt); err != nil {
 		empty := feedback.Message{}
 
 		pqErr, ok := err.(*pq.Error)

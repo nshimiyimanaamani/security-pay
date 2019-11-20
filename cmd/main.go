@@ -256,6 +256,9 @@ func startHTTPServer(ctx context.Context,
 
 	router.HandleFunc("/version", version.Build).Methods(http.MethodGet)
 
+	//feedbackRoutes := router.PathPrefix("/feedback").Subrouter()
+	feedbackEndpoints.RegisterHandlers(router, &feedbackOptions)
+
 	userRoutes := router.PathPrefix("/users").Subrouter()
 	usersEndpoints.MakeAdapter(userRoutes)(users)
 
@@ -267,9 +270,6 @@ func startHTTPServer(ctx context.Context,
 
 	paymentRoutes := router.PathPrefix("/payment").Subrouter()
 	paymentEndpoints.RegisterHandlers(paymentRoutes, &paymentOptions)
-
-	feedbackRoutes := router.PathPrefix("/feedback").Subrouter()
-	feedbackEndpoints.RegisterHandlers(feedbackRoutes, &feedbackOptions)
 
 	s := &http.Server{
 		Addr:        fmt.Sprintf(":%s", port),

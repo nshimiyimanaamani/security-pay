@@ -13,7 +13,7 @@ func TestValidate(t *testing.T) {
 		msg  Message
 		err  error
 	}{
-		{"valid message", Message{Title: "title", Body: "body"}, nil},
+		{"valid message", Message{Title: "title", Body: "body", Creator: "0784677882"}, nil},
 		{"message with no title", Message{Body: "body"}, ErrInvalidEntity},
 		{"message with no body", Message{Title: "title"}, ErrInvalidEntity},
 	}

@@ -161,10 +161,10 @@ func migrateDB(db *sql.DB) error {
 				Up: []string{
 					`CREATE TABLE IF NOT EXISTS messages (
 						id 			UUID,
-						title 		TEXT,
+						title 		TEXT NOT NULL,
 						body  		TEXT,
 						hidden 		BOOLEAN DEFAULT false,
-						created_by	VARCHAR(15),
+						creator	VARCHAR(15) NOT NULL,
 						created_at 	TIMESTAMP,
 						updated_at  TIMESTAMP,
 						PRIMARY KEY(id)
