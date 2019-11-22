@@ -15,10 +15,10 @@ services:
     container_name: proxy
     command: --api --docker
     ports:
-      - "${PROXY_HTTP_PORT}:${PROXY_HTTP_PORT}"
+      - "8080:8080"
       - "443:443" 
     environment: 
-      GCE_PROJECT: paypack
+    #  GCE_PROJECT: paypack
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
@@ -28,7 +28,7 @@ services:
       - "traefik.protocol=http"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock 
-      - ${GCP_KEY_PATH}:/root/keys/keyfile.json
+    # - ${GCP_KEY_PATH}:/root/keys/keyfile.json
       - $PWD/traefik.toml:/traefik.toml
       - $PWD/acme.json:/acme.json
       - $PWD/.htpasswd:/.htpasswd
