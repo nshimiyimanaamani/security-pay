@@ -44,8 +44,9 @@ jobs:
       - run:
           name: Publish Docker Image
           command: |
-             docker build -t docker.pkg.github.com/rugwirobaker/paypack-backend/paypack:latest .
-             docker push docker.pkg.github.com/rugwirobaker/paypack-backend/paypack:latest
+            GIT_HASH=$(echo $CIRCLE_SHA1 | cut -c -7)
+            docker build -t docker.pkg.github.com/rugwirobaker/paypack-backend/paypack:$GIT_HASH .
+            docker push docker.pkg.github.com/rugwirobaker/paypack-backend/paypack:$GIT_HASH
 workflows:
   version: 2
   build-deploy:
