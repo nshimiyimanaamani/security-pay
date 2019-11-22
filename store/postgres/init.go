@@ -176,6 +176,15 @@ func migrateDB(db *sql.DB) error {
 					`,
 				},
 			},
+			{
+				Id: "paypack_8",
+
+				Up: []string{
+					`
+					ALTER TABLE owners DROP COLUMN password;
+					`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

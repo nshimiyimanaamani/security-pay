@@ -9,6 +9,7 @@ import (
 
 	"github.com/ory/dockertest"
 	// _ "github.com/lib/pq" // required driver for postgres access
+
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 )
 
@@ -67,12 +68,4 @@ func TestMain(m *testing.M) {
 	}
 
 	os.Exit(code)
-}
-
-func CleanDB(t *testing.T, tables ...string) {
-	t.Helper()
-	for _, table := range tables {
-		q := fmt.Sprintf("DELETE FROM %s", table)
-		db.Exec(q)
-	}
 }

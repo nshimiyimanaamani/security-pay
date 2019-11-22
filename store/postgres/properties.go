@@ -2,28 +2,27 @@ package postgres
 
 import (
 	"database/sql"
-	"fmt"
 
 	//"github.com/lib/pq"
 	"github.com/lib/pq"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 )
 
-var _ (properties.PropertyStore) = (*propertiesStore)(nil)
+var _ (properties.Repository) = (*propertiesStore)(nil)
 
 type propertiesStore struct {
 	db *sql.DB
 }
 
 // NewPropertyStore instanctiates a new transactiob store interface
-func NewPropertyStore(db *sql.DB) properties.PropertyStore {
+func NewPropertyStore(db *sql.DB) properties.Repository {
 	return &propertiesStore{db}
 }
 
 func (str *propertiesStore) Save(pro properties.Property) (string, error) {
 	q := `INSERT INTO properties (id, owner, due, sector, cell, village) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
 
-	_, err := str.db.Exec(q, pro.ID, pro.Owner, pro.Due, pro.Sector, pro.Cell, pro.Village)
+	_, err := str.db.Exec(q, pro.ID, pro.Owner.ID, pro.Due, pro.Address.Sector, pro.Address.Cell, pro.Address.Village)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -45,7 +44,7 @@ func (str *propertiesStore) Save(pro properties.Property) (string, error) {
 func (str *propertiesStore) UpdateProperty(pro properties.Property) error {
 	q := `UPDATE properties SET owner=$1, due=$2 WHERE id=$3;`
 
-	res, err := str.db.Exec(q, pro.Owner, pro.Due, pro.ID)
+	res, err := str.db.Exec(q, pro.Owner.ID, pro.Due, pro.ID)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -72,7 +71,7 @@ func (str *propertiesStore) RetrieveByID(id string) (properties.Property, error)
 		SELECT 
 			properties.id, properties.sector, properties.cell,  
 			properties.village, properties.due, 
-			owners.id, owners.fname, owners.lname 
+			owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
 		INNER JOIN 
@@ -82,10 +81,9 @@ func (str *propertiesStore) RetrieveByID(id string) (properties.Property, error)
 
 	var prt = properties.Property{}
 
-	var fname, lname string
-
 	if err := str.db.QueryRow(q, id).Scan(
-		&prt.ID, &prt.Sector, &prt.Cell, &prt.Village, &prt.Due, &prt.OwnerID, &fname, &lname,
+		&prt.ID, &prt.Address.Sector, &prt.Address.Cell, &prt.Address.Village,
+		&prt.Due, &prt.Owner.ID, &prt.Owner.Fname, &prt.Owner.Lname, &prt.Owner.Phone,
 	); err != nil {
 		empty := properties.Property{}
 
@@ -96,7 +94,6 @@ func (str *propertiesStore) RetrieveByID(id string) (properties.Property, error)
 
 		return empty, err
 	}
-	prt.Owner = fmt.Sprintf("%s %s", fname, lname)
 	return prt, nil
 }
 
@@ -104,7 +101,7 @@ func (str *propertiesStore) RetrieveByOwner(owner string, offset, limit uint64) 
 	q := `SELECT 
 			properties.id, properties.sector, properties.cell, 
 			properties.village, properties.due, 
-			owners.id, owners.fname, owners.lname 
+			owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
 		INNER JOIN
@@ -124,15 +121,12 @@ func (str *propertiesStore) RetrieveByOwner(owner string, offset, limit uint64) 
 	for rows.Next() {
 		c := properties.Property{}
 
-		var fname, lname string
-
 		if err := rows.Scan(
-			&c.ID, &c.Sector, &c.Cell, &c.Village, &c.Due, &c.OwnerID, &fname, &lname,
+			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
+			&c.Due, &c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, err
 		}
-
-		c.Owner = fmt.Sprintf("%s %s", fname, lname)
 
 		items = append(items, c)
 	}
@@ -160,7 +154,7 @@ func (str *propertiesStore) RetrieveBySector(sector string, offset, limit uint64
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
 			properties.village, properties.due, 
-			owners.id, owners.fname, owners.lname 
+			owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
 		INNER JOIN
@@ -180,14 +174,13 @@ func (str *propertiesStore) RetrieveBySector(sector string, offset, limit uint64
 	for rows.Next() {
 		c := properties.Property{}
 
-		var fname, lname string
-
 		if err := rows.Scan(
-			&c.ID, &c.Sector, &c.Cell, &c.Village, &c.Due, &c.OwnerID, &fname, &lname,
+			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
+			&c.Due, &c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, err
 		}
-		c.Owner = fmt.Sprintf("%s %s", fname, lname)
+
 		items = append(items, c)
 	}
 
@@ -214,7 +207,7 @@ func (str *propertiesStore) RetrieveByCell(cell string, offset, limit uint64) (p
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
 			properties.village, properties.due, 
-			owners.id, owners.fname, owners.lname 
+			owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
 		INNER JOIN
@@ -233,14 +226,13 @@ func (str *propertiesStore) RetrieveByCell(cell string, offset, limit uint64) (p
 	for rows.Next() {
 		c := properties.Property{}
 
-		var fname, lname string
-
 		if err := rows.Scan(
-			&c.ID, &c.Sector, &c.Cell, &c.Village, &c.Due, &c.OwnerID, &fname, &lname,
+			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
+			&c.Due, &c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, err
 		}
-		c.Owner = fmt.Sprintf("%s %s", fname, lname)
+
 		items = append(items, c)
 	}
 
@@ -267,7 +259,7 @@ func (str *propertiesStore) RetrieveByVillage(village string, offset, limit uint
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
 			properties.village, properties.due, 
-			owners.id, owners.fname, owners.lname 
+			owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
 		INNER JOIN
@@ -285,14 +277,14 @@ func (str *propertiesStore) RetrieveByVillage(village string, offset, limit uint
 
 	for rows.Next() {
 		c := properties.Property{}
-		var fname, lname string
 
 		if err := rows.Scan(
-			&c.ID, &c.Sector, &c.Cell, &c.Village, &c.Due, &c.OwnerID, &fname, &lname,
+			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
+			&c.Due, &c.Owner.ID, &c.Owner.Lname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, err
 		}
-		c.Owner = fmt.Sprintf("%s %s", fname, lname)
+
 		items = append(items, c)
 	}
 

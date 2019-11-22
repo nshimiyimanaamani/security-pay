@@ -57,4 +57,10 @@ Other directories:
 
  To setup a local development environment check out these [instructions](DEVELOPMENT.md)
 
- check the endpoint documentantion detials at <https://github.com/rugwirobaker/paypack-backend/blob/master/docs.md>
+ check the endpoint documentantion detials at
+
+ <https://github.com/rugwirobaker/paypack-backend/blob/master/docs.md>>
+
+ or check out the postman collection for paypack api:
+
+<https://www.getpostman.com/collections/359fd6dd69fffd736d15>

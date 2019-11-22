@@ -4,79 +4,87 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/app/users"
+	"github.com/rugwirobaker/paypack-backend/logger"
 )
 
-//MakeAdapter takes a users service instance and returns a http handler
-func MakeAdapter(mux *mux.Router) func(svc users.Service) {
-	handler := func(svc users.Service) {
-		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			var err error
-			if err = CheckContentType(r); err != nil {
-				EncodeError(w, err)
-				return
-			}
+// Protocol adapts the feedback service into an http.handler
+type Protocol func(logger logger.Logger, svc users.Service) http.Handler
 
-			var user users.User
-			if err = json.NewDecoder(r.Body).Decode(&user); err != nil {
-				EncodeError(w, err)
-				return
-			}
+// HandlerOpts are the generic options
+// for a ProtocolHandler
+type HandlerOpts struct {
+	Service users.Service
+	Logger  logger.Logger
+}
 
-			if err = user.Validate(); err != nil {
-				EncodeError(w, err)
-				return
-			}
+// Register handles user registration
+func Register(logger logger.Logger, svc users.Service) http.Handler {
+	f := func(w http.ResponseWriter, r *http.Request) {
+		if err := CheckContentType(r); err != nil {
+			EncodeError(w, err)
+			return
+		}
 
-			var id string
+		var user users.User
+		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+			EncodeError(w, err)
+			return
+		}
 
-			id, err = svc.Register(user)
-			if err != nil {
-				EncodeError(w, err)
-				return
-			}
+		if err := user.Validate(); err != nil {
+			EncodeError(w, err)
+			return
+		}
 
-			if err = EncodeResponse(w, userRegisterResponse{ID: id}); err != nil {
-				EncodeError(w, err)
-				return
-			}
-		}).Methods("POST")
+		var id string
 
-		mux.HandleFunc("/tokens", func(w http.ResponseWriter, r *http.Request) {
-			if err := CheckContentType(r); err != nil {
-				EncodeError(w, err)
-				return
-			}
-			var err error
+		id, err := svc.Register(user)
+		if err != nil {
+			EncodeError(w, err)
+			return
+		}
 
-			var user users.User
-
-			if err = json.NewDecoder(r.Body).Decode(&user); err != nil {
-				EncodeError(w, err)
-				return
-			}
-
-			if err = user.Validate(); err != nil {
-				EncodeError(w, err)
-				return
-			}
-
-			var token string
-
-			token, err = svc.Login(user)
-			if err != nil {
-				EncodeError(w, err)
-				return
-			}
-
-			if err = EncodeResponse(w, userLoginResponse{Token: token}); err != nil {
-				EncodeError(w, err)
-			}
-
-		}).Methods("POST")
-
-		// mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {}).Methods("GET")
+		if err = EncodeResponse(w, userRegisterResponse{ID: id}); err != nil {
+			EncodeError(w, err)
+			return
+		}
 	}
-	return handler
+
+	return http.HandlerFunc(f)
+}
+
+// Login handles user registration
+func Login(logger logger.Logger, svc users.Service) http.Handler {
+	f := func(w http.ResponseWriter, r *http.Request) {
+		if err := CheckContentType(r); err != nil {
+			EncodeError(w, err)
+			return
+		}
+		var user users.User
+
+		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+			EncodeError(w, err)
+			return
+		}
+
+		if err := user.Validate(); err != nil {
+			EncodeError(w, err)
+			return
+		}
+
+		var token string
+
+		token, err := svc.Login(user)
+		if err != nil {
+			EncodeError(w, err)
+			return
+		}
+
+		if err := EncodeResponse(w, userLoginResponse{Token: token}); err != nil {
+			EncodeError(w, err)
+		}
+	}
+
+	return http.HandlerFunc(f)
 }

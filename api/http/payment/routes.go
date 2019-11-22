@@ -2,6 +2,6 @@ package payment
 
 // routes
 const (
-	InitializePaymentRoute = "/initialize"
-	ValidatePaymentRoute   = "/validate"
+	InitializePaymentRoute = "/payment/initialize"
+	ValidatePaymentRoute   = "/payment/validate"
 )

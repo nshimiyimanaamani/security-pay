@@ -7,13 +7,13 @@ import (
 
 type repository struct {
 	transactions transactions.Store
-	properties   properties.PropertyStore
+	properties   properties.Repository
 }
 
 // RepoOptions ...
 type RepoOptions struct {
 	Transactions transactions.Store
-	Properties   properties.PropertyStore
+	Properties   properties.Repository
 }
 
 // NewRepo creates a repo proxy
@@ -58,7 +58,7 @@ func (repo *repository) RetrieveProperty(id string) (Property, error) {
 
 	property := Property{
 		ID:      pro.ID,
-		OwnerID: pro.OwnerID,
+		OwnerID: pro.Owner.ID,
 	}
 	return property, nil
 }

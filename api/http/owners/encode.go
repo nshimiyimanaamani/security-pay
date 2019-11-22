@@ -1,4 +1,4 @@
-package properties
+package owners
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 
 	"github.com/rugwirobaker/paypack-backend/app/users"
 
-	"github.com/rugwirobaker/paypack-backend/app/properties"
+	"github.com/rugwirobaker/paypack-backend/app/owners"
 )
 
 var (
@@ -33,35 +33,35 @@ func EncodeError(w http.ResponseWriter, err error) {
 	var errMessage = newErrorMessage(err.Error())
 
 	switch err {
-	case properties.ErrInvalidEntity:
+	case owners.ErrInvalidEntity:
 		w.WriteHeader(http.StatusBadRequest)
-	case properties.ErrUnauthorizedAccess:
+	case owners.ErrUnauthorizedAccess:
 		w.WriteHeader(http.StatusForbidden)
-	case properties.ErrNotFound:
+	case owners.ErrNotFound:
 		w.WriteHeader(http.StatusNotFound)
-	case properties.ErrConflict:
+	case owners.ErrConflict:
 		w.WriteHeader(http.StatusConflict)
 	case users.ErrUnauthorizedAccess:
 		w.WriteHeader(http.StatusForbidden)
 	case errUnsupportedContentType:
 		w.WriteHeader(http.StatusUnsupportedMediaType)
 	case io.ErrUnexpectedEOF:
-		errMessage = newErrorMessage(properties.ErrInvalidEntity.Error())
+		errMessage = newErrorMessage(owners.ErrInvalidEntity.Error())
 		w.WriteHeader(http.StatusBadRequest)
 	case io.EOF:
-		errMessage = newErrorMessage(properties.ErrInvalidEntity.Error())
+		errMessage = newErrorMessage(owners.ErrInvalidEntity.Error())
 		w.WriteHeader(http.StatusBadRequest)
 
 	default:
 		switch err.(type) {
 		case *json.SyntaxError:
-			errMessage = newErrorMessage(properties.ErrInvalidEntity.Error())
+			errMessage = newErrorMessage(owners.ErrInvalidEntity.Error())
 			w.WriteHeader(http.StatusBadRequest)
 		case *json.UnmarshalTypeError:
-			errMessage = newErrorMessage(properties.ErrInvalidEntity.Error())
+			errMessage = newErrorMessage(owners.ErrInvalidEntity.Error())
 			w.WriteHeader(http.StatusBadRequest)
 		case *strconv.NumError:
-			errMessage = newErrorMessage(properties.ErrInvalidEntity.Error())
+			errMessage = newErrorMessage(owners.ErrInvalidEntity.Error())
 			w.WriteHeader(http.StatusBadRequest)
 		default:
 			w.WriteHeader(http.StatusInternalServerError)

@@ -1,6 +1,7 @@
 package users_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 
@@ -18,6 +19,7 @@ import (
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/users"
 	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/app/users/mocks"
+	"github.com/rugwirobaker/paypack-backend/logger"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -60,7 +62,14 @@ func newService() users.Service {
 
 func newServer(svc users.Service) *httptest.Server {
 	mux := mux.NewRouter()
-	endpoints.MakeAdapter(mux)(svc)
+	// mock io.Writer
+	lgger, _ := logger.New(&bytes.Buffer{}, "debug")
+
+	opts := &endpoints.HandlerOpts{
+		Service: svc,
+		Logger:  lgger,
+	}
+	endpoints.RegisterHandlers(mux, opts)
 	return httptest.NewServer(mux)
 }
 
@@ -108,7 +117,7 @@ func TestUserRegisterEndpoint(t *testing.T) {
 		req := testRequest{
 			client:      client,
 			method:      http.MethodPost,
-			url:         fmt.Sprintf("%s/", ts.URL),
+			url:         fmt.Sprintf("%s/users", ts.URL),
 			contentType: tc.contentType,
 			body:        strings.NewReader(tc.req),
 		}
@@ -215,7 +224,7 @@ func TestUserLoginEndpoint(t *testing.T) {
 		req := testRequest{
 			client:      client,
 			method:      http.MethodPost,
-			url:         fmt.Sprintf("%s/tokens", ts.URL),
+			url:         fmt.Sprintf("%s/users/tokens", ts.URL),
 			contentType: tc.contentType,
 			body:        strings.NewReader(tc.req),
 		}

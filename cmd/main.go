@@ -17,6 +17,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend"
 	feedbackEndpoints "github.com/rugwirobaker/paypack-backend/api/http/feedback"
 	"github.com/rugwirobaker/paypack-backend/api/http/health"
+	ownersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/owners"
 	paymentEndpoints "github.com/rugwirobaker/paypack-backend/api/http/payment"
 	prtEndpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
 	trxEndpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
@@ -24,6 +25,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/api/http/version"
 	"github.com/rugwirobaker/paypack-backend/app/feedback"
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
+	"github.com/rugwirobaker/paypack-backend/app/owners"
 	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
@@ -112,14 +114,40 @@ func main() {
 	properties := newPropertyService(db, users)
 	payment := newPaymentService(db, pGateway)
 	feedback := newFeedbackService(db)
+	owners := newOwnersService(db)
 
-	pOpts := paymentEndpoints.HandlerOpts{
+	payOpts := paymentEndpoints.HandlerOpts{
 		Service: payment,
 		Logger:  logger,
 	}
-	fOpts := feedbackEndpoints.HandlerOpts{
+	feedOpts := feedbackEndpoints.HandlerOpts{
 		Service: feedback,
 		Logger:  logger,
+	}
+	proOpts := prtEndpoints.HandlerOpts{
+		Service: properties,
+		Logger:  logger,
+	}
+
+	ownersOpts := ownersEndpoints.HandlerOpts{
+		Service: owners,
+		Logger:  logger,
+	}
+
+	usersOpts := usersEndpoints.HandlerOpts{
+		Service: users,
+		Logger:  logger,
+	}
+
+	srvOptions := serverOptions{
+		transactions:  transactions,
+		payOptions:    &payOpts,
+		feedOptions:   &feedOpts,
+		proOptions:    &proOpts,
+		ownersOptions: &ownersOpts,
+		usersOptions:  &usersOpts,
+		port:          cfg.httpPort,
+		logger:        logger,
 	}
 
 	go func() {
@@ -136,7 +164,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 		defer cancel()
-		startHTTPServer(ctx, users, transactions, properties, pOpts, fOpts, cfg.httpPort, logger)
+		startHTTPServer(ctx, srvOptions)
 	}()
 
 	wg.Wait()
@@ -197,9 +225,18 @@ func newPropertyService(db *sql.DB, users users.Service) properties.Service {
 	}
 	idp := nanoid.New(cfg)
 	props := postgres.NewPropertyStore(db)
-	owners := postgres.NewOwnerStore(db)
 	auth := properties.NewAuthBackend(users)
-	return properties.New(idp, owners, props, auth)
+	return properties.New(idp, props, auth)
+}
+
+func newOwnersService(db *sql.DB) owners.Service {
+	repo := postgres.NewOwnerRepo(db)
+	idp := uuid.New()
+	opts := &owners.Options{
+		Repo: repo,
+		Idp:  idp,
+	}
+	return owners.New(opts)
 }
 
 func newPaymentService(db *sql.DB, gw payment.Gateway) payment.Service {
@@ -236,14 +273,33 @@ func newFeedbackService(db *sql.DB) feedback.Service {
 	return feedback.New(opts)
 }
 
-func startHTTPServer(ctx context.Context,
-	users users.Service,
-	trx transactions.Service,
-	prt properties.Service,
-	paymentOptions paymentEndpoints.HandlerOpts,
-	feedbackOptions feedbackEndpoints.HandlerOpts,
-	port string, logger logger.Logger,
-) {
+type serverOptions struct {
+	// old API
+	//users        users.Service
+	transactions transactions.Service
+	//properties   properties.Service
+
+	// new API
+	payOptions    *paymentEndpoints.HandlerOpts
+	feedOptions   *feedbackEndpoints.HandlerOpts
+	ownersOptions *ownersEndpoints.HandlerOpts
+	proOptions    *prtEndpoints.HandlerOpts
+	usersOptions  *usersEndpoints.HandlerOpts
+
+	logger logger.Logger
+	port   string
+}
+
+func startHTTPServer(ctx context.Context, opts serverOptions) {
+
+	if opts.logger == nil {
+		panic("can't use a nil logger")
+	}
+
+	if opts.payOptions == nil || opts.feedOptions == nil || opts.ownersOptions == nil || opts.proOptions == nil {
+		panic("absolutely unacceptable start server opts")
+	}
+
 	cors := handlers.CORS(
 		handlers.AllowedOrigins([]string{"*"}),
 		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"}),
@@ -256,23 +312,21 @@ func startHTTPServer(ctx context.Context,
 
 	router.HandleFunc("/version", version.Build).Methods(http.MethodGet)
 
-	//feedbackRoutes := router.PathPrefix("/feedback").Subrouter()
-	feedbackEndpoints.RegisterHandlers(router, &feedbackOptions)
+	feedbackEndpoints.RegisterHandlers(router, opts.feedOptions)
 
-	userRoutes := router.PathPrefix("/users").Subrouter()
-	usersEndpoints.MakeAdapter(userRoutes)(users)
+	ownersEndpoints.RegisterHandlers(router, opts.ownersOptions)
+
+	paymentEndpoints.RegisterHandlers(router, opts.payOptions)
+
+	prtEndpoints.RegisterHandlers(router, opts.proOptions)
+
+	usersEndpoints.RegisterHandlers(router, opts.usersOptions)
 
 	trxRoutes := router.PathPrefix("/transactions").Subrouter()
-	trxEndpoints.MakeAdapter(trxRoutes)(trx)
-
-	prtRoutes := router.PathPrefix("/properties").Subrouter()
-	prtEndpoints.MakeEndpoint(prtRoutes)(prt)
-
-	paymentRoutes := router.PathPrefix("/payment").Subrouter()
-	paymentEndpoints.RegisterHandlers(paymentRoutes, &paymentOptions)
+	trxEndpoints.MakeAdapter(trxRoutes)(opts.transactions)
 
 	s := &http.Server{
-		Addr:        fmt.Sprintf(":%s", port),
+		Addr:        fmt.Sprintf(":%s", opts.port),
 		Handler:     cors(router),
 		ReadTimeout: 2 * time.Minute,
 	}
@@ -281,14 +335,14 @@ func startHTTPServer(ctx context.Context,
 	go func() {
 		<-ctx.Done()
 		if err := s.Shutdown(context.Background()); err != nil {
-			logger.Error(fmt.Sprintf("paypack backend service stopped with error %v", err))
+			opts.logger.Error(fmt.Sprintf("paypack backend service stopped with error %v", err))
 		}
 		close(done)
 	}()
 
-	logger.Info(fmt.Sprintf("serving api at http://127.0.0.1:%s", port))
+	opts.logger.Info(fmt.Sprintf("serving api at http://127.0.0.1:%s", opts.port))
 	if err := s.ListenAndServe(); err != http.ErrServerClosed {
-		logger.Error(fmt.Sprintf("paypack backend service stopped with error %v", err))
+		opts.logger.Error(fmt.Sprintf("paypack backend service stopped with error %v", err))
 	}
 	<-done
 }

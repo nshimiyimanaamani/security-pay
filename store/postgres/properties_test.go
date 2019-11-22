@@ -14,18 +14,17 @@ import (
 
 func TestSaveProperty(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
-	ows := postgres.NewOwnerStore(db)
 
 	defer CleanDB(t, "properties", "owners")
 
 	owner := properties.Owner{ID: nanoid.New(nil).ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	id, err := ows.Save(owner)
+	saved, err := saveOwner(t, db, owner)
+
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-	owner.ID = id
 
 	new := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: owner.ID,
+		Owner: properties.Owner{ID: saved.ID},
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -36,7 +35,7 @@ func TestSaveProperty(t *testing.T) {
 
 	invalid := properties.Property{
 		ID:    wrongValue,
-		Owner: "invalid",
+		Owner: properties.Owner{ID: "invalid"},
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -75,18 +74,18 @@ func TestSaveProperty(t *testing.T) {
 
 func TestUpdateProperty(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
-	ows := postgres.NewOwnerStore(db)
 
 	defer CleanDB(t, "properties", "owners")
 
 	owner := properties.Owner{ID: nanoid.New(nil).ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	id, err := ows.Save(owner)
+
+	saved, err := saveOwner(t, db, owner)
+
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-	owner.ID = id
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: owner.ID,
+		Owner: properties.Owner{ID: saved.ID},
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -113,7 +112,7 @@ func TestUpdateProperty(t *testing.T) {
 			desc: "update non existant property",
 			property: properties.Property{
 				ID:    nanoid.New(nil).ID(),
-				Owner: uuid.New().ID(),
+				Owner: properties.Owner{ID: uuid.New().ID()},
 				Address: properties.Address{
 					Sector:  "Remera",
 					Cell:    "Gishushu",
@@ -127,7 +126,7 @@ func TestUpdateProperty(t *testing.T) {
 			desc: "udpate property with invalid owner id",
 			property: properties.Property{
 				ID:    nanoid.New(nil).ID(),
-				Owner: wrongValue,
+				Owner: properties.Owner{ID: wrongValue},
 				Address: properties.Address{
 					Sector:  "Remera",
 					Cell:    "Gishushu",
@@ -141,7 +140,7 @@ func TestUpdateProperty(t *testing.T) {
 			desc: "udpate property with invalid owner",
 			property: properties.Property{
 				ID:    nanoid.New(nil).ID(),
-				Owner: wrongValue,
+				Owner: properties.Owner{ID: wrongValue},
 				Address: properties.Address{
 					Sector:  "Remera",
 					Cell:    "Gishushu",
@@ -162,18 +161,16 @@ func TestUpdateProperty(t *testing.T) {
 
 func TestRetrieveByID(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
-	ows := postgres.NewOwnerStore(db)
 
 	defer CleanDB(t, "properties", "owners")
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	oid, err := ows.Save(owner)
+	saved, err := saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	owner.ID = oid
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: owner.ID,
+		Owner: properties.Owner{ID: saved.ID},
 		Address: properties.Address{
 			Sector:  "Gasabo",
 			Cell:    "Kanserege",
@@ -200,17 +197,16 @@ func TestRetrieveByID(t *testing.T) {
 	}
 
 }
+
 func TestRetrieveByOwner(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
-	ows := postgres.NewOwnerStore(db)
 
 	defer CleanDB(t, "properties", "owners")
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	oid, err := ows.Save(owner)
+	saved, err := saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	owner.ID = oid
 	sector := "Nyarugenge"
 	cell := "Kacyiru"
 	village := "Kanserege"
@@ -220,7 +216,7 @@ func TestRetrieveByOwner(t *testing.T) {
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
 			ID:    nanoid.New(nil).ID(),
-			Owner: owner.ID,
+			Owner: properties.Owner{ID: saved.ID},
 			Address: properties.Address{
 				Sector:  sector,
 				Cell:    cell,
@@ -272,15 +268,13 @@ func TestRetrieveByOwner(t *testing.T) {
 
 func TestRetrieveBySector(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
-	ows := postgres.NewOwnerStore(db)
 
 	defer CleanDB(t, "properties", "owners")
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	oid, err := ows.Save(owner)
+	saved, err := saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	owner.ID = oid
 	sector := "Gasabo"
 	cell := "Kacyiru"
 	village := "Shambo"
@@ -290,7 +284,7 @@ func TestRetrieveBySector(t *testing.T) {
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
 			ID:    nanoid.New(nil).ID(),
-			Owner: owner.ID,
+			Owner: properties.Owner{ID: saved.ID},
 			Address: properties.Address{
 				Sector:  sector,
 				Cell:    cell,
@@ -308,21 +302,21 @@ func TestRetrieveBySector(t *testing.T) {
 		size   uint64
 		total  uint64
 	}{
-		"retrieve all properties with existing owner": {
+		"retrieve all properties with existing sector": {
 			sector: sector,
 			offset: 0,
 			limit:  n,
 			size:   n,
 			total:  n,
 		},
-		"retrieve subset of properties with existing owner": {
+		"retrieve subset of properties with existing sector": {
 			sector: sector,
 			offset: n / 2,
 			limit:  n,
 			size:   n / 2,
 			total:  n,
 		},
-		"retrieve properties with non-existing owner": {
+		"retrieve properties with non-existing sector": {
 			sector: wrongValue,
 			offset: 0,
 			limit:  n,
@@ -342,15 +336,13 @@ func TestRetrieveBySector(t *testing.T) {
 
 func TestRetrieveByCell(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
-	ows := postgres.NewOwnerStore(db)
 
 	defer CleanDB(t, "properties", "owners")
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	oid, err := ows.Save(owner)
+	saved, err := saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	owner.ID = oid
 	sector := "Gasate"
 	cell := "Gasaka"
 	village := "Shami"
@@ -360,7 +352,7 @@ func TestRetrieveByCell(t *testing.T) {
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
 			ID:    nanoid.New(nil).ID(),
-			Owner: owner.ID,
+			Owner: properties.Owner{ID: saved.ID},
 			Address: properties.Address{
 				Sector:  sector,
 				Cell:    cell,
@@ -378,21 +370,21 @@ func TestRetrieveByCell(t *testing.T) {
 		size   uint64
 		total  uint64
 	}{
-		"retrieve all properties with existing owner": {
+		"retrieve all properties with existing cell": {
 			cell:   cell,
 			offset: 0,
 			limit:  n,
 			size:   n,
 			total:  n,
 		},
-		"retrieve subset of properties with existing owner": {
+		"retrieve subset of properties with existing cell": {
 			cell:   cell,
 			offset: n / 2,
 			limit:  n,
 			size:   n / 2,
 			total:  n,
 		},
-		"retrieve properties with non-existing owner": {
+		"retrieve properties with non-existing cell": {
 			cell:   wrongValue,
 			offset: 0,
 			limit:  n,
@@ -412,15 +404,13 @@ func TestRetrieveByCell(t *testing.T) {
 
 func TestRetrieveByVillage(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
-	ows := postgres.NewOwnerStore(db)
 
 	defer CleanDB(t, "properties", "owners")
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	oid, err := ows.Save(owner)
+	saved, err := saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	owner.ID = oid
 	sector := "Kigomna"
 	cell := "Kigeme"
 	village := "Tetero"
@@ -430,7 +420,7 @@ func TestRetrieveByVillage(t *testing.T) {
 	for i := uint64(0); i < n; i++ {
 		p := properties.Property{
 			ID:    nanoid.New(nil).ID(),
-			Owner: owner.ID,
+			Owner: properties.Owner{ID: saved.ID},
 			Address: properties.Address{
 				Sector:  sector,
 				Cell:    cell,
@@ -449,21 +439,21 @@ func TestRetrieveByVillage(t *testing.T) {
 		size    uint64
 		total   uint64
 	}{
-		"retrieve all properties with existing owner": {
+		"retrieve all properties with existing village": {
 			village: village,
 			offset:  0,
 			limit:   n,
 			size:    n,
 			total:   n,
 		},
-		"retrieve subset of properties with existing owner": {
+		"retrieve subset of properties with existing village": {
 			village: village,
 			offset:  n / 2,
 			limit:   n,
 			size:    n / 2,
 			total:   n,
 		},
-		"retrieve properties with non-existing owner": {
+		"retrieve properties with non-existing village": {
 			village: wrongValue,
 			offset:  0,
 			limit:   n,

@@ -24,17 +24,16 @@ var (
 func TestSave(t *testing.T) {
 	repo := postgres.NewTransactionStore(db)
 	props := postgres.NewPropertyStore(db)
-	ows := postgres.NewOwnerStore(db)
 
 	defer CleanDB(t, "transactions", "properties", "owners")
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err := ows.Save(owner)
+	_, err := saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: owner.ID,
+		Owner: owner,
 		Due:   float64(1000),
 	}
 	_, err = props.Save(property)
@@ -83,17 +82,16 @@ func TestSave(t *testing.T) {
 func TestSingleTransactionRetrieveByID(t *testing.T) {
 	repo := postgres.NewTransactionStore(db)
 	props := postgres.NewPropertyStore(db)
-	ows := postgres.NewOwnerStore(db)
 
 	defer CleanDB(t, "transactions", "properties", "owners")
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err := ows.Save(owner)
+	_, err := saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: owner.ID,
+		Owner: owner,
 		Due:   float64(1000),
 	}
 	_, err = props.Save(property)
@@ -134,17 +132,16 @@ func TestRetrieveAll(t *testing.T) {
 	idp := uuid.New()
 	repo := postgres.NewTransactionStore(db)
 	props := postgres.NewPropertyStore(db)
-	ows := postgres.NewOwnerStore(db)
 
 	defer CleanDB(t, "transactions", "properties", "owners")
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err := ows.Save(owner)
+	_, err := saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: owner.ID,
+		Owner: owner,
 		Due:   float64(1000),
 	}
 	_, err = props.Save(property)
@@ -197,17 +194,16 @@ func TestRetrieveByProperty(t *testing.T) {
 	idp := uuid.New()
 	repo := postgres.NewTransactionStore(db)
 	props := postgres.NewPropertyStore(db)
-	ows := postgres.NewOwnerStore(db)
 
 	defer CleanDB(t, "transactions", "properties", "owners")
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err := ows.Save(owner)
+	_, err := saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: owner.ID,
+		Owner: owner,
 		Due:   float64(1000),
 	}
 	_, err = props.Save(property)
@@ -269,16 +265,16 @@ func TestRetrieveByMethod(t *testing.T) {
 	idp := uuid.New()
 	repo := postgres.NewTransactionStore(db)
 	props := postgres.NewPropertyStore(db)
-	ows := postgres.NewOwnerStore(db)
+
 	defer CleanDB(t, "transactions", "properties", "owners")
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err := ows.Save(owner)
+	_, err := saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: owner.ID,
+		Owner: owner,
 		Due:   float64(1000),
 	}
 	_, err = props.Save(property)
@@ -338,17 +334,16 @@ func TestRetrieveByMethod(t *testing.T) {
 func TestUpdateTransaction(t *testing.T) {
 	repo := postgres.NewTransactionStore(db)
 	props := postgres.NewPropertyStore(db)
-	ows := postgres.NewOwnerStore(db)
 
 	defer CleanDB(t, "transactions", "properties", "owners")
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err := ows.Save(owner)
+	_, err := saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: owner.ID,
+		Owner: owner,
 		Due:   float64(1000),
 	}
 	_, err = props.Save(property)

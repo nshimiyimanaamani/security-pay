@@ -8,16 +8,17 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 )
 
-var _ (properties.PropertyStore) = (*propertyStoreMock)(nil)
+var _ (properties.Repository) = (*propertyStoreMock)(nil)
 
 type propertyStoreMock struct {
 	mu         sync.Mutex
 	counter    uint64
+	owner      string
 	properties map[string]properties.Property
 }
 
-// NewPropertyStore creates PropertyStore mirror
-func NewPropertyStore() properties.PropertyStore {
+// NewRepository creates Repositorymirror
+func NewRepository() properties.Repository {
 	return &propertyStoreMock{
 		properties: make(map[string]properties.Property),
 	}
@@ -80,7 +81,7 @@ func (str *propertyStoreMock) RetrieveByOwner(owner string, offset, limit uint64
 	//check whether the property belongs to a given owner
 	for _, v := range str.properties {
 		id, _ := strconv.ParseUint(v.ID, 10, 64)
-		if v.Owner == owner && id >= first && id < last {
+		if v.Owner.ID == owner && id >= first && id < last {
 			items = append(items, v)
 		}
 	}
@@ -117,7 +118,7 @@ func (str *propertyStoreMock) RetrieveBySector(sector string, offset, limit uint
 	//check whether the property belongs to a given owner
 	for _, v := range str.properties {
 		id, _ := strconv.ParseUint(v.ID, 10, 64)
-		if v.Sector == sector && id >= first && id < last {
+		if v.Address.Sector == sector && id >= first && id < last {
 			items = append(items, v)
 		}
 	}
@@ -154,7 +155,7 @@ func (str *propertyStoreMock) RetrieveByCell(cell string, offset, limit uint64) 
 	//check whether the property belongs to a given owner
 	for _, v := range str.properties {
 		id, _ := strconv.ParseUint(v.ID, 10, 64)
-		if v.Cell == cell && id >= first && id < last {
+		if v.Address.Cell == cell && id >= first && id < last {
 			items = append(items, v)
 		}
 	}
@@ -191,7 +192,7 @@ func (str *propertyStoreMock) RetrieveByVillage(village string, offset, limit ui
 	//check whether the property belongs to a given owner
 	for _, v := range str.properties {
 		id, _ := strconv.ParseUint(v.ID, 10, 64)
-		if v.Village == village && id >= first && id < last {
+		if v.Address.Village == village && id >= first && id < last {
 			items = append(items, v)
 		}
 	}
