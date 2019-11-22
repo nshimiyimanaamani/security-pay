@@ -18,7 +18,7 @@ var (
 	ErrInvalidEntity = errors.New("invalid entity format")
 
 	// ErrNotFound indicates a non-existent entity request.
-	ErrNotFound = errors.New("non-existent entity")
+	ErrNotFound = errors.New("non-existent property entity")
 )
 
 // nanoid settings
@@ -39,23 +39,23 @@ type Service interface {
 
 	// RetrieveProperty returns a property entity and a nil error if the operation
 	// is successful given its unique id.
-	RetrieveProperty(token, uid string) (Property, error)
+	RetrieveProperty(uid string) (Property, error)
 
 	// ListPropertiesByOwner returns a list of properties that belong to a given owner
 	// withing a given range(offset, limit).
-	ListPropertiesByOwner(token, owner string, offset, limit uint64) (PropertyPage, error)
+	ListPropertiesByOwner(owner string, offset, limit uint64) (PropertyPage, error)
 
 	// ListPropertiesBySector returns a lists of properties in the given sector
 	// withing the given range(offset, limit).
-	ListPropertiesBySector(token, sector string, offset, limit uint64) (PropertyPage, error)
+	ListPropertiesBySector(sector string, offset, limit uint64) (PropertyPage, error)
 
 	// ListPropertiesByCell returns a lists of properties in the given cell
 	// withing the given range(offset, limit).
-	ListPropertiesByCell(token, cell string, offset, limit uint64) (PropertyPage, error)
+	ListPropertiesByCell(cell string, offset, limit uint64) (PropertyPage, error)
 
 	// ListPropertiesByVillage returns a lists of properties in the given village
 	// withing the given range(offset, limit).
-	ListPropertiesByVillage(token, village string, offset, limit uint64) (PropertyPage, error)
+	ListPropertiesByVillage(village string, offset, limit uint64) (PropertyPage, error)
 }
 
 var _ Service = (*propertyService)(nil)
@@ -103,37 +103,37 @@ func (svc *propertyService) UpdateProperty(token string, prop Property) error {
 	return svc.repo.UpdateProperty(prop)
 }
 
-func (svc *propertyService) RetrieveProperty(token, uid string) (Property, error) {
-	if _, err := svc.auth.Identity(token); err != nil {
-		return Property{}, err
-	}
+func (svc *propertyService) RetrieveProperty(uid string) (Property, error) {
+	// if _, err := svc.auth.Identity(token); err != nil {
+	// 	return Property{}, err
+	// }
 	return svc.repo.RetrieveByID(uid)
 }
 
-func (svc *propertyService) ListPropertiesByOwner(token, owner string, offset, limit uint64) (PropertyPage, error) {
-	if _, err := svc.auth.Identity(token); err != nil {
-		return PropertyPage{}, err
-	}
+func (svc *propertyService) ListPropertiesByOwner(owner string, offset, limit uint64) (PropertyPage, error) {
+	// if _, err := svc.auth.Identity(token); err != nil {
+	// 	return PropertyPage{}, err
+	// }
 	return svc.repo.RetrieveByOwner(owner, offset, limit)
 }
 
-func (svc *propertyService) ListPropertiesBySector(token, sector string, offset, limit uint64) (PropertyPage, error) {
-	if _, err := svc.auth.Identity(token); err != nil {
-		return PropertyPage{}, err
-	}
+func (svc *propertyService) ListPropertiesBySector(sector string, offset, limit uint64) (PropertyPage, error) {
+	// if _, err := svc.auth.Identity(token); err != nil {
+	// 	return PropertyPage{}, err
+	// }
 	return svc.repo.RetrieveBySector(sector, offset, limit)
 }
 
-func (svc *propertyService) ListPropertiesByCell(token, cell string, offset, limit uint64) (PropertyPage, error) {
-	if _, err := svc.auth.Identity(token); err != nil {
-		return PropertyPage{}, err
-	}
+func (svc *propertyService) ListPropertiesByCell(cell string, offset, limit uint64) (PropertyPage, error) {
+	// if _, err := svc.auth.Identity(token); err != nil {
+	// 	return PropertyPage{}, err
+	// }
 	return svc.repo.RetrieveByCell(cell, offset, limit)
 }
 
-func (svc *propertyService) ListPropertiesByVillage(token, village string, offset, limit uint64) (PropertyPage, error) {
-	if _, err := svc.auth.Identity(token); err != nil {
-		return PropertyPage{}, err
-	}
+func (svc *propertyService) ListPropertiesByVillage(village string, offset, limit uint64) (PropertyPage, error) {
+	// if _, err := svc.auth.Identity(token); err != nil {
+	// 	return PropertyPage{}, err
+	// }
 	return svc.repo.RetrieveByVillage(village, offset, limit)
 }

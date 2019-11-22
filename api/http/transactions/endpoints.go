@@ -80,9 +80,9 @@ func handleViewTransaction(svc transactions.Service, w http.ResponseWriter, r *h
 	vars := mux.Vars(r)
 
 	id := vars["id"]
-	token := r.Header.Get("Authorization")
+	//token := r.Header.Get("Authorization")
 
-	transaction, err := svc.ViewTransaction(token, id)
+	transaction, err := svc.ViewTransaction(id)
 	if err != nil {
 		EncodeError(w, err)
 		return
@@ -123,9 +123,9 @@ func handleListTransaction(svc transactions.Service, w http.ResponseWriter, r *h
 
 	var page transactions.TransactionPage
 
-	token := r.Header.Get("Authorization")
+	//token := r.Header.Get("Authorization")
 
-	page, err = svc.ListTransactions(token, offset, limit)
+	page, err = svc.ListTransactions(offset, limit)
 	if err != nil {
 		EncodeError(w, err)
 		return

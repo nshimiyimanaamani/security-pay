@@ -34,19 +34,19 @@ type Service interface {
 	RecordTransaction(token string, trx Transaction) (Transaction, error)
 
 	// ViewTransaction retrieves data about the transaction identified with the provided ID,
-	ViewTransaction(token, uid string) (Transaction, error)
+	ViewTransaction(uid string) (Transaction, error)
 
 	// ListTransactions retrieves data about subset of transactions that belongs to the
 	// user identified by the provided key.
-	ListTransactions(token string, offset, limit uint64) (TransactionPage, error)
+	ListTransactions(offset, limit uint64) (TransactionPage, error)
 
 	// ListTransactionsByProperty retrieves data about a subset of transactions that belong to
 	// a property identified by the given id. i.e filer by property
-	ListTransactionsByProperty(token, prop string, offset, limit uint64) (TransactionPage, error)
+	ListTransactionsByProperty(prop string, offset, limit uint64) (TransactionPage, error)
 
 	// ListTransactionByDate retrieves data about a subset of transactions that were made using
 	// a given method.
-	ListTransactionsByMethod(token, meth string, offset, limit uint64) (TransactionPage, error)
+	ListTransactionsByMethod(meth string, offset, limit uint64) (TransactionPage, error)
 
 	// // ListTransactionByDate retrieves data about a subset of transactions that during a given month.
 	// ListTransactionsByMonth(string, uint64, uint64) (TransactionPage, error)
@@ -93,31 +93,31 @@ func (svc *transactionsService) RecordTransaction(token string, trx Transaction)
 	return trx, nil
 }
 
-func (svc *transactionsService) ViewTransaction(token, uid string) (Transaction, error) {
-	if _, err := svc.auth.Identity(token); err != nil {
-		return Transaction{}, err
-	}
+func (svc *transactionsService) ViewTransaction(uid string) (Transaction, error) {
+	// if _, err := svc.auth.Identity(token); err != nil {
+	// 	return Transaction{}, err
+	// }
 	return svc.store.RetrieveByID(uid)
 }
 
-func (svc *transactionsService) ListTransactions(token string, offset, limit uint64) (TransactionPage, error) {
-	if _, err := svc.auth.Identity(token); err != nil {
-		return TransactionPage{}, err
-	}
+func (svc *transactionsService) ListTransactions(offset, limit uint64) (TransactionPage, error) {
+	// if _, err := svc.auth.Identity(token); err != nil {
+	// 	return TransactionPage{}, err
+	// }
 	return svc.store.RetrieveAll(offset, limit)
 }
 
-func (svc *transactionsService) ListTransactionsByProperty(token, prop string, offset, limit uint64) (TransactionPage, error) {
-	if _, err := svc.auth.Identity(token); err != nil {
-		return TransactionPage{}, err
-	}
+func (svc *transactionsService) ListTransactionsByProperty(prop string, offset, limit uint64) (TransactionPage, error) {
+	// if _, err := svc.auth.Identity(token); err != nil {
+	// 	return TransactionPage{}, err
+	// }
 	return svc.store.RetrieveByProperty(prop, offset, limit)
 }
 
-func (svc *transactionsService) ListTransactionsByMethod(token, meth string, offset, limit uint64) (TransactionPage, error) {
-	if _, err := svc.auth.Identity(token); err != nil {
-		return TransactionPage{}, err
-	}
+func (svc *transactionsService) ListTransactionsByMethod(meth string, offset, limit uint64) (TransactionPage, error) {
+	// if _, err := svc.auth.Identity(token); err != nil {
+	// 	return TransactionPage{}, err
+	// }
 	return svc.store.RetrieveByMethod(meth, offset, limit)
 }
 

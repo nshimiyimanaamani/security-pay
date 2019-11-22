@@ -113,12 +113,6 @@ func TestUpdate(t *testing.T) {
 			token:    token,
 			err:      properties.ErrInvalidEntity,
 		},
-		{
-			desc:     "update property with wrong token",
-			property: saved,
-			token:    wrongValue,
-			err:      users.ErrUnauthorizedAccess,
-		},
 	}
 
 	for _, tc := range cases {
@@ -156,16 +150,10 @@ func TestViewProperty(t *testing.T) {
 			token:    token,
 			err:      properties.ErrNotFound,
 		},
-		{
-			desc:     "view non-existing property",
-			identity: wrongValue,
-			token:    wrongValue,
-			err:      users.ErrUnauthorizedAccess,
-		},
 	}
 
 	for _, tc := range cases {
-		_, err := svc.RetrieveProperty(tc.token, tc.identity)
+		_, err := svc.RetrieveProperty(tc.identity)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 }
@@ -231,19 +219,10 @@ func TestListPropertiesByOwner(t *testing.T) {
 			size:   0,
 			err:    nil,
 		},
-		{
-			desc:   "list properties with invalid token",
-			owner:  owner.ID,
-			token:  wrongValue,
-			offset: 0,
-			limit:  n,
-			size:   0,
-			err:    users.ErrUnauthorizedAccess,
-		},
 	}
 
 	for _, tc := range cases {
-		page, err := svc.ListPropertiesByOwner(tc.token, tc.owner, tc.offset, tc.limit)
+		page, err := svc.ListPropertiesByOwner(tc.owner, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -309,19 +288,10 @@ func TestListPropertiesBySector(t *testing.T) {
 			size:   0,
 			err:    nil,
 		},
-		{
-			desc:   "list with invalid token",
-			sector: property.Address.Sector,
-			token:  wrongValue,
-			offset: 1,
-			limit:  0,
-			size:   0,
-			err:    users.ErrUnauthorizedAccess,
-		},
 	}
 
 	for _, tc := range cases {
-		page, err := svc.ListPropertiesBySector(tc.token, tc.sector, tc.offset, tc.limit)
+		page, err := svc.ListPropertiesBySector(tc.sector, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -387,19 +357,10 @@ func TestListPropertiesByCell(t *testing.T) {
 			size:   0,
 			err:    nil,
 		},
-		{
-			desc:   "list with invalid token",
-			cell:   property.Address.Cell,
-			token:  wrongValue,
-			offset: 1,
-			limit:  0,
-			size:   0,
-			err:    users.ErrUnauthorizedAccess,
-		},
 	}
 
 	for _, tc := range cases {
-		page, err := svc.ListPropertiesByCell(tc.token, tc.cell, tc.offset, tc.limit)
+		page, err := svc.ListPropertiesByCell(tc.cell, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -466,19 +427,10 @@ func TestListPropertiesByVillage(t *testing.T) {
 			size:    0,
 			err:     nil,
 		},
-		{
-			desc:    "list with zero limit",
-			village: property.Address.Village,
-			token:   wrongValue,
-			offset:  1,
-			limit:   0,
-			size:    0,
-			err:     users.ErrUnauthorizedAccess,
-		},
 	}
 
 	for _, tc := range cases {
-		page, err := svc.ListPropertiesByVillage(tc.token, tc.village, tc.offset, tc.limit)
+		page, err := svc.ListPropertiesByVillage(tc.village, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))

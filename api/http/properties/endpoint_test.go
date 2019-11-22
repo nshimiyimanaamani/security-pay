@@ -225,7 +225,7 @@ func TestUpdateProperty(t *testing.T) {
 	}
 
 	data := toJSON(res)
-	notFoundMessage := toJSON(Error{"non-existent entity"})
+	notFoundMessage := toJSON(Error{"non-existent property entity"})
 	invalidEntityMessage := toJSON(Error{"invalid entity format"})
 	unsupportedContentMessage := toJSON(Error{"unsupported content type"})
 	invalidCredsRes := toJSON(Error{"missing or invalid credentials provided"})
@@ -357,8 +357,7 @@ func TestRetrieveProperty(t *testing.T) {
 	}
 
 	data := toJSON(res)
-	notFoundRes := toJSON(Error{"non-existent entity"})
-	invalidCredsRes := toJSON(Error{"missing or invalid credentials provided"})
+	notFoundRes := toJSON(Error{"non-existent property entity"})
 
 	cases := []struct {
 		desc        string
@@ -388,13 +387,6 @@ func TestRetrieveProperty(t *testing.T) {
 			token:  token,
 			status: http.StatusNotFound,
 			res:    notFoundRes,
-		},
-		{
-			desc:   "view property with invalid token",
-			id:     saved.ID,
-			token:  wrongValue,
-			status: http.StatusForbidden,
-			res:    invalidCredsRes,
 		},
 	}
 
@@ -485,13 +477,6 @@ func TestListPropertiesByOwner(t *testing.T) {
 			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", transactionURL, owner.ID, 1, -5),
 			res:    nil,
 		},
-		{
-			desc:   "list properties with invalid credentials",
-			token:  wrongValue,
-			status: http.StatusForbidden,
-			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", transactionURL, owner.ID, 0, 5),
-			res:    nil,
-		},
 	}
 
 	for _, tc := range cases {
@@ -578,13 +563,6 @@ func TestListPropertiesByCell(t *testing.T) {
 			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?cell=%s&offset=%d&limit=%d", transactionURL, cell, 1, -5),
-			res:    nil,
-		},
-		{
-			desc:   "list of properties with invalid token",
-			token:  wrongValue,
-			status: http.StatusForbidden,
-			url:    fmt.Sprintf("%s?cell=%s&offset=%d&limit=%d", transactionURL, cell, 0, 5),
 			res:    nil,
 		},
 	}
@@ -674,13 +652,6 @@ func TestListPropertiesBySector(t *testing.T) {
 			url:    fmt.Sprintf("%s?sector=%s&offset=%d&limit=%d", transactionURL, sector, 1, -5),
 			res:    nil,
 		},
-		{
-			desc:   "list properties with invalid token",
-			token:  wrongValue,
-			status: http.StatusForbidden,
-			url:    fmt.Sprintf("%s?sector=%s&offset=%d&limit=%d", transactionURL, sector, 0, 5),
-			res:    nil,
-		},
 	}
 
 	for _, tc := range cases {
@@ -767,13 +738,6 @@ func TestListPropertiesByVillage(t *testing.T) {
 			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?village=%s&offset=%d&limit=%d", transactionURL, village, 1, -5),
-			res:    nil,
-		},
-		{
-			desc:   "list of properties with invalid token",
-			token:  wrongValue,
-			status: http.StatusForbidden,
-			url:    fmt.Sprintf("%s?village=%s&offset=%d&limit=%d", transactionURL, village, 0, 5),
 			res:    nil,
 		},
 	}

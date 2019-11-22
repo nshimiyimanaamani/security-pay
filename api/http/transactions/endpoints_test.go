@@ -176,7 +176,6 @@ func TestViewTransaction(t *testing.T) {
 
 	data := toJSON(trxRes)
 	notFoundRes := toJSON(errRes{"non-existent entity"})
-	invalidCredsRes := toJSON(errRes{"missing or invalid credentials provided"})
 
 	cases := []struct {
 		desc   string
@@ -198,13 +197,6 @@ func TestViewTransaction(t *testing.T) {
 			token:  token,
 			status: http.StatusNotFound,
 			res:    notFoundRes,
-		},
-		{
-			desc:   "view transaction with invalid token",
-			id:     strx.ID,
-			token:  wrong,
-			status: http.StatusForbidden,
-			res:    invalidCredsRes,
 		},
 	}
 
@@ -277,13 +269,6 @@ func TestListTransactions(t *testing.T) {
 			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?offset=%d&limit=%d", transactionURL, 1, -5),
-			res:    nil,
-		},
-		{
-			desc:   "list transactions with invalid credentials",
-			token:  wrong,
-			status: http.StatusForbidden,
-			url:    fmt.Sprintf("%s?offset=%d&limit=%d", transactionURL, 0, 5),
 			res:    nil,
 		},
 	}

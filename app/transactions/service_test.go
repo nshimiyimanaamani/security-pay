@@ -82,16 +82,10 @@ func TestViewTransaction(t *testing.T) {
 			identity: wrong,
 			err:      transactions.ErrNotFound,
 		},
-		{
-			desc:     "view transaction with invalid credentials",
-			token:    wrong,
-			identity: transaction.ID,
-			err:      users.ErrUnauthorizedAccess,
-		},
 	}
 
 	for _, tc := range cases {
-		_, err := svc.ViewTransaction(tc.token, tc.identity)
+		_, err := svc.ViewTransaction(tc.identity)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 }
@@ -152,18 +146,10 @@ func TestListTransactions(t *testing.T) {
 			size:   0,
 			err:    nil,
 		},
-		{
-			desc:   "list transactions with invalid credentials",
-			token:  wrong,
-			offset: 0,
-			limit:  n,
-			size:   0,
-			err:    users.ErrUnauthorizedAccess,
-		},
 	}
 
 	for _, tc := range cases {
-		page, err := svc.ListTransactions(tc.token, tc.offset, tc.limit)
+		page, err := svc.ListTransactions(tc.offset, tc.limit)
 		size := uint64(len(page.Transactions))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -228,19 +214,10 @@ func TestListTransactionsByProperty(t *testing.T) {
 			size:     0,
 			err:      nil,
 		},
-		{
-			desc:     "list transactions with invalid token",
-			token:    wrong,
-			property: transaction.MadeFor,
-			offset:   0,
-			limit:    n,
-			size:     0,
-			err:      users.ErrUnauthorizedAccess,
-		},
 	}
 
 	for _, tc := range cases {
-		page, err := svc.ListTransactionsByProperty(tc.token, tc.property, tc.offset, tc.limit)
+		page, err := svc.ListTransactionsByProperty(tc.property, tc.offset, tc.limit)
 		size := uint64(len(page.Transactions))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -295,19 +272,10 @@ func TestListTransactionsByMethod(t *testing.T) {
 			size:   0,
 			err:    nil,
 		},
-		{
-			desc:   "list transactions made with invalid token",
-			token:  wrong,
-			method: transaction.Method,
-			offset: 0,
-			limit:  n,
-			size:   0,
-			err:    users.ErrUnauthorizedAccess,
-		},
 	}
 
 	for _, tc := range cases {
-		page, err := svc.ListTransactionsByMethod(tc.token, tc.method, tc.offset, tc.limit)
+		page, err := svc.ListTransactionsByMethod(tc.method, tc.offset, tc.limit)
 		size := uint64(len(page.Transactions))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
