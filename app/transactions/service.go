@@ -55,14 +55,19 @@ var _ Service = (*transactionsService)(nil)
 type transactionsService struct {
 	idp  identity.Provider
 	repo Repository
-	auth AuthBackend
+}
+
+// Options ...
+type Options struct {
+	Idp  identity.Provider
+	Repo Repository
 }
 
 //New instantiates a new transaxtions service
-func New(idp identity.Provider, repo Repository) Service {
+func New(opts *Options) Service {
 	return &transactionsService{
-		idp:  idp,
-		repo: repo,
+		idp:  opts.Idp,
+		repo: opts.Repo,
 	}
 }
 

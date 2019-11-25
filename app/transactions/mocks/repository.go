@@ -17,8 +17,8 @@ type transactionRepoMock struct {
 	transactions map[string]transactions.Transaction
 }
 
-// NewTransactionStore creates TransactiobStore mirror
-func NewTransactionStore() transactions.Repository {
+// NewRepository creates TransactiobStore mirror
+func NewRepository() transactions.Repository {
 	return &transactionRepoMock{
 		transactions: make(map[string]transactions.Transaction),
 	}

@@ -59,9 +59,13 @@ func (tr testRequest) make() (*http.Response, error) {
 }
 
 func newService(tokens map[string]string) transactions.Service {
+	repo := mocks.NewRepository()
 	idp := mocks.NewIdentityProvider()
-	store := mocks.NewTransactionStore()
-	return transactions.New(idp, store)
+	opts := &transactions.Options{
+		Repo: repo,
+		Idp:  idp,
+	}
+	return transactions.New(opts)
 }
 
 func newServer(svc transactions.Service) *httptest.Server {
