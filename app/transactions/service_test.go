@@ -55,14 +55,14 @@ func TestRecordTransaction(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		_, err := svc.RecordTransaction(tc.token, tc.transaction)
+		_, err := svc.Record(tc.token, tc.transaction)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 }
 
 func TestViewTransaction(t *testing.T) {
 	svc := newService(map[string]string{token: email})
-	transaction, _ := svc.RecordTransaction(token, transaction)
+	transaction, _ := svc.Record(token, transaction)
 
 	cases := []struct {
 		desc     string
@@ -85,7 +85,7 @@ func TestViewTransaction(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		_, err := svc.ViewTransaction(tc.identity)
+		_, err := svc.Retrieve(tc.identity)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 }
@@ -95,7 +95,7 @@ func TestListTransactions(t *testing.T) {
 
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
-		svc.RecordTransaction(token, transaction)
+		svc.Record(token, transaction)
 	}
 
 	cases := []struct {
@@ -149,7 +149,7 @@ func TestListTransactions(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		page, err := svc.ListTransactions(tc.offset, tc.limit)
+		page, err := svc.List(tc.offset, tc.limit)
 		size := uint64(len(page.Transactions))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -165,7 +165,7 @@ func TestListTransactionsByProperty(t *testing.T) {
 		if i >= uint64(5) {
 			transaction.MadeFor = "1000-4433-0000"
 		}
-		svc.RecordTransaction(token, transaction)
+		svc.Record(token, transaction)
 	}
 
 	cases := []struct {
@@ -217,7 +217,7 @@ func TestListTransactionsByProperty(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		page, err := svc.ListTransactionsByProperty(tc.property, tc.offset, tc.limit)
+		page, err := svc.ListByProperty(tc.property, tc.offset, tc.limit)
 		size := uint64(len(page.Transactions))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -233,7 +233,7 @@ func TestListTransactionsByMethod(t *testing.T) {
 		if i >= uint64(5) {
 			transaction.MadeFor = "1000-4433-0000"
 		}
-		svc.RecordTransaction(token, transaction)
+		svc.Record(token, transaction)
 	}
 
 	cases := []struct {

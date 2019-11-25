@@ -15,8 +15,8 @@ var wrong = "wrong_value"
 
 func newService() feedback.Service {
 	opts := &feedback.Options{
-		Idp:  mocks.NewIDP(),
-		Repo: mocks.NewREPO(),
+		Idp:  mocks.NewIdentityProvider(),
+		Repo: mocks.NewRepository(),
 	}
 	return feedback.New(opts)
 }

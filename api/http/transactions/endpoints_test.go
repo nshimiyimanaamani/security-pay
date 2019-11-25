@@ -1,6 +1,8 @@
 package transactions_test
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -16,6 +18,7 @@ import (
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/transactions/mocks"
+	"github.com/rugwirobaker/paypack-backend/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -56,15 +59,20 @@ func (tr testRequest) make() (*http.Response, error) {
 }
 
 func newService(tokens map[string]string) transactions.Service {
-	auth := mocks.NewAuthBackend(tokens)
 	idp := mocks.NewIdentityProvider()
 	store := mocks.NewTransactionStore()
-	return transactions.New(idp, store, auth)
+	return transactions.New(idp, store)
 }
 
 func newServer(svc transactions.Service) *httptest.Server {
 	mux := mux.NewRouter()
-	endpoints.MakeAdapter(mux)(svc)
+	// mock io.Writer
+	lgger, _ := logger.New(&bytes.Buffer{}, "debug")
+	opts := &endpoints.HandlerOpts{
+		Service: svc,
+		Logger:  lgger,
+	}
+	endpoints.RegisterHandlers(mux, opts)
 	return httptest.NewServer(mux)
 }
 
@@ -73,7 +81,7 @@ func toJSON(data interface{}) string {
 	return string(jsonData)
 }
 
-func TestRecordTransaction(t *testing.T) {
+func TestRecord(t *testing.T) {
 	svc := newService(map[string]string{token: email})
 	ts := newServer(svc)
 
@@ -131,20 +139,13 @@ func TestRecordTransaction(t *testing.T) {
 			token:       token,
 			status:      http.StatusUnsupportedMediaType,
 		},
-		{
-			desc:        "record a invalid transaction",
-			req:         data,
-			contentType: contentType,
-			token:       wrong,
-			status:      http.StatusForbidden,
-		},
 	}
 
 	for _, tc := range cases {
 		req := testRequest{
 			client:      client,
 			method:      http.MethodPost,
-			url:         fmt.Sprintf("%s/", ts.URL),
+			url:         fmt.Sprintf("%s/transactions", ts.URL),
 			contentType: tc.contentType,
 			token:       tc.token,
 			body:        strings.NewReader(tc.req),
@@ -156,14 +157,15 @@ func TestRecordTransaction(t *testing.T) {
 	}
 }
 
-func TestViewTransaction(t *testing.T) {
+func TestRetrieve(t *testing.T) {
 	svc := newService(map[string]string{token: email})
 	ts := newServer(svc)
 
 	defer ts.Close()
 	client := ts.Client()
 
-	strx, err := svc.RecordTransaction(token, transaction)
+	ctx := context.Background()
+	strx, err := svc.Record(ctx, transaction)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	trxRes := transRes{
@@ -205,7 +207,7 @@ func TestViewTransaction(t *testing.T) {
 			client: client,
 			method: http.MethodGet,
 			token:  tc.token,
-			url:    fmt.Sprintf("%s/%s", ts.URL, tc.id),
+			url:    fmt.Sprintf("%s/transactions/%s", ts.URL, tc.id),
 		}
 
 		res, err := req.make()
@@ -218,7 +220,7 @@ func TestViewTransaction(t *testing.T) {
 	}
 }
 
-func TestListTransactions(t *testing.T) {
+func TestList(t *testing.T) {
 	svc := newService(map[string]string{token: email})
 	ts := newServer(svc)
 
@@ -228,20 +230,21 @@ func TestListTransactions(t *testing.T) {
 	data := []transRes{}
 
 	for i := 0; i < 100; i++ {
-		trx, err := svc.RecordTransaction(token, transaction)
+		ctx := context.Background()
+		tx, err := svc.Record(ctx, transaction)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		trxRes := transRes{
-			ID:       trx.ID,
-			Property: trx.MadeFor,
-			Owner:    trx.MadeBy,
-			Amount:   trx.Amount,
-			Method:   trx.Method,
+			ID:       tx.ID,
+			Property: tx.MadeFor,
+			Owner:    tx.MadeBy,
+			Amount:   tx.Amount,
+			Method:   tx.Method,
 		}
 		data = append(data, trxRes)
 	}
 
-	transactionURL := fmt.Sprintf("%s/", ts.URL)
+	transactionURL := fmt.Sprintf("%s/transactions", ts.URL)
 
 	cases := []struct {
 		desc   string
@@ -289,10 +292,6 @@ func TestListTransactions(t *testing.T) {
 		assert.ElementsMatch(t, tc.res, data.Transactions, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Transactions))
 	}
 }
-
-func TestListByProperty(t *testing.T) {}
-
-func TestListByMethod(t *testing.T) {}
 
 type errRes struct {
 	Message string `json:"message"`
