@@ -19,20 +19,10 @@ import (
 	"github.com/rugwirobaker/paypack-backend/api/http/health"
 	ownersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/owners"
 	paymentEndpoints "github.com/rugwirobaker/paypack-backend/api/http/payment"
-	prtEndpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
-	trxEndpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
+	propertiesEndpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
+	transactionsEndpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	usersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/users"
 	"github.com/rugwirobaker/paypack-backend/api/http/version"
-	"github.com/rugwirobaker/paypack-backend/app/feedback"
-	"github.com/rugwirobaker/paypack-backend/app/nanoid"
-	"github.com/rugwirobaker/paypack-backend/app/owners"
-	"github.com/rugwirobaker/paypack-backend/app/payment"
-	"github.com/rugwirobaker/paypack-backend/app/properties"
-	"github.com/rugwirobaker/paypack-backend/app/transactions"
-	"github.com/rugwirobaker/paypack-backend/app/users"
-	"github.com/rugwirobaker/paypack-backend/app/users/bcrypt"
-	"github.com/rugwirobaker/paypack-backend/app/users/jwt"
-	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/build"
 	"github.com/rugwirobaker/paypack-backend/logger"
 	"github.com/rugwirobaker/paypack-backend/nova"
@@ -110,7 +100,7 @@ func main() {
 	pGateway := nova.New(novaCfg)
 
 	users := newUserService(db, cfg.secret)
-	transactions := newTransactionService(db, users)
+	transactions := newTransactionService(db)
 	properties := newPropertyService(db, users)
 	payment := newPaymentService(db, pGateway)
 	feedback := newFeedbackService(db)
@@ -124,7 +114,7 @@ func main() {
 		Service: feedback,
 		Logger:  logger,
 	}
-	proOpts := prtEndpoints.HandlerOpts{
+	proOpts := propertiesEndpoints.HandlerOpts{
 		Service: properties,
 		Logger:  logger,
 	}
@@ -134,13 +124,18 @@ func main() {
 		Logger:  logger,
 	}
 
+	txOpts := transactionsEndpoints.HandlerOpts{
+		Service: transactions,
+		Logger:  logger,
+	}
+
 	usersOpts := usersEndpoints.HandlerOpts{
 		Service: users,
 		Logger:  logger,
 	}
 
 	srvOptions := serverOptions{
-		transactions:  transactions,
+		txOptions:     &txOpts,
 		payOptions:    &payOpts,
 		feedOptions:   &feedOpts,
 		proOptions:    &proOpts,
@@ -201,89 +196,12 @@ func connectToDB(config postgres.Config, logger logger.Logger) *sql.DB {
 	return db
 }
 
-func newUserService(db *sql.DB, secret string) users.Service {
-	hasher := bcrypt.New()
-	tempid := jwt.New(secret)
-	idp := uuid.New()
-	store := postgres.NewUserStore(db)
-	return users.New(hasher, tempid, idp, store)
-}
-
-func newTransactionService(db *sql.DB, users users.Service) transactions.Service {
-	cfg := &nanoid.Config{
-		Length: transactions.Length, Alphabet: transactions.Alphabet,
-	}
-	idp := nanoid.New(cfg)
-	store := postgres.NewTransactionStore(db)
-	auth := transactions.NewAuthBackend(users)
-	return transactions.New(idp, store, auth)
-}
-
-func newPropertyService(db *sql.DB, users users.Service) properties.Service {
-	cfg := &nanoid.Config{
-		Length: properties.Length, Alphabet: properties.Alphabet,
-	}
-	idp := nanoid.New(cfg)
-	props := postgres.NewPropertyStore(db)
-	auth := properties.NewAuthBackend(users)
-	return properties.New(idp, props, auth)
-}
-
-func newOwnersService(db *sql.DB) owners.Service {
-	repo := postgres.NewOwnerRepo(db)
-	idp := uuid.New()
-	opts := &owners.Options{
-		Repo: repo,
-		Idp:  idp,
-	}
-	return owners.New(opts)
-}
-
-func newPaymentService(db *sql.DB, gw payment.Gateway) payment.Service {
-	transactions := postgres.NewTransactionStore(db)
-	properties := postgres.NewPropertyStore(db)
-
-	repoOptions := &payment.RepoOptions{
-		Transactions: transactions,
-		Properties:   properties,
-	}
-	repo := payment.NewRepo(repoOptions)
-
-	cfg := &nanoid.Config{
-		Length: payment.Length, Alphabet: payment.Alphabet,
-	}
-
-	idp := nanoid.New(cfg)
-
-	opts := &payment.ServiceOptions{
-		Gateway:    gw,
-		IDP:        idp,
-		Repository: repo,
-	}
-	return payment.New(opts)
-}
-
-func newFeedbackService(db *sql.DB) feedback.Service {
-	repo := postgres.NewMessageStore(db)
-	idp := uuid.New()
-	opts := &feedback.Options{
-		Repo: repo,
-		Idp:  idp,
-	}
-	return feedback.New(opts)
-}
-
 type serverOptions struct {
-	// old API
-	//users        users.Service
-	transactions transactions.Service
-	//properties   properties.Service
-
-	// new API
+	txOptions     *transactionsEndpoints.HandlerOpts
 	payOptions    *paymentEndpoints.HandlerOpts
 	feedOptions   *feedbackEndpoints.HandlerOpts
 	ownersOptions *ownersEndpoints.HandlerOpts
-	proOptions    *prtEndpoints.HandlerOpts
+	proOptions    *propertiesEndpoints.HandlerOpts
 	usersOptions  *usersEndpoints.HandlerOpts
 
 	logger logger.Logger
@@ -312,18 +230,17 @@ func startHTTPServer(ctx context.Context, opts serverOptions) {
 
 	router.HandleFunc("/version", version.Build).Methods(http.MethodGet)
 
+	usersEndpoints.RegisterHandlers(router, opts.usersOptions)
+
 	feedbackEndpoints.RegisterHandlers(router, opts.feedOptions)
 
 	ownersEndpoints.RegisterHandlers(router, opts.ownersOptions)
 
 	paymentEndpoints.RegisterHandlers(router, opts.payOptions)
 
-	prtEndpoints.RegisterHandlers(router, opts.proOptions)
+	propertiesEndpoints.RegisterHandlers(router, opts.proOptions)
 
-	usersEndpoints.RegisterHandlers(router, opts.usersOptions)
-
-	trxRoutes := router.PathPrefix("/transactions").Subrouter()
-	trxEndpoints.MakeAdapter(trxRoutes)(opts.transactions)
+	transactionsEndpoints.RegisterHandlers(router, opts.txOptions)
 
 	s := &http.Server{
 		Addr:        fmt.Sprintf(":%s", opts.port),

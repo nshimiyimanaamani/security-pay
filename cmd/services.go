@@ -16,12 +16,6 @@ import (
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 )
 
-func newTransactionService(db *sql.DB, users users.Service) transactions.Service {
-	idp := uuid.New()
-	store := postgres.NewTransactionStore(db)
-	return transactions.New(idp, store)
-}
-
 func newUserService(db *sql.DB, secret string) users.Service {
 	hasher := bcrypt.New()
 	tempid := jwt.New(secret)
@@ -52,7 +46,7 @@ func newOwnersService(db *sql.DB) owners.Service {
 }
 
 func newPaymentService(db *sql.DB, gw payment.Gateway) payment.Service {
-	transactions := postgres.NewTransactionStore(db)
+	transactions := postgres.NewTransactionRepository(db)
 	properties := postgres.NewPropertyStore(db)
 
 	repoOptions := &payment.RepoOptions{
@@ -73,6 +67,16 @@ func newPaymentService(db *sql.DB, gw payment.Gateway) payment.Service {
 		Repository: repo,
 	}
 	return payment.New(opts)
+}
+
+func newTransactionService(db *sql.DB) transactions.Service {
+	repo := postgres.NewTransactionRepository(db)
+	idp := uuid.New()
+	opts := &transactions.Options{
+		Repo: repo,
+		Idp:  idp,
+	}
+	return transactions.New(opts)
 }
 
 func newFeedbackService(db *sql.DB) feedback.Service {
