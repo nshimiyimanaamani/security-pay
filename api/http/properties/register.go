@@ -29,4 +29,18 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 	r.Handle(ListPRoute, ListPropertyByVillage(opts.Logger, opts.Service)).Methods(http.MethodGet).
 		Queries("village", "{village}", "offset", "{offset}", "limit", "{limit}")
 
+	//mobile temp
+	r.Handle(MRetrievePRoute, MRetrieveProperty(opts.Logger, opts.Service)).Methods(http.MethodGet)
+	r.Handle(MListPRoute, MListPropertyByCell(opts.Logger, opts.Service)).Methods(http.MethodGet).
+		Queries("cell", "{cell}", "offset", "{offset}", "limit", "{limit}")
+
+	r.Handle(MListPRoute, MListPropertyByOwner(opts.Logger, opts.Service)).Methods(http.MethodGet).
+		Queries("owner", "{owner}", "offset", "{offset}", "limit", "{limit}")
+
+	r.Handle(MListPRoute, MListPropertyBySector(opts.Logger, opts.Service)).Methods(http.MethodGet).
+		Queries("sector", "{sector}", "offset", "{offset}", "limit", "{limit}")
+
+	r.Handle(MListPRoute, MListPropertyByVillage(opts.Logger, opts.Service)).Methods(http.MethodGet).
+		Queries("village", "{village}", "offset", "{offset}", "limit", "{limit}")
+
 }
