@@ -44,7 +44,17 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
 
-	config := postgres.Config{
+	config := struct {
+		Host        string
+		Port        string
+		User        string
+		Pass        string
+		Name        string
+		SSLMode     string
+		SSLCert     string
+		SSLKey      string
+		SSLRootCert string
+	}{
 		Host:        "localhost",
 		Port:        port,
 		User:        "test",
@@ -56,7 +66,11 @@ func TestMain(m *testing.M) {
 		SSLRootCert: "",
 	}
 
-	if db, err = postgres.Connect(config); err != nil {
+	connString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s sslcert=%s sslkey=%s sslrootcert=%s",
+		config.Host, config.Port, config.User, config.Name, config.Pass, config.SSLMode, config.SSLCert, config.SSLKey, config.SSLRootCert,
+	)
+
+	if db, err = postgres.Connect(connString); err != nil {
 		log.Fatalf("failed to connect to test DB: %v", err)
 	}
 	defer db.Close()

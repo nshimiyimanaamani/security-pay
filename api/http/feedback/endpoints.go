@@ -3,23 +3,24 @@ package feedback
 import (
 	"net/http"
 
+	"github.com/rugwirobaker/paypack-backend/pkg/log"
+
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/app/feedback"
-	"github.com/rugwirobaker/paypack-backend/logger"
 )
 
-// Protocol adapts the feedback service into an http.handler
-type Protocol func(logger logger.Logger, svc feedback.Service) http.Handler
+// ProtocolHandler adapts the feedback service into an http.handler
+type ProtocolHandler func(lgger log.Entry, svc feedback.Service) http.Handler
 
 // HandlerOpts are the generic options
 // for a ProtocolHandler
 type HandlerOpts struct {
 	Service feedback.Service
-	Logger  logger.Logger
+	Logger  *log.Logger
 }
 
 // Recode handlers new feedback message submission
-func Recode(logger logger.Logger, svc feedback.Service) http.Handler {
+func Recode(lgger log.Entry, svc feedback.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -47,7 +48,7 @@ func Recode(logger logger.Logger, svc feedback.Service) http.Handler {
 }
 
 // Update handles feedback updates
-func Update(logger logger.Logger, svc feedback.Service) http.Handler {
+func Update(lgger log.Entry, svc feedback.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -79,7 +80,7 @@ func Update(logger logger.Logger, svc feedback.Service) http.Handler {
 }
 
 // Retrieve handles feedback entry retrieval
-func Retrieve(logger logger.Logger, svc feedback.Service) http.Handler {
+func Retrieve(lgger log.Entry, svc feedback.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -95,7 +96,7 @@ func Retrieve(logger logger.Logger, svc feedback.Service) http.Handler {
 			ID:        req.ID,
 			Title:     req.Title,
 			Body:      req.Body,
-			Creator: req.Creator,
+			Creator:   req.Creator,
 			CreatedAt: req.CreatedAt,
 			UpdatedAt: req.UpdatedAt,
 		}
@@ -107,7 +108,7 @@ func Retrieve(logger logger.Logger, svc feedback.Service) http.Handler {
 }
 
 // Delete handles feedback entry delete
-func Delete(logger logger.Logger, svc feedback.Service) http.Handler {
+func Delete(lgger log.Entry, svc feedback.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 

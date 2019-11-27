@@ -1,13 +1,13 @@
 package properties_test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	//"github.com/rugwirobaker/paypack-backend/app"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/properties/mocks"
-	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -20,15 +20,14 @@ const (
 	wrongValue = "wrong-value"
 )
 
-func newService(tokens map[string]string) properties.Service {
-	auth := mocks.NewAuthBackend(tokens)
+func newService() properties.Service {
 	idp := mocks.NewIdentityProvider()
 	props := mocks.NewRepository()
-	return properties.New(idp, props, auth)
+	return properties.New(idp, props)
 }
 
 func TestAddProperty(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	svc := newService()
 
 	property := properties.Property{
 		Owner:   properties.Owner{ID: uuid.New().ID()},
@@ -54,17 +53,17 @@ func TestAddProperty(t *testing.T) {
 		{"add valid property", property, token, nil},
 		{"add invalid property", invalidProperty, token, properties.ErrInvalidEntity},
 		{"add property with empty montly due", emptyDue, token, properties.ErrInvalidEntity},
-		{"add property with wrong user token", property, wrongValue, users.ErrUnauthorizedAccess},
 	}
 
 	for _, tc := range cases {
-		_, err := svc.RegisterProperty(tc.token, tc.property)
+		ctx := context.Background()
+		_, err := svc.RegisterProperty(ctx, tc.property)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 }
 
 func TestUpdate(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	svc := newService()
 
 	property := properties.Property{
 		Owner:   properties.Owner{ID: uuid.New().ID()},
@@ -81,7 +80,9 @@ func TestUpdate(t *testing.T) {
 		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 	}
 
-	saved, _ := svc.RegisterProperty(token, property)
+	ctx := context.Background()
+	saved, err := svc.RegisterProperty(ctx, property)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	cases := []struct {
 		desc     string
@@ -116,13 +117,14 @@ func TestUpdate(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		err := svc.UpdateProperty(tc.token, tc.property)
+		ctx := context.Background()
+		err := svc.UpdateProperty(ctx, tc.property)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 }
 
 func TestViewProperty(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	svc := newService()
 
 	property := properties.Property{
 		Owner:   properties.Owner{ID: uuid.New().ID()},
@@ -130,7 +132,9 @@ func TestViewProperty(t *testing.T) {
 		Due:     float64(1000),
 	}
 
-	saved, _ := svc.RegisterProperty(token, property)
+	ctx := context.Background()
+	saved, err := svc.RegisterProperty(ctx, property)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	cases := []struct {
 		desc     string
@@ -153,13 +157,14 @@ func TestViewProperty(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		_, err := svc.RetrieveProperty(tc.identity)
+		ctx := context.Background()
+		_, err := svc.RetrieveProperty(ctx, tc.identity)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 }
 
 func TestListPropertiesByOwner(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	svc := newService()
 
 	owner := properties.Owner{ID: uuid.New().ID()}
 
@@ -170,7 +175,9 @@ func TestListPropertiesByOwner(t *testing.T) {
 			Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 			Due:     float64(1000),
 		}
-		_, err := svc.RegisterProperty(token, property)
+
+		ctx := context.Background()
+		_, err := svc.RegisterProperty(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 
@@ -222,7 +229,8 @@ func TestListPropertiesByOwner(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		page, err := svc.ListPropertiesByOwner(tc.owner, tc.offset, tc.limit)
+		ctx := context.Background()
+		page, err := svc.ListPropertiesByOwner(ctx, tc.owner, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -230,7 +238,7 @@ func TestListPropertiesByOwner(t *testing.T) {
 }
 
 func TestListPropertiesBySector(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	svc := newService()
 
 	property := properties.Property{
 		Owner:   properties.Owner{ID: uuid.New().ID()},
@@ -240,7 +248,9 @@ func TestListPropertiesBySector(t *testing.T) {
 
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
-		svc.RegisterProperty(token, property)
+		ctx := context.Background()
+		_, err := svc.RegisterProperty(ctx, property)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 
 	cases := []struct {
@@ -291,7 +301,8 @@ func TestListPropertiesBySector(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		page, err := svc.ListPropertiesBySector(tc.sector, tc.offset, tc.limit)
+		ctx := context.Background()
+		page, err := svc.ListPropertiesBySector(ctx, tc.sector, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -299,7 +310,7 @@ func TestListPropertiesBySector(t *testing.T) {
 }
 
 func TestListPropertiesByCell(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	svc := newService()
 
 	property := properties.Property{
 		Owner:   properties.Owner{ID: uuid.New().ID()},
@@ -309,7 +320,10 @@ func TestListPropertiesByCell(t *testing.T) {
 
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
-		svc.RegisterProperty(token, property)
+		ctx := context.Background()
+		_, err := svc.RegisterProperty(ctx, property)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
 	}
 
 	cases := []struct {
@@ -360,7 +374,8 @@ func TestListPropertiesByCell(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		page, err := svc.ListPropertiesByCell(tc.cell, tc.offset, tc.limit)
+		ctx := context.Background()
+		page, err := svc.ListPropertiesByCell(ctx, tc.cell, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -369,7 +384,7 @@ func TestListPropertiesByCell(t *testing.T) {
 }
 
 func TestListPropertiesByVillage(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	svc := newService()
 
 	property := properties.Property{
 		Owner:   properties.Owner{ID: uuid.New().ID()},
@@ -379,7 +394,9 @@ func TestListPropertiesByVillage(t *testing.T) {
 
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
-		svc.RegisterProperty(token, property)
+		ctx := context.Background()
+		_, err := svc.RegisterProperty(ctx, property)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 
 	cases := []struct {
@@ -430,7 +447,8 @@ func TestListPropertiesByVillage(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		page, err := svc.ListPropertiesByVillage(tc.village, tc.offset, tc.limit)
+		ctx := context.Background()
+		page, err := svc.ListPropertiesByVillage(ctx, tc.village, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))

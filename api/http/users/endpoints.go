@@ -5,21 +5,11 @@ import (
 	"net/http"
 
 	"github.com/rugwirobaker/paypack-backend/app/users"
-	"github.com/rugwirobaker/paypack-backend/logger"
+	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
-// Protocol adapts the feedback service into an http.handler
-type Protocol func(logger logger.Logger, svc users.Service) http.Handler
-
-// HandlerOpts are the generic options
-// for a ProtocolHandler
-type HandlerOpts struct {
-	Service users.Service
-	Logger  logger.Logger
-}
-
 // Register handles user registration
-func Register(logger logger.Logger, svc users.Service) http.Handler {
+func Register(logger log.Entry, svc users.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		if err := CheckContentType(r); err != nil {
 			EncodeError(w, err)
@@ -55,7 +45,7 @@ func Register(logger logger.Logger, svc users.Service) http.Handler {
 }
 
 // Login handles user registration
-func Login(logger logger.Logger, svc users.Service) http.Handler {
+func Login(logger log.Entry, svc users.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		if err := CheckContentType(r); err != nil {
 			EncodeError(w, err)

@@ -1,7 +1,7 @@
 package properties_test
 
 import (
-	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -17,7 +17,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/identity/uuid"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/properties/mocks"
-	"github.com/rugwirobaker/paypack-backend/logger"
+	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -53,21 +53,17 @@ func (tr testRequest) make() (*http.Response, error) {
 	return tr.client.Do(req)
 }
 
-func newService(tokens map[string]string) properties.Service {
-	auth := mocks.NewAuthBackend(tokens)
+func newService() properties.Service {
 	idp := mocks.NewIdentityProvider()
 	repo := mocks.NewRepository()
-	return properties.New(idp, repo, auth)
+	return properties.New(idp, repo)
 }
 
 func newServer(svc properties.Service) *httptest.Server {
 	mux := mux.NewRouter()
-	// mock io.Writer
-	lgger, _ := logger.New(&bytes.Buffer{}, "debug")
-
 	opts := &endpoints.HandlerOpts{
 		Service: svc,
-		Logger:  lgger,
+		Logger:  log.NoOpLogger(),
 	}
 	endpoints.RegisterHandlers(mux, opts)
 	return httptest.NewServer(mux)
@@ -79,7 +75,7 @@ func toJSON(data interface{}) string {
 }
 
 func TestRegisterProperty(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	svc := newService()
 	ts := newServer(svc)
 
 	defer ts.Close()
@@ -104,7 +100,6 @@ func TestRegisterProperty(t *testing.T) {
 	res := toJSON(property)
 	invalidEntityRes := toJSON(Error{"invalid entity format"})
 	unsupportedContentRes := toJSON(Error{"unsupported content type"})
-	invalidCredsRes := toJSON(Error{"missing or invalid credentials provided"})
 
 	cases := []struct {
 		desc        string
@@ -162,14 +157,6 @@ func TestRegisterProperty(t *testing.T) {
 			status:      http.StatusUnsupportedMediaType,
 			res:         unsupportedContentRes,
 		},
-		{
-			desc:        "add property with invalid token",
-			req:         data,
-			token:       wrongValue,
-			contentType: contentType,
-			status:      http.StatusForbidden,
-			res:         invalidCredsRes,
-		},
 	}
 
 	for _, tc := range cases {
@@ -194,7 +181,7 @@ func TestRegisterProperty(t *testing.T) {
 }
 
 func TestUpdateProperty(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	svc := newService()
 	ts := newServer(svc)
 
 	defer ts.Close()
@@ -210,7 +197,8 @@ func TestUpdateProperty(t *testing.T) {
 		Due: float64(1000),
 	}
 
-	saved, err := svc.RegisterProperty(token, property)
+	ctx := context.Background()
+	saved, err := svc.RegisterProperty(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	res := Property{
@@ -228,7 +216,6 @@ func TestUpdateProperty(t *testing.T) {
 	notFoundMessage := toJSON(Error{"non-existent property entity"})
 	invalidEntityMessage := toJSON(Error{"invalid entity format"})
 	unsupportedContentMessage := toJSON(Error{"unsupported content type"})
-	invalidCredsRes := toJSON(Error{"missing or invalid credentials provided"})
 
 	cases := []struct {
 		desc        string
@@ -293,15 +280,6 @@ func TestUpdateProperty(t *testing.T) {
 			status:      http.StatusUnsupportedMediaType,
 			res:         unsupportedContentMessage,
 		},
-		{
-			desc:        "update property with invalid token",
-			req:         data,
-			token:       wrongValue,
-			id:          saved.ID,
-			contentType: contentType,
-			status:      http.StatusForbidden,
-			res:         invalidCredsRes,
-		},
 	}
 
 	for _, tc := range cases {
@@ -326,7 +304,7 @@ func TestUpdateProperty(t *testing.T) {
 }
 
 func TestRetrieveProperty(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	svc := newService()
 	ts := newServer(svc)
 
 	defer ts.Close()
@@ -342,7 +320,8 @@ func TestRetrieveProperty(t *testing.T) {
 		Due: float64(1000),
 	}
 
-	saved, err := svc.RegisterProperty(token, property)
+	ctx := context.Background()
+	saved, err := svc.RegisterProperty(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	res := Property{
@@ -409,7 +388,7 @@ func TestRetrieveProperty(t *testing.T) {
 }
 
 func TestListPropertiesByOwner(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	svc := newService()
 	ts := newServer(svc)
 
 	defer ts.Close()
@@ -430,7 +409,8 @@ func TestListPropertiesByOwner(t *testing.T) {
 	data := []Property{}
 
 	for i := 0; i < 100; i++ {
-		saved, err := svc.RegisterProperty(token, property)
+		ctx := context.Background()
+		saved, err := svc.RegisterProperty(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		res := Property{
@@ -498,7 +478,7 @@ func TestListPropertiesByOwner(t *testing.T) {
 }
 
 func TestListPropertiesByCell(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	svc := newService()
 	ts := newServer(svc)
 
 	defer ts.Close()
@@ -518,7 +498,8 @@ func TestListPropertiesByCell(t *testing.T) {
 	data := []Property{}
 
 	for i := 0; i < 100; i++ {
-		saved, err := svc.RegisterProperty(token, property)
+		ctx := context.Background()
+		saved, err := svc.RegisterProperty(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		res := Property{
@@ -585,7 +566,7 @@ func TestListPropertiesByCell(t *testing.T) {
 }
 
 func TestListPropertiesBySector(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	svc := newService()
 	ts := newServer(svc)
 
 	defer ts.Close()
@@ -605,7 +586,8 @@ func TestListPropertiesBySector(t *testing.T) {
 	data := []Property{}
 
 	for i := 0; i < 100; i++ {
-		saved, err := svc.RegisterProperty(token, property)
+		ctx := context.Background()
+		saved, err := svc.RegisterProperty(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		res := Property{
@@ -672,7 +654,7 @@ func TestListPropertiesBySector(t *testing.T) {
 }
 
 func TestListPropertiesByVillage(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	svc := newService()
 	ts := newServer(svc)
 
 	defer ts.Close()
@@ -693,7 +675,8 @@ func TestListPropertiesByVillage(t *testing.T) {
 	data := []Property{}
 
 	for i := 0; i < 100; i++ {
-		saved, err := svc.RegisterProperty(token, property)
+		ctx := context.Background()
+		saved, err := svc.RegisterProperty(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		res := Property{

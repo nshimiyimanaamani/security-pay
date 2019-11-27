@@ -1,6 +1,7 @@
 package mocks
 
 import (
+	"context"
 	"sort"
 	"strconv"
 	"sync"
@@ -24,7 +25,7 @@ func NewRepository() properties.Repository {
 	}
 }
 
-func (str *propertyStoreMock) Save(property properties.Property) (string, error) {
+func (str *propertyStoreMock) Save(ctx context.Context, property properties.Property) (string, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -40,7 +41,7 @@ func (str *propertyStoreMock) Save(property properties.Property) (string, error)
 	return property.ID, nil
 }
 
-func (str *propertyStoreMock) UpdateProperty(property properties.Property) error {
+func (str *propertyStoreMock) UpdateProperty(ctx context.Context, property properties.Property) error {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -53,7 +54,7 @@ func (str *propertyStoreMock) UpdateProperty(property properties.Property) error
 	return nil
 }
 
-func (str *propertyStoreMock) RetrieveByID(id string) (properties.Property, error) {
+func (str *propertyStoreMock) RetrieveByID(ctx context.Context, id string) (properties.Property, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -65,7 +66,7 @@ func (str *propertyStoreMock) RetrieveByID(id string) (properties.Property, erro
 	return val, nil
 }
 
-func (str *propertyStoreMock) RetrieveByOwner(owner string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *propertyStoreMock) RetrieveByOwner(ctx context.Context, owner string, offset, limit uint64) (properties.PropertyPage, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -102,7 +103,7 @@ func (str *propertyStoreMock) RetrieveByOwner(owner string, offset, limit uint64
 	return page, nil
 }
 
-func (str *propertyStoreMock) RetrieveBySector(sector string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *propertyStoreMock) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64) (properties.PropertyPage, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -139,7 +140,7 @@ func (str *propertyStoreMock) RetrieveBySector(sector string, offset, limit uint
 	return page, nil
 }
 
-func (str *propertyStoreMock) RetrieveByCell(cell string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *propertyStoreMock) RetrieveByCell(ctx context.Context, cell string, offset, limit uint64) (properties.PropertyPage, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -176,7 +177,7 @@ func (str *propertyStoreMock) RetrieveByCell(cell string, offset, limit uint64) 
 	return page, nil
 }
 
-func (str *propertyStoreMock) RetrieveByVillage(village string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *propertyStoreMock) RetrieveByVillage(ctx context.Context, village string, offset, limit uint64) (properties.PropertyPage, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 

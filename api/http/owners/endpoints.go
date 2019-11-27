@@ -7,21 +7,11 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/app/owners"
-	"github.com/rugwirobaker/paypack-backend/logger"
+	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
-// Protocol adapts the feedback service into an http.handler
-type Protocol func(logger logger.Logger, svc owners.Service) http.Handler
-
-// HandlerOpts are the generic options
-// for a ProtocolHandler
-type HandlerOpts struct {
-	Service owners.Service
-	Logger  logger.Logger
-}
-
 // Register handles owner registration
-func Register(logger logger.Logger, svc owners.Service) http.Handler {
+func Register(lgger log.Entry, svc owners.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 
 		if err := CheckContentType(r); err != nil {
@@ -59,7 +49,7 @@ func Register(logger logger.Logger, svc owners.Service) http.Handler {
 }
 
 // Retrieve handles owner retrieval
-func Retrieve(logger logger.Logger, svc owners.Service) http.Handler {
+func Retrieve(lgger log.Entry, svc owners.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 
@@ -81,7 +71,7 @@ func Retrieve(logger logger.Logger, svc owners.Service) http.Handler {
 }
 
 // Update handles owner retrieval
-func Update(logger logger.Logger, svc owners.Service) http.Handler {
+func Update(lgger log.Entry, svc owners.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		var err error
 
@@ -118,7 +108,7 @@ func Update(logger logger.Logger, svc owners.Service) http.Handler {
 }
 
 // List handles multiple owners retrieval
-func List(logger logger.Logger, svc owners.Service) http.Handler {
+func List(lgger log.Entry, svc owners.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 
@@ -150,7 +140,7 @@ func List(logger logger.Logger, svc owners.Service) http.Handler {
 }
 
 // Search handles owner search
-func Search(logger logger.Logger, svc owners.Service) http.Handler {
+func Search(lgger log.Entry, svc owners.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		var owner owners.Owner
 
@@ -175,7 +165,7 @@ func Search(logger logger.Logger, svc owners.Service) http.Handler {
 }
 
 // RetrieveByPhone handles owner retrieval given phone number
-func RetrieveByPhone(logger logger.Logger, svc owners.Service) http.Handler {
+func RetrieveByPhone(lgger log.Entry, svc owners.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 

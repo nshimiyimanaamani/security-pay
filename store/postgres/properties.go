@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 
 	//"github.com/lib/pq"
@@ -19,7 +20,7 @@ func NewPropertyStore(db *sql.DB) properties.Repository {
 	return &propertiesStore{db}
 }
 
-func (str *propertiesStore) Save(pro properties.Property) (string, error) {
+func (str *propertiesStore) Save(ctx context.Context, pro properties.Property) (string, error) {
 	q := `INSERT INTO properties (id, owner, due, sector, cell, village) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
 
 	_, err := str.db.Exec(q, pro.ID, pro.Owner.ID, pro.Due, pro.Address.Sector, pro.Address.Cell, pro.Address.Village)
@@ -41,7 +42,7 @@ func (str *propertiesStore) Save(pro properties.Property) (string, error) {
 	return pro.ID, nil
 }
 
-func (str *propertiesStore) UpdateProperty(pro properties.Property) error {
+func (str *propertiesStore) UpdateProperty(ctx context.Context, pro properties.Property) error {
 	q := `UPDATE properties SET owner=$1, due=$2 WHERE id=$3;`
 
 	res, err := str.db.Exec(q, pro.Owner.ID, pro.Due, pro.ID)
@@ -66,7 +67,7 @@ func (str *propertiesStore) UpdateProperty(pro properties.Property) error {
 	return nil
 }
 
-func (str *propertiesStore) RetrieveByID(id string) (properties.Property, error) {
+func (str *propertiesStore) RetrieveByID(ctx context.Context, id string) (properties.Property, error) {
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell,  
@@ -97,7 +98,7 @@ func (str *propertiesStore) RetrieveByID(id string) (properties.Property, error)
 	return prt, nil
 }
 
-func (str *propertiesStore) RetrieveByOwner(owner string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, offset, limit uint64) (properties.PropertyPage, error) {
 	q := `SELECT 
 			properties.id, properties.sector, properties.cell, 
 			properties.village, properties.due, 
@@ -149,7 +150,7 @@ func (str *propertiesStore) RetrieveByOwner(owner string, offset, limit uint64) 
 	return page, nil
 }
 
-func (str *propertiesStore) RetrieveBySector(sector string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *propertiesStore) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64) (properties.PropertyPage, error) {
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
@@ -202,7 +203,7 @@ func (str *propertiesStore) RetrieveBySector(sector string, offset, limit uint64
 	return page, nil
 }
 
-func (str *propertiesStore) RetrieveByCell(cell string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *propertiesStore) RetrieveByCell(ctx context.Context, cell string, offset, limit uint64) (properties.PropertyPage, error) {
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
@@ -254,7 +255,7 @@ func (str *propertiesStore) RetrieveByCell(cell string, offset, limit uint64) (p
 	return page, nil
 }
 
-func (str *propertiesStore) RetrieveByVillage(village string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *propertiesStore) RetrieveByVillage(ctx context.Context, village string, offset, limit uint64) (properties.PropertyPage, error) {
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell, 

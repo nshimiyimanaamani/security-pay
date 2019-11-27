@@ -4,7 +4,32 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rugwirobaker/paypack-backend/app/properties"
+	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
+
+// ProtocolHandler adapts the feedback service into an http.handler
+type ProtocolHandler func(logger log.Entry, svc properties.Service) http.Handler
+
+// HandlerOpts are the generic options
+// for a ProtocolHandler
+type HandlerOpts struct {
+	Logger  *log.Logger
+	Service properties.Service
+}
+
+// LogEntryHandler pulls a log entry from the request context. Thanks to the
+// LogEntryMiddleware, we should have a log entry stored in the context for each
+// request with request-specific fields. This will grab the entry and pass it to
+// the protocol handlers
+func LogEntryHandler(ph ProtocolHandler, opts *HandlerOpts) http.Handler {
+	f := func(w http.ResponseWriter, r *http.Request) {
+		ent := log.EntryFromContext(r.Context())
+		handler := ph(ent, opts.Service)
+		handler.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(f)
+}
 
 // RegisterHandlers ...
 func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
@@ -13,20 +38,20 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		panic("absolutely unacceptable handler opts")
 	}
 
-	r.Handle(RegisterPRoute, RegisterProperty(opts.Logger, opts.Service)).Methods(http.MethodPost)
-	r.Handle(RetrievePRoute, RetrieveProperty(opts.Logger, opts.Service)).Methods(http.MethodGet)
-	r.Handle(UpdatePRoute, UpdateProperty(opts.Logger, opts.Service)).Methods(http.MethodPut)
+	r.Handle(RegisterPRoute, LogEntryHandler(RegisterProperty, opts)).Methods(http.MethodPost)
+	r.Handle(RetrievePRoute, LogEntryHandler(RetrieveProperty, opts)).Methods(http.MethodGet)
+	r.Handle(UpdatePRoute, LogEntryHandler(UpdateProperty, opts)).Methods(http.MethodPut)
 
-	r.Handle(ListPRoute, ListPropertyByCell(opts.Logger, opts.Service)).Methods(http.MethodGet).
+	r.Handle(ListPRoute, LogEntryHandler(ListPropertyByCell, opts)).Methods(http.MethodGet).
 		Queries("cell", "{cell}", "offset", "{offset}", "limit", "{limit}")
 
-	r.Handle(ListPRoute, ListPropertyByOwner(opts.Logger, opts.Service)).Methods(http.MethodGet).
+	r.Handle(ListPRoute, LogEntryHandler(ListPropertyByOwner, opts)).Methods(http.MethodGet).
 		Queries("owner", "{owner}", "offset", "{offset}", "limit", "{limit}")
 
-	r.Handle(ListPRoute, ListPropertyBySector(opts.Logger, opts.Service)).Methods(http.MethodGet).
+	r.Handle(ListPRoute, LogEntryHandler(ListPropertyBySector, opts)).Methods(http.MethodGet).
 		Queries("sector", "{sector}", "offset", "{offset}", "limit", "{limit}")
 
-	r.Handle(ListPRoute, ListPropertyByVillage(opts.Logger, opts.Service)).Methods(http.MethodGet).
+	r.Handle(ListPRoute, LogEntryHandler(ListPropertyByVillage, opts)).Methods(http.MethodGet).
 		Queries("village", "{village}", "offset", "{offset}", "limit", "{limit}")
 
 }

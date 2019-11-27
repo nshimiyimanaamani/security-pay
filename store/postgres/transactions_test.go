@@ -37,7 +37,9 @@ func TestSave(t *testing.T) {
 		Owner: owner,
 		Due:   float64(1000),
 	}
-	_, err = props.Save(property)
+
+	ctx := context.Background()
+	_, err = props.Save(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	id := uuid.New().ID()
@@ -96,7 +98,9 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 		Owner: owner,
 		Due:   float64(1000),
 	}
-	_, err = props.Save(property)
+
+	ctx := context.Background()
+	_, err = props.Save(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	method := "kcb"
@@ -109,7 +113,7 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 		Method:       method,
 		DateRecorded: time.Now(),
 	}
-	ctx := context.Background()
+
 	_, err = repo.Save(ctx, transaction)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -147,7 +151,9 @@ func TestRetrieveAll(t *testing.T) {
 		Owner: owner,
 		Due:   float64(1000),
 	}
-	_, err = props.Save(property)
+
+	ctx := context.Background()
+	_, err = props.Save(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	method := "mtn"
@@ -210,7 +216,9 @@ func TestRetrieveByProperty(t *testing.T) {
 		Owner: owner,
 		Due:   float64(1000),
 	}
-	_, err = props.Save(property)
+
+	ctx := context.Background()
+	_, err = props.Save(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	method := "airtel"
@@ -283,7 +291,9 @@ func TestRetrieveByMethod(t *testing.T) {
 		Owner: owner,
 		Due:   float64(1000),
 	}
-	_, err = props.Save(property)
+
+	ctx := context.Background()
+	_, err = props.Save(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	method := "equity"
