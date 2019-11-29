@@ -21,15 +21,19 @@ FROM scratch
 
 ENV GO_ENV=production
 
-EXPOSE 8080
-
-CMD /paypack
+WORKDIR /
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 COPY --from=builder /user/group /user/passwd /etc/
 
-COPY --from=builder /bin/paypack /paypack
+COPY --from=builder /bin/paypack /bin/paypack
+
+EXPOSE 8080
+
+CMD ["/bin/paypack"]
+
+
 
 
 
