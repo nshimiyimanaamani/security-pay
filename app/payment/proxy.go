@@ -6,13 +6,13 @@ import (
 )
 
 type repository struct {
-	transactions transactions.Store
+	transactions transactions.Repository
 	properties   properties.Repository
 }
 
 // RepoOptions ...
 type RepoOptions struct {
-	Transactions transactions.Store
+	Transactions transactions.Repository
 	Properties   properties.Repository
 }
 
@@ -25,28 +25,11 @@ func NewRepo(opts *RepoOptions) Repository {
 }
 
 func (repo *repository) SaveTransaction(tx Transaction) (string, error) {
-
-	stx := transactions.Transaction{
-		ID:           tx.ID,
-		MadeFor:      tx.MadeFor,
-		MadeBy:       tx.MadeBy,
-		Amount:       tx.Amount,
-		Method:       tx.Method,
-		DateRecorded: tx.DateRecorded,
-	}
-
-	return repo.transactions.Save(stx)
+	return "", nil
 }
 
 func (repo *repository) UpdateTransaction(tx Transaction) error {
-	stx := transactions.Transaction{
-		ID:           tx.ID,
-		MadeFor:      tx.MadeFor,
-		Amount:       tx.Amount,
-		Method:       tx.Method,
-		DateRecorded: tx.DateRecorded,
-	}
-	return repo.transactions.UpdateTransaction(stx)
+	return nil
 }
 
 func (repo *repository) RetrieveProperty(id string) (Property, error) {

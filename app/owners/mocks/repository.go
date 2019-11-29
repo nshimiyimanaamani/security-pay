@@ -17,8 +17,8 @@ type ownerRepoMock struct {
 	owners  map[string]owners.Owner
 }
 
-// NewREPO instantiates a new Repository mirror.
-func NewREPO() owners.Repository {
+// NewRepository instantiates a new Repository mirror.
+func NewRepository() owners.Repository {
 	return &ownerRepoMock{
 		owners: make(map[string]owners.Owner),
 	}

@@ -16,8 +16,8 @@ type messageRepoMock struct {
 	messages map[string]feedback.Message
 }
 
-// NewREPO ...
-func NewREPO() feedback.Repository {
+// NewRepository ...
+func NewRepository() feedback.Repository {
 	return &messageRepoMock{
 		messages: make(map[string]feedback.Message),
 	}

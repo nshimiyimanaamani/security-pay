@@ -52,8 +52,8 @@ func (tr testRequest) make() (*http.Response, error) {
 
 func newService() owners.Service {
 	opts := &owners.Options{
-		Idp:  mocks.NewIDP(),
-		Repo: mocks.NewREPO(),
+		Idp:  mocks.NewIdentityProvider(),
+		Repo: mocks.NewRepository(),
 	}
 	return owners.New(opts)
 }

@@ -1,6 +1,7 @@
 package postgres_test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -22,7 +23,7 @@ var (
 )
 
 func TestSave(t *testing.T) {
-	repo := postgres.NewTransactionStore(db)
+	repo := postgres.NewTransactionRepository(db)
 	props := postgres.NewPropertyStore(db)
 
 	defer CleanDB(t, "transactions", "properties", "owners")
@@ -74,13 +75,14 @@ func TestSave(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		_, err := repo.Save(tc.transaction)
+		ctx := context.Background()
+		_, err := repo.Save(ctx, tc.transaction)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 }
 
 func TestSingleTransactionRetrieveByID(t *testing.T) {
-	repo := postgres.NewTransactionStore(db)
+	repo := postgres.NewTransactionRepository(db)
 	props := postgres.NewPropertyStore(db)
 
 	defer CleanDB(t, "transactions", "properties", "owners")
@@ -107,8 +109,8 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 		Method:       method,
 		DateRecorded: time.Now(),
 	}
-
-	_, err = repo.Save(transaction)
+	ctx := context.Background()
+	_, err = repo.Save(ctx, transaction)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	cases := []struct {
@@ -122,7 +124,8 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		_, err := repo.RetrieveByID(tc.id)
+		ctx := context.Background()
+		_, err := repo.RetrieveByID(ctx, tc.id)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 
@@ -130,7 +133,7 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 
 func TestRetrieveAll(t *testing.T) {
 	idp := uuid.New()
-	repo := postgres.NewTransactionStore(db)
+	repo := postgres.NewTransactionRepository(db)
 	props := postgres.NewPropertyStore(db)
 
 	defer CleanDB(t, "transactions", "properties", "owners")
@@ -152,7 +155,7 @@ func TestRetrieveAll(t *testing.T) {
 	n := uint64(10)
 
 	for i := uint64(0); i < n; i++ {
-		trx := transactions.Transaction{
+		tx := transactions.Transaction{
 			ID:           idp.ID(),
 			MadeBy:       owner.ID,
 			MadeFor:      property.ID,
@@ -160,8 +163,8 @@ func TestRetrieveAll(t *testing.T) {
 			Method:       method,
 			DateRecorded: time.Now(),
 		}
-
-		_, err := repo.Save(trx)
+		ctx := context.Background()
+		_, err := repo.Save(ctx, tx)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 
@@ -183,7 +186,8 @@ func TestRetrieveAll(t *testing.T) {
 	}
 
 	for desc, tc := range cases {
-		page, err := repo.RetrieveAll(tc.offset, tc.limit)
+		ctx := context.Background()
+		page, err := repo.RetrieveAll(ctx, tc.offset, tc.limit)
 		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got %d\n", desc, err))
 		size := uint64(len(page.Transactions))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
@@ -192,7 +196,7 @@ func TestRetrieveAll(t *testing.T) {
 
 func TestRetrieveByProperty(t *testing.T) {
 	idp := uuid.New()
-	repo := postgres.NewTransactionStore(db)
+	repo := postgres.NewTransactionRepository(db)
 	props := postgres.NewPropertyStore(db)
 
 	defer CleanDB(t, "transactions", "properties", "owners")
@@ -214,7 +218,7 @@ func TestRetrieveByProperty(t *testing.T) {
 	n := uint64(10)
 
 	for i := uint64(0); i < n; i++ {
-		trx := transactions.Transaction{
+		tx := transactions.Transaction{
 			ID:           idp.ID(),
 			MadeBy:       owner.ID,
 			MadeFor:      property.ID,
@@ -223,7 +227,8 @@ func TestRetrieveByProperty(t *testing.T) {
 			DateRecorded: time.Now(),
 		}
 
-		_, err := repo.Save(trx)
+		ctx := context.Background()
+		_, err := repo.Save(ctx, tx)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 
@@ -254,7 +259,8 @@ func TestRetrieveByProperty(t *testing.T) {
 	}
 
 	for desc, tc := range cases {
-		page, err := repo.RetrieveByProperty(tc.property, tc.offset, tc.limit)
+		ctx := context.Background()
+		page, err := repo.RetrieveByProperty(ctx, tc.property, tc.offset, tc.limit)
 		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got %d\n", desc, err))
 		size := uint64(len(page.Transactions))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
@@ -263,7 +269,7 @@ func TestRetrieveByProperty(t *testing.T) {
 
 func TestRetrieveByMethod(t *testing.T) {
 	idp := uuid.New()
-	repo := postgres.NewTransactionStore(db)
+	repo := postgres.NewTransactionRepository(db)
 	props := postgres.NewPropertyStore(db)
 
 	defer CleanDB(t, "transactions", "properties", "owners")
@@ -285,7 +291,7 @@ func TestRetrieveByMethod(t *testing.T) {
 	n := uint64(10)
 
 	for i := uint64(0); i < n; i++ {
-		trx := transactions.Transaction{
+		tx := transactions.Transaction{
 			ID:           idp.ID(),
 			MadeBy:       owner.ID,
 			MadeFor:      property.ID,
@@ -293,7 +299,8 @@ func TestRetrieveByMethod(t *testing.T) {
 			Method:       method,
 			DateRecorded: time.Now(),
 		}
-		_, err := repo.Save(trx)
+		ctx := context.Background()
+		_, err := repo.Save(ctx, tx)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 
@@ -302,113 +309,13 @@ func TestRetrieveByMethod(t *testing.T) {
 		offset uint64
 		limit  uint64
 		size   uint64
-	}{
-		"retrieve all transactions with existing property": {
-			method: method,
-			offset: 0,
-			limit:  n,
-			size:   n,
-		},
-		"retrieve subset of transactions with existing property": {
-			method: method,
-			offset: n / 2,
-			limit:  n,
-			size:   n / 2,
-		},
-		"retrieve transactions with non-existing property": {
-			method: wrongValue,
-			offset: 0,
-			limit:  n,
-			size:   0,
-		},
-	}
+	}{}
 
 	for desc, tc := range cases {
-		page, err := repo.RetrieveByMethod(tc.method, tc.offset, tc.limit)
+		ctx := context.Background()
+		page, err := repo.RetrieveByPeriod(ctx, tc.offset, tc.limit)
 		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got %d\n", desc, err))
 		size := uint64(len(page.Transactions))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 	}
 }
-
-func TestUpdateTransaction(t *testing.T) {
-	repo := postgres.NewTransactionStore(db)
-	props := postgres.NewPropertyStore(db)
-
-	defer CleanDB(t, "transactions", "properties", "owners")
-
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-
-	property := properties.Property{
-		ID:    nanoid.New(nil).ID(),
-		Owner: owner,
-		Due:   float64(1000),
-	}
-	_, err = props.Save(property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-
-	method := "kcb"
-
-	transaction := transactions.Transaction{
-		ID:           uuid.New().ID(),
-		MadeBy:       owner.ID,
-		MadeFor:      property.ID,
-		Amount:       amount,
-		Method:       method,
-		DateRecorded: time.Now(),
-	}
-
-	unsaved := transactions.Transaction{
-		ID:           uuid.New().ID(),
-		MadeBy:       owner.ID,
-		MadeFor:      property.ID,
-		Amount:       amount,
-		Method:       method,
-		DateRecorded: time.Now(),
-	}
-
-	invalid := transactions.Transaction{
-		ID:           "invalid",
-		MadeBy:       owner.ID,
-		MadeFor:      property.ID,
-		Amount:       amount,
-		Method:       method,
-		DateRecorded: time.Now(),
-	}
-
-	_, err = repo.Save(transaction)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-
-	cases := []struct {
-		desc        string
-		transaction transactions.Transaction
-		err         error
-	}{
-		{
-			desc:        "update existing transaction",
-			transaction: transaction,
-			err:         nil,
-		},
-		{
-			desc:        "update non-existing transaction",
-			transaction: unsaved,
-			err:         transactions.ErrNotFound,
-		},
-		{
-			desc:        "update with invalid data",
-			transaction: invalid,
-			err:         transactions.ErrNotFound,
-		},
-	}
-
-	for _, tc := range cases {
-		err := repo.UpdateTransaction(tc.transaction)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-	}
-}
-
-func TestRetrieveByMonth(t *testing.T) {}
-
-func TestRetrieveByYear(t *testing.T) {}

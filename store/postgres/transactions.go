@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -8,24 +9,24 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 )
 
-var _ (transactions.Store) = (*transactionStore)(nil)
+var _ (transactions.Repository) = (*transactionStore)(nil)
 
 type transactionStore struct {
 	db *sql.DB
 }
 
-//NewTransactionStore instanctiates a new transactiob store interface
-func NewTransactionStore(db *sql.DB) transactions.Store {
+// NewTransactionRepository instanctiates a new transactiob store interface
+func NewTransactionRepository(db *sql.DB) transactions.Repository {
 	return &transactionStore{db}
 }
 
-func (str *transactionStore) Save(trx transactions.Transaction) (string, error) {
+func (str *transactionStore) Save(ctx context.Context, tx transactions.Transaction) (string, error) {
 	q := `
 		INSERT INTO transactions (id, madefor, madeby, 
 		amount, method, date_recorded) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
 	`
 
-	_, err := str.db.Exec(q, trx.ID, trx.MadeFor, trx.MadeBy, trx.Amount, trx.Method, trx.DateRecorded)
+	_, err := str.db.Exec(q, tx.ID, tx.MadeFor, tx.MadeBy, tx.Amount, tx.Method, tx.DateRecorded)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -38,11 +39,11 @@ func (str *transactionStore) Save(trx transactions.Transaction) (string, error) 
 		}
 		return "", err
 	}
-	return trx.ID, nil
+	return tx.ID, nil
 }
 
-//seletect trx[id, amount, method, recorded]; properties[sector, cell, village] owner[fname, lname]
-func (str *transactionStore) RetrieveByID(id string) (transactions.Transaction, error) {
+//seletect tx[id, amount, method, recorded]; properties[sector, cell, village] owner[fname, lname]
+func (str *transactionStore) RetrieveByID(ctx context.Context, id string) (transactions.Transaction, error) {
 	q := `
 		SELECT 
 			transactions.id, transactions.amount, transactions.method, 
@@ -57,7 +58,7 @@ func (str *transactionStore) RetrieveByID(id string) (transactions.Transaction, 
 		WHERE transactions.id = $1
 	`
 
-	var trx = transactions.Transaction{
+	var tx = transactions.Transaction{
 		Address: make(map[string]string),
 	}
 
@@ -66,29 +67,29 @@ func (str *transactionStore) RetrieveByID(id string) (transactions.Transaction, 
 	var fname, lname string
 
 	err := str.db.QueryRow(q, id).Scan(
-		&trx.ID, &trx.Amount, &trx.Method, &trx.DateRecorded,
+		&tx.ID, &tx.Amount, &tx.Method, &tx.DateRecorded,
 		&sector, &cell, &village, &fname, &lname,
 	)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
-			return trx, transactions.ErrNotFound
+			return tx, transactions.ErrNotFound
 		}
-		return trx, err
+		return tx, err
 	}
 	if sector != "" && cell != "" && village != "" {
-		trx.Address["sector"] = sector
-		trx.Address["cell"] = cell
-		trx.Address["village"] = village
+		tx.Address["sector"] = sector
+		tx.Address["cell"] = cell
+		tx.Address["village"] = village
 	}
 	if fname != "" && lname != "" {
-		trx.MadeBy = fmt.Sprintf("%s %s", fname, lname)
+		tx.MadeBy = fmt.Sprintf("%s %s", fname, lname)
 	}
-	return trx, nil
+	return tx, nil
 }
 
-func (str *transactionStore) RetrieveAll(offset uint64, limit uint64) (transactions.TransactionPage, error) {
+func (str *transactionStore) RetrieveAll(ctx context.Context, offset uint64, limit uint64) (transactions.TransactionPage, error) {
 	q := `
 	SELECT 
 		transactions.id, transactions.amount, transactions.method, 
@@ -155,7 +156,7 @@ func (str *transactionStore) RetrieveAll(offset uint64, limit uint64) (transacti
 	return page, nil
 }
 
-func (str *transactionStore) RetrieveByProperty(property string, offset, limit uint64) (transactions.TransactionPage, error) {
+func (str *transactionStore) RetrieveByProperty(ctx context.Context, property string, offset, limit uint64) (transactions.TransactionPage, error) {
 	q := `
 	SELECT 
 		transactions.id, transactions.amount, transactions.method, 
@@ -291,35 +292,6 @@ func (str *transactionStore) RetrieveByMethod(method string, offset, limit uint6
 	return page, nil
 }
 
-func (str *transactionStore) RetrieveByMonth(string, uint64, uint64) (transactions.TransactionPage, error) {
+func (str *transactionStore) RetrieveByPeriod(ctx context.Context, offset, limit uint64) (transactions.TransactionPage, error) {
 	return transactions.TransactionPage{}, nil
-}
-
-func (str *transactionStore) RetrieveByYear(string, uint64, uint64) (transactions.TransactionPage, error) {
-	return transactions.TransactionPage{}, nil
-}
-
-func (str *transactionStore) UpdateTransaction(tx transactions.Transaction) error {
-	q := `UPDATE transactions SET date_modified=$1, is_valid=TRUE WHERE id=$2;`
-
-	res, err := str.db.Exec(q, tx.DateRecorded, tx.ID)
-	if err != nil {
-		pqErr, ok := err.(*pq.Error)
-		if ok {
-			switch pqErr.Code.Name() {
-			case errInvalid, errTruncation:
-				return transactions.ErrInvalidEntity
-			}
-		}
-		return err
-	}
-
-	cnt, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if cnt == 0 {
-		return transactions.ErrNotFound
-	}
-	return nil
 }

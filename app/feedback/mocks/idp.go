@@ -14,9 +14,9 @@ type identityProviderMock struct {
 	counter int
 }
 
-// NewIDP creates "mirror" identity provider, i.e. generated
+// NewIdentityProvider creates "mirror" identity provider, i.e. generated
 // token will hold value provided by the caller.
-func NewIDP() identity.Provider {
+func NewIdentityProvider() identity.Provider {
 	return &identityProviderMock{}
 }
 

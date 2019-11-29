@@ -17,8 +17,8 @@ var (
 )
 
 func newService() owners.Service {
-	idp := mocks.NewIDP()
-	repo := mocks.NewREPO()
+	idp := mocks.NewIdentityProvider()
+	repo := mocks.NewRepository()
 	opts := &owners.Options{Idp: idp, Repo: repo}
 	return owners.New(opts)
 }
