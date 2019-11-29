@@ -58,7 +58,7 @@ export default {
       if (email && key) {
         this.loading = true;
         this.axios
-          .post(this.endpoint + "/users/tokens", {
+          .post("https://quarks-paypack.herokuapp.com/api/users/tokens", {
             email: email,
             password: key
           })
