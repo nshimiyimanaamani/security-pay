@@ -6,14 +6,14 @@ IMAGE_DEV_TAG=dev
 IMAGE_TAG:=tag
 PROJECTNAME=$(shell basename "$(PWD)"
 GOPROXY =$("https://proxy.golang.org")
-BUILD_FLAGS = "-X github.com/rugwirobaker/paypack-backend/build.version=$(VERSION) -X github.com/rugwirobaker/paypack-backend/build.buildDate=$(DATE)"
+BUILD_FLAGS = "-X github.com/rugwirobaker/paypack-backend/pkg/build.version=$(VERSION) -X github.com/rugwirobaker/paypack-backend/pkg/build.buildDate=$(DATE)"
 
 all: help
 
 .PHONY: build
 build:  	## build development paypack binary
 	@echo "> building binary..."
-	@CGO_ENABLED=0 go build -o bin/paypack ./cmd/.
+	@CGO_ENABLED=0 go build -ldflags $(BUILD_FLAGS) -o bin/paypack ./cmd/.
 
 clean:		## remove build artifacts
 	@echo "> removing artifacts..."

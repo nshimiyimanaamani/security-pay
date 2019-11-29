@@ -1,7 +1,7 @@
 package properties_test
 
 import (
-	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -17,7 +17,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/identity/uuid"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/properties/mocks"
-	"github.com/rugwirobaker/paypack-backend/logger"
+	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -26,7 +26,6 @@ const (
 	contentType = "application/json"
 	wrongID     = 0
 	email       = "user@example.com"
-	token       = "token"
 	wrongValue  = "wrong"
 )
 
@@ -53,24 +52,26 @@ func (tr testRequest) make() (*http.Response, error) {
 	return tr.client.Do(req)
 }
 
-func newService(tokens map[string]string) properties.Service {
-	auth := mocks.NewAuthBackend(tokens)
+func newService(owners map[string]properties.Owner) properties.Service {
 	idp := mocks.NewIdentityProvider()
-	repo := mocks.NewRepository()
-	return properties.New(idp, repo, auth)
+	props := mocks.NewRepository(owners)
+	return properties.New(idp, props)
 }
 
 func newServer(svc properties.Service) *httptest.Server {
 	mux := mux.NewRouter()
-	// mock io.Writer
-	lgger, _ := logger.New(&bytes.Buffer{}, "debug")
-
 	opts := &endpoints.HandlerOpts{
 		Service: svc,
-		Logger:  lgger,
+		Logger:  log.NoOpLogger(),
 	}
 	endpoints.RegisterHandlers(mux, opts)
 	return httptest.NewServer(mux)
+}
+
+func makeOwners(owner properties.Owner) map[string]properties.Owner {
+	owners := make(map[string]properties.Owner)
+	owners[owner.ID] = owner
+	return owners
 }
 
 func toJSON(data interface{}) string {
@@ -79,14 +80,15 @@ func toJSON(data interface{}) string {
 }
 
 func TestRegisterProperty(t *testing.T) {
-	svc := newService(map[string]string{token: email})
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
 	ts := newServer(svc)
 
 	defer ts.Close()
 	client := ts.Client()
 
 	property := properties.Property{
-		Owner: properties.Owner{ID: "1"},
+		Owner: owner,
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -102,9 +104,8 @@ func TestRegisterProperty(t *testing.T) {
 	property.ID = "1"
 
 	res := toJSON(property)
-	invalidEntityRes := toJSON(Error{"invalid entity format"})
+	invalidEntityRes := toJSON(Error{"invalid property entity"})
 	unsupportedContentRes := toJSON(Error{"unsupported content type"})
-	invalidCredsRes := toJSON(Error{"missing or invalid credentials provided"})
 
 	cases := []struct {
 		desc        string
@@ -117,7 +118,6 @@ func TestRegisterProperty(t *testing.T) {
 		{
 			desc:        "add a valid property",
 			req:         data,
-			token:       token,
 			contentType: contentType,
 			status:      http.StatusCreated,
 			res:         res,
@@ -125,7 +125,6 @@ func TestRegisterProperty(t *testing.T) {
 		{
 			desc:        "add property with invalid data",
 			req:         invalidData,
-			token:       token,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 			res:         invalidEntityRes,
@@ -133,7 +132,6 @@ func TestRegisterProperty(t *testing.T) {
 		{
 			desc:        "add property with invalid request format",
 			req:         "{",
-			token:       token,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 			res:         invalidEntityRes,
@@ -141,7 +139,6 @@ func TestRegisterProperty(t *testing.T) {
 		{
 			desc:        "add property with empty JSON request",
 			req:         "{}",
-			token:       token,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 			res:         invalidEntityRes,
@@ -149,7 +146,6 @@ func TestRegisterProperty(t *testing.T) {
 		{
 			desc:        "add property with empty request",
 			req:         "",
-			token:       token,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 			res:         invalidEntityRes,
@@ -157,18 +153,9 @@ func TestRegisterProperty(t *testing.T) {
 		{
 			desc:        "add property with missing content type",
 			req:         data,
-			token:       token,
 			contentType: "",
 			status:      http.StatusUnsupportedMediaType,
 			res:         unsupportedContentRes,
-		},
-		{
-			desc:        "add property with invalid token",
-			req:         data,
-			token:       wrongValue,
-			contentType: contentType,
-			status:      http.StatusForbidden,
-			res:         invalidCredsRes,
 		},
 	}
 
@@ -194,14 +181,15 @@ func TestRegisterProperty(t *testing.T) {
 }
 
 func TestUpdateProperty(t *testing.T) {
-	svc := newService(map[string]string{token: email})
-	ts := newServer(svc)
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
 
+	ts := newServer(svc)
 	defer ts.Close()
 	client := ts.Client()
 
 	property := properties.Property{
-		Owner: properties.Owner{ID: "1"},
+		Owner: owner,
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -210,7 +198,8 @@ func TestUpdateProperty(t *testing.T) {
 		Due: float64(1000),
 	}
 
-	saved, err := svc.RegisterProperty(token, property)
+	ctx := context.Background()
+	saved, err := svc.RegisterProperty(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	res := Property{
@@ -225,10 +214,9 @@ func TestUpdateProperty(t *testing.T) {
 	}
 
 	data := toJSON(res)
-	notFoundMessage := toJSON(Error{"non-existent property entity"})
-	invalidEntityMessage := toJSON(Error{"invalid entity format"})
+	notFoundMessage := toJSON(Error{"property not found"})
+	invalidEntityMessage := toJSON(Error{"invalid property entity"})
 	unsupportedContentMessage := toJSON(Error{"unsupported content type"})
-	invalidCredsRes := toJSON(Error{"missing or invalid credentials provided"})
 
 	cases := []struct {
 		desc        string
@@ -242,7 +230,6 @@ func TestUpdateProperty(t *testing.T) {
 		{
 			desc:        "update existing property",
 			req:         data,
-			token:       token,
 			id:          saved.ID,
 			contentType: contentType,
 			status:      http.StatusOK,
@@ -251,7 +238,6 @@ func TestUpdateProperty(t *testing.T) {
 		{
 			desc:        "update non-existent property",
 			req:         data,
-			token:       token,
 			id:          strconv.FormatUint(wrongID, 10),
 			contentType: contentType,
 			status:      http.StatusNotFound,
@@ -260,7 +246,6 @@ func TestUpdateProperty(t *testing.T) {
 		{
 			desc:        "update property with invalid id",
 			req:         data,
-			token:       token,
 			id:          "invalid",
 			contentType: contentType,
 			status:      http.StatusNotFound,
@@ -269,7 +254,6 @@ func TestUpdateProperty(t *testing.T) {
 		{
 			desc:        "update property with invalid data format",
 			req:         "{",
-			token:       token,
 			id:          saved.ID,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
@@ -278,7 +262,6 @@ func TestUpdateProperty(t *testing.T) {
 		{
 			desc:        "update property with empty request",
 			req:         "",
-			token:       token,
 			id:          saved.ID,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
@@ -287,20 +270,10 @@ func TestUpdateProperty(t *testing.T) {
 		{
 			desc:        "update thing without content type",
 			req:         data,
-			token:       token,
 			id:          saved.ID,
 			contentType: "",
 			status:      http.StatusUnsupportedMediaType,
 			res:         unsupportedContentMessage,
-		},
-		{
-			desc:        "update property with invalid token",
-			req:         data,
-			token:       wrongValue,
-			id:          saved.ID,
-			contentType: contentType,
-			status:      http.StatusForbidden,
-			res:         invalidCredsRes,
 		},
 	}
 
@@ -326,14 +299,15 @@ func TestUpdateProperty(t *testing.T) {
 }
 
 func TestRetrieveProperty(t *testing.T) {
-	svc := newService(map[string]string{token: email})
-	ts := newServer(svc)
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
 
+	ts := newServer(svc)
 	defer ts.Close()
 	client := ts.Client()
 
 	property := properties.Property{
-		Owner: properties.Owner{ID: "1"},
+		Owner: owner,
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -342,7 +316,8 @@ func TestRetrieveProperty(t *testing.T) {
 		Due: float64(1000),
 	}
 
-	saved, err := svc.RegisterProperty(token, property)
+	ctx := context.Background()
+	saved, err := svc.RegisterProperty(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	res := Property{
@@ -357,7 +332,7 @@ func TestRetrieveProperty(t *testing.T) {
 	}
 
 	data := toJSON(res)
-	notFoundRes := toJSON(Error{"non-existent property entity"})
+	notFoundRes := toJSON(Error{"property not found"})
 
 	cases := []struct {
 		desc        string
@@ -368,23 +343,23 @@ func TestRetrieveProperty(t *testing.T) {
 		res         string
 	}{
 		{
-			desc:   "view existing owner",
-			id:     saved.ID,
-			token:  token,
+			desc: "view existing owner",
+			id:   saved.ID,
+
 			status: http.StatusOK,
 			res:    data,
 		},
 		{
-			desc:   "view non-existent owner",
-			id:     strconv.FormatUint(wrongID, 10),
-			token:  token,
+			desc: "view non-existent owner",
+			id:   strconv.FormatUint(wrongID, 10),
+
 			status: http.StatusNotFound,
 			res:    notFoundRes,
 		},
 		{
-			desc:   "view property by passing invalid id",
-			id:     "invalid",
-			token:  token,
+			desc: "view property by passing invalid id",
+			id:   "invalid",
+
 			status: http.StatusNotFound,
 			res:    notFoundRes,
 		},
@@ -409,14 +384,12 @@ func TestRetrieveProperty(t *testing.T) {
 }
 
 func TestListPropertiesByOwner(t *testing.T) {
-	svc := newService(map[string]string{token: email})
-	ts := newServer(svc)
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
 
+	ts := newServer(svc)
 	defer ts.Close()
 	client := ts.Client()
-
-	owner := properties.Owner{ID: uuid.New().ID()}
-
 	property := properties.Property{
 		Owner: owner,
 		Address: properties.Address{
@@ -430,7 +403,8 @@ func TestListPropertiesByOwner(t *testing.T) {
 	data := []Property{}
 
 	for i := 0; i < 100; i++ {
-		saved, err := svc.RegisterProperty(token, property)
+		ctx := context.Background()
+		saved, err := svc.RegisterProperty(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		res := Property{
@@ -450,29 +424,29 @@ func TestListPropertiesByOwner(t *testing.T) {
 	transactionURL := fmt.Sprintf("%s/properties", ts.URL)
 
 	cases := []struct {
-		desc   string
-		token  string
+		desc string
+
 		status int
 		url    string
 		res    []Property
 	}{
 		{
-			desc:   "get a list of properties",
-			token:  token,
+			desc: "get a list of properties",
+
 			status: http.StatusOK,
 			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", transactionURL, owner.ID, 0, 5),
 			res:    data[0:5],
 		},
 		{
-			desc:   "get a list of properties with negative offset",
-			token:  token,
+			desc: "get a list of properties with negative offset",
+
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", transactionURL, owner.ID, -1, 5),
 			res:    nil,
 		},
 		{
-			desc:   "get a list of properties with negative limit",
-			token:  token,
+			desc: "get a list of properties with negative limit",
+
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", transactionURL, owner.ID, 1, -5),
 			res:    nil,
@@ -483,7 +457,6 @@ func TestListPropertiesByOwner(t *testing.T) {
 		req := testRequest{
 			client: client,
 			method: http.MethodGet,
-			token:  tc.token,
 			url:    tc.url,
 		}
 
@@ -498,15 +471,16 @@ func TestListPropertiesByOwner(t *testing.T) {
 }
 
 func TestListPropertiesByCell(t *testing.T) {
-	svc := newService(map[string]string{token: email})
-	ts := newServer(svc)
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
 
+	ts := newServer(svc)
 	defer ts.Close()
 	client := ts.Client()
 
 	cell := "Gishushu"
 	property := properties.Property{
-		Owner: properties.Owner{ID: uuid.New().ID()},
+		Owner: owner,
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    cell,
@@ -518,7 +492,8 @@ func TestListPropertiesByCell(t *testing.T) {
 	data := []Property{}
 
 	for i := 0; i < 100; i++ {
-		saved, err := svc.RegisterProperty(token, property)
+		ctx := context.Background()
+		saved, err := svc.RegisterProperty(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		res := Property{
@@ -538,29 +513,29 @@ func TestListPropertiesByCell(t *testing.T) {
 	transactionURL := fmt.Sprintf("%s/properties", ts.URL)
 
 	cases := []struct {
-		desc   string
-		token  string
+		desc string
+
 		status int
 		url    string
 		res    []Property
 	}{
 		{
-			desc:   "get a list of properties",
-			token:  token,
+			desc: "get a list of properties",
+
 			status: http.StatusOK,
 			url:    fmt.Sprintf("%s?cell=%s&offset=%d&limit=%d", transactionURL, cell, 0, 5),
 			res:    data[0:5],
 		},
 		{
-			desc:   "get a list of properties with negative offset",
-			token:  token,
+			desc: "get a list of properties with negative offset",
+
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?cell=%s&offset=%d&limit=%d", transactionURL, cell, -1, 5),
 			res:    nil,
 		},
 		{
-			desc:   "get a list of properties with negative limit",
-			token:  token,
+			desc: "get a list of properties with negative limit",
+
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?cell=%s&offset=%d&limit=%d", transactionURL, cell, 1, -5),
 			res:    nil,
@@ -571,7 +546,6 @@ func TestListPropertiesByCell(t *testing.T) {
 		req := testRequest{
 			client: client,
 			method: http.MethodGet,
-			token:  tc.token,
 			url:    tc.url,
 		}
 
@@ -585,15 +559,16 @@ func TestListPropertiesByCell(t *testing.T) {
 }
 
 func TestListPropertiesBySector(t *testing.T) {
-	svc := newService(map[string]string{token: email})
-	ts := newServer(svc)
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
 
+	ts := newServer(svc)
 	defer ts.Close()
 	client := ts.Client()
 
 	sector := "Remera"
 	property := properties.Property{
-		Owner: properties.Owner{ID: uuid.New().ID()},
+		Owner: owner,
 		Address: properties.Address{
 			Sector:  sector,
 			Cell:    "Gishushu",
@@ -605,7 +580,8 @@ func TestListPropertiesBySector(t *testing.T) {
 	data := []Property{}
 
 	for i := 0; i < 100; i++ {
-		saved, err := svc.RegisterProperty(token, property)
+		ctx := context.Background()
+		saved, err := svc.RegisterProperty(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		res := Property{
@@ -625,29 +601,29 @@ func TestListPropertiesBySector(t *testing.T) {
 	transactionURL := fmt.Sprintf("%s/properties", ts.URL)
 
 	cases := []struct {
-		desc   string
-		token  string
+		desc string
+
 		status int
 		url    string
 		res    []Property
 	}{
 		{
-			desc:   "get a list of properties",
-			token:  token,
+			desc: "get a list of properties",
+
 			status: http.StatusOK,
 			url:    fmt.Sprintf("%s?sector=%s&offset=%d&limit=%d", transactionURL, sector, 0, 5),
 			res:    data[0:5],
 		},
 		{
-			desc:   "get a list of properties with negative offset",
-			token:  token,
+			desc: "get a list of properties with negative offset",
+
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?sector=%s&offset=%d&limit=%d", transactionURL, sector, -1, 5),
 			res:    nil,
 		},
 		{
-			desc:   "get a list of properties with negative limit",
-			token:  token,
+			desc: "get a list of properties with negative limit",
+
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?sector=%s&offset=%d&limit=%d", transactionURL, sector, 1, -5),
 			res:    nil,
@@ -658,7 +634,6 @@ func TestListPropertiesBySector(t *testing.T) {
 		req := testRequest{
 			client: client,
 			method: http.MethodGet,
-			token:  tc.token,
 			url:    tc.url,
 		}
 
@@ -672,16 +647,17 @@ func TestListPropertiesBySector(t *testing.T) {
 }
 
 func TestListPropertiesByVillage(t *testing.T) {
-	svc := newService(map[string]string{token: email})
-	ts := newServer(svc)
+	owner := properties.Owner{ID: uuid.New().ID()}
 
+	svc := newService(makeOwners(owner))
+	ts := newServer(svc)
 	defer ts.Close()
 	client := ts.Client()
 
 	village := "Ingabo"
 
 	property := properties.Property{
-		Owner: properties.Owner{ID: uuid.New().ID()},
+		Owner: owner,
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -693,7 +669,8 @@ func TestListPropertiesByVillage(t *testing.T) {
 	data := []Property{}
 
 	for i := 0; i < 100; i++ {
-		saved, err := svc.RegisterProperty(token, property)
+		ctx := context.Background()
+		saved, err := svc.RegisterProperty(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		res := Property{
@@ -714,28 +691,24 @@ func TestListPropertiesByVillage(t *testing.T) {
 
 	cases := []struct {
 		desc   string
-		token  string
 		status int
 		url    string
 		res    []Property
 	}{
 		{
 			desc:   "get a list of properties",
-			token:  token,
 			status: http.StatusOK,
 			url:    fmt.Sprintf("%s?village=%s&offset=%d&limit=%d", transactionURL, village, 0, 5),
 			res:    data[0:5],
 		},
 		{
 			desc:   "get a list of properties with negative offset",
-			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?village=%s&offset=%d&limit=%d", transactionURL, village, -1, 5),
 			res:    nil,
 		},
 		{
 			desc:   "get a list of properties with negative limit",
-			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?village=%s&offset=%d&limit=%d", transactionURL, village, 1, -5),
 			res:    nil,
@@ -746,7 +719,6 @@ func TestListPropertiesByVillage(t *testing.T) {
 		req := testRequest{
 			client: client,
 			method: http.MethodGet,
-			token:  tc.token,
 			url:    tc.url,
 		}
 

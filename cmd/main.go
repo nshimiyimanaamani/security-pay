@@ -2,78 +2,23 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"sync"
 	"time"
 
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend"
-	feedbackEndpoints "github.com/rugwirobaker/paypack-backend/api/http/feedback"
-	"github.com/rugwirobaker/paypack-backend/api/http/health"
-	ownersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/owners"
-	paymentEndpoints "github.com/rugwirobaker/paypack-backend/api/http/payment"
-	propertiesEndpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
-	transactionsEndpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
-	usersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/users"
-	"github.com/rugwirobaker/paypack-backend/api/http/version"
-	"github.com/rugwirobaker/paypack-backend/build"
-	"github.com/rugwirobaker/paypack-backend/logger"
-	"github.com/rugwirobaker/paypack-backend/nova"
-	"github.com/rugwirobaker/paypack-backend/store/postgres"
-)
+	log "github.com/sirupsen/logrus"
 
-const (
-	defLogLevel        = "error"
-	defDBHost          = "localhost"
-	defDBPort          = "5432"
-	defDBUser          = "paypack"
-	defDBPass          = "paypack"
-	defDBName          = "users"
-	defDBSSLMode       = "disable"
-	defDBSSLCert       = ""
-	defDBSSLKey        = ""
-	defDBSSLRootCert   = ""
-	defHTTPPort        = "8080"
-	defSecret          = "users"
-	defServerCert      = ""
-	defServerKey       = ""
-	defPaymentEndpoint = ""
-	defPaymentToken    = ""
-	envLogLevel        = "PAYPACK_LOG_LEVEL"
-	envDBHost          = "PAYPACK_DB_HOST"
-	envDBPort          = "PAYPACK_DB_PORT"
-	envDBUser          = "PAYPACK_DB_USER"
-	envDBPass          = "PAYPACK_DB_PASS"
-	envDBName          = "PAYPACK_DB"
-	envDBSSLMode       = "PAYPACK_DB_SSL_MODE"
-	envDBSSLCert       = "PAYPACK_DB_SSL_CERT"
-	envDBSSLKey        = "PAYPACK_DB_SSL_KEY"
-	envDBSSLRootCert   = "PAYPACK_DB_SSL_ROOT_CERT"
-	envHTTPPort        = "PORT"
-	envSecret          = "PAYPACK_SECRET"
-	envServerCert      = "PAYPACK_SERVER_CERT"
-	envServerKey       = "PAYPACK_SERVER_KEY"
-	envPaymentEndpoint = "PAYPACK_PAYMENT_ENDPOINT"
-	envPaymentToken    = "PAYPACK_PAYMENT_TOKEN"
+	"github.com/rugwirobaker/paypack-backend/pkg/build"
+	"github.com/rugwirobaker/paypack-backend/cmd/app"
+	"github.com/rugwirobaker/paypack-backend/pkg/config"
 )
 
 var vers = flag.Bool("version", false, "Print version information and exit")
 
-type config struct {
-	logLevel       string
-	dbConfig       postgres.Config
-	paymentEndoint string
-	paymentToken   string
-	httpPort       string
-	secret         string
-}
+var prefix = "paypack"
 
 func main() {
 	flag.Parse()
@@ -81,185 +26,42 @@ func main() {
 		fmt.Println(build.String())
 		os.Exit(0)
 	}
-	ctx, cancel := context.WithCancel(context.Background())
 
-	cfg := loadConfig()
-
-	logger, err := logger.New(os.Stdout, cfg.logLevel)
+	//get configuration
+	conf, err := config.Load(prefix)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalf("could not load configuration: %v", err)
 	}
 
-	db := connectToDB(cfg.dbConfig, logger)
-	defer db.Close()
-
-	novaCfg := &nova.Config{
-		Endpoint: cfg.paymentEndoint,
-		Token:    cfg.paymentToken,
-	}
-	pGateway := nova.New(novaCfg)
-
-	users := newUserService(db, cfg.secret)
-	transactions := newTransactionService(db)
-	properties := newPropertyService(db, users)
-	payment := newPaymentService(db, pGateway)
-	feedback := newFeedbackService(db)
-	owners := newOwnersService(db)
-
-	payOpts := paymentEndpoints.HandlerOpts{
-		Service: payment,
-		Logger:  logger,
-	}
-	feedOpts := feedbackEndpoints.HandlerOpts{
-		Service: feedback,
-		Logger:  logger,
-	}
-	proOpts := propertiesEndpoints.HandlerOpts{
-		Service: properties,
-		Logger:  logger,
+	handler, err := app.Bootstrap(conf)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	ownersOpts := ownersEndpoints.HandlerOpts{
-		Service: owners,
-		Logger:  logger,
-	}
+	// start the server
+	srv := &http.Server{Addr: ":" + conf.Port, Handler: handler}
 
-	txOpts := transactionsEndpoints.HandlerOpts{
-		Service: transactions,
-		Logger:  logger,
-	}
-
-	usersOpts := usersEndpoints.HandlerOpts{
-		Service: users,
-		Logger:  logger,
-	}
-
-	srvOptions := serverOptions{
-		txOptions:     &txOpts,
-		payOptions:    &payOpts,
-		feedOptions:   &feedOpts,
-		proOptions:    &proOpts,
-		ownersOptions: &ownersOpts,
-		usersOptions:  &usersOpts,
-		port:          cfg.httpPort,
-		logger:        logger,
-	}
+	idleConnsClosed := make(chan struct{})
 
 	go func() {
-		ch := make(chan os.Signal, 1)
-		signal.Notify(ch, os.Interrupt)
-		<-ch
-		logger.Info("signal caught. shutting down...")
-		cancel()
-	}()
+		sigint := make(chan os.Signal, 1)
+		signal.Notify(sigint, os.Interrupt)
+		<-sigint
 
-	var wg sync.WaitGroup
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+		// We received an interrupt signal, shut down.
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 		defer cancel()
-		startHTTPServer(ctx, srvOptions)
-	}()
-
-	wg.Wait()
-}
-
-func loadConfig() config {
-	dbConfig := postgres.Config{
-		Host:        paypack.Env(envDBHost, defDBHost),
-		Port:        paypack.Env(envDBPort, defDBPort),
-		User:        paypack.Env(envDBUser, defDBUser),
-		Pass:        paypack.Env(envDBPass, defDBPass),
-		Name:        paypack.Env(envDBName, defDBName),
-		SSLMode:     paypack.Env(envDBSSLMode, defDBSSLMode),
-		SSLCert:     paypack.Env(envDBSSLCert, defDBSSLCert),
-		SSLKey:      paypack.Env(envDBSSLKey, defDBSSLKey),
-		SSLRootCert: paypack.Env(envDBSSLRootCert, defDBSSLRootCert),
-	}
-	return config{
-		logLevel:       paypack.Env(envLogLevel, defLogLevel),
-		dbConfig:       dbConfig,
-		paymentEndoint: paypack.Env(envPaymentEndpoint, defPaymentEndpoint),
-		paymentToken:   paypack.Env(envPaymentToken, defPaymentToken),
-		httpPort:       paypack.Env(envHTTPPort, defHTTPPort),
-		secret:         paypack.Env(envSecret, defSecret),
-	}
-}
-
-func connectToDB(config postgres.Config, logger logger.Logger) *sql.DB {
-	db, err := postgres.Connect(config)
-	if err != nil {
-		log.Println(fmt.Sprintf("Failed to connect to postgres: %s", err))
-		os.Exit(1)
-	}
-	return db
-}
-
-type serverOptions struct {
-	txOptions     *transactionsEndpoints.HandlerOpts
-	payOptions    *paymentEndpoints.HandlerOpts
-	feedOptions   *feedbackEndpoints.HandlerOpts
-	ownersOptions *ownersEndpoints.HandlerOpts
-	proOptions    *propertiesEndpoints.HandlerOpts
-	usersOptions  *usersEndpoints.HandlerOpts
-
-	logger logger.Logger
-	port   string
-}
-
-func startHTTPServer(ctx context.Context, opts serverOptions) {
-
-	if opts.logger == nil {
-		panic("can't use a nil logger")
-	}
-
-	if opts.payOptions == nil || opts.feedOptions == nil || opts.ownersOptions == nil || opts.proOptions == nil {
-		panic("absolutely unacceptable start server opts")
-	}
-
-	cors := handlers.CORS(
-		handlers.AllowedOrigins([]string{"*"}),
-		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"}),
-		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
-	)
-
-	router := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(false)
-
-	router.HandleFunc("/healthz", health.Health).Methods(http.MethodGet)
-
-	router.HandleFunc("/version", version.Build).Methods(http.MethodGet)
-
-	usersEndpoints.RegisterHandlers(router, opts.usersOptions)
-
-	feedbackEndpoints.RegisterHandlers(router, opts.feedOptions)
-
-	ownersEndpoints.RegisterHandlers(router, opts.ownersOptions)
-
-	paymentEndpoints.RegisterHandlers(router, opts.payOptions)
-
-	propertiesEndpoints.RegisterHandlers(router, opts.proOptions)
-
-	transactionsEndpoints.RegisterHandlers(router, opts.txOptions)
-
-	s := &http.Server{
-		Addr:        fmt.Sprintf(":%s", opts.port),
-		Handler:     cors(router),
-		ReadTimeout: 2 * time.Minute,
-	}
-
-	done := make(chan struct{})
-	go func() {
-		<-ctx.Done()
-		if err := s.Shutdown(context.Background()); err != nil {
-			opts.logger.Error(fmt.Sprintf("paypack backend service stopped with error %v", err))
+		if err := srv.Shutdown(ctx); err != nil {
+			log.Fatal(err)
 		}
-		close(done)
+		close(idleConnsClosed)
 	}()
 
-	opts.logger.Info(fmt.Sprintf("serving api at http://127.0.0.1:%s", opts.port))
-	if err := s.ListenAndServe(); err != http.ErrServerClosed {
-		opts.logger.Error(fmt.Sprintf("paypack backend service stopped with error %v", err))
+	log.Printf("Starting application at port %v", conf.Port)
+	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+		log.Fatal(err)
 	}
-	<-done
+
+	<-idleConnsClosed
+
 }

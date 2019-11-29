@@ -19,8 +19,8 @@ import (
 
 var src = rand.NewSource(time.Now().UnixNano())
 
-const letterBytes = "0123456789"
 const (
+	letterBytes   = "0123456789"
 	letterIdxBits = 6                    // 6 bits to represent a letter index
 	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
 	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
@@ -47,6 +47,11 @@ func TestSaveOwner(t *testing.T) {
 			desc:  "save owner with conflicting id",
 			owner: new,
 			err:   owners.ErrConflict,
+		},
+		{
+			desc:  "save owner with invalid data",
+			owner: owners.Owner{ID: "invalid", Fname: "rugwiro", Lname: "james", Phone: "0784677882"},
+			err:   owners.ErrInvalidEntity,
 		},
 	}
 
@@ -83,6 +88,11 @@ func TestUpdateOwner(t *testing.T) {
 			desc:  "update non-existant owner",
 			owner: owners.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"},
 			err:   owners.ErrNotFound,
+		},
+		{
+			desc:  "update owner with invalid data",
+			owner: owners.Owner{ID: "invalid", Fname: "rugwiro", Lname: "james", Phone: "0784677882"},
+			err:   owners.ErrInvalidEntity,
 		},
 	}
 

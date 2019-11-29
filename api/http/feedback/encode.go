@@ -8,9 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	ts "github.com/rugwirobaker/paypack-backend/api/http"
 	"github.com/rugwirobaker/paypack-backend/app/feedback"
-	"github.com/rugwirobaker/paypack-backend/app/users"
 )
 
 var (
@@ -18,24 +16,15 @@ var (
 	errUnsupportedContentType = errors.New("unsupported content type")
 )
 
-func encode(w http.ResponseWriter, v interface{}) error {
+func encode(w http.ResponseWriter, code int, response interface{}) error {
 	w.Header().Set("Content-Type", contentType)
-	if ar, ok := v.(ts.Response); ok {
-		for k, v := range ar.Headers() {
-			w.Header().Set(k, v)
-		}
 
-		w.WriteHeader(ar.Code())
-
-		if ar.Empty() {
-			return nil
-		}
-	}
-	return json.NewEncoder(w).Encode(v)
+	w.WriteHeader(code)
+	return json.NewEncoder(w).Encode(response)
 }
 
 //EncodeError encodes the application error to the http api
-func EncodeError(w http.ResponseWriter, err error) {
+func encodeError(w http.ResponseWriter, err error) {
 	w.Header().Set("Content-Type", contentType)
 
 	var errMessage = newErrorMessage(err.Error())
@@ -47,8 +36,6 @@ func EncodeError(w http.ResponseWriter, err error) {
 		w.WriteHeader(http.StatusNotFound)
 	case feedback.ErrConflict:
 		w.WriteHeader(http.StatusConflict)
-	case users.ErrUnauthorizedAccess:
-		w.WriteHeader(http.StatusForbidden)
 	case errUnsupportedContentType:
 		w.WriteHeader(http.StatusUnsupportedMediaType)
 	case io.ErrUnexpectedEOF:

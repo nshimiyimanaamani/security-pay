@@ -1,7 +1,6 @@
 package users_test
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 
@@ -19,7 +18,7 @@ import (
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/users"
 	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/app/users/mocks"
-	"github.com/rugwirobaker/paypack-backend/logger"
+	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -62,12 +61,9 @@ func newService() users.Service {
 
 func newServer(svc users.Service) *httptest.Server {
 	mux := mux.NewRouter()
-	// mock io.Writer
-	lgger, _ := logger.New(&bytes.Buffer{}, "debug")
-
 	opts := &endpoints.HandlerOpts{
 		Service: svc,
-		Logger:  lgger,
+		Logger:  log.NoOpLogger(),
 	}
 	endpoints.RegisterHandlers(mux, opts)
 	return httptest.NewServer(mux)

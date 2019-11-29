@@ -1,6 +1,7 @@
 package postgres_test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -17,7 +18,7 @@ func TestSaveProperty(t *testing.T) {
 
 	defer CleanDB(t, "properties", "owners")
 
-	owner := properties.Owner{ID: nanoid.New(nil).ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	saved, err := saveOwner(t, db, owner)
 
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -63,11 +64,12 @@ func TestSaveProperty(t *testing.T) {
 		{
 			desc:     "save property with invalid owner id",
 			property: invalid,
-			err:      properties.ErrNotFound,
+			err:      properties.ErrInvalidEntity,
 		},
 	}
 	for _, tc := range cases {
-		_, err := props.Save(tc.property)
+		ctx := context.Background()
+		_, err := props.Save(ctx, tc.property)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 }
@@ -77,15 +79,15 @@ func TestUpdateProperty(t *testing.T) {
 
 	defer CleanDB(t, "properties", "owners")
 
-	owner := properties.Owner{ID: nanoid.New(nil).ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 
-	saved, err := saveOwner(t, db, owner)
+	sown, err := saveOwner(t, db, owner)
 
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: properties.Owner{ID: saved.ID},
+		Owner: properties.Owner{ID: sown.ID},
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -94,9 +96,9 @@ func TestUpdateProperty(t *testing.T) {
 		Due: float64(1000),
 	}
 
-	prid, _ := props.Save(property)
-
-	property.ID = prid
+	ctx := context.Background()
+	sp, err := props.Save(ctx, property)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	cases := []struct {
 		desc     string
@@ -105,7 +107,7 @@ func TestUpdateProperty(t *testing.T) {
 	}{
 		{
 			desc:     "update existing property",
-			property: property,
+			property: sp,
 			err:      nil,
 		},
 		{
@@ -120,21 +122,7 @@ func TestUpdateProperty(t *testing.T) {
 				},
 				Due: float64(1000),
 			},
-			err: properties.ErrNotFound,
-		},
-		{
-			desc: "udpate property with invalid owner id",
-			property: properties.Property{
-				ID:    nanoid.New(nil).ID(),
-				Owner: properties.Owner{ID: wrongValue},
-				Address: properties.Address{
-					Sector:  "Remera",
-					Cell:    "Gishushu",
-					Village: "Ingabo",
-				},
-				Due: float64(1000),
-			},
-			err: properties.ErrNotFound,
+			err: properties.ErrPropertyNotFound,
 		},
 		{
 			desc: "udpate property with invalid owner",
@@ -148,12 +136,13 @@ func TestUpdateProperty(t *testing.T) {
 				},
 				Due: float64(1000),
 			},
-			err: properties.ErrNotFound,
+			err: properties.ErrInvalidEntity,
 		},
 	}
 
 	for _, tc := range cases {
-		err := props.UpdateProperty(tc.property)
+		ctx := context.Background()
+		err := props.UpdateProperty(ctx, tc.property)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 
@@ -165,12 +154,12 @@ func TestRetrieveByID(t *testing.T) {
 	defer CleanDB(t, "properties", "owners")
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	saved, err := saveOwner(t, db, owner)
+	sown, err := saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: properties.Owner{ID: saved.ID},
+		Owner: properties.Owner{ID: sown.ID},
 		Address: properties.Address{
 			Sector:  "Gasabo",
 			Cell:    "Kanserege",
@@ -179,20 +168,22 @@ func TestRetrieveByID(t *testing.T) {
 		Due: float64(1000),
 	}
 
-	pid, _ := props.Save(property)
+	ctx := context.Background()
+	sp, _ := props.Save(ctx, property)
 
 	cases := []struct {
 		desc string
 		id   string
 		err  error
 	}{
-		{"retrieve existing property", pid, nil},
-		{"retrieve non-existing property", nanoid.New(nil).ID(), properties.ErrNotFound},
-		{"retrieve with malformed id", wrongValue, properties.ErrNotFound},
+		{"retrieve existing property", sp.ID, nil},
+		{"retrieve non-existing property", nanoid.New(nil).ID(), properties.ErrPropertyNotFound},
+		{"retrieve with malformed id", wrongValue, properties.ErrPropertyNotFound},
 	}
 
 	for _, tc := range cases {
-		_, err := props.RetrieveByID(tc.id)
+		ctx := context.Background()
+		_, err := props.RetrieveByID(ctx, tc.id)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 
@@ -225,7 +216,9 @@ func TestRetrieveByOwner(t *testing.T) {
 			Due: float64(1000),
 		}
 
-		props.Save(p)
+		ctx := context.Background()
+		_, err := props.Save(ctx, p)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 	cases := map[string]struct {
 		owner  string
@@ -258,7 +251,8 @@ func TestRetrieveByOwner(t *testing.T) {
 	}
 
 	for desc, tc := range cases {
-		page, err := props.RetrieveByOwner(tc.owner, tc.offset, tc.limit)
+		ctx := context.Background()
+		page, err := props.RetrieveByOwner(ctx, tc.owner, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
@@ -293,7 +287,9 @@ func TestRetrieveBySector(t *testing.T) {
 			Due: float64(1000),
 		}
 
-		props.Save(p)
+		ctx := context.Background()
+		_, err := props.Save(ctx, p)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 	cases := map[string]struct {
 		sector string
@@ -326,7 +322,8 @@ func TestRetrieveBySector(t *testing.T) {
 	}
 
 	for desc, tc := range cases {
-		page, err := props.RetrieveBySector(tc.sector, tc.offset, tc.limit)
+		ctx := context.Background()
+		page, err := props.RetrieveBySector(ctx, tc.sector, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
@@ -361,7 +358,10 @@ func TestRetrieveByCell(t *testing.T) {
 			Due: float64(1000),
 		}
 
-		props.Save(p)
+		ctx := context.Background()
+		_, err := props.Save(ctx, p)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
 	}
 	cases := map[string]struct {
 		cell   string
@@ -394,7 +394,8 @@ func TestRetrieveByCell(t *testing.T) {
 	}
 
 	for desc, tc := range cases {
-		page, err := props.RetrieveByCell(tc.cell, tc.offset, tc.limit)
+		ctx := context.Background()
+		page, err := props.RetrieveByCell(ctx, tc.cell, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
@@ -429,7 +430,10 @@ func TestRetrieveByVillage(t *testing.T) {
 			Due: float64(1000),
 		}
 
-		props.Save(p)
+		ctx := context.Background()
+		_, err := props.Save(ctx, p)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
 	}
 
 	cases := map[string]struct {
@@ -463,7 +467,8 @@ func TestRetrieveByVillage(t *testing.T) {
 	}
 
 	for desc, tc := range cases {
-		page, err := props.RetrieveByVillage(tc.village, tc.offset, tc.limit)
+		ctx := context.Background()
+		page, err := props.RetrieveByVillage(ctx, tc.village, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))

@@ -7,22 +7,13 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
-	"github.com/rugwirobaker/paypack-backend/logger"
+	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
-// Protocol adapts the feedback service into an http.handler
-type Protocol func(logger logger.Logger, svc properties.Service) http.Handler
-
-// HandlerOpts are the generic options
-// for a ProtocolHandler
-type HandlerOpts struct {
-	Service properties.Service
-	Logger  logger.Logger
-}
-
 // RegisterProperty handles property registration
-func RegisterProperty(logger logger.Logger, svc properties.Service) http.Handler {
+func RegisterProperty(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 
 		if err := CheckContentType(r); err != nil {
 			EncodeError(w, err)
@@ -41,15 +32,13 @@ func RegisterProperty(logger logger.Logger, svc properties.Service) http.Handler
 			return
 		}
 
-		token := r.Header.Get("Authorization")
-
-		property, err := svc.RegisterProperty(token, property)
+		saved, err := svc.RegisterProperty(ctx, property)
 		if err != nil {
 			EncodeError(w, err)
 			return
 		}
 
-		if err = EncodeResponse(w, http.StatusCreated, property); err != nil {
+		if err = EncodeResponse(w, http.StatusCreated, saved); err != nil {
 			EncodeError(w, err)
 			return
 		}
@@ -59,8 +48,9 @@ func RegisterProperty(logger logger.Logger, svc properties.Service) http.Handler
 }
 
 // UpdateProperty handles property update
-func UpdateProperty(logger logger.Logger, svc properties.Service) http.Handler {
+func UpdateProperty(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 
 		if err := CheckContentType(r); err != nil {
 			EncodeError(w, err)
@@ -80,9 +70,8 @@ func UpdateProperty(logger logger.Logger, svc properties.Service) http.Handler {
 
 		vars := mux.Vars(r)
 		property.ID = vars["id"]
-		token := r.Header.Get("Authorization")
 
-		err := svc.UpdateProperty(token, property)
+		err := svc.UpdateProperty(ctx, property)
 		if err != nil {
 			EncodeError(w, err)
 			return
@@ -97,15 +86,14 @@ func UpdateProperty(logger logger.Logger, svc properties.Service) http.Handler {
 }
 
 // RetrieveProperty handles property retrieval
-func RetrieveProperty(logger logger.Logger, svc properties.Service) http.Handler {
+func RetrieveProperty(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
-		var err error
+		ctx := r.Context()
 
 		vars := mux.Vars(r)
 		id := vars["id"]
-		//token := r.Header.Get("Authorization")
 
-		property, err := svc.RetrieveProperty(id)
+		property, err := svc.RetrieveProperty(ctx, id)
 		if err != nil {
 			EncodeError(w, err)
 			return
@@ -121,11 +109,11 @@ func RetrieveProperty(logger logger.Logger, svc properties.Service) http.Handler
 }
 
 // ListPropertyByOwner handles property list by owner
-func ListPropertyByOwner(logger logger.Logger, svc properties.Service) http.Handler {
+func ListPropertyByOwner(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		//token := r.Header.Get("Authorization")
+		ctx := r.Context()
 
+		vars := mux.Vars(r)
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
 			EncodeError(w, err)
@@ -139,7 +127,7 @@ func ListPropertyByOwner(logger logger.Logger, svc properties.Service) http.Hand
 
 		owner := vars["owner"]
 
-		page, err := svc.ListPropertiesByOwner(owner, offset, limit)
+		page, err := svc.ListPropertiesByOwner(ctx, owner, offset, limit)
 		if err != nil {
 			EncodeError(w, err)
 			return
@@ -155,11 +143,11 @@ func ListPropertyByOwner(logger logger.Logger, svc properties.Service) http.Hand
 }
 
 // ListPropertyBySector handles property list by sector
-func ListPropertyBySector(logger logger.Logger, svc properties.Service) http.Handler {
+func ListPropertyBySector(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		//token := r.Header.Get("Authorization")
+		ctx := r.Context()
 
+		vars := mux.Vars(r)
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
 			EncodeError(w, err)
@@ -171,7 +159,7 @@ func ListPropertyBySector(logger logger.Logger, svc properties.Service) http.Han
 			return
 		}
 
-		page, err := svc.ListPropertiesBySector(vars["sector"], offset, limit)
+		page, err := svc.ListPropertiesBySector(ctx, vars["sector"], offset, limit)
 		if err != nil {
 			EncodeError(w, err)
 			return
@@ -187,10 +175,11 @@ func ListPropertyBySector(logger logger.Logger, svc properties.Service) http.Han
 }
 
 // ListPropertyByCell handles property list by cell
-func ListPropertyByCell(logger logger.Logger, svc properties.Service) http.Handler {
+func ListPropertyByCell(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
 		vars := mux.Vars(r)
-		//token := r.Header.Get("Authorization")
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
@@ -203,7 +192,7 @@ func ListPropertyByCell(logger logger.Logger, svc properties.Service) http.Handl
 			return
 		}
 
-		page, err := svc.ListPropertiesByCell(vars["cell"], offset, limit)
+		page, err := svc.ListPropertiesByCell(ctx, vars["cell"], offset, limit)
 		if err != nil {
 			EncodeError(w, err)
 			return
@@ -219,11 +208,11 @@ func ListPropertyByCell(logger logger.Logger, svc properties.Service) http.Handl
 }
 
 // ListPropertyByVillage handles property list by owner
-func ListPropertyByVillage(logger logger.Logger, svc properties.Service) http.Handler {
+func ListPropertyByVillage(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		//token := r.Header.Get("Authorization")
+		ctx := r.Context()
 
+		vars := mux.Vars(r)
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
 			EncodeError(w, err)
@@ -235,7 +224,7 @@ func ListPropertyByVillage(logger logger.Logger, svc properties.Service) http.Ha
 			return
 		}
 
-		page, err := svc.ListPropertiesByVillage(vars["village"], offset, limit)
+		page, err := svc.ListPropertiesByVillage(ctx, vars["village"], offset, limit)
 		if err != nil {
 			EncodeError(w, err)
 			return

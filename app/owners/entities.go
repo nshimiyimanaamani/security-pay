@@ -8,10 +8,9 @@ import (
 
 // Sentinel Errors
 var (
-	ErrInvalidEntity      = errors.New("invalid owner entity")
-	ErrNotFound           = errors.New("owner entity not found")
-	ErrConflict           = errors.New("owner already exists")
-	ErrUnauthorizedAccess = errors.New("missing or invalid credentials provided")
+	ErrInvalidEntity = errors.New("invalid owner entity")
+	ErrNotFound      = errors.New("owner entity not found")
+	ErrConflict      = errors.New("owner already exists")
 )
 
 //Owner defines a property owner

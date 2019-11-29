@@ -7,21 +7,11 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
-	"github.com/rugwirobaker/paypack-backend/logger"
+	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
-// Protocol adapts the feedback service into an http.handler
-type Protocol func(logger logger.Logger, svc transactions.Service) http.Handler
-
-// HandlerOpts are the generic options
-// for a ProtocolHandler
-type HandlerOpts struct {
-	Service transactions.Service
-	Logger  logger.Logger
-}
-
 // Record handles transaction record
-func Record(logger logger.Logger, svc transactions.Service) http.Handler {
+func Record(logger log.Entry, svc transactions.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 
 		if err := CheckContentType(r); err != nil {
@@ -58,7 +48,7 @@ func Record(logger logger.Logger, svc transactions.Service) http.Handler {
 }
 
 // Retrieve handles transaction retrieval
-func Retrieve(logger logger.Logger, svc transactions.Service) http.Handler {
+func Retrieve(logger log.Entry, svc transactions.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
@@ -88,7 +78,7 @@ func Retrieve(logger logger.Logger, svc transactions.Service) http.Handler {
 }
 
 // List handles transaction list
-func List(logger logger.Logger, svc transactions.Service) http.Handler {
+func List(logger log.Entry, svc transactions.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 
 		vars := mux.Vars(r)

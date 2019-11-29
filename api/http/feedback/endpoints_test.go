@@ -1,7 +1,6 @@
 package feedback_test
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -18,7 +17,7 @@ import (
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/feedback"
 	"github.com/rugwirobaker/paypack-backend/app/feedback"
 	"github.com/rugwirobaker/paypack-backend/app/feedback/mocks"
-	"github.com/rugwirobaker/paypack-backend/logger"
+	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -62,13 +61,9 @@ func newService() feedback.Service {
 
 func newServer(svc feedback.Service) *httptest.Server {
 	mux := mux.NewRouter()
-
-	// mock io.Writer
-	lgger, _ := logger.New(&bytes.Buffer{}, "debug")
-
 	opts := &endpoints.HandlerOpts{
 		Service: svc,
-		Logger:  lgger,
+		Logger:  log.NoOpLogger(),
 	}
 	endpoints.RegisterHandlers(mux, opts)
 	return httptest.NewServer(mux)

@@ -3,7 +3,7 @@ package version
 import (
 	"net/http"
 
-	"github.com/rugwirobaker/paypack-backend/build"
+	"github.com/rugwirobaker/paypack-backend/pkg/build"
 )
 
 // Build returns larissa build information

@@ -1,6 +1,7 @@
 package mocks
 
 import (
+	"context"
 	"sort"
 	"strconv"
 	"sync"
@@ -13,39 +14,46 @@ var _ (properties.Repository) = (*propertyStoreMock)(nil)
 type propertyStoreMock struct {
 	mu         sync.Mutex
 	counter    uint64
-	owner      string
+	owners     map[string]properties.Owner
 	properties map[string]properties.Property
 }
 
 // NewRepository creates Repositorymirror
-func NewRepository() properties.Repository {
+func NewRepository(owners map[string]properties.Owner) properties.Repository {
 	return &propertyStoreMock{
+		owners:     owners,
 		properties: make(map[string]properties.Property),
 	}
 }
 
-func (str *propertyStoreMock) Save(property properties.Property) (string, error) {
+func (str *propertyStoreMock) Save(ctx context.Context, property properties.Property) (properties.Property, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
+	empty := properties.Property{}
+
+	if _, ok := str.owners[property.Owner.ID]; !ok {
+		return empty, properties.ErrOwnerNotFound
+	}
+
 	for _, prt := range str.properties {
 		if prt.ID == property.ID {
-			return "", properties.ErrConflict
+			return empty, properties.ErrConflict
 		}
 	}
 
 	str.counter++
 	property.ID = strconv.FormatUint(str.counter, 10)
 	str.properties[property.ID] = property
-	return property.ID, nil
+	return property, nil
 }
 
-func (str *propertyStoreMock) UpdateProperty(property properties.Property) error {
+func (str *propertyStoreMock) UpdateProperty(ctx context.Context, property properties.Property) error {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
 	if _, ok := str.properties[property.ID]; !ok {
-		return properties.ErrNotFound
+		return properties.ErrPropertyNotFound
 	}
 
 	str.properties[property.ID] = property
@@ -53,19 +61,19 @@ func (str *propertyStoreMock) UpdateProperty(property properties.Property) error
 	return nil
 }
 
-func (str *propertyStoreMock) RetrieveByID(id string) (properties.Property, error) {
+func (str *propertyStoreMock) RetrieveByID(ctx context.Context, id string) (properties.Property, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
 	val, ok := str.properties[id]
 	if !ok {
-		return properties.Property{}, properties.ErrNotFound
+		return properties.Property{}, properties.ErrPropertyNotFound
 	}
 
 	return val, nil
 }
 
-func (str *propertyStoreMock) RetrieveByOwner(owner string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *propertyStoreMock) RetrieveByOwner(ctx context.Context, owner string, offset, limit uint64) (properties.PropertyPage, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -102,7 +110,7 @@ func (str *propertyStoreMock) RetrieveByOwner(owner string, offset, limit uint64
 	return page, nil
 }
 
-func (str *propertyStoreMock) RetrieveBySector(sector string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *propertyStoreMock) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64) (properties.PropertyPage, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -139,7 +147,7 @@ func (str *propertyStoreMock) RetrieveBySector(sector string, offset, limit uint
 	return page, nil
 }
 
-func (str *propertyStoreMock) RetrieveByCell(cell string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *propertyStoreMock) RetrieveByCell(ctx context.Context, cell string, offset, limit uint64) (properties.PropertyPage, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -176,7 +184,7 @@ func (str *propertyStoreMock) RetrieveByCell(cell string, offset, limit uint64) 
 	return page, nil
 }
 
-func (str *propertyStoreMock) RetrieveByVillage(village string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *propertyStoreMock) RetrieveByVillage(ctx context.Context, village string, offset, limit uint64) (properties.PropertyPage, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 

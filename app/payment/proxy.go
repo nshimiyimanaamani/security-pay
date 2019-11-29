@@ -1,6 +1,8 @@
 package payment
 
 import (
+	"context"
+
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 )
@@ -34,7 +36,8 @@ func (repo *repository) UpdateTransaction(tx Transaction) error {
 
 func (repo *repository) RetrieveProperty(id string) (Property, error) {
 	empty := Property{}
-	pro, err := repo.properties.RetrieveByID(id)
+	ctx := context.Background()
+	pro, err := repo.properties.RetrieveByID(ctx, id)
 	if err != nil {
 		return empty, nil
 	}
