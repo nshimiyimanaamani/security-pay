@@ -1,0 +1,8 @@
+addons:
+  - plan: heroku-postgresql
+    as: DATABASE
+
+build:
+  docker:
+    web:
+       dockerfile: heroku/Dockerfile
