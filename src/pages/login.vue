@@ -13,33 +13,18 @@
       </div>
       <b-form class="loginForm" @submit.prevent="login()">
         <b-form-group class="loginUsername">
-          <b-form-input
-            type="email"
-            id="username"
-            v-model="form.email"
-            required
-            placeholder="Email..."
-          ></b-form-input>
+          <b-form-input type="email" id="username" v-model="form.email" required placeholder="Email..."></b-form-input>
         </b-form-group>
         <b-form-group class="loginPassword">
-          <b-form-input
-            type="password"
-            id="password"
-            v-model="form.password"
-            required
-            placeholder="password..."
-          ></b-form-input>
+          <b-form-input type="password" id="password" v-model="form.password" required placeholder="password..."></b-form-input>
         </b-form-group>
         <div class="loginBtn">
           <a>
-            <button type="submit">
-              Log In
-              <div class="loading" v-show="loading">
-                <clip-loader :loading="loading" :color="color" :size="size"></clip-loader>
-              </div>
-            </button>
+            <b-button variant="info" type="submit" :disabled="loading">
+              <span>{{loading ? 'Logging In ':'Login' }}</span>
+              <b-spinner small type="grow" v-show="loading"></b-spinner>
+            </b-button>
           </a>
-
           <br />
           <span id="forgot">
             Forgot Password?
@@ -50,14 +35,11 @@
     </div>
   </div>
 </template>
-
 <script>
 export default {
   data() {
     return {
       loading: false,
-      color: "#fff",
-      size: "25px",
       form: {
         email: null,
         password: null
@@ -94,7 +76,9 @@ export default {
     }
   }
 };
+
 </script>
 <style scoped>
 @import url("../assets/css/login.css");
+
 </style>
