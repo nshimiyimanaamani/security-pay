@@ -84,6 +84,11 @@ func TestUpdateOwner(t *testing.T) {
 			owner: owners.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"},
 			err:   owners.ErrNotFound,
 		},
+		{
+			desc:  "update owner with invalid data",
+			owner: owners.Owner{ID: "invalid", Fname: "rugwiro", Lname: "james", Phone: "0784677882"},
+			err:   owners.ErrNotFound,
+		},
 	}
 
 	for _, tc := range cases {

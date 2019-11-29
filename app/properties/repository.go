@@ -6,7 +6,7 @@ import "context"
 type Repository interface {
 	// Save adds a new transactiob to the data store returns nil
 	// if the operation is successful or otherwise an error.
-	Save(ctx context.Context, p Property) (string, error)
+	Save(ctx context.Context, p Property) (Property, error)
 
 	// UpdateProperty udpates the given property entity's mutable fields.
 	UpdateProperty(ctx context.Context, p Property) error

@@ -16,9 +16,10 @@ import (
 const (
 	wrongID    = ""
 	email      = "user@example.com"
-	token      = "token"
 	wrongValue = "wrong-value"
 )
+
+var uuidLength = len(uuid.New().ID())
 
 func newService(owners map[string]properties.Owner) properties.Service {
 	idp := mocks.NewIdentityProvider()
@@ -60,13 +61,12 @@ func TestAddProperty(t *testing.T) {
 	cases := []struct {
 		desc     string
 		property properties.Property
-		token    string
 		err      error
 	}{
-		{"add valid property", property, token, nil},
-		{"add invalid property", invalidProperty, token, properties.ErrInvalidEntity},
-		{"add property with empty montly due", emptyDue, token, properties.ErrInvalidEntity},
-		{"add with unsaved owner", withUnsavedOwner, token, properties.ErrOwnerNotFound},
+		{"add valid property", property, nil},
+		{"add invalid property", invalidProperty, properties.ErrInvalidEntity},
+		{"add property with empty montly due", emptyDue, properties.ErrInvalidEntity},
+		{"add with unsaved owner", withUnsavedOwner, properties.ErrOwnerNotFound},
 	}
 
 	for _, tc := range cases {
@@ -102,31 +102,26 @@ func TestUpdate(t *testing.T) {
 	cases := []struct {
 		desc     string
 		property properties.Property
-		token    string
 		err      error
 	}{
 		{
 			desc:     "update existing property",
 			property: saved,
-			token:    token,
 			err:      nil,
 		},
 		{
 			desc:     "update with wrong property data",
 			property: invalidProperty,
-			token:    token,
 			err:      properties.ErrInvalidEntity,
 		},
 		{
 			desc:     "update non-existant property",
 			property: property,
-			token:    token,
 			err:      properties.ErrPropertyNotFound,
 		},
 		{
 			desc:     "update property with empty due",
 			property: emptyDue,
-			token:    token,
 			err:      properties.ErrInvalidEntity,
 		},
 	}
@@ -155,19 +150,16 @@ func TestViewProperty(t *testing.T) {
 	cases := []struct {
 		desc     string
 		identity string
-		token    string
 		err      error
 	}{
 		{
 			desc:     "view existing property",
 			identity: saved.ID,
-			token:    token,
 			err:      nil,
 		},
 		{
 			desc:     "view non-existing property",
 			identity: wrongValue,
-			token:    token,
 			err:      properties.ErrPropertyNotFound,
 		},
 	}
@@ -208,7 +200,6 @@ func TestListPropertiesByOwner(t *testing.T) {
 		{
 			desc:   "list all properties",
 			owner:  owner.ID,
-			token:  token,
 			offset: 0,
 			limit:  n,
 			size:   n,
@@ -217,7 +208,6 @@ func TestListPropertiesByOwner(t *testing.T) {
 		{
 			desc:   "list half of the properties",
 			owner:  owner.ID,
-			token:  token,
 			offset: n / 2,
 			limit:  n,
 			size:   n / 2,
@@ -226,7 +216,6 @@ func TestListPropertiesByOwner(t *testing.T) {
 		{
 			desc: "	list empty set",
 			owner:  owner.ID,
-			token:  token,
 			offset: n + 1,
 			limit:  n,
 			size:   0,
@@ -235,7 +224,6 @@ func TestListPropertiesByOwner(t *testing.T) {
 		{
 			desc:   "list with zero limit",
 			owner:  owner.ID,
-			token:  token,
 			offset: 1,
 			limit:  0,
 			size:   0,
@@ -272,7 +260,6 @@ func TestListPropertiesBySector(t *testing.T) {
 	cases := []struct {
 		desc   string
 		sector string
-		token  string
 		offset uint64
 		limit  uint64
 		size   uint64
@@ -281,7 +268,6 @@ func TestListPropertiesBySector(t *testing.T) {
 		{
 			desc:   "list all properties",
 			sector: property.Address.Sector,
-			token:  token,
 			offset: 0,
 			limit:  n,
 			size:   n,
@@ -290,7 +276,6 @@ func TestListPropertiesBySector(t *testing.T) {
 		{
 			desc:   "list half of the properties",
 			sector: property.Address.Sector,
-			token:  token,
 			offset: n / 2,
 			limit:  n,
 			size:   n / 2,
@@ -299,7 +284,6 @@ func TestListPropertiesBySector(t *testing.T) {
 		{
 			desc: "	list empty set",
 			sector: property.Address.Sector,
-			token:  token,
 			offset: n + 1,
 			limit:  n,
 			size:   0,
@@ -308,7 +292,6 @@ func TestListPropertiesBySector(t *testing.T) {
 		{
 			desc:   "list with zero limit",
 			sector: property.Address.Sector,
-			token:  token,
 			offset: 1,
 			limit:  0,
 			size:   0,
@@ -346,7 +329,6 @@ func TestListPropertiesByCell(t *testing.T) {
 	cases := []struct {
 		desc   string
 		cell   string
-		token  string
 		offset uint64
 		limit  uint64
 		size   uint64
@@ -355,7 +337,6 @@ func TestListPropertiesByCell(t *testing.T) {
 		{
 			desc:   "list all properties",
 			cell:   property.Address.Cell,
-			token:  token,
 			offset: 0,
 			limit:  n,
 			size:   n,
@@ -364,7 +345,6 @@ func TestListPropertiesByCell(t *testing.T) {
 		{
 			desc:   "list half of the properties",
 			cell:   property.Address.Cell,
-			token:  token,
 			offset: n / 2,
 			limit:  n,
 			size:   n / 2,
@@ -373,7 +353,6 @@ func TestListPropertiesByCell(t *testing.T) {
 		{
 			desc: "	list empty set",
 			cell:   property.Address.Cell,
-			token:  token,
 			offset: n + 1,
 			limit:  n,
 			size:   0,
@@ -382,7 +361,6 @@ func TestListPropertiesByCell(t *testing.T) {
 		{
 			desc:   "list with zero limit",
 			cell:   property.Address.Cell,
-			token:  token,
 			offset: 1,
 			limit:  0,
 			size:   0,
@@ -420,7 +398,6 @@ func TestListPropertiesByVillage(t *testing.T) {
 	cases := []struct {
 		desc    string
 		village string
-		token   string
 		offset  uint64
 		limit   uint64
 		size    uint64
@@ -429,7 +406,6 @@ func TestListPropertiesByVillage(t *testing.T) {
 		{
 			desc:    "list all properties",
 			village: property.Address.Village,
-			token:   token,
 			offset:  0,
 			limit:   n,
 			size:    n,
@@ -438,7 +414,6 @@ func TestListPropertiesByVillage(t *testing.T) {
 		{
 			desc:    "list half of the properties",
 			village: property.Address.Village,
-			token:   token,
 			offset:  n / 2,
 			limit:   n,
 			size:    n / 2,
@@ -447,7 +422,6 @@ func TestListPropertiesByVillage(t *testing.T) {
 		{
 			desc: "	list empty set",
 			village: property.Address.Village,
-			token:   token,
 			offset:  n + 1,
 			limit:   n,
 			size:    0,
@@ -456,7 +430,6 @@ func TestListPropertiesByVillage(t *testing.T) {
 		{
 			desc:    "list with zero limit",
 			village: property.Address.Village,
-			token:   token,
 			offset:  1,
 			limit:   0,
 			size:    0,

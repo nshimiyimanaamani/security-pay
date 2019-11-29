@@ -32,13 +32,13 @@ func RegisterProperty(lgger log.Entry, svc properties.Service) http.Handler {
 			return
 		}
 
-		property, err := svc.RegisterProperty(ctx, property)
+		saved, err := svc.RegisterProperty(ctx, property)
 		if err != nil {
 			EncodeError(w, err)
 			return
 		}
 
-		if err = EncodeResponse(w, http.StatusCreated, property); err != nil {
+		if err = EncodeResponse(w, http.StatusCreated, saved); err != nil {
 			EncodeError(w, err)
 			return
 		}

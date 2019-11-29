@@ -26,24 +26,26 @@ func NewRepository(owners map[string]properties.Owner) properties.Repository {
 	}
 }
 
-func (str *propertyStoreMock) Save(ctx context.Context, property properties.Property) (string, error) {
+func (str *propertyStoreMock) Save(ctx context.Context, property properties.Property) (properties.Property, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
+	empty := properties.Property{}
+
 	if _, ok := str.owners[property.Owner.ID]; !ok {
-		return "", properties.ErrOwnerNotFound
+		return empty, properties.ErrOwnerNotFound
 	}
 
 	for _, prt := range str.properties {
 		if prt.ID == property.ID {
-			return "", properties.ErrConflict
+			return empty, properties.ErrConflict
 		}
 	}
 
 	str.counter++
 	property.ID = strconv.FormatUint(str.counter, 10)
 	str.properties[property.ID] = property
-	return property.ID, nil
+	return property, nil
 }
 
 func (str *propertyStoreMock) UpdateProperty(ctx context.Context, property properties.Property) error {

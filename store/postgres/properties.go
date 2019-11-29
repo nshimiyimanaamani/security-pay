@@ -20,8 +20,10 @@ func NewPropertyStore(db *sql.DB) properties.Repository {
 	return &propertiesStore{db}
 }
 
-func (str *propertiesStore) Save(ctx context.Context, pro properties.Property) (string, error) {
+func (str *propertiesStore) Save(ctx context.Context, pro properties.Property) (properties.Property, error) {
 	q := `INSERT INTO properties (id, owner, due, sector, cell, village) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
+
+	empty := properties.Property{}
 
 	_, err := str.db.Exec(q, pro.ID, pro.Owner.ID, pro.Due, pro.Address.Sector, pro.Address.Cell, pro.Address.Village)
 	if err != nil {
@@ -29,17 +31,17 @@ func (str *propertiesStore) Save(ctx context.Context, pro properties.Property) (
 		if ok {
 			switch pqErr.Code.Name() {
 			case errDuplicate:
-				return "", properties.ErrConflict
+				return empty, properties.ErrConflict
 			case errFK:
-				return "", properties.ErrOwnerNotFound
+				return empty, properties.ErrOwnerNotFound
 			case errInvalid, errTruncation:
-				return "", properties.ErrInvalidEntity
+				return empty, properties.ErrInvalidEntity
 			}
 		}
-		return "", err
+		return empty, err
 	}
 
-	return pro.ID, nil
+	return pro, nil
 }
 
 func (str *propertiesStore) UpdateProperty(ctx context.Context, pro properties.Property) error {

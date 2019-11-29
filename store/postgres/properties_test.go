@@ -81,13 +81,13 @@ func TestUpdateProperty(t *testing.T) {
 
 	owner := properties.Owner{ID: nanoid.New(nil).ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 
-	saved, err := saveOwner(t, db, owner)
+	sown, err := saveOwner(t, db, owner)
 
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: properties.Owner{ID: saved.ID},
+		Owner: properties.Owner{ID: sown.ID},
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -97,9 +97,8 @@ func TestUpdateProperty(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	prid, _ := props.Save(ctx, property)
-
-	property.ID = prid
+	sp, err := props.Save(ctx, property)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	cases := []struct {
 		desc     string
@@ -108,7 +107,7 @@ func TestUpdateProperty(t *testing.T) {
 	}{
 		{
 			desc:     "update existing property",
-			property: property,
+			property: sp,
 			err:      nil,
 		},
 		{
@@ -169,12 +168,12 @@ func TestRetrieveByID(t *testing.T) {
 	defer CleanDB(t, "properties", "owners")
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	saved, err := saveOwner(t, db, owner)
+	sown, err := saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: properties.Owner{ID: saved.ID},
+		Owner: properties.Owner{ID: sown.ID},
 		Address: properties.Address{
 			Sector:  "Gasabo",
 			Cell:    "Kanserege",
@@ -184,14 +183,14 @@ func TestRetrieveByID(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	pid, _ := props.Save(ctx, property)
+	sp, _ := props.Save(ctx, property)
 
 	cases := []struct {
 		desc string
 		id   string
 		err  error
 	}{
-		{"retrieve existing property", pid, nil},
+		{"retrieve existing property", sp.ID, nil},
 		{"retrieve non-existing property", nanoid.New(nil).ID(), properties.ErrPropertyNotFound},
 		{"retrieve with malformed id", wrongValue, properties.ErrPropertyNotFound},
 	}

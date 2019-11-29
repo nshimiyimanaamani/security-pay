@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/rugwirobaker/paypack-backend/app/feedback"
-	"github.com/rugwirobaker/paypack-backend/app/users"
 )
 
 var (
@@ -37,8 +36,6 @@ func encodeError(w http.ResponseWriter, err error) {
 		w.WriteHeader(http.StatusNotFound)
 	case feedback.ErrConflict:
 		w.WriteHeader(http.StatusConflict)
-	case users.ErrUnauthorizedAccess:
-		w.WriteHeader(http.StatusForbidden)
 	case errUnsupportedContentType:
 		w.WriteHeader(http.StatusUnsupportedMediaType)
 	case io.ErrUnexpectedEOF:

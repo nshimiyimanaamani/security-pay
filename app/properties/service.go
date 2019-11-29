@@ -73,19 +73,18 @@ func New(idp identity.Provider, repo Repository) Service {
 	}
 }
 
-func (svc *propertyService) RegisterProperty(ctx context.Context, prop Property) (Property, error) {
-	if err := prop.Validate(); err != nil {
+func (svc *propertyService) RegisterProperty(ctx context.Context, p Property) (Property, error) {
+	if err := p.Validate(); err != nil {
 		return Property{}, err
 	}
-	prop.ID = svc.idp.ID()
 
-	id, err := svc.repo.Save(ctx, prop)
+	p.ID = svc.idp.ID()
+
+	property, err := svc.repo.Save(ctx, p)
 	if err != nil {
 		return Property{}, err
 	}
-
-	prop.ID = id
-	return prop, nil
+	return property, nil
 }
 
 func (svc *propertyService) UpdateProperty(ctx context.Context, prop Property) error {

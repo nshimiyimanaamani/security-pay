@@ -40,7 +40,7 @@ func migrateDB(db *sql.DB) error {
 
 					`CREATE TABLE IF NOT EXISTS properties (
 						id			TEXT,
-						owner		TEXT		 NOT NULL,
+						owner		TEXT,
 						sector		VARCHAR(254) NOT NULL,
 						cell		VARCHAR(254) NOT NULL,
 						village		VARCHAR(254) NOT NULL,
