@@ -17,21 +17,21 @@ RUN DATE="$(date -u +%Y-%m-%d-%H:%M:%S-%Z)" && GO111MODULE=on CGO_ENABLED=0 go b
 
 
 #package stage
-FROM scratch
+FROM heroku/heroku:18
 
 ENV GO_ENV=production
 
-WORKDIR /
+# COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+# COPY --from=builder /user/group /user/passwd /etc/
 
-COPY --from=builder /user/group /user/passwd /etc/
+RUN useradd -m heroku
 
 COPY --from=builder /bin/paypack /bin/paypack
 
 EXPOSE 8080
 
-CMD ["/bin/paypack"]
+CMD paypack
 
 
 
