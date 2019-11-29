@@ -58,9 +58,3 @@ workflows:
           filters:
              branches:
               only: master
-      - release:
-        requires:
-          - publish
-        filters:
-          branches:
-            only: master
