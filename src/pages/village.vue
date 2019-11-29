@@ -9,7 +9,7 @@
       <b-card v-show="houses.length">
         <section v-for="(house,index) in houses" :key="index">
           <b-card-header>
-            <p>{{house.owner}}</p>
+            <p>{{house.owner.fname +' '+ house.owner.lname}}</p>
             <p>{{house.id}}</p>
           </b-card-header>
           <b-card-footer>
@@ -23,19 +23,23 @@
           <b-collapse :id="'' + index" class="more-data">
             <article>
               <label for="sector">Sector:</label>
-              <p>{{house.sector}}</p>
+              <p>{{house.address.sector}}</p>
             </article>
             <article>
               <label for="cell">Cell:</label>
-              <p>{{house.cell}}</p>
+              <p>{{house.address.cell}}</p>
             </article>
             <article>
               <label for="village">village:</label>
-              <p>{{house.village}}</p>
+              <p>{{house.address.village}}</p>
             </article>
             <article>
               <label for="due">To Pay:</label>
               <p>{{house.due}} Rwf</p>
+            </article>
+            <article>
+              <label for="phone">Phone Number:</label>
+              <p>{{house.owner.phone}}</p>
             </article>
           </b-collapse>
         </section>
@@ -111,10 +115,10 @@ export default {
     loadData() {
       this.state.loading = true;
       this.axios
-        .get(this.endpoint + `/properties/sectors/remera?offset=1&limit=100`)
+        .get(this.endpoint + `/properties?sector=remera&offset=1&limit=100`)
         .then(res => {
           this.state.loading = false;
-          this.responseData = res.data.properties;
+          this.responseData = res.data.Properties;
           this.filterBy_village();
         })
         .catch(err => {
@@ -126,7 +130,10 @@ export default {
     filterBy_village() {
       this.$nextTick(() => {
         this.houses = this.responseData.filter(data => {
-          return data.village === this.activeVillage;
+          return (
+            data.address.village.toLowerCase() ==
+            this.activeVillage.toLowerCase()
+          );
         });
       });
     }

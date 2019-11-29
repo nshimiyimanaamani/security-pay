@@ -1,6 +1,6 @@
 <template>
   <div class="table-container">
-    <h4 class="title text-center" v-show="selected">
+    <h4 class="title text-center">
       {{title}}
       <b-button class="add-property mb-1" @click="modal.show = ! modal.show">
         <i class="fa fa-plus-circle"></i> Property
@@ -92,13 +92,14 @@
       :per-page="pagination.perPage"
     >
       <template v-slot:cell(due)="data">{{Number(data.item.due).toLocaleString()}} Rwf</template>
+      <template v-slot:cell(owner)="data">{{data.item.owner.fname +" "+ data.item.owner.lname}}</template>
       <template v-slot:cell(index)="data">
         <article class="text-center">{{data.index + 1}}</article>
       </template>
       <template v-slot:table-busy>
         <div class="text-center my-2">
           <b-spinner class="align-middle"></b-spinner>
-          <strong>   Loading...</strong>
+          <strong>Loading...</strong>
         </div>
       </template>
       <template v-slot:empty="scope">
@@ -231,7 +232,8 @@ export default {
   name: "reports",
   data() {
     return {
-      selected: "",
+      selected: null,
+      title: null,
       width: 0,
       options: [],
       color: "#333333bd",
@@ -277,10 +279,11 @@ export default {
       fields: [
         { key: "index", label: "NO" },
         { key: "owner", label: "Full name", sortable: true },
-        { key: "id", label: "House code", sortable: false },
-        { key: "sector", label: "sector", sortable: true },
-        { key: "cell", label: "Cell", sortable: true },
-        { key: "village", label: "Village", sortable: true },
+        { key: "id", label: "House Code", sortable: false },
+        { key: "owner.phone", label: "Phone Number", sortable: false },
+        { key: "address.sector", label: "sector", sortable: true },
+        { key: "address.cell", label: "Cell", sortable: true },
+        { key: "address.village", label: "Village", sortable: true },
         { key: "due", label: "Amount", sortable: false }
       ],
       items: [],
@@ -301,9 +304,6 @@ export default {
     },
     villageOptions() {
       return this.$store.getters.villageByCell;
-    },
-    title() {
-      return `List of users in ${this.selected}`;
     },
     activeSector() {
       return this.capitalize(this.$store.getters.getActiveSector);
@@ -328,6 +328,13 @@ export default {
           this.columns.length == this.select.shownColumn.length ? true : false;
       }
     },
+    selected() {
+      if (this.selected) {
+        this.title = `List of users in ${this.selected}`;
+      } else {
+        this.title = `List of users in ${this.activeSector}`;
+      }
+    },
     items() {
       handler: {
         this.tableItems = this.filter();
@@ -336,8 +343,8 @@ export default {
           this.selected = this.items[0].sector;
         }
         this.items.forEach(element => {
-          if (this.select.sectorOptions.indexOf(element.sector) == -1) {
-            this.select.sectorOptions.push(element.sector);
+          if (this.select.sectorOptions.indexOf(element.address.sector) == -1) {
+            this.select.sectorOptions.push(element.address.sector);
           }
         });
       }
@@ -347,13 +354,13 @@ export default {
         if (this.select.sector) {
           this.select.cellOptions = [];
           const cellOptions = this.items.filter(
-            sec => sec.sector == this.select.sector
+            sec => sec.address.sector == this.select.sector
           );
           cellOptions.forEach(element => {
-            if (this.select.cellOptions.indexOf(element.cell) == -1) {
+            if (this.select.cellOptions.indexOf(element.address.cell) == -1) {
               this.select.cellOptions = [
                 ...this.select.cellOptions,
-                element.cell
+                element.address.cell
               ];
             }
           });
@@ -367,13 +374,15 @@ export default {
         if (this.select.cell) {
           this.select.villageOptions = [];
           const villageOptions = this.items.filter(
-            res => res.cell == this.select.cell
+            res => res.address.cell == this.select.cell
           );
           villageOptions.forEach(element => {
-            if (this.select.villageOptions.indexOf(element.village) == -1) {
+            if (
+              this.select.villageOptions.indexOf(element.address.village) == -1
+            ) {
               this.select.villageOptions = [
                 ...this.select.villageOptions,
-                element.village
+                element.address.village
               ];
             }
           });
@@ -408,6 +417,7 @@ export default {
   mounted() {
     this.loadData();
     this.select.shownColumn = this.columns;
+    this.title = `List of users in ${this.activeSector}`;
   },
   methods: {
     loadData() {
@@ -416,12 +426,11 @@ export default {
         .get(
           `${
             this.endpoint
-          }/properties/sectors/${this.activeSector.toLowerCase()}?offset=1&limit=100`
+          }/properties?sector=${this.activeSector.toLowerCase()}&offset=1&limit=100`
         )
         .then(res => {
           this.items = new Array();
-          this.items = res.data.properties;
-          // console.warn(this.items);
+          this.items = res.data.Properties;
           this.loading.request = false;
         })
         .catch(err => {
@@ -438,7 +447,7 @@ export default {
         this.axios
           .get(
             this.endpoint +
-              "/properties/owners/search/?fname=" +
+              "/owners/search?fname=" +
               fname +
               "&lname=" +
               lname +
@@ -464,7 +473,7 @@ export default {
               if (state === true) {
                 this.modal.loading = true;
                 this.axios
-                  .post(`${this.endpoint}/properties/owners/`, {
+                  .post(`${this.endpoint}/owners`, {
                     fname: fname,
                     lname: lname,
                     phone: phone
@@ -482,12 +491,14 @@ export default {
       } else if (this.modal.switch) {
         this.modal.loading = true;
         this.axios
-          .post(this.endpoint + "/properties/", {
-            cell: this.modal.select.cell,
-            owner: this.modal.form.id,
-            due: this.modal.form.due.toString(),
-            sector: "remera",
-            village: this.modal.select.village
+          .post(this.endpoint + "/properties", {
+            owner: { id: this.modal.form.id },
+            address: {
+              cell: this.modal.select.cell,
+              village: this.modal.select.village,
+              sector: "remera"
+            },
+            due: this.modal.form.due.toString()
           })
           .then(res => {
             this.resetModal();
@@ -525,7 +536,6 @@ export default {
       }
     },
     filter() {
-      0;
       this.$refs.dropdown.hide(true);
       //disabling some of the columns
       this.fields.forEach(value => {
@@ -539,11 +549,15 @@ export default {
       });
       return this.items.filter(item => {
         return (
-          item.sector
+          item.address.sector
             .toLowerCase()
             .includes(this.select.sector.toLowerCase()) &&
-          item.cell.toLowerCase().includes(this.select.cell.toLowerCase()) &&
-          item.village.toLowerCase().includes(this.select.village.toLowerCase())
+          item.address.cell
+            .toLowerCase()
+            .includes(this.select.cell.toLowerCase()) &&
+          item.address.village
+            .toLowerCase()
+            .includes(this.select.village.toLowerCase())
         );
       });
     },
@@ -555,7 +569,7 @@ export default {
       this.select.cell = "";
       this.select.village = "";
       this.tableItems = this.items;
-      this.selected = this.activeSector;
+      this.selected = null;
       this.$refs.dropdown.hide(true);
     },
     download() {
@@ -632,6 +646,7 @@ export default {
 .table-container {
   padding: 15px 40px 5px;
   position: relative;
+  min-height: inherit;
 }
 hr {
   margin-top: 0.5rem;
@@ -659,6 +674,7 @@ hr {
   height: 100%;
   margin: auto;
   background: #000000cc;
+  z-index: 1;
 }
 .add-property-modal .modal-body {
   position: sticky;

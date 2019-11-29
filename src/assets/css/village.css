@@ -100,7 +100,8 @@
 
 .village-wrapper .container .card .card-body > section .more-data article p {
   position: absolute;
-  margin-left: 20%;
+  margin-left: 35%;
+  text-transform: capitalize;
 }
 
 .village-wrapper .container .error {

@@ -19,7 +19,7 @@ let router = new Router({
   mode: "history",
   routes: [{
       path: "/",
-      name: "main",
+      name: "",
       component: startPage,
       children: [{
           path: "/",

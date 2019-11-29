@@ -59,8 +59,8 @@ export default {
       color: "#fff",
       size: "25px",
       form: {
-        email: "",
-        password: ""
+        email: null,
+        password: null
       }
     };
   },
@@ -71,14 +71,15 @@ export default {
   },
   methods: {
     login() {
-      if (this.form.email != "" && this.form.password != "") {
-        const data = {
-          email: this.form.email,
-          password: this.form.password
-        };
+      const email = this.form.email;
+      const key = this.form.password;
+      if (email && key) {
         this.loading = true;
         this.axios
-          .post(this.endpoint + "/users/tokens", data)
+          .post(this.endpoint + "/users/tokens", {
+            email: email,
+            password: key
+          })
           .then(res => {
             sessionStorage.setItem("token", res.data.token);
             this.$router.push("dashboard");
