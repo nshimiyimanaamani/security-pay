@@ -14,7 +14,7 @@ all: help
 .PHONY: build
 build:  	## build development paypack binary
 	@echo "> building binary..."
-	@CGO_ENABLED=0 go build -ldflags $(BUILD_FLAGS) -o bin/paypack ./cmd/.
+	@CGO_ENABLED=0 go build -ldflags $(BUILD_FLAGS) -o bin/paypack ./cmd/paypack
 
 clean:		## remove build artifacts
 	@echo "> removing artifacts..."
