@@ -38,8 +38,13 @@ jobs:
 
       - run:
           name: Login into Heroku Docker Repository
-          command: >
+          command: |
             docker login --username=$HEROKU_LOGIN --password=$HEROKU_API_KEY $HEROKU_REGISTRY
+      - run:
+          name: Push image to Heroku $HEROKU_REGISTRY
+          command: |
+             docker build -t registry.heroku.com/quarks-paypack/backend:$GIT_HASH .
+             docker push registry.heroku.com/quarks-paypack/web:$GIT_HASH
             
   release:
      docker:
