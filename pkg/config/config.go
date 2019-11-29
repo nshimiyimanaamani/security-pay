@@ -11,7 +11,7 @@ type Config struct {
 	CloudRuntime string `validate:"required" envconfig:"PAYPACK_CLOUD_RUNTIME"`
 	GoEnv        string `validate:"required" envconfig:"GO_ENV"`
 	LogLevel     string `envconfig:"PAYPACK_LOG_LEVEL"` // http port
-	Port         string `envconfig:"PAYPACK_HTTP_PORT"` // http port
+	Port         string `envconfig:"PORT"` // http port
 	Secret       string `envconfig:"PAYPACK_SECRET"`
 	DB           *DBConfig
 	PaymentProxy *Payment
