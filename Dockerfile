@@ -25,7 +25,7 @@ RUN apk add --update tini
 
 ENV GO_ENV=production
 
-ENTRYPOINT [ "/sbin/tini", "--" ]
+ENTRYPOINT [ "/sbin/tini", "-s", "--" ]
 
 CMD ["paypack"]
 
