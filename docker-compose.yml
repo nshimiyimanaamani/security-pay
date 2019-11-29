@@ -9,12 +9,8 @@ services:
     depends_on:
        - database
     environment:
-      PAYPACK_DB_HOST:   ${DATABASE_HOST}
-      PAYPACK_DB_PORT:   ${DATABASE_PORT}
-      PAYPACK_DB_USER:   ${DATABASE_USER}
-      PAYPACK_DB:        ${DATABASE_NAME}
-      PAYPACK_DB_PASS:   ${DATABASE_PASSWORD}
-      PAYPACK_LOG_LEVEL: ${LOG_LEVEL}
+      PAYPACK_DB_URL:    ${PAYPACK_DB_URL}
+      PAYPACK_LOG_LEVEL: ${PAYPACK_LOG_LEVEL}
       PAYPACK_PAYMENT_ENDPOINT: ${PAYPACK_PAYMENT_URL}
       PAYPACK_PAYMENT_TOKEN: ${PAYPACK_PAYMENT_TOKEN}
       PORT: "8000"
@@ -26,9 +22,9 @@ services:
     image: postgres:alpine
     container_name: database
     environment:
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: test
     ports:
        - "5433:5432"
     volumes:
