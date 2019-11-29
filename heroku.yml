@@ -6,4 +6,4 @@ setup:
 build:
   docker:
     web:
-       dockerfile: heroku/Dockerfile
+       dockerfile: Dockerfile
