@@ -11,8 +11,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/rugwirobaker/paypack-backend/cmd/paypack/app"
 	"github.com/rugwirobaker/paypack-backend/pkg/build"
-	"github.com/rugwirobaker/paypack-backend/cmd/app"
 	"github.com/rugwirobaker/paypack-backend/pkg/config"
 )
 
