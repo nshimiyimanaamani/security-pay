@@ -20,17 +20,24 @@ const (
 	wrongValue = "wrong-value"
 )
 
-func newService() properties.Service {
+func newService(owners map[string]properties.Owner) properties.Service {
 	idp := mocks.NewIdentityProvider()
-	props := mocks.NewRepository()
+	props := mocks.NewRepository(owners)
 	return properties.New(idp, props)
 }
 
+func makeOwners(owner properties.Owner) map[string]properties.Owner {
+	owners := make(map[string]properties.Owner)
+	owners[owner.ID] = owner
+	return owners
+}
+
 func TestAddProperty(t *testing.T) {
-	svc := newService()
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
 
 	property := properties.Property{
-		Owner:   properties.Owner{ID: uuid.New().ID()},
+		Owner:   properties.Owner{ID: owner.ID},
 		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:     float64(1000),
 	}
@@ -44,6 +51,12 @@ func TestAddProperty(t *testing.T) {
 		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 	}
 
+	withUnsavedOwner := properties.Property{
+		Owner:   properties.Owner{ID: uuid.New().ID()},
+		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due:     float64(1000),
+	}
+
 	cases := []struct {
 		desc     string
 		property properties.Property
@@ -53,6 +66,7 @@ func TestAddProperty(t *testing.T) {
 		{"add valid property", property, token, nil},
 		{"add invalid property", invalidProperty, token, properties.ErrInvalidEntity},
 		{"add property with empty montly due", emptyDue, token, properties.ErrInvalidEntity},
+		{"add with unsaved owner", withUnsavedOwner, token, properties.ErrOwnerNotFound},
 	}
 
 	for _, tc := range cases {
@@ -63,10 +77,11 @@ func TestAddProperty(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	svc := newService()
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
 
 	property := properties.Property{
-		Owner:   properties.Owner{ID: uuid.New().ID()},
+		Owner:   properties.Owner{ID: owner.ID},
 		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:     float64(1000),
 	}
@@ -106,7 +121,7 @@ func TestUpdate(t *testing.T) {
 			desc:     "update non-existant property",
 			property: property,
 			token:    token,
-			err:      properties.ErrNotFound,
+			err:      properties.ErrPropertyNotFound,
 		},
 		{
 			desc:     "update property with empty due",
@@ -124,10 +139,11 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestViewProperty(t *testing.T) {
-	svc := newService()
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
 
 	property := properties.Property{
-		Owner:   properties.Owner{ID: uuid.New().ID()},
+		Owner:   properties.Owner{ID: owner.ID},
 		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:     float64(1000),
 	}
@@ -152,7 +168,7 @@ func TestViewProperty(t *testing.T) {
 			desc:     "view non-existing property",
 			identity: wrongValue,
 			token:    token,
-			err:      properties.ErrNotFound,
+			err:      properties.ErrPropertyNotFound,
 		},
 	}
 
@@ -164,9 +180,8 @@ func TestViewProperty(t *testing.T) {
 }
 
 func TestListPropertiesByOwner(t *testing.T) {
-	svc := newService()
-
 	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
 
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
@@ -238,10 +253,11 @@ func TestListPropertiesByOwner(t *testing.T) {
 }
 
 func TestListPropertiesBySector(t *testing.T) {
-	svc := newService()
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
 
 	property := properties.Property{
-		Owner:   properties.Owner{ID: uuid.New().ID()},
+		Owner:   owner,
 		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:     float64(1000),
 	}
@@ -310,10 +326,11 @@ func TestListPropertiesBySector(t *testing.T) {
 }
 
 func TestListPropertiesByCell(t *testing.T) {
-	svc := newService()
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
 
 	property := properties.Property{
-		Owner:   properties.Owner{ID: uuid.New().ID()},
+		Owner:   owner,
 		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:     float64(1000),
 	}
@@ -384,10 +401,11 @@ func TestListPropertiesByCell(t *testing.T) {
 }
 
 func TestListPropertiesByVillage(t *testing.T) {
-	svc := newService()
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
 
 	property := properties.Property{
-		Owner:   properties.Owner{ID: uuid.New().ID()},
+		Owner:   owner,
 		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:     float64(1000),
 	}

@@ -35,8 +35,6 @@ func EncodeError(w http.ResponseWriter, err error) {
 	switch err {
 	case owners.ErrInvalidEntity:
 		w.WriteHeader(http.StatusBadRequest)
-	case owners.ErrUnauthorizedAccess:
-		w.WriteHeader(http.StatusForbidden)
 	case owners.ErrNotFound:
 		w.WriteHeader(http.StatusNotFound)
 	case owners.ErrConflict:

@@ -14,13 +14,14 @@ var _ (properties.Repository) = (*propertyStoreMock)(nil)
 type propertyStoreMock struct {
 	mu         sync.Mutex
 	counter    uint64
-	owner      string
+	owners     map[string]properties.Owner
 	properties map[string]properties.Property
 }
 
 // NewRepository creates Repositorymirror
-func NewRepository() properties.Repository {
+func NewRepository(owners map[string]properties.Owner) properties.Repository {
 	return &propertyStoreMock{
+		owners:     owners,
 		properties: make(map[string]properties.Property),
 	}
 }
@@ -28,6 +29,10 @@ func NewRepository() properties.Repository {
 func (str *propertyStoreMock) Save(ctx context.Context, property properties.Property) (string, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
+
+	if _, ok := str.owners[property.Owner.ID]; !ok {
+		return "", properties.ErrOwnerNotFound
+	}
 
 	for _, prt := range str.properties {
 		if prt.ID == property.ID {
@@ -46,7 +51,7 @@ func (str *propertyStoreMock) UpdateProperty(ctx context.Context, property prope
 	defer str.mu.Unlock()
 
 	if _, ok := str.properties[property.ID]; !ok {
-		return properties.ErrNotFound
+		return properties.ErrPropertyNotFound
 	}
 
 	str.properties[property.ID] = property
@@ -60,7 +65,7 @@ func (str *propertyStoreMock) RetrieveByID(ctx context.Context, id string) (prop
 
 	val, ok := str.properties[id]
 	if !ok {
-		return properties.Property{}, properties.ErrNotFound
+		return properties.Property{}, properties.ErrPropertyNotFound
 	}
 
 	return val, nil

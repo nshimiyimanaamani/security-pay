@@ -1,10 +1,8 @@
 package properties
 
-import "github.com/ttacon/libphonenumber"
-
 // Property defines a property(house) data model
 type Property struct {
-	ID      string  `json:"id"`
+	ID      string  `json:"id,omitempty"`
 	Due     float64 `json:"due,string,omitempty"`
 	Owner   Owner   `json:"owner,omitempty"`
 	Address Address `json:"address,omitempty"`
@@ -23,6 +21,14 @@ type Address struct {
 	Village string `json:"village,omitempty"`
 }
 
+// Validate address
+func (addr *Address) Validate() error {
+	if addr.Sector == "" || addr.Cell == "" || addr.Village == "" {
+		return ErrInvalidEntity
+	}
+	return nil
+}
+
 // PageMetadata contains page metadata that helps navigation.
 type PageMetadata struct {
 	Total  uint64
@@ -32,12 +38,12 @@ type PageMetadata struct {
 
 // Validate validates a Property entity an returns nil error if it's valid.
 func (prt *Property) Validate() error {
-	if prt.Owner.ID == "" {
-		return ErrInvalidEntity
+	if err := prt.Owner.Validate(); err != nil {
+		return err
 	}
 
-	if prt.Address.Sector == "" || prt.Address.Cell == "" || prt.Address.Village == "" {
-		return ErrInvalidEntity
+	if err := prt.Address.Validate(); err != nil {
+		return err
 	}
 	if prt.Due == float64(0) {
 		return ErrInvalidEntity
@@ -60,13 +66,8 @@ type OwnerPage struct {
 }
 
 // Validate validates owner instance fields
-func (own *Owner) Validate() error {
-	if own.Fname == "" || own.Lname == "" || own.Phone == "" {
-		return ErrInvalidEntity
-	}
-
-	num, _ := libphonenumber.Parse(own.Phone, "RW")
-	if !libphonenumber.IsValidNumberForRegion(num, "RW") {
+func (ow *Owner) Validate() error {
+	if ow.ID == "" {
 		return ErrInvalidEntity
 	}
 	return nil

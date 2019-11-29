@@ -25,7 +25,7 @@ func Recode(lgger log.Entry, svc feedback.Service) http.Handler {
 		ctx := r.Context()
 
 		if err := CheckContentType(r); err != nil {
-			EncodeError(w, err)
+			encodeError(w, err)
 			return
 		}
 
@@ -33,15 +33,15 @@ func Recode(lgger log.Entry, svc feedback.Service) http.Handler {
 
 		err := decode(r.Body, &req)
 		if err != nil {
-			EncodeError(w, err)
+			encodeError(w, err)
 			return
 		}
 		res, err := svc.Record(ctx, &req)
 		if err != nil {
-			EncodeError(w, err)
+			encodeError(w, err)
 			return
 		}
-		encode(w, RecordRes{ID: res.ID})
+		encode(w, http.StatusCreated, feedback.Message{ID: res.ID})
 	}
 
 	return http.HandlerFunc(f)
@@ -53,7 +53,7 @@ func Update(lgger log.Entry, svc feedback.Service) http.Handler {
 		ctx := r.Context()
 
 		if err := CheckContentType(r); err != nil {
-			EncodeError(w, err)
+			encodeError(w, err)
 			return
 		}
 
@@ -61,7 +61,7 @@ func Update(lgger log.Entry, svc feedback.Service) http.Handler {
 
 		err := decode(r.Body, &req)
 		if err != nil {
-			EncodeError(w, err)
+			encodeError(w, err)
 			return
 		}
 
@@ -70,10 +70,10 @@ func Update(lgger log.Entry, svc feedback.Service) http.Handler {
 		req.ID = vars["id"]
 
 		if err := svc.Update(ctx, req); err != nil {
-			EncodeError(w, err)
+			encodeError(w, err)
 			return
 		}
-		encode(w, map[string]string{"message": "message updated"})
+		encode(w, http.StatusOK, map[string]string{"message": "message updated"})
 	}
 
 	return http.HandlerFunc(f)
@@ -87,21 +87,12 @@ func Retrieve(lgger log.Entry, svc feedback.Service) http.Handler {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		req, err := svc.Retrieve(ctx, id)
+		res, err := svc.Retrieve(ctx, id)
 		if err != nil {
-			EncodeError(w, err)
+			encodeError(w, err)
 			return
 		}
-		res := RetrieveRes{
-			ID:        req.ID,
-			Title:     req.Title,
-			Body:      req.Body,
-			Creator:   req.Creator,
-			CreatedAt: req.CreatedAt,
-			UpdatedAt: req.UpdatedAt,
-		}
-
-		encode(w, res)
+		encode(w, http.StatusOK, res)
 	}
 
 	return http.HandlerFunc(f)
@@ -117,10 +108,10 @@ func Delete(lgger log.Entry, svc feedback.Service) http.Handler {
 
 		err := svc.Delete(ctx, id)
 		if err != nil {
-			EncodeError(w, err)
+			encodeError(w, err)
 			return
 		}
-		encode(w, map[string]string{"message": "message deleted"})
+		encode(w, http.StatusOK, map[string]string{"message": "message deleted"})
 	}
 
 	return http.HandlerFunc(f)

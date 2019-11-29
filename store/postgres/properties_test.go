@@ -64,7 +64,7 @@ func TestSaveProperty(t *testing.T) {
 		{
 			desc:     "save property with invalid owner id",
 			property: invalid,
-			err:      properties.ErrNotFound,
+			err:      properties.ErrOwnerNotFound,
 		},
 	}
 	for _, tc := range cases {
@@ -123,7 +123,7 @@ func TestUpdateProperty(t *testing.T) {
 				},
 				Due: float64(1000),
 			},
-			err: properties.ErrNotFound,
+			err: properties.ErrPropertyNotFound,
 		},
 		{
 			desc: "udpate property with invalid owner id",
@@ -137,7 +137,7 @@ func TestUpdateProperty(t *testing.T) {
 				},
 				Due: float64(1000),
 			},
-			err: properties.ErrNotFound,
+			err: properties.ErrPropertyNotFound,
 		},
 		{
 			desc: "udpate property with invalid owner",
@@ -151,7 +151,7 @@ func TestUpdateProperty(t *testing.T) {
 				},
 				Due: float64(1000),
 			},
-			err: properties.ErrNotFound,
+			err: properties.ErrPropertyNotFound,
 		},
 	}
 
@@ -192,8 +192,8 @@ func TestRetrieveByID(t *testing.T) {
 		err  error
 	}{
 		{"retrieve existing property", pid, nil},
-		{"retrieve non-existing property", nanoid.New(nil).ID(), properties.ErrNotFound},
-		{"retrieve with malformed id", wrongValue, properties.ErrNotFound},
+		{"retrieve non-existing property", nanoid.New(nil).ID(), properties.ErrPropertyNotFound},
+		{"retrieve with malformed id", wrongValue, properties.ErrPropertyNotFound},
 	}
 
 	for _, tc := range cases {

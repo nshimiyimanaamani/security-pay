@@ -31,7 +31,7 @@ func (str *propertiesStore) Save(ctx context.Context, pro properties.Property) (
 			case errDuplicate:
 				return "", properties.ErrConflict
 			case errFK:
-				return "", properties.ErrNotFound
+				return "", properties.ErrOwnerNotFound
 			case errInvalid, errTruncation:
 				return "", properties.ErrInvalidEntity
 			}
@@ -62,7 +62,7 @@ func (str *propertiesStore) UpdateProperty(ctx context.Context, pro properties.P
 		return err
 	}
 	if cnt == 0 {
-		return properties.ErrNotFound
+		return properties.ErrPropertyNotFound
 	}
 	return nil
 }
@@ -90,7 +90,7 @@ func (str *propertiesStore) RetrieveByID(ctx context.Context, id string) (proper
 
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
-			return empty, properties.ErrNotFound
+			return empty, properties.ErrPropertyNotFound
 		}
 
 		return empty, err
