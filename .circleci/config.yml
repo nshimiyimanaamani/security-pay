@@ -44,11 +44,7 @@ jobs:
           name: Push image to Heroku $HEROKU_REGISTRY
           command: |
              docker build -t registry.heroku.com/quarks-paypack/backend:$GIT_HASH .
-             docker push registry.heroku.com/quarks-paypack/web:$GIT_HASH
-            
-  release:
-     docker:
-      - image: google/cloud-sdk
+             docker push registry.heroku.com/quarks-paypack/web:$GIT_HASH     
 
 workflows:
   version: 2
