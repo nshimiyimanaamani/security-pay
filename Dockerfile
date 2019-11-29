@@ -25,8 +25,6 @@ RUN apk add --update tini
 
 ENV GO_ENV=production
 
-RUN useradd -m heroku
-
 ENTRYPOINT [ "/sbin/tini", "--" ]
 
 CMD ["paypack"]
