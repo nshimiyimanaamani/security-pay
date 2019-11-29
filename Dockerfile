@@ -29,7 +29,7 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 COPY --from=builder /user/group /user/passwd /etc/
 
-COPY --from=builder /bin/paypack /bin/paypack
+COPY --from=builder /paypack /bin/paypack
 
 
 
