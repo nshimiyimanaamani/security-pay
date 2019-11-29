@@ -23,7 +23,7 @@ ENV GO_ENV=production
 
 EXPOSE 8080
 
-CMD ["./paypack"]
+CMD /paypack
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
