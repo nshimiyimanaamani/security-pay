@@ -17,21 +17,19 @@ RUN DATE="$(date -u +%Y-%m-%d-%H:%M:%S-%Z)" && GO111MODULE=on CGO_ENABLED=0 go b
 
 
 #package stage
-FROM heroku/heroku:18
-
-ENV GO_ENV=production
-
-# COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-
-# COPY --from=builder /user/group /user/passwd /etc/
-
-RUN useradd -m heroku
+FROM alpine
 
 COPY --from=builder /bin/paypack /bin/paypack
 
-EXPOSE 8080
+RUN apk add --update tini
 
-CMD paypack
+ENV GO_ENV=production
+
+RUN useradd -m heroku
+
+ENTRYPOINT [ "/sbin/tini", "--" ]
+
+CMD ["paypack"]
 
 
 
