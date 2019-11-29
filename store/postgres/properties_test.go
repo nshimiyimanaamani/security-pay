@@ -18,7 +18,7 @@ func TestSaveProperty(t *testing.T) {
 
 	defer CleanDB(t, "properties", "owners")
 
-	owner := properties.Owner{ID: nanoid.New(nil).ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	saved, err := saveOwner(t, db, owner)
 
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -64,7 +64,7 @@ func TestSaveProperty(t *testing.T) {
 		{
 			desc:     "save property with invalid owner id",
 			property: invalid,
-			err:      properties.ErrOwnerNotFound,
+			err:      properties.ErrInvalidEntity,
 		},
 	}
 	for _, tc := range cases {
@@ -79,7 +79,7 @@ func TestUpdateProperty(t *testing.T) {
 
 	defer CleanDB(t, "properties", "owners")
 
-	owner := properties.Owner{ID: nanoid.New(nil).ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 
 	sown, err := saveOwner(t, db, owner)
 
@@ -125,20 +125,6 @@ func TestUpdateProperty(t *testing.T) {
 			err: properties.ErrPropertyNotFound,
 		},
 		{
-			desc: "udpate property with invalid owner id",
-			property: properties.Property{
-				ID:    nanoid.New(nil).ID(),
-				Owner: properties.Owner{ID: wrongValue},
-				Address: properties.Address{
-					Sector:  "Remera",
-					Cell:    "Gishushu",
-					Village: "Ingabo",
-				},
-				Due: float64(1000),
-			},
-			err: properties.ErrPropertyNotFound,
-		},
-		{
 			desc: "udpate property with invalid owner",
 			property: properties.Property{
 				ID:    nanoid.New(nil).ID(),
@@ -150,7 +136,7 @@ func TestUpdateProperty(t *testing.T) {
 				},
 				Due: float64(1000),
 			},
-			err: properties.ErrPropertyNotFound,
+			err: properties.ErrInvalidEntity,
 		},
 	}
 

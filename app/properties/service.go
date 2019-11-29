@@ -12,7 +12,7 @@ var (
 	ErrConflict = errors.New("property already exists")
 	//ErrInvalidEntity indicates malformed entity specification (e.g.
 	//invalid username,  password, account).
-	ErrInvalidEntity = errors.New("invalid entity format")
+	ErrInvalidEntity = errors.New("invalid property entity")
 
 	// ErrPropertyNotFound indicates a non-existent entity request.
 	ErrPropertyNotFound = errors.New("property not found")

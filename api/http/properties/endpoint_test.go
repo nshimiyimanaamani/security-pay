@@ -104,7 +104,7 @@ func TestRegisterProperty(t *testing.T) {
 	property.ID = "1"
 
 	res := toJSON(property)
-	invalidEntityRes := toJSON(Error{"invalid entity format"})
+	invalidEntityRes := toJSON(Error{"invalid property entity"})
 	unsupportedContentRes := toJSON(Error{"unsupported content type"})
 
 	cases := []struct {
@@ -215,7 +215,7 @@ func TestUpdateProperty(t *testing.T) {
 
 	data := toJSON(res)
 	notFoundMessage := toJSON(Error{"property not found"})
-	invalidEntityMessage := toJSON(Error{"invalid entity format"})
+	invalidEntityMessage := toJSON(Error{"invalid property entity"})
 	unsupportedContentMessage := toJSON(Error{"unsupported content type"})
 
 	cases := []struct {
