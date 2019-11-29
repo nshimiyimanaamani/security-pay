@@ -13,10 +13,10 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/fatih/color v1.7.0
-	github.com/go-kit/kit v0.9.0
+	github.com/go-kit/kit v0.9.0 // indirect
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/golang/protobuf v1.3.2 // indirect
-	github.com/gorilla/handlers v1.4.2
+	github.com/gorilla/handlers v1.4.2 // indirect
 	github.com/gorilla/mux v1.7.3
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.2.0
@@ -28,7 +28,7 @@ require (
 	github.com/opencontainers/runc v0.1.1 // indirect
 	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/rubenv/sql-migrate v0.0.0-20190902133344-8926f37f0bc1
-	github.com/rugwirobaker/larissa v0.0.0-20191021082029-b4089d9a81a5
+	github.com/rugwirobaker/larissa v0.0.0-20191021082029-b4089d9a81a5 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.4.0

@@ -1,6 +1,7 @@
 VERSION = "unset"
 DATE=$(shell date -u +%Y-%m-%d-%H:%M:%S-%Z)
 
+GIT_HASH=$(shell git rev-parse --short HEAD)
 GOFILES=$(shell go list ./... | grep -v /vendor/)
 IMAGE_DEV_TAG=dev
 IMAGE_TAG:=tag
@@ -30,6 +31,7 @@ dev-teardown: ## clean up the development artifacts
 	@docker-compose down -v
 image: 		## build docker image
 	@echo "> building docker image..."
+	@docker build -t docker.pkg.github.com/rugwirobaker/paypack-backend/paypack:$(GIT_HASH) .
 release:	## build the paypack server with version number
 	@echo "> creating release binaries..."
 	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOPROXY) go build -ldflags $(BUILD_FLAGS) -o bin/paypack_windows ./cmd/.

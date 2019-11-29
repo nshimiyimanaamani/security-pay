@@ -20,26 +20,24 @@ github.com/dgrijalva/jwt-go
 github.com/docker/go-connections/nat
 # github.com/docker/go-units v0.4.0
 github.com/docker/go-units
-# github.com/go-kit/kit v0.9.0
-github.com/go-kit/kit/log
-# github.com/go-logfmt/logfmt v0.4.0
-github.com/go-logfmt/logfmt
+# github.com/fatih/color v1.7.0
+github.com/fatih/color
 # github.com/golang/protobuf v1.3.2
 github.com/golang/protobuf/proto
-# github.com/gorilla/handlers v1.4.2
-github.com/gorilla/handlers
 # github.com/gorilla/mux v1.7.3
 github.com/gorilla/mux
-# github.com/konsorten/go-windows-terminal-sequences v1.0.1
-github.com/konsorten/go-windows-terminal-sequences
-# github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515
-github.com/kr/logfmt
+# github.com/kelseyhightower/envconfig v1.4.0
+github.com/kelseyhightower/envconfig
 # github.com/lib/pq v1.2.0
 github.com/lib/pq
 github.com/lib/pq/oid
 github.com/lib/pq/scram
 # github.com/matoous/go-nanoid v1.1.0
 github.com/matoous/go-nanoid
+# github.com/mattn/go-colorable v0.1.4
+github.com/mattn/go-colorable
+# github.com/mattn/go-isatty v0.0.10
+github.com/mattn/go-isatty
 # github.com/opencontainers/go-digest v1.0.0-rc1
 github.com/opencontainers/go-digest
 # github.com/opencontainers/image-spec v1.0.1
@@ -87,6 +85,7 @@ github.com/sirupsen/logrus
 # github.com/stretchr/testify v1.4.0
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
+github.com/stretchr/testify/suite
 # github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2
 github.com/ttacon/builder
 # github.com/ttacon/libphonenumber v1.0.1
@@ -96,9 +95,9 @@ golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
 # golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
 golang.org/x/net/context
-# golang.org/x/sys v0.0.0-20190507160741-ecd444e8653b
-golang.org/x/sys/windows
+# golang.org/x/sys v0.0.0-20191008105621-543471e840be
 golang.org/x/sys/unix
+golang.org/x/sys/windows
 # gopkg.in/gorp.v1 v1.7.2
 gopkg.in/gorp.v1
 # gopkg.in/yaml.v2 v2.2.2
