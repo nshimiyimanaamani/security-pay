@@ -480,7 +480,7 @@ export default {
                   })
                   .then(res => {
                     this.modal.loading = false;
-                    this.modal.swith = true;
+                    this.modal.switch = true;
                     this.$snotify.info(
                       `User created. proceeding to registration...`
                     );
