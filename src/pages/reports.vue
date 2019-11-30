@@ -334,7 +334,6 @@ export default {
           this.loading.request = false;
         })
         .catch(err => {
-          console.log(err);
           this.loading.request = false;
         });
     },
@@ -360,7 +359,6 @@ export default {
             this.modal.title = "Register Property";
             this.modal.btnContent = "Register";
             this.modal.form.id = res.data.id;
-            console.warn(res.data);
           })
           .catch(err => {
             this.modal.loading = false;
@@ -411,7 +409,6 @@ export default {
           .catch(err => {
             this.modal.loading = false;
             this.$snotify.error(`Property Registration Failed!`);
-            console.warn(err);
           });
       }
     },
