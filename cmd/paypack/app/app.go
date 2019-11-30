@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	mw "github.com/rugwirobaker/paypack-backend/api/http/middleware"
 	"github.com/rugwirobaker/paypack-backend/pkg/config"
@@ -42,5 +43,10 @@ func Bootstrap(conf *config.Config) (http.Handler, error) {
 		r.Use(mw.RequestLogger)
 	}
 
-	return r, nil
+	cors := handlers.CORS(
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"}),
+		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
+	)
+	return cors(r), nil
 }
