@@ -1,49 +1,49 @@
 <template>
-  <div class="cells-container">
-    <!-- start of chart 1 -->
-    <div class="row">
-      <b-card-body>
-        <b-card-header>
-          <i class="fa fa-th-large"></i>
-          <h1 class>{{activeCell}} COLLECTING ACCOUNT</h1>
-          <i class="fa fa-cog"></i>
-        </b-card-header>
-        <bar-chart v-if="chart1Data" :chart-data="chart1Data" :style="style"></bar-chart>
-      </b-card-body>
-      <!-- end of chart 1 -->
-
-      <!-- start of chart 2 -->
-      <b-card-body class="chart-2">
-        <b-card-header>
-          <i class="fa fa-th-large"></i>
-          <h1 class>{{activeCell}} TOTAL COLLECTED</h1>
-          <i class="fa fa-cog"></i>
-        </b-card-header>
-        <div class="chart" style="height:100%;position:relative">
-          <doughnut-chart v-if="chart2Data" :chart-data="chart2Data" :style="style"></doughnut-chart>
-          <div class="center-text">{{percentage}}%</div>
-        </div>
-      </b-card-body>
-      <!-- end of chart 2 -->
-    </div>
-    <!-- start of chart 3 -->
-    <div class="row">
-      <b-card-body class="chart-3">
-        <b-card-header>
-          <i class="fa fa-th-large"></i>
-          <h1 class>{{activeCell}} CELL</h1>
-          <i class="fa fa-cog"></i>
-        </b-card-header>
-        <line-chart
-          v-if="chart3Data"
-          :chart-data="chart3Data"
-          :style="style"
-          :tooltipData="chart3AdditionalData"
-        />
-      </b-card-body>
-    </div>
-    <!-- end of chart 3 -->
-  </div>
+  <b-container>
+    <b-row align-v="start">
+      <b-col lg="6" md="6" sm="12" class="column">
+        <b-card-body>
+          <b-card-header>
+            <i class="fa fa-th-large"></i>
+            <h1 class>{{activeCell}} COLLECTING ACCOUNT</h1>
+            <i class="fa fa-cog"></i>
+          </b-card-header>
+          <bar-chart v-if="chart1Data" :chart-data="chart1Data" :style="style"></bar-chart>
+        </b-card-body>
+        <!-- end of chart 1 -->
+      </b-col>
+      <b-col lg="6" md="6" sm="12" class="column">
+        <b-card-body class="chart-2">
+          <b-card-header>
+            <i class="fa fa-th-large"></i>
+            <h1 class>{{activeCell}} TOTAL COLLECTED</h1>
+            <i class="fa fa-cog"></i>
+          </b-card-header>
+          <div class="chart" style="height:100%;position:relative">
+            <doughnut-chart v-if="chart2Data" :chart-data="chart2Data" :style="style"></doughnut-chart>
+            <div class="center-text">{{percentage}}%</div>
+          </div>
+        </b-card-body>
+      </b-col>
+    </b-row>
+    <b-row align-v="end">
+      <b-col lg="12" md="12" sm="12" class="column">
+        <b-card-body class="chart-3">
+          <b-card-header>
+            <i class="fa fa-th-large"></i>
+            <h1 class>{{activeCell}} CELL</h1>
+            <i class="fa fa-cog"></i>
+          </b-card-header>
+          <line-chart
+            v-if="chart3Data"
+            :chart-data="chart3Data"
+            :style="style"
+            :tooltipData="chart3AdditionalData"
+          />
+        </b-card-body>
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <script>
@@ -153,5 +153,5 @@ export default {
 };
 </script>
 <style>
-@import url("../assets/css/cells.css");
+@import url("../assets/css/dashboard.css");
 </style>

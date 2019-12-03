@@ -26,6 +26,10 @@ export default {
 </script>
 
 <style>
+#app {
+  height: 100vh;
+  width: 100vw;
+}
 @import url("./assets/css/main.css");
 .offline-indicator {
   position: absolute;

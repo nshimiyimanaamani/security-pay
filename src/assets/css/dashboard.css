@@ -1,29 +1,50 @@
-.dashboard-container {
+.container {
+  height: inherit;
+  width: 99%;
+}
+
+.container .row {
+  height: 50%;
+  padding: 0;
+}
+
+.container .row .column {
+  height: 100%;
+  padding: 1%;
+}
+
+.container .row .column .card-body {
+  height: 100%;
+  background: ghostwhite;
+  -webkit-box-shadow: 3px 5px 10px 1px #d3d3d3ba;
+          box-shadow: 3px 5px 10px 1px #d3d3d3ba;
+  border-radius: 5px;
+  padding: 0;
+}
+
+.container .row .column .card-body .card-header {
+  height: -webkit-fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-flow: column;
-          flex-flow: column;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -ms-flex-line-pack: center;
+      align-content: center;
+  color: white;
+  background: darkcyan;
 }
 
-.dashboard-container .row {
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-      -ms-flex-flow: row;
-          flex-flow: row;
-  width: 100%;
-  position: relative;
-  right: -15px;
-  margin-top: 20px;
+.container .row .column .card-body .card-header h1 {
+  font-size: 15px;
+  text-transform: uppercase;
+  margin: 0;
 }
 
-.dashboard-container .row:last-child {
-  margin-bottom: 15px;
-}
-
-.dashboard-container .row .chart-2 > .chart > .center-text {
+.container .row .column .card-body .chart .center-text {
   position: absolute;
   top: 0;
   left: 0;
@@ -33,43 +54,13 @@
   width: -webkit-fit-content;
   width: -moz-fit-content;
   width: fit-content;
-  height: 35%;
+  height: 40%;
   font-size: 250%;
   font-weight: bold;
   color: #606073;
 }
 
-.dashboard-container .row .card-body {
-  height: 20pc;
-  background: ghostwhite;
-  -webkit-box-shadow: 3px 5px 10px 1px #d3d3d3ba;
-          box-shadow: 3px 5px 10px 1px #d3d3d3ba;
-  border-radius: 5px;
-  padding: 0;
-  margin: 0 15px 0;
-}
-
-.dashboard-container .row .card-body .card-header {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  color: white;
-  background: darkcyan;
-  padding: 8px 10px;
-  border-top-left-radius: inherit;
-  border-top-right-radius: inherit;
-}
-
-.dashboard-container .row .card-body .card-header h1 {
-  font-size: 15px;
-  text-transform: uppercase;
-  margin: auto;
-}
-
-.dashboard-container .row .card-body .card-header i {
-  height: -webkit-fit-content;
-  height: -moz-fit-content;
-  height: fit-content;
-  margin: 0;
+.container .row .column::last-child {
+  margin-top: 3%;
 }
 /*# sourceMappingURL=dashboard.css.map */

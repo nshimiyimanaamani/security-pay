@@ -3,7 +3,7 @@
     <h4 class="title text-center">
       {{title}}
       <b-button class="add-property mb-1" @click="modal.show = ! modal.show">
-        <i class="fa fa-plus-circle"></i> Property
+        <i class="fas fa-plus-circle"></i> Property
       </b-button>
     </h4>
     <hr />
@@ -578,7 +578,7 @@ hr {
   height: 100%;
   margin: auto;
   background: #000000cc;
-  z-index: 1;
+  z-index: 100;
 }
 
 .add-property-modal .modal-body {

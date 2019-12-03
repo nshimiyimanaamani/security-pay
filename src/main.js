@@ -5,12 +5,10 @@ import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
 import BootstrapVue from "bootstrap-vue";
+import PortalVue from 'portal-vue'
 import {
   store
 } from "./store";
-import VueLoading from 'vuejs-loading-plugin'
-import ClipLoader from 'vue-spinner/src/ClipLoader.vue'
-import pulseLoader from 'vue-spinner/src/PulseLoader.vue'
 import Snotify from 'vue-snotify';
 import {
   SnotifyPosition
@@ -19,12 +17,9 @@ import "../node_modules/chart.js/dist/Chart.js";
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 
-Vue.component('clip-loader', ClipLoader);
-Vue.component('pulse-loader', pulseLoader);
-
 Vue.use(VueAxios, axios)
 Vue.use(BootstrapVue);
-Vue.use(VueLoading)
+Vue.use(PortalVue)
 Vue.use(Snotify, {
   toast: {
     timeout: 3000,

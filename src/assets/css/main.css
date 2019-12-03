@@ -1,32 +1,17 @@
-@font-face {
-  font-family: ubuntu;
-  src: url("../webFonts/Ubuntu-Light.ttf");
-}
-@font-face {
-  font-family: ubuntuRegular;
-  src: url("../webFonts/Ubuntu-Regular.ttf");
-}
-@font-face {
-  font-family: ubuntuBold;
-  src: url("../webFonts/Ubuntu-Bold.ttf");
-}
-@import url("../../../node_modules/bootstrap/dist/css/bootstrap.css");
-@import url("../../../node_modules/bootstrap-vue/dist/bootstrap-vue.css");
-@import url("../../../node_modules/vue-snotify/styles/material.css");
-@import url("../../../node_modules/@fortawesome/fontawesome-free/css/all.css");
-
 html,
 body {
-  font-family: ubuntuRegular, Helvetica, Arial, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
   margin: 0;
   padding: 0;
 }
+
 * {
   outline: none;
   letter-spacing: 0.5px;
   -webkit-font-smoothing: antialiased !important;
   -moz-osx-font-smoothing: grayscale !important;
 }
+
 button,
 input {
   font-family: ubuntuRegular, Helvetica, Arial, sans-serif !important;
