@@ -14,6 +14,8 @@ secrets
 #development scripts
 runner.conf
 
+#configuration
 .env.test
+.env
 
 data
