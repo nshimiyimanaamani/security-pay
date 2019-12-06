@@ -22,7 +22,7 @@ const (
 
 var _ (error) = (*Error)(nil)
 
-// Error is a Larissa system error.
+// Error is a Paypack system error.
 // It carries information and behavior
 // as to what caused this error so that
 // callers can implement logic around it.
@@ -47,7 +47,7 @@ func Is(err error, kind int) bool {
 }
 
 // Op describes any independent function or
-// method in Larissa. A series of operations
+// method in Paypack. A series of operations
 // forms a more readable stack trace.
 type Op string
 
@@ -167,4 +167,32 @@ func Ops(err Error) []Op {
 	}
 
 	return ops
+}
+
+// ErrEqual checks whether error a and be are equal
+func ErrEqual(a, b error) bool {
+	if a == nil && b == nil {
+		return true
+	}
+
+	aErr, ok := a.(Error)
+	if !ok {
+		return false
+	}
+	bErr, ok := b.(Error)
+	if !ok {
+		return false
+	}
+	if aErr.Kind != bErr.Kind {
+		return false
+	}
+
+	if (a == nil) != (b == nil) {
+		return false
+	}
+
+	// if a.Error() != b.Error() {
+	// 	return false
+	// }
+	return true
 }
