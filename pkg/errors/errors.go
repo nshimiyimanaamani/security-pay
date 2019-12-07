@@ -190,9 +190,5 @@ func ErrEqual(a, b error) bool {
 	if (a == nil) != (b == nil) {
 		return false
 	}
-
-	// if a.Error() != b.Error() {
-	// 	return false
-	// }
 	return true
 }
