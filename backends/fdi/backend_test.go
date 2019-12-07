@@ -20,24 +20,24 @@ const timeOut = 30 * time.Second
 // test environment
 var (
 	url       = "https://private-15d6f5-fdipaymentsapi.apiary-mock.com/v2"
-	accountID = "92234DCC-FE88-4F2E-941B-E44F06F2B12D"
+	appID     = "92234DCC-FE88-4F2E-941B-E44F06F2B12D"
 	appSecret = os.Getenv("PAYPACK_PAYMENT_SECRET")
 	callback  = "https://codechef-inlets.herokuapp.com"
 )
 
-func newBackend() payment.Backend {
+func newBackend() (payment.Backend, error) {
 	opts := &fdi.ClientOptions{
 		URL:       url,
-		AppID:     accountID,
+		AppID:     appID,
 		AppSecret: appSecret,
 		Callback:  callback,
 	}
-	bc := fdi.NewBackend(opts)
-	return bc
+	return fdi.NewBackend(opts)
 }
 
 func TestStatus(t *testing.T) {
-	bck := newBackend()
+	bck, err := newBackend()
+	require.Nil(t, err, fmt.Sprintf("unexpected error %v", err))
 
 	ctx := context.Background()
 
@@ -48,27 +48,26 @@ func TestStatus(t *testing.T) {
 }
 
 func TestAuth(t *testing.T) {
-	bck := newBackend()
+	bck, err := newBackend()
+	require.Nil(t, err, fmt.Sprintf("unexpected error %v", err))
 
 	ctx := context.Background()
 
 	status, _ := bck.Status(ctx)
 	require.Equal(t, http.StatusOK, status, fmt.Sprintf("expected %d got %d", http.StatusOK, status))
 
-	err := bck.Auth(ctx)
+	_, err = bck.Auth(appID, appSecret)
 	require.Nil(t, err, fmt.Sprintf("unexpected error %v", err))
 }
 
 func TestPull(t *testing.T) {
-	bck := newBackend()
+	bck, err := newBackend()
+	require.Nil(t, err, fmt.Sprintf("unexpected error %v", err))
 
 	ctx := context.Background()
 
 	status, _ := bck.Status(ctx)
 	require.Equal(t, http.StatusOK, status, fmt.Sprintf("expected %d got %d", http.StatusOK, status))
-
-	err := bck.Auth(ctx)
-	require.Nil(t, err, fmt.Sprintf("unexpected error %v", err))
 
 	cases := []struct {
 		desc        string

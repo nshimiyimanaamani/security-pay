@@ -32,8 +32,8 @@ func (bc *backendMock) Status(context.Context) (int, error) {
 	return 0, errors.E(op, errors.KindNotImplemented)
 }
 
-func (bc *backendMock) Auth(ctx context.Context) error {
+func (bc *backendMock) Auth(appID, appSecret string) (string, error) {
 	const op errors.Op = "backendMock.Auth"
 
-	return errors.E(op, errors.KindNotImplemented)
+	return "", errors.E(op, errors.KindNotImplemented)
 }

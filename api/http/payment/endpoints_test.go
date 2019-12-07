@@ -13,6 +13,7 @@ import (
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/payment"
 	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/app/payment/mocks"
+	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
 )
@@ -40,11 +41,11 @@ func (tr testRequest) make() (*http.Response, error) {
 	return tr.client.Do(req)
 }
 
-func newService() payment.Service {
+func newService(properties []string) payment.Service {
 	idp := mocks.NewIdentityProvider()
 	backend := mocks.NewBackend()
 	queue := mocks.NewQueue()
-	repo := mocks.NewRepository()
+	repo := mocks.NewRepository(properties)
 	opts := &payment.Options{Idp: idp, Backend: backend, Queue: queue, Repo: repo}
 	return payment.New(opts)
 }
@@ -59,7 +60,9 @@ func newServer(svc payment.Service) *httptest.Server {
 	return httptest.NewServer(mux)
 }
 func TestInitialize(t *testing.T) {
-	svc := newService()
+	code := uuid.New().ID()
+	properties := []string{code}
+	svc := newService(properties)
 	srv := newServer(svc)
 
 	defer srv.Close()
@@ -95,7 +98,9 @@ func TestInitialize(t *testing.T) {
 }
 
 func TestConfirm(t *testing.T) {
-	svc := newService()
+	code := uuid.New().ID()
+	properties := []string{code}
+	svc := newService(properties)
 	srv := newServer(svc)
 
 	defer srv.Close()
