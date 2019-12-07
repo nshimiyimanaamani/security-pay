@@ -138,7 +138,7 @@ func migrateDB(db *sql.DB) error {
 				},
 			},
 			{
-				Id: "paypack_9",
+				Id: "paypack_8",
 
 				Up: []string{
 					`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`,
