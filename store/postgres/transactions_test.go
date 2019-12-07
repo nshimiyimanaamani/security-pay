@@ -22,67 +22,6 @@ var (
 	wrongValue = "wrong"
 )
 
-func TestSave(t *testing.T) {
-	repo := postgres.NewTransactionRepository(db)
-	props := postgres.NewPropertyStore(db)
-
-	defer CleanDB(t, "transactions", "properties", "owners")
-
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-
-	property := properties.Property{
-		ID:    nanoid.New(nil).ID(),
-		Owner: owner,
-		Due:   float64(1000),
-	}
-
-	ctx := context.Background()
-	_, err = props.Save(ctx, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-
-	id := uuid.New().ID()
-	method := "bk"
-
-	cases := []struct {
-		desc        string
-		transaction transactions.Transaction
-		err         error
-	}{
-		{
-			"save new transaction",
-			transactions.Transaction{
-				ID:           id,
-				MadeBy:       owner.ID,
-				MadeFor:      property.ID,
-				Amount:       amount,
-				Method:       method,
-				DateRecorded: time.Now(),
-			},
-			nil,
-		},
-		{
-			"save duplicate transaction",
-			transactions.Transaction{
-				ID:           id,
-				MadeBy:       owner.ID,
-				MadeFor:      property.ID,
-				Amount:       amount,
-				Method:       method,
-				DateRecorded: time.Now(),
-			},
-			transactions.ErrConflict,
-		},
-	}
-
-	for _, tc := range cases {
-		ctx := context.Background()
-		_, err := repo.Save(ctx, tc.transaction)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-	}
-}
-
 func TestSingleTransactionRetrieveByID(t *testing.T) {
 	repo := postgres.NewTransactionRepository(db)
 	props := postgres.NewPropertyStore(db)
@@ -114,7 +53,7 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 		DateRecorded: time.Now(),
 	}
 
-	_, err = repo.Save(ctx, transaction)
+	_, err = saveTx(t, db, transaction)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	cases := []struct {
@@ -169,8 +108,8 @@ func TestRetrieveAll(t *testing.T) {
 			Method:       method,
 			DateRecorded: time.Now(),
 		}
-		ctx := context.Background()
-		_, err := repo.Save(ctx, tx)
+
+		_, err = saveTx(t, db, tx)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 
@@ -235,8 +174,7 @@ func TestRetrieveByProperty(t *testing.T) {
 			DateRecorded: time.Now(),
 		}
 
-		ctx := context.Background()
-		_, err := repo.Save(ctx, tx)
+		_, err = saveTx(t, db, tx)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 
@@ -309,8 +247,8 @@ func TestRetrieveByMethod(t *testing.T) {
 			Method:       method,
 			DateRecorded: time.Now(),
 		}
-		ctx := context.Background()
-		_, err := repo.Save(ctx, tx)
+
+		_, err = saveTx(t, db, tx)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 

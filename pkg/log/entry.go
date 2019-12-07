@@ -32,13 +32,13 @@ func (e *entry) WithFields(fields map[string]interface{}) Entry {
 }
 
 func (e *entry) SystemErr(err error) {
-	larissaErr, ok := err.(errors.Error)
+	paypackErr, ok := err.(errors.Error)
 	if !ok {
 		e.Error(err)
 		return
 	}
 
-	ent := e.WithFields(errFields(larissaErr))
+	ent := e.WithFields(errFields(paypackErr))
 	switch errors.Severity(err) {
 	case logrus.WarnLevel:
 		ent.Warnf("%v", err)

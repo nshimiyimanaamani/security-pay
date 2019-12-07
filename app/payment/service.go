@@ -1,81 +1,89 @@
 package payment
 
 import (
-	"time"
+	"context"
 
 	"github.com/rugwirobaker/paypack-backend/app/identity"
-)
-
-// nanoid conf
-var (
-	Alphabet = "1234567890abcdefghijklmnopqrstuvwxyz"
-	Length   = 64
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
 // Service is the api interface to the payment module
 type Service interface {
-	Initilize(r Payment) (Message, error)
+	// Initialized by the client app
+	Initilize(ctx context.Context, tx Transaction) (Status, error)
 
-	Validate(r Validation) (Validation, error)
+	// Validattion is
+	Confirm(ctx context.Context, res Callback) error
 }
 
-// ServiceOptions simplifies New func signature
-type ServiceOptions struct {
-	Gateway    Gateway
-	IDP        identity.Provider
-	Repository Repository
+// Options simplifies New func signature
+type Options struct {
+	Idp     identity.Provider
+	Backend Backend
+	Queue   Queue
+	Repo    Repository
 }
 type service struct {
-	gateway    Gateway
-	idp        identity.Provider
-	repository Repository
+	backend Backend
+	idp     identity.Provider
+	queue   Queue
+	repo    Repository
 }
 
 // New initializes the payment service
-func New(opts *ServiceOptions) Service {
+func New(opts *Options) Service {
 	return &service{
-		gateway:    opts.Gateway,
-		idp:        opts.IDP,
-		repository: opts.Repository,
+		queue:   opts.Queue,
+		idp:     opts.Idp,
+		backend: opts.Backend,
+		repo:    opts.Repo,
 	}
 }
 
-func (svc service) Initilize(r Payment) (Message, error) {
-	empty := Message{}
-	property, err := svc.repository.RetrieveProperty(r.Code)
-	if err != nil {
-		return empty, err
+func (svc service) Initilize(ctx context.Context, tx Transaction) (Status, error) {
+	const op errors.Op = "app.payment.Initialize"
+
+	empty := Status{}
+	if err := tx.Validate(); err != nil {
+		return empty, errors.E(op, err, errors.Kind(err))
 	}
 
-	transaction := Transaction{
-		ID:           svc.idp.ID(),
-		MadeFor:      property.ID,
-		MadeBy:       property.OwnerID,
-		Amount:       r.Amount,
-		Method:       "mtn",
-		DateRecorded: time.Now(),
-	}
-	id, err := svc.repository.SaveTransaction(transaction)
+	code, err := svc.repo.RetrieveCode(ctx, tx.Code)
 	if err != nil {
-		return empty, err
+		return empty, errors.E(op, err, errors.Kind(err))
 	}
-	r.ID = id
-	return svc.gateway.Initiate(r)
+
+	tx.ID = svc.idp.ID()
+	tx.Code = code
+
+	status, err := svc.backend.Pull(ctx, tx)
+	if err != nil {
+		return empty, errors.E(op, err, errors.Kind(err))
+	}
+	if err := svc.queue.Set(ctx, tx); err != nil {
+		return empty, errors.E(op, err, errors.Kind(err))
+	}
+	return status, nil
 }
-func (svc service) Validate(r Validation) (Validation, error) {
-	tx := Transaction{ID: r.ExternalTransactionsID, DateRecorded: time.Now()}
 
-	res := svc.gateway.Validate(r)
+func (svc service) Confirm(ctx context.Context, cb Callback) error {
+	const op errors.Op = "app.payment.Confirm"
 
-	status := Status(r.Status)
-
-	switch status {
-	case Successful:
-		return res, svc.repository.UpdateTransaction(tx)
-	case Pending:
-		return res, nil
-	case Failed:
-		return res, nil
+	if err := cb.Validate(); err != nil {
+		return errors.E(op, err, errors.Kind(err))
 	}
-	return res, nil
+
+	tx, err := svc.queue.Get(ctx, cb.Data.TrxRef)
+	if err != nil {
+		return errors.E(op, err, errors.Kind(err))
+	}
+
+	if err := svc.repo.Save(ctx, tx); err != nil {
+		return errors.E(op, err, errors.Kind(err))
+	}
+	//remove tx from the cache
+	if err := svc.queue.Remove(ctx, tx.ID); err != nil {
+		return errors.E(op, err, errors.Kind(err))
+	}
+	return nil
 }

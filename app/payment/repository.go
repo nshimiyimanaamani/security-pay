@@ -1,10 +1,9 @@
 package payment
 
-// Repository ...
+import "context"
+
+// Repository saves validated Transactions to the underlying datastore
 type Repository interface {
-	SaveTransaction(Transaction) (string, error)
-
-	UpdateTransaction(tx Transaction) error
-
-	RetrieveProperty(id string) (Property, error)
+	Save(ctx context.Context, tx Transaction) error
+	RetrieveCode(ctx context.Context, code string) (string, error)
 }
