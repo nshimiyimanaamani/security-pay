@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -15,9 +16,17 @@ import (
 // Bootstrap is where all routes and middleware for the server
 func Bootstrap(conf *config.Config) (http.Handler, error) {
 
-	db, err := ConnectToDB(conf.DB)
+	ctx := context.Background()
+
+	db, err := PostgresConnect(conf.Postgres)
 	if err != nil {
-		err = fmt.Errorf("error connecting to database (%s)", err)
+		err = fmt.Errorf("error connecting to postgres (%s)", err)
+		return nil, err
+	}
+
+	rclient, err := RedisConnect(conf.Redis)
+	if err != nil {
+		err = fmt.Errorf("error connecting to redis (%s)", err)
 		return nil, err
 	}
 
@@ -27,9 +36,14 @@ func Bootstrap(conf *config.Config) (http.Handler, error) {
 	}
 	lggr := log.New(conf.CloudRuntime, logLvl)
 
+	pb, err := InitPBackend(ctx, conf.Payment)
+	if err != nil {
+		lggr.Errorf("error connecting to payment backend (%s)", err)
+	}
+
 	//create protocol
 
-	services := Init(db, conf.Secret)
+	services := Init(db, rclient, pb, conf.Secret)
 
 	handlerOpts := NewHandlerOptions(services, lggr)
 

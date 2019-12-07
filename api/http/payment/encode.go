@@ -2,70 +2,44 @@ package payment
 
 import (
 	"encoding/json"
-	"errors"
-	"io"
-	"net/http"
-	"strconv"
 	"strings"
 
-	"github.com/rugwirobaker/paypack-backend/app/transactions"
+	"io"
+	"net/http"
+
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
 var (
-	contentType               = "application/json"
-	errUnsupportedContentType = errors.New("unsupported content type")
+	contentType = "application/json"
 )
 
-func encode(w http.ResponseWriter, v interface{}) error {
-	w.Header().Set("Content-Type", contentType)
-	return json.NewEncoder(w).Encode(v)
-}
-
-//EncodeError encodes the application error to the http api
-func EncodeError(w http.ResponseWriter, err error) {
-	w.Header().Set("Content-Type", contentType)
-
-	var errMessage = newErrorMessage(err.Error())
-
-	switch err {
-	case transactions.ErrInvalidEntity:
-		w.WriteHeader(http.StatusBadRequest)
-	case transactions.ErrNotFound:
-		w.WriteHeader(http.StatusNotFound)
-	case transactions.ErrConflict:
-		w.WriteHeader(http.StatusConflict)
-	case errUnsupportedContentType:
-		w.WriteHeader(http.StatusUnsupportedMediaType)
-	case io.ErrUnexpectedEOF:
-		errMessage = newErrorMessage(transactions.ErrInvalidEntity.Error())
-		w.WriteHeader(http.StatusBadRequest)
-	case io.EOF:
-		errMessage = newErrorMessage(transactions.ErrInvalidEntity.Error())
-		w.WriteHeader(http.StatusBadRequest)
-
-	default:
-		switch err.(type) {
-		case *json.SyntaxError:
-			errMessage = newErrorMessage(transactions.ErrInvalidEntity.Error())
-			w.WriteHeader(http.StatusBadRequest)
-		case *json.UnmarshalTypeError:
-			errMessage = newErrorMessage(transactions.ErrInvalidEntity.Error())
-			w.WriteHeader(http.StatusBadRequest)
-		case *strconv.NumError:
-			errMessage = newErrorMessage(transactions.ErrInvalidEntity.Error())
-			w.WriteHeader(http.StatusBadRequest)
-		default:
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-	}
-	json.NewEncoder(w).Encode(errMessage)
-}
-
-//CheckContentType middleware checks content typ
-func CheckContentType(r *http.Request) error {
+// VerifyContentType middleware checks content typ
+func VerifyContentType(r *http.Request) error {
+	const op errors.Op = ""
 	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
-		//logger.Warn("Invalid or missing content type.")
-		return errUnsupportedContentType
+		return errors.E(op, "unsupported content type", errors.KindBadRequest)
 	}
 	return nil
+}
+
+func encodeRes(w io.Writer, i interface{}) error {
+	if headered, ok := w.(http.ResponseWriter); ok {
+		headered.Header().Set("Cache-Control", "no-cache")
+		headered.Header().Set("Content-type", "application/json")
+
+		return json.NewEncoder(w).Encode(i)
+	}
+	return nil
+}
+
+func encodeErr(w io.Writer, err error) {
+	if headered, ok := w.(http.ResponseWriter); ok {
+		headered.Header().Set("Cache-Control", "no-cache")
+		headered.Header().Set("Content-Type", "application/json")
+
+		data, _ := json.Marshal(map[string]string{"error": errors.KindText(err)})
+		headered.Write(data)
+
+	}
 }

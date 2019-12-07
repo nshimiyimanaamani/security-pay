@@ -6,7 +6,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/build"
 )
 
-// Build returns larissa build information
+// Build returns paypack build information
 func Build(w http.ResponseWriter, r *http.Request) {
 	encode(w, build.Data())
 }

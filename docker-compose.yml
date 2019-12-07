@@ -1,19 +1,25 @@
-version: "3"
+version: "3.4"
 
 services:
+  #network_mode: host
   backend:                        # backend api
     build:
+      network: host
       context: .
       dockerfile: Dockerfile
     container_name: backend
     depends_on:
        - database
     environment:
-      PAYPACK_DB_URL:    ${PAYPACK_DB_URL}
+      PAYPACK_POSTGRES_URL: ${PAYPACK_POSTGRES_URL}
       PAYPACK_LOG_LEVEL: ${PAYPACK_LOG_LEVEL}
-      PAYPACK_PAYMENT_ENDPOINT: ${PAYPACK_PAYMENT_URL}
-      PAYPACK_PAYMENT_TOKEN: ${PAYPACK_PAYMENT_TOKEN}
+      PAYPACK_REDIS_URL: ${PAYPACK_REDIS_URL}
+      PAYPACK_PAYMENT_URL: ${PAYPACK_PAYMENT_URL}
+      PAYPACK_PAYMENT_SECRET: ${PAYPACK_PAYMENT_SECRET}
+      PAYPACK_PAYMENT_APP_ID: ${PAYPACK_PAYMENT_APP_ID}
+      PAYPACK_PAYMENT_CALLBACK: ${PAYPACK_PAYMENT_CALLBACK}
       PORT: "8000"
+      GO_ENV: ${GO_ENV}
     ports:
       - "8000:8000"  
     restart: always
@@ -28,8 +34,21 @@ services:
     ports:
        - "5433:5432"
     volumes:
-       - data:/var/lib/postgresql/data
+       - db-data:/var/lib/postgresql/data
     restart: on-failure
+  
+  cache:
+    image: redis:latest
+    container_name: cache
+    restart: on-failure
+    environment:
+       - NODE_ENV=development
+      # - REDIS_PASSWORD=password
+    ports:
+       - "6379:6379"
+    volumes:
+      - cache-data:/data
 
 volumes: 
-  data:
+  db-data:
+  cache-data:

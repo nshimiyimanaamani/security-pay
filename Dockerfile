@@ -1,19 +1,18 @@
 #build stage
-FROM golang:1.12 AS builder
+ARG GOLANG_VERSION=1.12
+FROM golang:${GOLANG_VERSION} AS builder
 
 LABEL MAINTAINER="rugwirobaker@gmail.com"
 
 WORKDIR $GOPATH/src/github.com/rugwirobaker/paypack-backend
 
-RUN mkdir /user && \
-    echo 'nobody:x:65534:65534:nobody:/:' > /user/passwd && \
-    echo 'nobody:x:65534:' > /user/group
-
 COPY . .
+
+RUN GO111MODULE=on go mod download
 
 ARG VERSION="unset"
 
-RUN DATE="$(date -u +%Y-%m-%d-%H:%M:%S-%Z)" && GO111MODULE=on CGO_ENABLED=0 go build -mod vendor -ldflags "-X github.com/rugwirobaker/paypack-backend/pkg/build.version=$VERSION -X github.com/rugwirobaker/pkg/paypack-backend/build.buildDate=$DATE" -o /bin/paypack ./cmd/paypack
+RUN DATE="$(date -u +%Y-%m-%d-%H:%M:%S-%Z)" && GO111MODULE=on CGO_ENABLED=0 go build -ldflags "-X github.com/rugwirobaker/paypack-backend/pkg/build.version=$VERSION -X github.com/rugwirobaker/pkg/paypack-backend/build.buildDate=$DATE" -o /bin/paypack ./cmd/paypack
 
 
 #package stage
@@ -21,7 +20,7 @@ FROM alpine
 
 COPY --from=builder /bin/paypack /bin/paypack
 
-RUN apk add --update tini
+RUN apk add --update ca-certificates tini
 
 ENV GO_ENV=production
 

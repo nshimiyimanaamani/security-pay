@@ -6,7 +6,7 @@
 bin
 
 # golang vendor (dependencies) directory
-# vendor
+vendor
 
 #secrets and keys
 secrets
@@ -14,6 +14,8 @@ secrets
 #development scripts
 runner.conf
 
+#configuration
 .env.test
+.env
 
 data
