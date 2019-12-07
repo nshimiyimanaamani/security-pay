@@ -1,13 +1,10 @@
 #build stage
-FROM golang:1.12 AS builder
+ARG GOLANG_VERSION=1.12
+FROM golang:${GOLANG_VERSION} AS builder
 
 LABEL MAINTAINER="rugwirobaker@gmail.com"
 
 WORKDIR $GOPATH/src/github.com/rugwirobaker/paypack-backend
-
-RUN mkdir /user && \
-    echo 'nobody:x:65534:65534:nobody:/:' > /user/passwd && \
-    echo 'nobody:x:65534:' > /user/group
 
 COPY . .
 
@@ -21,7 +18,7 @@ FROM alpine
 
 COPY --from=builder /bin/paypack /bin/paypack
 
-RUN apk add --update tini
+RUN apk add --update ca-certificates tini
 
 ENV GO_ENV=production
 
