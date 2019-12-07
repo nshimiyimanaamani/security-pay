@@ -6,9 +6,9 @@ type statusResponse struct {
 }
 
 type authResponse struct {
-	Status  string      `json:"status"`
-	Data    interface{} `json:"data,omitempty"`
-	Message string      `json:"message,omitempty"`
+	Status  string `json:"status"`
+	Data    *Data  `json:"data,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
 type pullResponse struct {
@@ -24,12 +24,3 @@ type Data struct {
 	State  string `json:"state,omitempty"`
 	TrxRef string `json:"trxRef,omitempty"`
 }
-
-// UnmarshalJSON is  a customized json UnmarshalJSON
-// func (v *Data) UnmarshalJSON(data []byte) error {
-// 	if string(data) == "null" {
-// 		return nil
-// 	}
-// 	var tmp Data
-// 	return json.Unmarshal(data, &tmp)
-// }

@@ -3,6 +3,7 @@ package fdi
 import (
 	"encoding/json"
 	"io"
+	"io/ioutil"
 
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
@@ -22,9 +23,12 @@ func Serialize(req interface{}) ([]byte, error) {
 func Deserialize(res io.Reader, v interface{}) error {
 	const op errors.Op = "fdi.Deserialize"
 
-	//use json Unmarshal instead
+	data, err := ioutil.ReadAll(res)
+	if err != nil {
+		return errors.E(op, err, errors.KindUnexpected)
+	}
 
-	if err := json.NewDecoder(res).Decode(v); err != nil {
+	if err := json.Unmarshal(data, v); err != nil {
 		return errors.E(op, err, errors.KindUnexpected)
 	}
 	return nil

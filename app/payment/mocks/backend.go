@@ -1,10 +1,11 @@
 package mocks
 
-import "github.com/rugwirobaker/paypack-backend/app/payment"
+import (
+	"context"
 
-import "context"
-
-import "github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/rugwirobaker/paypack-backend/app/payment"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+)
 
 var _ (payment.Backend) = (*backendMock)(nil)
 
@@ -15,10 +16,14 @@ func NewBackend() payment.Backend {
 	return &backendMock{}
 }
 
-func (bc *backendMock) Pull(ctx context.Context, tx payment.Transaction) (string, error) {
+func (bc *backendMock) Pull(ctx context.Context, tx payment.Transaction) (payment.Status, error) {
 	const op errors.Op = "backendMock.Pull"
 
-	return "", errors.E(op, errors.KindNotImplemented)
+	return payment.Status{
+		TxID:    tx.ID,
+		Status:  "success",
+		TxState: "processing",
+	}, nil
 }
 
 func (bc *backendMock) Status(context.Context) (int, error) {

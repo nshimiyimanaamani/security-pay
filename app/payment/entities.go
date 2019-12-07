@@ -4,28 +4,49 @@ import "github.com/rugwirobaker/paypack-backend/pkg/errors"
 
 import "time"
 
-// State indicates the transaction state(failed, pending, success)
-type State uint
+// TxExpiration is the time it takes for a non confirmed treansaction to expire
+const TxExpiration = time.Minute * 10
 
-// transaction statuses
-const (
-	Successful State = iota + 1
-	Pending
-	Failed
-)
+// Status ...
+type Status struct {
+	Status  string `json:"status,omitempty"`
+	TxID    string `json:"transaction_id,omitempty"`
+	Message string `json:"message,omitempty"`
+	TxState string `json:"transaction_state,omitempty"`
+}
 
-func (s State) String() string {
-	statuses := []string{"success, pending, failed"}
-	switch s {
-	case 0:
-		return statuses[0]
-	case 1:
-		return statuses[1]
-	case 2:
-		return statuses[1]
-	default:
-		return "unknown"
+// Callback defines the response got from the callback
+type Callback struct {
+	Status string       `json:"status"`
+	Data   CallBackData `json:"data"`
+}
+
+// CallBackData ...
+type CallBackData struct {
+	GwRef  string `json:"gwRef"`
+	TrxRef string `json:"trxRef"`
+	State  string `json:"state"`
+}
+
+// Validate validats a callback
+func (cb *Callback) Validate() error {
+	const op errors.Op = "payment.Callback.Validate"
+	if cb.Status == "" {
+		return errors.E(op, "status field must not be empty", errors.KindBadRequest)
 	}
+
+	if cb.Data.TrxRef == "" {
+		return errors.E(op, "trxRef field must not be empty", errors.KindBadRequest)
+	}
+
+	if cb.Data.GwRef == "" {
+		return errors.E(op, "gwRef field must not be empty", errors.KindBadRequest)
+	}
+
+	if cb.Data.State == "" {
+		return errors.E(op, "state field must not be empty", errors.KindBadRequest)
+	}
+	return nil
 }
 
 // Transaction ...
@@ -41,7 +62,7 @@ type Transaction struct {
 // Validate returns an error if the Transaction entity doesn't adhere to
 // the requirements
 func (py *Transaction) Validate() error {
-	const op errors.Op = "payment.Validate"
+	const op errors.Op = "payment.Transaction.Validate"
 	if py.Code == "" {
 		return errors.E(op, "code field must not be empty", errors.KindBadRequest)
 	}
