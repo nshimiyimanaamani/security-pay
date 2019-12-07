@@ -3,9 +3,11 @@ package app
 import (
 	"database/sql"
 
+	"github.com/go-redis/redis/v7"
 	"github.com/rugwirobaker/paypack-backend/app/feedback"
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/owners"
+	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/users"
@@ -13,22 +15,25 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/users/jwt"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
+	rstore "github.com/rugwirobaker/paypack-backend/store/redis"
 )
 
 // Services aggrates all the services
 type Services struct {
 	Feedback     feedback.Service
 	Owners       owners.Service
+	Payment      payment.Service
 	Properties   properties.Service
 	Transactions transactions.Service
 	Users        users.Service
 }
 
 // Init initialises all services
-func Init(db *sql.DB, secret string) *Services {
+func Init(db *sql.DB, rclient *redis.Client, b payment.Backend, secret string) *Services {
 	services := &Services{
 		Feedback:     bootFeedbackService(db),
 		Owners:       bootOwnersService(db),
+		Payment:      bootPaymentService(db, rclient, b),
 		Properties:   bootPropertiesService(db),
 		Transactions: bootTransactionsService(db),
 		Users:        bootUserService(db, secret),
@@ -75,4 +80,12 @@ func bootFeedbackService(db *sql.DB) feedback.Service {
 	idp := uuid.New()
 	opts := &feedback.Options{Repo: repo, Idp: idp}
 	return feedback.New(opts)
+}
+
+func bootPaymentService(db *sql.DB, rclient *redis.Client, bc payment.Backend) payment.Service {
+	idp := uuid.New()
+	repo := postgres.NewPaymentRepo(db)
+	queue := rstore.NewQueue(rclient)
+	opts := &payment.Options{Idp: idp, Backend: bc, Repo: repo, Queue: queue}
+	return payment.New(opts)
 }
