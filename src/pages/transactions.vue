@@ -1,5 +1,6 @@
 <template>
   <div style="position: relative">
+    <vue-title title="Paypack | Transactions" />
     <div class="totals">
       <div class="rows row1">RWF 9,986.55</div>
       <div class="rows row2">

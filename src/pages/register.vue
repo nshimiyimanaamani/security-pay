@@ -1,5 +1,6 @@
 <template>
   <div>
+    <vue-title title="Paypack | Register" />
     <div class="registerPage">
       <div class="registerTitle">
         <p>Welcome To</p>

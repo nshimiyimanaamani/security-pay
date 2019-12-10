@@ -15,7 +15,10 @@ import {
 } from 'vue-snotify'
 import "../node_modules/chart.js/dist/Chart.js";
 import axios from 'axios'
-import VueAxios from 'vue-axios'
+import VueAxios from 'vue-axios';
+import titleComponent from './components/title.vue';
+
+Vue.component('vue-title', titleComponent);
 
 Vue.use(VueAxios, axios)
 Vue.use(BootstrapVue);

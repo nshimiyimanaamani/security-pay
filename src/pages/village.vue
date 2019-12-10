@@ -1,5 +1,6 @@
 <template>
   <div class="village-wrapper">
+    <vue-title title="Paypack | Village" />
     <div class="container">
       <div class="container-title">
         <i class="fa fa-th-large"></i>

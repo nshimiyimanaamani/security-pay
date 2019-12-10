@@ -1,5 +1,6 @@
 <template>
   <b-container>
+    <vue-title title="Paypack | Cells" />
     <b-row align-v="start">
       <b-col lg="6" md="6" sm="12" class="column">
         <b-card-body>
