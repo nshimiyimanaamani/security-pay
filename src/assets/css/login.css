@@ -1,135 +1,64 @@
-body {
-    background: #f9f9f9;
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-.loginForm .form-group {
-    margin-bottom: 0
-}
-
 .loginPage {
-    position: relative;
-    width: 50vw;
-    margin: auto;
-    height: 100vh;
-    color: #0000007a;
+  position: relative;
+  height: 100vh;
+  color: #0000007a;
 }
 
-.loginTitle {
-    position: relative;
-    margin: auto;
-    top: 10%;
-    width: 290px;
-    text-align: center;
-    letter-spacing: 1px;
-    font-size: 15px;
-}
-
-.loginTitle p {
-    margin: 0;
-    text-align: left;
-    left: 18px;
-    position: relative;
-}
 
 .loginTitle #paypack {
-    font-size: 65px;
-    line-height: 20px;
-    line-height: 10px;
-    color: #3db3fa;
+  font-size: 50px;
+  color: #3a82a1;
+  line-height: 0%;
+  letter-spacing: 5px;
 }
 
-.loginTitle #easy {
-    top: 7px;
-    text-align: center;
-    position: relative;
-}
 
-.loginForm {
-    position: relative;
-    margin: auto;
-    top: 35%;
-    width: 50%;
-}
 
-.loginUsername input {
-    padding: 10px 0 10px 15px;
-    width: 100%;
-    border: 1px solid #bdbdbd;
-    background: transparent;
-    border-radius: 5px;
-    margin: 10px auto;
-    font-size: 15px;
-    height: 40px
-}
+form input {
+  border: 1px solid #bdbdbd !important;
+  background: transparent !important;
 
-.loginPassword input {
-    padding: 10px 0 10px 15px;
-    width: 100%;
-    border: 1px solid #bdbdbd;
-    background: transparent;
-    border-radius: 5px;
-    margin: 10px auto;
-    font-size: 15px;
-    height: 40px
 }
 
 .loginBtn {
-    margin: 10px auto;
+  width: 100%;
+  user-select: none;
+  color: white;
+  background: #3a82a1;
 }
 
-.loginBtn a button {
-    width: 100%;
-    user-select: none;
-    color: white;
-}
-
-.loginBtn #forgot {
-    letter-spacing: 0.8px;
-    font-size: 15px;
-    float: right;
-    margin: 10px auto;
-}
-
-.loginBtn #forgot a {
-    text-decoration: none;
-    color: #3db3fa;
-    font-size: 18px;
-    letter-spacing: 1px;
-    line-height: 20px;
-}
 
 #error-message .modal-title {
-    width: 95%;
-    float: left;
-    text-align: center;
-    font-size: 13px;
-    text-transform: uppercase;
+  width: 95%;
+  float: left;
+  text-align: center;
+  font-size: 13px;
+  text-transform: uppercase;
 }
 
 #error-message .modal-header {
-    padding: 10px 15px;
-    border-bottom: 1px solid #cdd7dd;
+  padding: 10px 15px;
+  border-bottom: 1px solid #cdd7dd;
 }
 
 #error-message .modal-body {
-    position: relative;
-    padding: 10px;
+  position: relative;
+  padding: 10px;
 }
 
 #error-message .modal-body h3 {
-    margin: 5px !important;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    line-height: 1.5;
+  margin: 5px !important;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  line-height: 1.5;
 }
 
 #error-message .modal-body button {
-    display: block;
-    width: 15%;
-    margin-left: auto;
-    background: #2267a2;
-    padding: 3px 10px !important;
-    color: white;
+  display: block;
+  width: 15%;
+  margin-left: auto;
+  background: #3a82a1;
+  padding: 3px 10px !important;
+  color: white;
 }
