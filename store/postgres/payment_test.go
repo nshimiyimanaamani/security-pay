@@ -9,6 +9,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
+	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
@@ -22,18 +23,24 @@ func TestSaveTransaction(t *testing.T) {
 
 	const op errors.Op = "postgres.paymentRepo.Save"
 
-	defer CleanDB(t, "transactions", "properties", "owners")
+	defer CleanDB(t, "transactions", "properties", "owners", "users")
 
 	var amount = 1000
 
+	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	savedUser, err := saveUser(t, db, user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err := saveOwner(t, db, owner)
+	_, err = saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    nanoid.New(nil).ID(),
-		Owner: owner,
-		Due:   float64(amount),
+		ID:         nanoid.New(nil).ID(),
+		Owner:      owner,
+		Due:        float64(amount),
+		RecordedBy: savedUser.ID,
+		Occupied:   true,
 	}
 
 	ctx := context.Background()
@@ -78,18 +85,23 @@ func TestRetrieveCode(t *testing.T) {
 
 	const op errors.Op = "postgres.paymentRepo.RetrieveCode"
 
-	defer CleanDB(t, "transactions", "properties", "owners")
+	defer CleanDB(t, "transactions", "properties", "owners", "users")
 
 	var amount = 1000
 
+	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	savedUser, err := saveUser(t, db, user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err := saveOwner(t, db, owner)
+	_, err = saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    nanoid.New(nil).ID(),
-		Owner: owner,
-		Due:   float64(amount),
+		ID:         nanoid.New(nil).ID(),
+		Owner:      owner,
+		Due:        float64(amount),
+		RecordedBy: savedUser.ID,
 	}
 
 	ctx := context.Background()

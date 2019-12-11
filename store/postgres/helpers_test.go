@@ -7,6 +7,7 @@ import (
 
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
+	"github.com/rugwirobaker/paypack-backend/app/users"
 )
 
 func saveOwner(t *testing.T, db *sql.DB, owner properties.Owner) (properties.Owner, error) {
@@ -36,6 +37,18 @@ func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) (transactions
 		return empty, err
 	}
 	return tx, nil
+}
+
+func saveUser(t *testing.T, db *sql.DB, user users.User) (users.User, error) {
+	q := `INSERT INTO users (id, email, password, cell) VALUES ($1, $2, $3, $4) RETURNING id`
+
+	empty := users.User{}
+
+	if _, err := db.Exec(q, user.ID, user.Email, user.Password, user.Cell); err != nil {
+		return empty, err
+	}
+	return user, nil
+
 }
 
 func CleanDB(t *testing.T, tables ...string) {

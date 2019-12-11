@@ -10,6 +10,7 @@ services:
     container_name: backend
     depends_on:
        - database
+       - cache
     environment:
       PAYPACK_POSTGRES_URL: ${PAYPACK_POSTGRES_URL}
       PAYPACK_LOG_LEVEL: ${PAYPACK_LOG_LEVEL}
@@ -32,7 +33,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: test
     ports:
-       - "5433:5432"
+       - "5432:5432"
     volumes:
        - db-data:/var/lib/postgresql/data
     restart: on-failure

@@ -20,6 +20,8 @@ type PageMetadata struct {
 type Property struct {
 	ID         string  `json:"id"`
 	Due        float64 `json:"due,string,omitempty"`
+	RecordedBy string  `json:"recorded_by,omitempty"`
+	Occupied   bool    `json:"occupied,omitempty"`
 	OwnerID    string  `json:"owner_id"`
 	OwnerFname string  `json:"owner_fname,omitempty"`
 	OwnerLname string  `json:"owner_lname,omitempty"`
@@ -52,6 +54,8 @@ func MRetrieveProperty(logger log.Entry, svc properties.Service) http.Handler {
 		response := Property{
 			ID:         property.ID,
 			Due:        property.Due,
+			RecordedBy: property.RecordedBy,
+			Occupied:   property.Occupied,
 			OwnerID:    property.Owner.ID,
 			OwnerFname: property.Owner.Fname,
 			OwnerLname: property.Owner.Lname,
@@ -107,6 +111,8 @@ func MListPropertyByOwner(logger log.Entry, svc properties.Service) http.Handler
 			property := Property{
 				ID:         p.ID,
 				Due:        p.Due,
+				RecordedBy: p.RecordedBy,
+				Occupied:   p.Occupied,
 				OwnerID:    p.Owner.ID,
 				OwnerFname: p.Owner.Fname,
 				OwnerLname: p.Owner.Lname,
@@ -162,6 +168,8 @@ func MListPropertyBySector(logger log.Entry, svc properties.Service) http.Handle
 			property := Property{
 				ID:         p.ID,
 				Due:        p.Due,
+				RecordedBy: p.RecordedBy,
+				Occupied:   p.Occupied,
 				OwnerID:    p.Owner.ID,
 				OwnerFname: p.Owner.Fname,
 				OwnerLname: p.Owner.Lname,
@@ -217,6 +225,8 @@ func MListPropertyByCell(logger log.Entry, svc properties.Service) http.Handler 
 			property := Property{
 				ID:         p.ID,
 				Due:        p.Due,
+				RecordedBy: p.RecordedBy,
+				Occupied:   p.Occupied,
 				OwnerID:    p.Owner.ID,
 				OwnerFname: p.Owner.Fname,
 				OwnerLname: p.Owner.Lname,
@@ -273,6 +283,8 @@ func MListPropertyByVillage(logger log.Entry, svc properties.Service) http.Handl
 			property := Property{
 				ID:         p.ID,
 				Due:        p.Due,
+				RecordedBy: p.RecordedBy,
+				Occupied:   p.Occupied,
 				OwnerID:    p.Owner.ID,
 				OwnerFname: p.Owner.Fname,
 				OwnerLname: p.Owner.Lname,
