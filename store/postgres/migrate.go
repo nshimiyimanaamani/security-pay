@@ -155,6 +155,25 @@ func migrateDB(db *sql.DB) error {
 					`ALTER TABLE owners ADD COLUMN password VARCHAR(60) NOT NULL;`,
 				},
 			},
+			{
+				Id: "paypack_9",
+
+				Up: []string{
+					`ALTER TABLE properties
+						ADD COLUMN occupied BOOLEAN DEFAULT FALSE,
+						ADD COLUMN recorded_by UUID NOT NULL,
+						ADD CONSTRAINT recorded_by FOREIGN KEY(recorded_by) references users(id);
+					`,
+				},
+
+				Down: []string{
+					`ALTER TABLE owners 
+						DROP COLUMN occupied;
+						DROP CONSTRAINT recorded_by;
+						DROP COLUMN recorded_by;
+					`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

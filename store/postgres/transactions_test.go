@@ -10,6 +10,7 @@ import (
 
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
+	"github.com/rugwirobaker/paypack-backend/app/users"
 
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
@@ -26,16 +27,21 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 	repo := postgres.NewTransactionRepository(db)
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "transactions", "properties", "owners")
+	defer CleanDB(t, "transactions", "properties", "owners", "users")
+
+	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	savedUser, err := saveUser(t, db, user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err := saveOwner(t, db, owner)
+	_, err = saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    nanoid.New(nil).ID(),
-		Owner: owner,
-		Due:   float64(1000),
+		ID:         nanoid.New(nil).ID(),
+		Owner:      owner,
+		Due:        float64(1000),
+		RecordedBy: savedUser.ID,
 	}
 
 	ctx := context.Background()
@@ -79,16 +85,21 @@ func TestRetrieveAll(t *testing.T) {
 	repo := postgres.NewTransactionRepository(db)
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "transactions", "properties", "owners")
+	defer CleanDB(t, "transactions", "properties", "owners", "users")
+
+	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	savedUser, err := saveUser(t, db, user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err := saveOwner(t, db, owner)
+	_, err = saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    nanoid.New(nil).ID(),
-		Owner: owner,
-		Due:   float64(1000),
+		ID:         nanoid.New(nil).ID(),
+		Owner:      owner,
+		Due:        float64(1000),
+		RecordedBy: savedUser.ID,
 	}
 
 	ctx := context.Background()
@@ -144,16 +155,21 @@ func TestRetrieveByProperty(t *testing.T) {
 	repo := postgres.NewTransactionRepository(db)
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "transactions", "properties", "owners")
+	defer CleanDB(t, "transactions", "properties", "owners", "users")
+
+	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	savedUser, err := saveUser(t, db, user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err := saveOwner(t, db, owner)
+	_, err = saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    nanoid.New(nil).ID(),
-		Owner: owner,
-		Due:   float64(1000),
+		ID:         nanoid.New(nil).ID(),
+		Owner:      owner,
+		Due:        float64(1000),
+		RecordedBy: savedUser.ID,
 	}
 
 	ctx := context.Background()
@@ -218,16 +234,21 @@ func TestRetrieveByMethod(t *testing.T) {
 	repo := postgres.NewTransactionRepository(db)
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "transactions", "properties", "owners")
+	defer CleanDB(t, "transactions", "properties", "owners", "users")
+
+	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	savedUser, err := saveUser(t, db, user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err := saveOwner(t, db, owner)
+	_, err = saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:    nanoid.New(nil).ID(),
-		Owner: owner,
-		Due:   float64(1000),
+		ID:         nanoid.New(nil).ID(),
+		Owner:      owner,
+		Due:        float64(1000),
+		RecordedBy: savedUser.ID,
 	}
 
 	ctx := context.Background()

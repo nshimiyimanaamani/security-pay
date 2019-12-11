@@ -7,6 +7,7 @@ import (
 
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
+	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
@@ -16,22 +17,28 @@ import (
 func TestSaveProperty(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners")
+	defer CleanDB(t, "properties", "owners", "users")
+
+	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	savedUser, err := saveUser(t, db, user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	saved, err := saveOwner(t, db, owner)
+	savedOwner, err := saveOwner(t, db, owner)
 
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	new := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: properties.Owner{ID: saved.ID},
+		Owner: properties.Owner{ID: savedOwner.ID},
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
-		Due: float64(1000),
+		Due:        float64(1000),
+		RecordedBy: savedUser.ID,
+		Occupied:   true,
 	}
 
 	invalid := properties.Property{
@@ -77,11 +84,15 @@ func TestSaveProperty(t *testing.T) {
 func TestUpdateProperty(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners")
+	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	savedUser, err := saveUser(t, db, user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	defer CleanDB(t, "properties", "owners", "users")
 
-	sown, err := saveOwner(t, db, owner)
+	savedOwner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+
+	sown, err := saveOwner(t, db, savedOwner)
 
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -93,7 +104,9 @@ func TestUpdateProperty(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
-		Due: float64(1000),
+		Due:        float64(1000),
+		RecordedBy: savedUser.ID,
+		Occupied:   true,
 	}
 
 	ctx := context.Background()
@@ -151,7 +164,11 @@ func TestUpdateProperty(t *testing.T) {
 func TestRetrieveByID(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners")
+	defer CleanDB(t, "properties", "owners", "users")
+
+	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	savedUser, err := saveUser(t, db, user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	sown, err := saveOwner(t, db, owner)
@@ -165,7 +182,9 @@ func TestRetrieveByID(t *testing.T) {
 			Cell:    "Kanserege",
 			Village: "RukiriII",
 		},
-		Due: float64(1000),
+		Due:        float64(1000),
+		RecordedBy: savedUser.ID,
+		Occupied:   true,
 	}
 
 	ctx := context.Background()
@@ -192,7 +211,11 @@ func TestRetrieveByID(t *testing.T) {
 func TestRetrieveByOwner(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners")
+	defer CleanDB(t, "properties", "owners", "users")
+
+	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	savedUser, err := saveUser(t, db, user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	saved, err := saveOwner(t, db, owner)
@@ -213,7 +236,9 @@ func TestRetrieveByOwner(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
-			Due: float64(1000),
+			Due:        float64(1000),
+			RecordedBy: savedUser.ID,
+			Occupied:   true,
 		}
 
 		ctx := context.Background()
@@ -263,7 +288,11 @@ func TestRetrieveByOwner(t *testing.T) {
 func TestRetrieveBySector(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners")
+	defer CleanDB(t, "properties", "owners", "users")
+
+	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	savedUser, err := saveUser(t, db, user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	saved, err := saveOwner(t, db, owner)
@@ -284,7 +313,9 @@ func TestRetrieveBySector(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
-			Due: float64(1000),
+			Due:        float64(1000),
+			RecordedBy: savedUser.ID,
+			Occupied:   true,
 		}
 
 		ctx := context.Background()
@@ -334,7 +365,11 @@ func TestRetrieveBySector(t *testing.T) {
 func TestRetrieveByCell(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners")
+	defer CleanDB(t, "properties", "owners", "users")
+
+	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	savedUser, err := saveUser(t, db, user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	saved, err := saveOwner(t, db, owner)
@@ -355,7 +390,9 @@ func TestRetrieveByCell(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
-			Due: float64(1000),
+			Due:        float64(1000),
+			RecordedBy: savedUser.ID,
+			Occupied:   true,
 		}
 
 		ctx := context.Background()
@@ -406,7 +443,11 @@ func TestRetrieveByCell(t *testing.T) {
 func TestRetrieveByVillage(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners")
+	defer CleanDB(t, "properties", "owners", "users")
+
+	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	savedUser, err := saveUser(t, db, user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	saved, err := saveOwner(t, db, owner)
@@ -427,7 +468,9 @@ func TestRetrieveByVillage(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
-			Due: float64(1000),
+			Due:        float64(1000),
+			RecordedBy: savedUser.ID,
+			Occupied:   true,
 		}
 
 		ctx := context.Background()

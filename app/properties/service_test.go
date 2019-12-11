@@ -38,24 +38,28 @@ func TestAddProperty(t *testing.T) {
 	svc := newService(makeOwners(owner))
 
 	property := properties.Property{
-		Owner:   properties.Owner{ID: owner.ID},
-		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
-		Due:     float64(1000),
+		Owner:      properties.Owner{ID: owner.ID},
+		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
 	}
 
 	invalidProperty := properties.Property{
-		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
-		Due:     float64(1000),
+		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
 	}
 
 	emptyDue := properties.Property{
-		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		RecordedBy: uuid.New().ID(),
 	}
 
 	withUnsavedOwner := properties.Property{
-		Owner:   properties.Owner{ID: uuid.New().ID()},
-		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
-		Due:     float64(1000),
+		Owner:      properties.Owner{ID: uuid.New().ID()},
+		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
 	}
 
 	cases := []struct {
@@ -81,18 +85,21 @@ func TestUpdate(t *testing.T) {
 	svc := newService(makeOwners(owner))
 
 	property := properties.Property{
-		Owner:   properties.Owner{ID: owner.ID},
-		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
-		Due:     float64(1000),
+		Owner:      properties.Owner{ID: owner.ID},
+		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
 	}
 
 	invalidProperty := properties.Property{
-		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
-		Due:     float64(1000),
+		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
 	}
 
 	emptyDue := properties.Property{
-		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		RecordedBy: uuid.New().ID(),
 	}
 
 	ctx := context.Background()
@@ -138,9 +145,10 @@ func TestViewProperty(t *testing.T) {
 	svc := newService(makeOwners(owner))
 
 	property := properties.Property{
-		Owner:   properties.Owner{ID: owner.ID},
-		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
-		Due:     float64(1000),
+		Owner:      properties.Owner{ID: owner.ID},
+		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
 	}
 
 	ctx := context.Background()
@@ -178,9 +186,10 @@ func TestListPropertiesByOwner(t *testing.T) {
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
 		property := properties.Property{
-			Owner:   owner,
-			Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
-			Due:     float64(1000),
+			Owner:      owner,
+			Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+			Due:        float64(1000),
+			RecordedBy: uuid.New().ID(),
 		}
 
 		ctx := context.Background()
@@ -245,9 +254,10 @@ func TestListPropertiesBySector(t *testing.T) {
 	svc := newService(makeOwners(owner))
 
 	property := properties.Property{
-		Owner:   owner,
-		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
-		Due:     float64(1000),
+		Owner:      owner,
+		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
 	}
 
 	n := uint64(10)
@@ -313,9 +323,10 @@ func TestListPropertiesByCell(t *testing.T) {
 	svc := newService(makeOwners(owner))
 
 	property := properties.Property{
-		Owner:   owner,
-		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
-		Due:     float64(1000),
+		Owner:      owner,
+		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
 	}
 
 	n := uint64(10)
@@ -383,9 +394,10 @@ func TestListPropertiesByVillage(t *testing.T) {
 	svc := newService(makeOwners(owner))
 
 	property := properties.Property{
-		Owner:   owner,
-		Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
-		Due:     float64(1000),
+		Owner:      owner,
+		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
 	}
 
 	n := uint64(10)

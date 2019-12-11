@@ -2,10 +2,12 @@ package properties
 
 // Property defines a property(house) data model
 type Property struct {
-	ID      string  `json:"id,omitempty"`
-	Due     float64 `json:"due,string,omitempty"`
-	Owner   Owner   `json:"owner,omitempty"`
-	Address Address `json:"address,omitempty"`
+	ID         string  `json:"id,omitempty"`
+	Due        float64 `json:"due,string,omitempty"`
+	Owner      Owner   `json:"owner,omitempty"`
+	Address    Address `json:"address,omitempty"`
+	Occupied   bool    `json:"occupied,omitempty"`
+	RecordedBy string  `json:"recorded_by,omitempty"`
 }
 
 // PropertyPage represents a list of transaction.
@@ -46,6 +48,9 @@ func (prt *Property) Validate() error {
 		return err
 	}
 	if prt.Due == float64(0) {
+		return ErrInvalidEntity
+	}
+	if prt.RecordedBy == "" {
 		return ErrInvalidEntity
 	}
 	return nil

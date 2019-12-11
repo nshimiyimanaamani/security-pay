@@ -94,7 +94,8 @@ func TestRegisterProperty(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
-		Due: float64(1000),
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
 	}
 
 	data := toJSON(property)
@@ -195,7 +196,9 @@ func TestUpdateProperty(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
-		Due: float64(1000),
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
+		Occupied:   true,
 	}
 
 	ctx := context.Background()
@@ -211,6 +214,8 @@ func TestUpdateProperty(t *testing.T) {
 			Cell:    saved.Address.Cell,
 			Village: saved.Address.Village,
 		},
+		RecordedBy: saved.RecordedBy,
+		Occupied:   saved.Occupied,
 	}
 
 	data := toJSON(res)
@@ -313,7 +318,9 @@ func TestRetrieveProperty(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
-		Due: float64(1000),
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
+		Occupied:   true,
 	}
 
 	ctx := context.Background()
@@ -329,6 +336,8 @@ func TestRetrieveProperty(t *testing.T) {
 			Cell:    saved.Address.Cell,
 			Village: saved.Address.Village,
 		},
+		RecordedBy: saved.RecordedBy,
+		Occupied:   saved.Occupied,
 	}
 
 	data := toJSON(res)
@@ -397,7 +406,9 @@ func TestListPropertiesByOwner(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
-		Due: float64(1000),
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
+		Occupied:   true,
 	}
 
 	data := []Property{}
@@ -416,6 +427,8 @@ func TestListPropertiesByOwner(t *testing.T) {
 				Cell:    saved.Address.Cell,
 				Village: saved.Address.Village,
 			},
+			RecordedBy: saved.RecordedBy,
+			Occupied:   saved.Occupied,
 		}
 
 		data = append(data, res)
@@ -486,7 +499,9 @@ func TestListPropertiesByCell(t *testing.T) {
 			Cell:    cell,
 			Village: "Ingabo",
 		},
-		Due: float64(1000),
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
+		Occupied:   true,
 	}
 
 	data := []Property{}
@@ -505,6 +520,8 @@ func TestListPropertiesByCell(t *testing.T) {
 				Cell:    saved.Address.Cell,
 				Village: saved.Address.Village,
 			},
+			RecordedBy: saved.RecordedBy,
+			Occupied:   saved.Occupied,
 		}
 
 		data = append(data, res)
@@ -574,7 +591,9 @@ func TestListPropertiesBySector(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
-		Due: float64(1000),
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
+		Occupied:   true,
 	}
 
 	data := []Property{}
@@ -593,6 +612,8 @@ func TestListPropertiesBySector(t *testing.T) {
 				Cell:    saved.Address.Cell,
 				Village: saved.Address.Village,
 			},
+			RecordedBy: saved.RecordedBy,
+			Occupied:   saved.Occupied,
 		}
 
 		data = append(data, res)
@@ -663,7 +684,9 @@ func TestListPropertiesByVillage(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: village,
 		},
-		Due: float64(1000),
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
+		Occupied:   true,
 	}
 
 	data := []Property{}
@@ -682,6 +705,8 @@ func TestListPropertiesByVillage(t *testing.T) {
 				Cell:    saved.Address.Cell,
 				Village: saved.Address.Village,
 			},
+			RecordedBy: saved.RecordedBy,
+			Occupied:   saved.Occupied,
 		}
 
 		data = append(data, res)
@@ -732,10 +757,12 @@ func TestListPropertiesByVillage(t *testing.T) {
 }
 
 type Property struct {
-	ID      string  `json:"id,omitempty"`
-	Due     float64 `json:"due,string,omitempty"`
-	Owner   Owner   `json:"owner,omitempty"`
-	Address Address `json:"address,omitempty"`
+	ID         string  `json:"id,omitempty"`
+	Due        float64 `json:"due,string,omitempty"`
+	Owner      Owner   `json:"owner,omitempty"`
+	Address    Address `json:"address,omitempty"`
+	Occupied   bool    `json:"occupied,omitempty"`
+	RecordedBy string  `json:"recorded_by,omitempty"`
 }
 
 type Address struct {
