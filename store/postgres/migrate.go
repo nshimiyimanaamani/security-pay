@@ -161,7 +161,7 @@ func migrateDB(db *sql.DB) error {
 				Up: []string{
 					`ALTER TABLE properties
 						ADD COLUMN occupied BOOLEAN DEFAULT FALSE,
-						ADD COLUMN recorded_by UUID NOT NULL,
+						ADD COLUMN recorded_by UUID,
 						ADD CONSTRAINT recorded_by FOREIGN KEY(recorded_by) references users(id);
 					`,
 				},
