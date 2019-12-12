@@ -28,7 +28,7 @@
       </b-col>
     </b-row>
     <b-row align-v="end" class="m-auto p-0" style="width: 100%;height: 50%">
-      <b-col xl="6" lg="12" md="12" sm="12" class="column">
+      <b-col xl="12" lg="12" md="12" sm="12" class="column">
         <b-card-body class="chart-3">
           <b-card-header>
             <i class="fa fa-th-large"></i>

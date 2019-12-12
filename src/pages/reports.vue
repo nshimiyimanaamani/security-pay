@@ -347,6 +347,9 @@ export default {
     }
   },
   watch: {
+    items() {
+      this.tableItems = this.items;
+    },
     "select.shownColumn"() {
       handler: {
         this.select.selectAll =
@@ -384,23 +387,20 @@ export default {
     this.loadData();
     this.select.shownColumn = this.columns;
     this.title = `List of users in ${this.activeSector}`;
+    console.log(sessionStorage.email.toString());
   },
   methods: {
     loadData() {
       this.loading.request = true;
       this.axios
-        .get(
-          `${
-            this.endpoint
-          }/properties?sector=${this.activeSector.toLowerCase()}&offset=1&limit=100`
-        )
+        .get(this.endpoint + "/properties?sector=remera&offset=0&limit=10")
         .then(res => {
           this.items = new Array();
           this.items = res.data.Properties;
           this.loading.request = false;
         })
         .catch(err => {
-          this.loading.request = false;
+          console.log(err);
         });
     },
     search_user() {
@@ -457,15 +457,19 @@ export default {
           });
       } else if (this.modal.switch) {
         this.modal.loading = true;
+        console.log(this.modal, this.select);
         this.axios
           .post(this.endpoint + "/properties", {
-            owner: { id: this.modal.form.id },
+            owner: {
+              id: this.modal.form.id
+            },
             address: {
-              cell: this.modal.select.cell,
-              village: this.modal.select.village,
+              cell: this.select.cell,
+              village: this.select.village,
               sector: "remera"
             },
-            due: this.modal.form.due.toString()
+            due: this.modal.form.due.toString(),
+            recorded_by: "6de63fec-5f4a-4867-ae4c-3f3af70c9166"
           })
           .then(res => {
             this.resetModal();

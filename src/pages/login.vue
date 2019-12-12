@@ -79,6 +79,7 @@ export default {
           })
           .then(res => {
             sessionStorage.setItem("token", res.data.token);
+            sessionStorage.setItem("email", email);
             this.$router.push("dashboard");
             this.loading = false;
           })

@@ -58,6 +58,7 @@ export const store = new Vuex.Store({
     },
     logout(state) {
       delete sessionStorage.token;
+      delete sessionStorage.email;
       state.token = null;
     },
   },
