@@ -48,7 +48,7 @@ func migrateDB(db *sql.DB) error {
 						PRIMARY 	KEY(id)
 					)`,
 					`CREATE TABLE IF NOT EXISTS transactions (
-						id 				TEXT,
+						id 				UUID,
 						madeby 			UUID,
 						madefor			TEXT,
 						amount    		VARCHAR(254),
@@ -137,26 +137,26 @@ func migrateDB(db *sql.DB) error {
 					`,
 				},
 			},
+			// {
+			// 	Id: "paypack_8",
+
+			// 	Up: []string{
+			// 		`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`,
+
+			// 		`ALTER EXTENSION "uuid-ossp" SET SCHEMA public;`,
+
+			// 		`ALTER TABLE transactions ALTER COLUMN id TYPE uuid USING (uuid_generate_v4());`,
+
+			// 		`ALTER TABLE owners DROP COLUMN  password;`,
+			// 	},
+			// 	Down: []string{
+			// 		`ALTER TABLE transactions ALTER COLUMN id TYPE TEXT;`,
+
+			// 		`ALTER TABLE owners ADD COLUMN password VARCHAR(60) NOT NULL;`,
+			// 	},
+			// },
 			{
 				Id: "paypack_8",
-
-				Up: []string{
-					`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`,
-
-					`ALTER EXTENSION "uuid-ossp" SET SCHEMA public;`,
-
-					`ALTER TABLE transactions ALTER COLUMN id TYPE uuid USING (uuid_generate_v4());`,
-
-					`ALTER TABLE owners DROP COLUMN  password;`,
-				},
-				Down: []string{
-					`ALTER TABLE transactions ALTER COLUMN id TYPE TEXT;`,
-
-					`ALTER TABLE owners ADD COLUMN password VARCHAR(60) NOT NULL;`,
-				},
-			},
-			{
-				Id: "paypack_9",
 
 				Up: []string{
 					`ALTER TABLE properties
