@@ -105,8 +105,7 @@ func migrateDB(db *sql.DB) error {
 
 				Up: []string{
 					`ALTER TABLE owners 
-						ADD UNIQUE (phone),
-					 	ADD COLUMN password VARCHAR(60) NOT NULL;
+						ADD UNIQUE (phone);
 					`,
 				},
 
