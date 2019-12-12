@@ -145,7 +145,13 @@
         <h5 class="text-center mb-1">{{modal.title}}</h5>
         <hr />
         <b-form @submit.prevent="search_user" @reset="resetModal">
-          <b-form-group id="input-group-1" class="mb-2" label="First Name:" label-for="input-1">
+          <b-form-group
+            id="input-group-1"
+            class="mb-2"
+            label="First Name:"
+            label-for="input-1"
+            description="Amazina ya nyiri inzu (*Ntabwo ari ukodesheje)"
+          >
             <b-form-input
               id="input-1"
               v-model="modal.form.fname"
