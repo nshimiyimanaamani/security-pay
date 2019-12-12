@@ -20,7 +20,7 @@ form input {
 
 }
 
-.loginBtn {
+.loginBtn,.loginBtn:disabled,.loginBtn:hover {
   width: 100%;
   user-select: none;
   color: white;

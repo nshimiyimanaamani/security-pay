@@ -1,7 +1,7 @@
 <template>
   <div class="dashboardWrapper">
     <div class="dashboardSidebar">
-      <h1>PayPack</h1>
+      <h1>P A Y P A C K</h1>
       <ul class="sidebarLinks">
         <router-link to="/dashboard">
           <li>Overview</li>

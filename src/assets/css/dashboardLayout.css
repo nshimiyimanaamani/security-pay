@@ -18,7 +18,7 @@
   z-index: 1001;
   height: 100vh;
   color: white;
-  background: #17a2b8;
+  background: #3a82a1;
 }
 
 .dashboardWrapper .dashboardSidebar h1 {
@@ -44,7 +44,7 @@
 }
 
 .dashboardWrapper .dashboardSidebar .sidebarLinks .router-link-active li {
-  background: #88f2fbb0;
+  background: #49bdd6;
   color: white;
 }
 
@@ -128,12 +128,12 @@
   text-transform: uppercase;
   font-size: 13px;
   letter-spacing: 1px;
-  border-top: 1px solid #17a2b8;
+  border-top: 1px solid #3a82a1;
 }
 
 .dashboardWrapper .dashboardSidebar .sidebarLinks li:hover {
   color: #ffffff;
-  background: #88f2fbb0;
+  background: #49bdd6;
 }
 
 .dashboardWrapper .dashboardSidebar .sidebarLinks li:hover button {

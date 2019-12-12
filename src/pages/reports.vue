@@ -3,7 +3,7 @@
     <vue-title title="Paypack | Properties" />
     <h4 class="title text-center">
       {{title}}
-      <b-button class="add-property mb-1" @click="modal.show = ! modal.show">
+      <b-button class="add-property mb-1" variant="info" @click="modal.show = ! modal.show">
         <i class="fas fa-plus-circle"></i> Property
       </b-button>
     </h4>
@@ -660,7 +660,6 @@ hr {
   float: right;
   padding: 5px 10px;
   height: fit-content;
-  background: #17a2b8;
   border: none;
   margin-top: -5px;
 }
