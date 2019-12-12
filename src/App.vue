@@ -17,6 +17,18 @@ export default {
   beforeMount() {
     this.$store.dispatch("startup_function");
   },
+  computed: {
+    token() {
+      return this.$store.getters.token;
+    }
+  },
+  watch: {
+    token() {
+      if (!this.token) {
+        this.$router.push("/");
+      }
+    }
+  },
   mounted() {
     setInterval(() => {
       navigator.onLine ? (this.offline = false) : (this.offline = true);
@@ -47,5 +59,13 @@ p {
 }
 .alert-dismissible .close {
   padding: 6px 10px;
+}
+.btn-info {
+  background-color: #3a82a1 !important;
+  border-color: #3a82a1 !important;
+}
+.active .page-link {
+  background-color: #3a82a1 !important;
+  border-color: #3a82a1 !important;
 }
 </style>

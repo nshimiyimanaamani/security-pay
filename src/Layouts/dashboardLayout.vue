@@ -12,7 +12,7 @@
             <b-dropdown>
               <b-dropdown-item
                 @click="update({toUpdate: 'cell', changed: cell})"
-                v-for="cell in sidebar.cells_array"
+                v-for="cell in cellsOptions"
                 :key="cell"
               >{{cell}}</b-dropdown-item>
             </b-dropdown>
@@ -24,7 +24,7 @@
             <b-dropdown>
               <b-dropdown-item
                 @click="update({toUpdate: 'village', changed: village})"
-                v-for="village in sidebar.village_array"
+                v-for="village in villageOptions"
                 :key="village"
               >{{village}}</b-dropdown-item>
             </b-dropdown>
@@ -41,14 +41,14 @@
         </router-link>
       </ul>
       <p class="text-center powered" for="powered">
-          Powered By
-          <strong>Quarks Group.</strong>
-        </p>
+        Powered By
+        <strong>Quarks Group.</strong>
+      </p>
     </div>
     <div class="rightSide">
       <div class="top-nav">
         <div class="logout">
-          <b-button class="btn-info" @click.prevent="logout">Logout</b-button>
+          <b-button class="btn-info py-1" @click.prevent="logout">Logout</b-button>
         </div>
       </div>
       <div class="dashboardBody">
@@ -60,61 +60,18 @@
 
 <script>
 export default {
-  data() {
-    return {
-      userAvailable: false,
-      sidebar: {
-        active_cell: this.getActiveCell,
-        cells_array: [],
-        active_village: "",
-        village_array: []
-      }
-    };
-  },
+  name: "dashboard-layout",
   computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    },
-    getActiveCell() {
-      this.sidebar.active_cell = this.$store.getters.getActiveCell;
-      return this.$store.getters.getActiveCell;
-    },
-    getActiveVillage() {
-      this.sidebar.active_village = this.$store.getters.getActiveVillage;
-      return this.$store.getters.getActiveVillage;
-    },
-    getCellsArray() {
-      this.sidebar.cells_array = this.$store.getters.getCellsArray;
+    cellsOptions() {
       return this.$store.getters.getCellsArray;
     },
-    getVillageArray() {
-      this.sidebar.village_array = this.$store.getters.getVillageArray;
+    villageOptions() {
       return this.$store.getters.getVillageArray;
-    },
-    getSector() {
-      return this.$store.getters.getSectorArray;
-    },
-    getPropertyCell() {
-      return this.cells();
-    },
-    getPropertyVillage() {
-      return this.village();
     }
-  },
-  mounted() {
-    this.getActiveCell;
-    this.getCellsArray;
-    this.getActivevillage;
-    this.getVillageArray;
   },
   methods: {
     update(res) {
-      this.$store.dispatch("updatePlace", res).then(() => {
-        this.getActiveCell;
-        this.getCellsArray;
-        this.getActiveVillage;
-        this.getVillageArray;
-      });
+      this.$store.dispatch("updatePlace", res);
     },
     logout() {
       this.$store.dispatch("logout");

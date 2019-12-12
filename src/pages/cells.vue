@@ -1,8 +1,8 @@
 <template>
   <b-container>
     <vue-title title="Paypack | Cells" />
-    <b-row align-v="start">
-      <b-col lg="6" md="6" sm="12" class="column">
+    <b-row align-v="start" class="m-auto p-0" style="width: 100%;height: 50%">
+      <b-col xl="6" lg="6" md="6" sm="12" class="column">
         <b-card-body>
           <b-card-header>
             <i class="fa fa-th-large"></i>
@@ -13,7 +13,7 @@
         </b-card-body>
         <!-- end of chart 1 -->
       </b-col>
-      <b-col lg="6" md="6" sm="12" class="column">
+      <b-col xl="6" lg="6" md="6" sm="12" class="column">
         <b-card-body class="chart-2">
           <b-card-header>
             <i class="fa fa-th-large"></i>
@@ -27,8 +27,8 @@
         </b-card-body>
       </b-col>
     </b-row>
-    <b-row align-v="end">
-      <b-col lg="12" md="12" sm="12" class="column">
+    <b-row align-v="end" class="m-auto p-0" style="width: 100%;height: 50%">
+      <b-col xl="6" lg="12" md="12" sm="12" class="column">
         <b-card-body class="chart-3">
           <b-card-header>
             <i class="fa fa-th-large"></i>
@@ -74,7 +74,7 @@ export default {
       return this.$store.getters.getActiveCell;
     },
     cellArray() {
-      return this.$store.getters.getSectorArray[this.activeCell];
+      return this.$store.getters.getCellsArray;
     },
     style() {
       return {

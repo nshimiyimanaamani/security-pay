@@ -20,18 +20,24 @@
         <b-dropdown-form>
           <b-card-body class="p-2">
             <b-form-group label="sector">
-              <b-form-select v-model="select.sector" :options="select.sectorOptions">
-                <option value>select sector</option>
+              <b-form-select v-model="select.sector" :options="sectorOptions">
+                <template v-slot:first>
+                  <option :value="null" disabled>Select sector</option>
+                </template>
               </b-form-select>
             </b-form-group>
             <b-form-group label="cell" v-show="select.sector">
-              <b-form-select v-model="select.cell" :options="select.cellOptions">
-                <option value>select cell</option>
+              <b-form-select v-model="select.cell" :options="cellOptions">
+                <template v-slot:first>
+                  <option :value="null" disabled>Select cell</option>
+                </template>
               </b-form-select>
             </b-form-group>
             <b-form-group label="village" v-show="select.sector && select.cell">
-              <b-form-select v-model="select.village" :options="select.villageOptions">
-                <option value>select village</option>
+              <b-form-select v-model="select.village" :options="villageOptions">
+                <template v-slot:first>
+                  <option :value="null" disabled>Select village</option>
+                </template>
               </b-form-select>
             </b-form-group>
           </b-card-body>
@@ -68,7 +74,7 @@
           v-model="search.name"
           list="search-datalist-id"
         ></b-form-input>
-        <b-button variant="info" @click="search.name = ''">
+        <b-button variant="info" style="height: 100%" @click="search.name = ''">
           <i class="fa fa-times"></i>
         </b-button>
         <datalist id="search-datalist-id">
@@ -194,7 +200,7 @@
             label-for="input-4"
             v-show="modal.switch"
           >
-            <b-form-select v-model="modal.select.cell" :options="cellsOptions" class="mb-0">
+            <b-form-select v-model="select.cell" :options="cellOptions" class="mb-0">
               <template v-slot:first>
                 <option :value="null" disabled>select a cell</option>
               </template>
@@ -207,7 +213,7 @@
             v-show="modal.switch"
             class="mb-3"
           >
-            <b-form-select v-model="modal.select.village" :options="villageOptions" class="mb-0">
+            <b-form-select v-model="select.village" :options="villageOptions" class="mb-0">
               <template v-slot:first>
                 <option :value="null" disabled>select a village</option>
               </template>
@@ -225,6 +231,7 @@
 </template>
 <script>
 import jsPDF from "jspdf";
+const { District, Sector, Cell, Village } = require("rwanda");
 import "jspdf-autotable";
 export default {
   name: "reports",
@@ -246,10 +253,10 @@ export default {
         title: "Search House Owner",
         btnContent: "Search",
         form: {
-          fname: "",
-          lname: "",
-          phone: "",
-          id: "",
+          fname: null,
+          lname: null,
+          phone: null,
+          id: null,
           due: "500"
         },
         select: {
@@ -262,9 +269,9 @@ export default {
         datalist: []
       },
       select: {
-        sector: "",
-        cell: "",
-        village: "",
+        sector: null,
+        cell: null,
+        village: null,
         sectorOptions: [],
         cellOptions: [],
         villageOptions: [],
@@ -297,11 +304,29 @@ export default {
     endpoint() {
       return this.$store.getters.getEndpoint;
     },
-    cellsOptions() {
-      return this.$store.getters.getCellsArray;
+    sectorOptions() {
+      return [this.activeSector];
+    },
+    cellOptions() {
+      const sector = this.select.sector;
+      if (sector) {
+        return Cell("Kigali", "Gasabo", sector);
+      } else {
+        return Cell("Kigali", "Gasabo", "Remera");
+      }
     },
     villageOptions() {
-      return this.$store.getters.villageByCell;
+      const sector = this.select.sector;
+      const cell = this.select.cell;
+      if (sector && cell) {
+        return Village("Kigali", "Gasabo", sector, cell);
+      } else {
+        if (cell) {
+          return Village("Kigali", "Gasabo", "Remera", cell);
+        } else {
+          return [];
+        }
+      }
     },
     activeSector() {
       return this.capitalize(this.$store.getters.getActiveSector);
@@ -312,10 +337,12 @@ export default {
       return array;
     },
     checkNumber() {
-      if (this.modal.form.phone.length >= 1) {
-        return this.modal.form.phone.length >= 10;
-      } else {
-        return null;
+      if (this.modal.form.phone) {
+        if (this.modal.form.phone.length >= 1) {
+          return this.modal.form.phone.length >= 10;
+        } else {
+          return null;
+        }
       }
     }
   },
@@ -333,62 +360,6 @@ export default {
         this.title = `List of users in ${this.activeSector}`;
       }
     },
-    items() {
-      handler: {
-        this.tableItems = this.filter();
-        this.select.sectorOptions = new Array();
-        if (this.items.length > 0) {
-          this.selected = this.items[0].sector;
-        }
-        this.items.forEach(element => {
-          if (this.select.sectorOptions.indexOf(element.address.sector) == -1) {
-            this.select.sectorOptions.push(element.address.sector);
-          }
-        });
-      }
-    },
-    "select.sector"() {
-      handler: {
-        if (this.select.sector) {
-          this.select.cellOptions = [];
-          const cellOptions = this.items.filter(
-            sec => sec.address.sector == this.select.sector
-          );
-          cellOptions.forEach(element => {
-            if (this.select.cellOptions.indexOf(element.address.cell) == -1) {
-              this.select.cellOptions = [
-                ...this.select.cellOptions,
-                element.address.cell
-              ];
-            }
-          });
-        } else {
-          this.select.cellOptions = [];
-        }
-      }
-    },
-    "select.cell"() {
-      handler: {
-        if (this.select.cell) {
-          this.select.villageOptions = [];
-          const villageOptions = this.items.filter(
-            res => res.address.cell == this.select.cell
-          );
-          villageOptions.forEach(element => {
-            if (
-              this.select.villageOptions.indexOf(element.address.village) == -1
-            ) {
-              this.select.villageOptions = [
-                ...this.select.villageOptions,
-                element.address.village
-              ];
-            }
-          });
-        } else {
-          this.select.villageOptions = [];
-        }
-      }
-    },
     "search.name"() {
       handler: {
         this.search.datalist = new Array();
@@ -402,9 +373,6 @@ export default {
           this.search.datalist.pop();
         }
       }
-    },
-    "modal.select.cell"() {
-      this.$store.dispatch("villageByCell", this.modal.select.cell);
     },
     tableItems() {
       handler: {
@@ -516,13 +484,13 @@ export default {
       this.modal.loading = false;
       this.modal.title = "Search House Owner";
       this.modal.btnContent = "Search";
-      this.modal.form.fname = "";
-      this.modal.form.lname = "";
-      this.modal.form.phone = "";
-      this.modal.form.id = "";
-      this.modal.form.due = "";
-      this.modal.select.cell = "";
-      this.modal.select.village = "";
+      this.modal.form.fname = null;
+      this.modal.form.lname = null;
+      this.modal.form.phone = null;
+      this.modal.form.id = null;
+      this.modal.form.due = null;
+      this.modal.select.cell = null;
+      this.modal.select.village = null;
     },
     totals(data) {
       if (data) {
@@ -563,9 +531,9 @@ export default {
       this.select.shownColumn = checked ? this.columns.slice() : [];
     },
     clearFilter() {
-      this.select.sector = "";
-      this.select.cell = "";
-      this.select.village = "";
+      this.select.sector = null;
+      this.select.cell = null;
+      this.select.village = null;
       this.tableItems = this.items;
       this.selected = null;
       this.$refs.dropdown.hide(true);
@@ -643,7 +611,7 @@ export default {
 .table-container {
   padding: 15px 40px 5px;
   position: relative;
-  min-height: inherit;
+  min-height: 100%;
 }
 
 hr {
