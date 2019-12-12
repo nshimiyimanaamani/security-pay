@@ -132,3 +132,17 @@ func List(logger log.Entry, svc transactions.Service) http.Handler {
 	}
 	return http.HandlerFunc(f)
 }
+
+// ListByProperty handles transactions retrieval given house code
+func ListByProperty(logger log.Entry, svc transactions.Service) http.Handler {
+	f := func(w http.ResponseWriter, r *http.Request) {}
+
+	return http.HandlerFunc(f)
+}
+
+// ListByOwner handles transactions retrieval given house code
+func ListByOwner(logger log.Entry, svc transactions.Service) http.Handler {
+	f := func(w http.ResponseWriter, r *http.Request) {}
+
+	return http.HandlerFunc(f)
+}

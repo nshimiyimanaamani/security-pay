@@ -50,9 +50,9 @@ func (prt *Property) Validate() error {
 	if prt.Due == float64(0) {
 		return ErrInvalidEntity
 	}
-	if prt.RecordedBy == "" {
-		return ErrInvalidEntity
-	}
+	// if prt.RecordedBy == "" {
+	// 	return ErrInvalidEntity
+	// }
 	return nil
 }
 

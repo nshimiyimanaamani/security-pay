@@ -53,15 +53,15 @@ func TestValidate(t *testing.T) {
 			},
 			err: properties.ErrInvalidEntity,
 		},
-		{
-			desc: "validate with empty recorded by",
-			property: properties.Property{
-				Owner:   properties.Owner{ID: uuid.New().ID()},
-				Address: properties.Address{},
-				Due:     float64(1000),
-			},
-			err: properties.ErrInvalidEntity,
-		},
+		// {
+		// 	desc: "validate with empty recorded by",
+		// 	property: properties.Property{
+		// 		Owner:   properties.Owner{ID: uuid.New().ID()},
+		// 		Address: properties.Address{},
+		// 		Due:     float64(1000),
+		// 	},
+		// 	err: properties.ErrInvalidEntity,
+		// },
 	}
 
 	for _, tc := range cases {
