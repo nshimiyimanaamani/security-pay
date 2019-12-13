@@ -26,48 +26,13 @@
   padding: 15px;
 }
 
-.totals .rows {
-  width: -webkit-fit-content;
-  width: -moz-fit-content;
-  width: fit-content;
-  margin-left: auto;
-  margin-right: 3rem;
-  color: white;
-  text-transform: capitalize;
-}
-
-.totals .row1 {
-  font-size: 25px;
-  font-weight: bold;
-  padding: 3% 0 0;
-  width: -webkit-max-content;
-  width: -moz-max-content;
-  width: max-content;
-}
-
-.totals .row2 {
-  padding: 10px 0;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  width: -webkit-max-content;
-  width: -moz-max-content;
-  width: max-content;
-}
-
-.totals .row2 span {
-  margin-left: 20px;
-  border-left: 3px solid #eaeaea;
-  padding-left: 7px;
-}
-
 .container .pulse {
   margin: 25px auto;
 }
 
 .container .pulse::after {
   display: block;
-  content: "Please wait ...";
+  content: "  Please wait ...";
   font-weight: bold;
 }
 

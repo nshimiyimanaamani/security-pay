@@ -90,7 +90,7 @@ let router = new Router({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requireAuth)) {
-    if (!sessionStorage.getItem('token')) {
+    if (!sessionStorage.token) {
       next({
         path: '/',
         params: {
@@ -98,11 +98,11 @@ router.beforeEach((to, from, next) => {
         }
       })
     } else {
-      axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('token');
+      axios.defaults.headers.common['Authorization'] = sessionStorage.token;
       next()
     }
   } else if (to.matched.some(record => record.meta.guest)) {
-    if (!sessionStorage.getItem('token')) {
+    if (!sessionStorage.token) {
       next()
     } else {
       next({

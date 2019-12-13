@@ -2,6 +2,8 @@
   <div class="dashboardWrapper">
     <div class="dashboardSidebar">
       <h1>P A Y P A C K</h1>
+      <hr />
+      <!-- <center>{{activeSector.toUpperCase()}}</center> -->
       <ul class="sidebarLinks">
         <router-link to="/dashboard">
           <li>Overview</li>
@@ -67,6 +69,9 @@ export default {
     },
     villageOptions() {
       return this.$store.getters.getVillageArray;
+    },
+    activeSector() {
+      return this.$store.getters.getActiveSector;
     }
   },
   methods: {

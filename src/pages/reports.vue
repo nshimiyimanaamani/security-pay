@@ -393,7 +393,6 @@ export default {
     this.loadData();
     this.select.shownColumn = this.columns;
     this.title = `List of users in ${this.activeSector}`;
-    console.log(sessionStorage.email.toString());
   },
   methods: {
     loadData() {

@@ -9,7 +9,12 @@
             <h1 class>{{activeCell}} COLLECTING ACCOUNT</h1>
             <i class="fa fa-cog"></i>
           </b-card-header>
-          <bar-chart v-if="chart1Data" :chart-data="chart1Data" :style="style"></bar-chart>
+          <bar-chart
+            v-if="chart1Data"
+            :chart-data="chart1Data"
+            :options="optionsChart1"
+            :style="style"
+          ></bar-chart>
         </b-card-body>
         <!-- end of chart 1 -->
       </b-col>
@@ -21,7 +26,12 @@
             <i class="fa fa-cog"></i>
           </b-card-header>
           <div class="chart" style="height:100%;position:relative">
-            <doughnut-chart v-if="chart2Data" :chart-data="chart2Data" :style="style"></doughnut-chart>
+            <doughnut-chart
+              v-if="chart2Data"
+              :chart-data="chart2Data"
+              :options="optionsChart2"
+              :style="style"
+            ></doughnut-chart>
             <div class="center-text">{{percentage}}%</div>
           </div>
         </b-card-body>
@@ -40,6 +50,7 @@
             :chart-data="chart3Data"
             :style="style"
             :tooltipData="chart3AdditionalData"
+            :options="optionsChart3"
           />
         </b-card-body>
       </b-col>
@@ -48,9 +59,9 @@
 </template>
 
 <script>
-import BarChart from "../components/cellsChart1.vue";
-import DoughnutChart from "../components/cellsChart2.vue";
-import LineChart from "../components/cellsChart3.vue";
+import BarChart from "../components/BarChart.vue";
+import DoughnutChart from "../components/DaughnutChart.vue";
+import LineChart from "../components/MixedCharts.vue";
 export default {
   name: "cells",
   components: {
@@ -86,6 +97,121 @@ export default {
       const data = this.chart2Data.datasets[0].data;
       const percentage = (data[0] * 100) / (data[0] + data[1]);
       return percentage.toFixed();
+    },
+    optionsChart1() {
+      return {
+        tooltips: { enabled: false },
+        hover: { mode: null },
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          yAxes: [
+            {
+              ticks: {
+                min: 0,
+                stepSize: 10,
+                callback: (label, index, labels) => {
+                  switch (label) {
+                    case label:
+                      return label + "M";
+                  }
+                }
+              }
+            }
+          ],
+          xAxes: [
+            {
+              barPercentage: 0.95,
+              categoryPercentage: 1,
+              gridLines: { display: false }
+            }
+          ]
+        },
+        legend: {
+          display: false
+        },
+        layout: {
+          padding: {
+            left: 10,
+            right: 20,
+            top: 25,
+            bottom: 0
+          }
+        }
+      };
+    },
+    optionsChart2() {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutoutPercentage: 80,
+        hover: { mode: null },
+        tooltips: { enabled: false },
+        legend: { display: false },
+        layout: {
+          padding: {
+            left: 10,
+            right: 10,
+            top: 10,
+            bottom: 10
+          }
+        }
+      };
+    },
+    optionsChart3() {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          yAxes: [
+            {
+              ticks: {
+                min: 0,
+                stepSize: 10,
+                callback: (label, index, labels) => {
+                  switch (label) {
+                    case label:
+                      return label + "M";
+                  }
+                }
+              }
+            }
+          ],
+          xAxes: [
+            {
+              barPercentage: 0.95,
+              categoryPercentage: 1,
+              gridLines: { display: false }
+            }
+          ]
+        },
+        legend: {
+          display: false
+        },
+        layout: {
+          padding: {
+            left: 10,
+            right: 20,
+            top: 25,
+            bottom: 0
+          }
+        },
+        tooltips: {
+          displayColors: false,
+          callbacks: {
+            label: function(tooltipItem, data) {
+              var label = [data.datasets[tooltipItem.datasetIndex].label] || "";
+
+              if (label) {
+                label = new Array();
+                label.push(`Abishyuye: 30`);
+                label.push("Abatarishyura: 40");
+              }
+              return label;
+            }
+          }
+        }
+      };
     }
   },
   watch: {

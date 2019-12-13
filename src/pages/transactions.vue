@@ -2,21 +2,23 @@
   <div style="position: relative">
     <vue-title title="Paypack | Transactions" />
     <div class="totals">
-      <div class="rows row1">RWF 9,986.55</div>
-      <div class="rows row2">
-        <span class="span1">
+      <b-row>
+        <b-col cols="6" class="text-white ml-auto py-2" style="font-size: 40px">RWF 9,986.55</b-col>
+      </b-row>
+      <b-row class="text-white">
+        <b-col cols="2" class="ml-auto">
           <p>BK Acc.</p>
           <p>500 M</p>
-        </span>
-        <span class="span2">
+        </b-col>
+        <b-col cols="2" class="m-0">
           <p>MTN MoMo</p>
           <p>60 M</p>
-        </span>
-        <span class="span3">
+        </b-col>
+        <b-col cols="2" class="m-0">
           <p>AIRTEL MONEY</p>
           <p>79 M</p>
-        </span>
-      </div>
+        </b-col>
+      </b-row>
     </div>
     <div class="container">
       <b-table
@@ -105,23 +107,13 @@ export default {
   methods: {
     requestItems() {
       this.loading = true;
-      const promise = new Promise((resolve, reject) => {
-        this.axios
-          .get(this.endpoint + "/transactions/?offset=1&limit=100")
-          .then(res => {
-            if (res.status == 200) {
-              resolve(res.data.transactions);
-            }
-          })
-          .catch(err => {
-            reject(err);
-          });
-      });
-      promise
+      this.axios
+        .get(this.endpoint + "/transactions?offset=1&limit=100")
         .then(res => {
-          this.table.items = res;
-          console.log(res);
-          this.loading = false;
+          if (res.status == 200) {
+            this.table.items = res.data.transactions;
+            this.loading = false;
+          }
         })
         .catch(err => {
           this.loading = false;
