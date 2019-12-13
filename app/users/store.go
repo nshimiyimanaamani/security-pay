@@ -7,5 +7,5 @@ type Store interface {
 
 	// Save persists the user account and returns his id. A non-nil error is returned to indicate
 	// operation failure.
-	Save(User) (string, error)
+	Save(User) (User, error)
 }

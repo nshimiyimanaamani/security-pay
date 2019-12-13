@@ -173,6 +173,29 @@ func migrateDB(db *sql.DB) error {
 					`,
 				},
 			},
+			{
+				Id: "paypack_9",
+
+				Up: []string{
+					`ALTER TABLE users
+						ADD COLUMN sector  VARCHAR(254) NOT NULL DEFAULT 'unset',
+						ADD COLUMN village VARCHAR(254) NOT NULL DEFAULT 'unset',
+						ALTER COLUMN cell SET NOT NULL,
+						ALTER COLUMN cell SET DEFAULT 'unset';			
+					`,
+					`ALTER TABLE users
+						RENAME COLUMN email TO username;
+					`,
+				},
+
+				Down: []string{
+					`ALTER TABLE users
+						DROP COLUMN sector,
+						DROP COLUMN village,
+						RENAME COLUMN username TO email;
+					`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

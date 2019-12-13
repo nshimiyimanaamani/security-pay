@@ -22,20 +22,18 @@ func Register(logger log.Entry, svc users.Service) http.Handler {
 			return
 		}
 
-		if err := user.Validate(); err != nil {
-			EncodeError(w, err)
-			return
-		}
+		// if err := user.Validate(); err != nil {
+		// 	EncodeError(w, err)
+		// 	return
+		// }
 
-		var id string
-
-		id, err := svc.Register(user)
+		saved, err := svc.Register(user)
 		if err != nil {
 			EncodeError(w, err)
 			return
 		}
 
-		if err = EncodeResponse(w, userRegisterResponse{ID: id}); err != nil {
+		if err = EncodeResponse(w, userRegisterResponse{ID: saved.ID}); err != nil {
 			EncodeError(w, err)
 			return
 		}
@@ -57,12 +55,6 @@ func Login(logger log.Entry, svc users.Service) http.Handler {
 			EncodeError(w, err)
 			return
 		}
-
-		if err := user.Validate(); err != nil {
-			EncodeError(w, err)
-			return
-		}
-
 		var token string
 
 		token, err := svc.Login(user)

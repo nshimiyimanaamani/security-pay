@@ -19,7 +19,7 @@ func TestSaveProperty(t *testing.T) {
 
 	defer CleanDB(t, "properties", "owners", "users")
 
-	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
 	savedUser, err := saveUser(t, db, user)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -84,7 +84,7 @@ func TestSaveProperty(t *testing.T) {
 func TestUpdateProperty(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
 	savedUser, err := saveUser(t, db, user)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -166,7 +166,7 @@ func TestRetrieveByID(t *testing.T) {
 
 	defer CleanDB(t, "properties", "owners", "users")
 
-	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
 	savedUser, err := saveUser(t, db, user)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -213,7 +213,7 @@ func TestRetrieveByOwner(t *testing.T) {
 
 	defer CleanDB(t, "properties", "owners", "users")
 
-	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
 	savedUser, err := saveUser(t, db, user)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -290,7 +290,7 @@ func TestRetrieveBySector(t *testing.T) {
 
 	defer CleanDB(t, "properties", "owners", "users")
 
-	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
 	savedUser, err := saveUser(t, db, user)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -367,7 +367,7 @@ func TestRetrieveByCell(t *testing.T) {
 
 	defer CleanDB(t, "properties", "owners", "users")
 
-	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
 	savedUser, err := saveUser(t, db, user)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -445,7 +445,7 @@ func TestRetrieveByVillage(t *testing.T) {
 
 	defer CleanDB(t, "properties", "owners", "users")
 
-	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
 	savedUser, err := saveUser(t, db, user)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 

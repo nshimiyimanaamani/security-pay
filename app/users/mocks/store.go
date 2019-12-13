@@ -34,18 +34,23 @@ func (str *userStoreMock) RetrieveByID(email string) (users.User, error) {
 	return val, nil
 }
 
-func (str *userStoreMock) Save(user users.User) (string, error) {
+func (str *userStoreMock) Save(user users.User) (users.User, error) {
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
-	if _, ok := str.users[user.Email]; ok {
-		return "", users.ErrConflict
+	empty := users.User{}
+
+	if _, ok := str.users[user.Username]; ok {
+		return empty, users.ErrConflict
 	}
 
 	str.counter++
 	user.ID = strconv.FormatUint(str.counter, 10)
 
-	str.users[user.Email] = user
+	str.users[user.Username] = user
 
-	return user.Email, nil
+	// technical debt
+	user.ID = user.Username
+
+	return user, nil
 }

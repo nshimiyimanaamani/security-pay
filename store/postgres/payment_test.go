@@ -27,7 +27,7 @@ func TestSaveTransaction(t *testing.T) {
 
 	var amount = 1000
 
-	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
 	savedUser, err := saveUser(t, db, user)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -89,7 +89,7 @@ func TestRetrieveCode(t *testing.T) {
 
 	var amount = 1000
 
-	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
 	savedUser, err := saveUser(t, db, user)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 

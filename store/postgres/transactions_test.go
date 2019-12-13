@@ -29,7 +29,7 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 
 	defer CleanDB(t, "transactions", "properties", "owners", "users")
 
-	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
 	savedUser, err := saveUser(t, db, user)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -87,7 +87,7 @@ func TestRetrieveAll(t *testing.T) {
 
 	defer CleanDB(t, "transactions", "properties", "owners", "users")
 
-	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
 	savedUser, err := saveUser(t, db, user)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -157,7 +157,7 @@ func TestRetrieveByProperty(t *testing.T) {
 
 	defer CleanDB(t, "transactions", "properties", "owners", "users")
 
-	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
 	savedUser, err := saveUser(t, db, user)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -236,7 +236,7 @@ func TestRetrieveByMethod(t *testing.T) {
 
 	defer CleanDB(t, "transactions", "properties", "owners", "users")
 
-	user := users.User{ID: uuid.New().ID(), Email: "email", Password: "password"}
+	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
 	savedUser, err := saveUser(t, db, user)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 

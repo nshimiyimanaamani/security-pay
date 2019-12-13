@@ -11,7 +11,7 @@ import (
 
 const wrong string = "wrong-value"
 
-var user = users.User{Email: "user@gmail.com", Password: "password", Cell: "admin"}
+var user = users.User{Username: "user@gmail.com", Password: "password", Cell: "admin", Sector: "sector", Village: "village"}
 
 func newService() users.Service {
 	hasher := mocks.NewHasher()
@@ -32,8 +32,8 @@ func TestRegister(t *testing.T) {
 	}{
 		{"register new user", user, nil},
 		{"register existing user", user, users.ErrConflict},
-		{"register new user with empty password", users.User{Email: user.Email, Cell: "admin", Password: ""}, users.ErrInvalidEntity},
-		{"register new user with empty cell", users.User{Email: "new@gmail.com", Password: "new password", Cell: ""}, users.ErrInvalidEntity},
+		{"register new user with empty password", users.User{Username: user.Username, Cell: "admin", Password: ""}, users.ErrInvalidEntity},
+		{"register new user with invalid address", users.User{Username: "new@gmail.com", Password: "new password", Sector: "sector", Village: "village"}, users.ErrInvalidEntity},
 	}
 
 	for _, tc := range cases {
@@ -52,8 +52,8 @@ func TestLogin(t *testing.T) {
 		err  error
 	}{
 		{"login with good credentials", user, nil},
-		{"login with wrong e-mail", users.User{Email: wrong, Password: user.Password}, users.ErrUnauthorizedAccess},
-		{"login with wrong password", users.User{Email: user.Email, Password: wrong}, users.ErrUnauthorizedAccess},
+		{"login with wrong e-mail", users.User{Username: wrong, Password: user.Password}, users.ErrUnauthorizedAccess},
+		{"login with wrong password", users.User{Username: user.Username, Password: wrong}, users.ErrUnauthorizedAccess},
 	}
 
 	for _, tc := range cases {

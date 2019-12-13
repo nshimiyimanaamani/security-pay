@@ -40,11 +40,11 @@ func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) (transactions
 }
 
 func saveUser(t *testing.T, db *sql.DB, user users.User) (users.User, error) {
-	q := `INSERT INTO users (id, email, password, cell) VALUES ($1, $2, $3, $4) RETURNING id`
+	q := `INSERT INTO users (id, username, password, cell, sector, village) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
 
 	empty := users.User{}
 
-	if _, err := db.Exec(q, user.ID, user.Email, user.Password, user.Cell); err != nil {
+	if _, err := db.Exec(q, user.ID, user.Username, user.Password, user.Cell, user.Sector, user.Village); err != nil {
 		return empty, err
 	}
 	return user, nil

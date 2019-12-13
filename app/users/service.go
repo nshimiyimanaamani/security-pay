@@ -25,7 +25,7 @@ var (
 type Service interface {
 	// Register creates new user account. In case of the failed registration, a
 	// non-nil error value is returned.
-	Register(User) (string, error)
+	Register(User) (User, error)
 
 	// Login authenticates the user given its credentials. Successful
 	// authentication generates new access token. Failed invocations are
@@ -52,14 +52,15 @@ func New(hasher Hasher, tempIdp TempIdentityProvider, idp identity.Provider, sto
 	return &usersService{hasher: hasher, tempIdp: tempIdp, idp: idp, store: store}
 }
 
-func (svc *usersService) Register(user User) (string, error) {
-	hash, err := svc.hasher.Hash(user.Password)
-	if err != nil {
-		return "", ErrInvalidEntity
+func (svc *usersService) Register(user User) (User, error) {
+	empty := User{}
+	if err := user.Validate(); err != nil {
+		return empty, ErrInvalidEntity
 	}
 
-	if !user.CheckCell() {
-		return "", ErrInvalidEntity
+	hash, err := svc.hasher.Hash(user.Password)
+	if err != nil {
+		return empty, ErrInvalidEntity
 	}
 
 	user.Password = hash
@@ -70,7 +71,7 @@ func (svc *usersService) Register(user User) (string, error) {
 }
 
 func (svc *usersService) Login(user User) (string, error) {
-	dbUser, err := svc.store.RetrieveByID(user.Email)
+	dbUser, err := svc.store.RetrieveByID(user.Username)
 	if err != nil {
 		return "", ErrUnauthorizedAccess
 	}
@@ -79,7 +80,7 @@ func (svc *usersService) Login(user User) (string, error) {
 		return "", ErrUnauthorizedAccess
 	}
 
-	return svc.tempIdp.TemporaryKey(user.Email)
+	return svc.tempIdp.TemporaryKey(user.Username)
 }
 
 func (svc *usersService) Identify(token string) (string, error) {

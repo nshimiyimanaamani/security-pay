@@ -28,22 +28,22 @@ func TestUserSave(t *testing.T) {
 	}{
 		{
 			desc: "save new user",
-			user: users.User{ID: id, Email: email, Password: "pass", Cell: "admin"},
+			user: users.User{ID: id, Username: email, Password: "pass", Cell: "admin"},
 			err:  nil,
 		},
 		{
 			desc: "save user with duplicate uuid",
-			user: users.User{ID: id, Email: email2, Password: "pass", Cell: "cell1"},
+			user: users.User{ID: id, Username: email2, Password: "pass", Cell: "cell1"},
 			err:  users.ErrConflict,
 		},
 		{
 			desc: "save user with duplicate email",
-			user: users.User{ID: uuid.New().ID(), Email: email, Password: "pass", Cell: "cell2"},
+			user: users.User{ID: uuid.New().ID(), Username: email, Password: "pass", Cell: "cell2"},
 			err:  users.ErrConflict,
 		},
 		{
 			desc: "save user with duplicate cell",
-			user: users.User{ID: uuid.New().ID(), Email: email, Password: "pass", Cell: "admin"},
+			user: users.User{ID: uuid.New().ID(), Username: email, Password: "pass", Cell: "admin"},
 			err:  users.ErrConflict,
 		},
 	}
@@ -55,8 +55,8 @@ func TestUserSave(t *testing.T) {
 }
 
 func TestUserRetrieveByID(t *testing.T) {
-	user := users.User{ID: uuid.New().ID(), Email: email, Password: "pass", Cell: "cell3"}
-	
+	user := users.User{ID: uuid.New().ID(), Username: email, Password: "pass", Cell: "cell3"}
+
 	repo := postgres.NewUserStore(db)
 
 	defer CleanDB(t, "users")
