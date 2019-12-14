@@ -54,7 +54,7 @@ func (repo *accountRepository) Update(ctx context.Context, acc accounts.Account)
 	}
 	cnt, err := res.RowsAffected()
 	if err != nil {
-		return err
+		return errors.E(op, err, errors.KindUnexpected)
 	}
 	if cnt == 0 {
 		return errors.E(op, "account not found", errors.KindNotFound)
@@ -76,7 +76,7 @@ func (repo *accountRepository) Retrieve(ctx context.Context, id string) (account
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
 			return empty, errors.E(op, "account not found", errors.KindNotFound)
 		}
-		return empty, err
+		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 	return account, nil
 }
