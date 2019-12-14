@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/rugwirobaker/paypack-backend/app/accounts"
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
-	"github.com/rugwirobaker/paypack-backend/app/users"
+	"github.com/rugwirobaker/paypack-backend/app/user"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
@@ -17,27 +18,37 @@ import (
 func TestSaveProperty(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners", "users")
+	defer CleanDB(t, "properties", "owners", "agents", "accounts")
 
-	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
-	savedUser, err := saveUser(t, db, user)
+	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+
+	account, err := saveAccount(t, db, account)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	agent := user.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Account:   account.ID,
+	}
+
+	savedAgent, err := saveAgent(t, db, agent)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	savedOwner, err := saveOwner(t, db, owner)
+	owner, err = saveOwner(t, db, owner)
 
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	new := properties.Property{
-		ID:    nanoid.New(nil).ID(),
-		Owner: properties.Owner{ID: savedOwner.ID},
-		Address: properties.Address{
-			Sector:  "Remera",
-			Cell:    "Gishushu",
-			Village: "Ingabo",
-		},
+		ID:         nanoid.New(nil).ID(),
+		Owner:      properties.Owner{ID: owner.ID},
 		Due:        float64(1000),
-		RecordedBy: savedUser.ID,
+		RecordedBy: savedAgent.Telephone,
 		Occupied:   true,
 	}
 
@@ -84,28 +95,42 @@ func TestSaveProperty(t *testing.T) {
 func TestUpdateProperty(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
-	savedUser, err := saveUser(t, db, user)
+	defer CleanDB(t, "properties", "owners", "agents", "accounts")
+
+	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+
+	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	defer CleanDB(t, "properties", "owners", "users")
+	agent := user.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Account:   account.ID,
+	}
 
-	savedOwner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	savedAgent, err := saveAgent(t, db, agent)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	sown, err := saveOwner(t, db, savedOwner)
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 
+	owner, err = saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: properties.Owner{ID: sown.ID},
+		Owner: properties.Owner{ID: owner.ID},
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
 		Due:        float64(1000),
-		RecordedBy: savedUser.ID,
+		RecordedBy: savedAgent.Telephone,
 		Occupied:   true,
 	}
 
@@ -164,10 +189,25 @@ func TestUpdateProperty(t *testing.T) {
 func TestRetrieveByID(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners", "users")
+	defer CleanDB(t, "properties", "owners", "agents", "accounts")
 
-	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
-	savedUser, err := saveUser(t, db, user)
+	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+
+	savedAccount, err := saveAccount(t, db, account)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	agent := user.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Account:   savedAccount.ID,
+	}
+
+	savedAgent, err := saveAgent(t, db, agent)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
@@ -183,7 +223,7 @@ func TestRetrieveByID(t *testing.T) {
 			Village: "RukiriII",
 		},
 		Due:        float64(1000),
-		RecordedBy: savedUser.ID,
+		RecordedBy: savedAgent.Telephone,
 		Occupied:   true,
 	}
 
@@ -211,10 +251,25 @@ func TestRetrieveByID(t *testing.T) {
 func TestRetrieveByOwner(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners", "users")
+	defer CleanDB(t, "properties", "owners", "agents", "accounts")
 
-	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
-	savedUser, err := saveUser(t, db, user)
+	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+
+	savedAccount, err := saveAccount(t, db, account)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	agent := user.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Account:   savedAccount.ID,
+	}
+
+	savedAgent, err := saveAgent(t, db, agent)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
@@ -237,7 +292,7 @@ func TestRetrieveByOwner(t *testing.T) {
 				Village: village,
 			},
 			Due:        float64(1000),
-			RecordedBy: savedUser.ID,
+			RecordedBy: savedAgent.Telephone,
 			Occupied:   true,
 		}
 
@@ -288,10 +343,25 @@ func TestRetrieveByOwner(t *testing.T) {
 func TestRetrieveBySector(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners", "users")
+	defer CleanDB(t, "properties", "owners", "agents", "accounts")
 
-	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
-	savedUser, err := saveUser(t, db, user)
+	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+
+	savedAccount, err := saveAccount(t, db, account)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	agent := user.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Account:   savedAccount.ID,
+	}
+
+	savedAgent, err := saveAgent(t, db, agent)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
@@ -314,7 +384,7 @@ func TestRetrieveBySector(t *testing.T) {
 				Village: village,
 			},
 			Due:        float64(1000),
-			RecordedBy: savedUser.ID,
+			RecordedBy: savedAgent.Telephone,
 			Occupied:   true,
 		}
 
@@ -365,10 +435,25 @@ func TestRetrieveBySector(t *testing.T) {
 func TestRetrieveByCell(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners", "users")
+	defer CleanDB(t, "properties", "owners", "agents", "accounts")
 
-	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
-	savedUser, err := saveUser(t, db, user)
+	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+
+	savedAccount, err := saveAccount(t, db, account)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	agent := user.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Account:   savedAccount.ID,
+	}
+
+	savedAgent, err := saveAgent(t, db, agent)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
@@ -391,7 +476,7 @@ func TestRetrieveByCell(t *testing.T) {
 				Village: village,
 			},
 			Due:        float64(1000),
-			RecordedBy: savedUser.ID,
+			RecordedBy: savedAgent.Telephone,
 			Occupied:   true,
 		}
 
@@ -443,10 +528,25 @@ func TestRetrieveByCell(t *testing.T) {
 func TestRetrieveByVillage(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners", "users")
+	defer CleanDB(t, "properties", "owners", "agents", "accounts")
 
-	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
-	savedUser, err := saveUser(t, db, user)
+	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+
+	savedAccount, err := saveAccount(t, db, account)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	agent := user.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Account:   savedAccount.ID,
+	}
+
+	savedAgent, err := saveAgent(t, db, agent)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
@@ -469,7 +569,7 @@ func TestRetrieveByVillage(t *testing.T) {
 				Village: village,
 			},
 			Due:        float64(1000),
-			RecordedBy: savedUser.ID,
+			RecordedBy: savedAgent.Telephone,
 			Occupied:   true,
 		}
 

@@ -19,7 +19,7 @@ func TestSaveAccount(t *testing.T) {
 
 	const op errors.Op = "store/postgres.accountRepository.Save"
 
-	id = uuid.New().ID()
+	id := uuid.New().ID()
 
 	cases := []struct {
 		desc    string
