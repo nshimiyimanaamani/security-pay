@@ -23,6 +23,50 @@ func migrateDB(db *sql.DB) error {
 						PRIMARY  	KEY (id)
 					);`,
 
+					`CREATE table IF NOT EXISTS accounts (
+						id 				UUID,
+						name 			TEXT NOT NULL,
+						type 			VARCHAR(3) NOT NULL,
+						active			BOOLEAN DEFAULT true,
+						seats 			INTEGER,
+						created_at 	TIMESTAMP,
+						updated_at  TIMESTAMP,
+						PRIMARY KEY(id)
+					);`,
+
+					`CREATE table IF NOT EXISTS developers (
+						email 		TEXT NOT NULL,
+						password 	VARCHAR(60) NOT NULL,
+						account		UUID NOT NULL,
+						created_at 	TIMESTAMP,
+						updated_at  TIMESTAMP,
+						FOREIGN KEY(account) references accounts(id) ON DELETE CASCADE ON UPDATE CASCADE,
+						PRIMARY KEY(email)
+					);`,
+
+					`CREATE table IF NOT EXISTS managers (
+						email 		TEXT NOT NULL,
+						cell 		TEXT NOT NULL,
+						password 	VARCHAR(60) NOT NULL,
+						account		UUID NOT NULL,
+						created_at 	TIMESTAMP,
+						updated_at  TIMESTAMP,
+						FOREIGN KEY(account) references accounts(id) ON DELETE CASCADE ON UPDATE CASCADE,
+						PRIMARY KEY(email)
+					);`,
+
+					`CREATE table IF NOT EXISTS agents (
+						telephone 	VARCHAR(15) NOT NULL,
+						first_name 	TEXT NOT NULL DEFAULT 'not set', 
+						last_name 	TEXT NOT NULL DEFAULT 'not set', 
+						password 	VARCHAR(60) NOT NULL,
+						account		UUID NOT NULL,
+						created_at 	TIMESTAMP,
+						updated_at  TIMESTAMP,
+						FOREIGN KEY (account) references accounts(id) ON DELETE CASCADE ON UPDATE CASCADE,
+						PRIMARY KEY(telephone)
+					);`,
+
 					`CREATE TABLE IF NOT EXISTS owners (
 						id	   		UUID,
 						fname  		VARCHAR(1024) NOT NULL,
@@ -68,50 +112,6 @@ func migrateDB(db *sql.DB) error {
 						created_at 	TIMESTAMP,
 						updated_at  TIMESTAMP,
 						PRIMARY KEY(id)
-					);`,
-
-					`CREATE table IF NOT EXISTS accounts (
-						id 				UUID,
-						name 			TEXT NOT NULL,
-						type 			VARCHAR(3) NOT NULL,
-						active			BOOLEAN DEFAULT true,
-						seats 			INTEGER,
-						created_at 	TIMESTAMP,
-						updated_at  TIMESTAMP,
-						PRIMARY KEY(id)
-					);`,
-
-					`CREATE table IF NOT EXISTS developers (
-						email 		TEXT NOT NULL,
-						password 	VARCHAR(60) NOT NULL,
-						account		UUID NOT NULL,
-						created_at 	TIMESTAMP,
-						updated_at  TIMESTAMP,
-						FOREIGN KEY(account) references accounts(id) ON DELETE CASCADE ON UPDATE CASCADE,
-						PRIMARY KEY(email)
-					);`,
-
-					`CREATE table IF NOT EXISTS managers (
-						email 		TEXT NOT NULL,
-						cell 		TEXT NOT NULL,
-						password 	VARCHAR(60) NOT NULL,
-						account		UUID NOT NULL,
-						created_at 	TIMESTAMP,
-						updated_at  TIMESTAMP,
-						FOREIGN KEY(account) references accounts(id) ON DELETE CASCADE ON UPDATE CASCADE,
-						PRIMARY KEY(email)
-					);`,
-
-					`CREATE table IF NOT EXISTS agents (
-						telephone 	VARCHAR(15) NOT NULL,
-						first_name 	TEXT NOT NULL DEFAULT 'not set', 
-						last_name 	TEXT NOT NULL DEFAULT 'not set', 
-						password 	VARCHAR(60) NOT NULL,
-						account		UUID NOT NULL,
-						created_at 	TIMESTAMP,
-						updated_at  TIMESTAMP,
-						FOREIGN KEY (account) references accounts(id) ON DELETE CASCADE ON UPDATE CASCADE,
-						PRIMARY KEY(telephone)
 					);`,
 				},
 
