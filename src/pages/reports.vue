@@ -379,21 +379,9 @@ export default {
           const name = this.lc(obj.owner.fname + " " + obj.owner.lname);
           this.search.datalist = [...new Set([...this.search.datalist, name])];
           if (name.includes(searchedName)) {
-            const fname = this.lc(
-              searchedName
-                .split(" ")
-                .slice(0, 1)
-                .join(" ")
-            );
-            const lname = this.lc(
-              searchedName
-                .split(" ")
-                .slice(1, -1)
-                .join(" ")
-            );
             return (
-              obj.owner.fname.toLowerCase().includes(fname) ||
-              obj.owner.lname.toLowerCase().includes(lname)
+              obj.owner.fname.includes(obj.owner.fname) ||
+              obj.owner.lname.includes(obj.owner.lname)
             );
           }
         });
