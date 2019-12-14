@@ -34,7 +34,7 @@ func New(opts *Options) Service {
 }
 
 func (svc *service) Create(ctx context.Context, acc Account) (Account, error) {
-	const op errors.Op = "accounts/service.Create"
+	const op errors.Op = "app/accounts/service.Create"
 
 	if err := acc.Validate(); err != nil {
 		return Account{}, errors.E(op, err)
@@ -43,7 +43,7 @@ func (svc *service) Create(ctx context.Context, acc Account) (Account, error) {
 }
 
 func (svc *service) Update(ctx context.Context, acc Account) error {
-	const op errors.Op = "accounts/service.Update"
+	const op errors.Op = "app/accounts/service.Update"
 
 	if err := acc.Validate(); err != nil {
 		return errors.E(op, err)
@@ -56,7 +56,7 @@ func (svc *service) Update(ctx context.Context, acc Account) error {
 }
 
 func (svc *service) Retrieve(ctx context.Context, id string) (Account, error) {
-	const op errors.Op = "accounts/service.Retrieve"
+	const op errors.Op = "app/accounts/service.Retrieve"
 
 	account, err := svc.repo.Retrieve(ctx, id)
 	if err != nil {
@@ -66,7 +66,7 @@ func (svc *service) Retrieve(ctx context.Context, id string) (Account, error) {
 }
 
 func (svc *service) List(ctx context.Context, offset, limit uint64) (AccountPage, error) {
-	const op errors.Op = "accounts/service.List"
+	const op errors.Op = "app/accounts/service.List"
 
 	page, err := svc.repo.List(ctx, offset, limit)
 	if err != nil {

@@ -22,7 +22,7 @@ func newService() accounts.Service {
 func TestCreate(t *testing.T) {
 	svc := newService()
 
-	const op errors.Op = "accounts/service.Create"
+	const op errors.Op = "app/accounts/service.Create"
 
 	cases := []struct {
 		desc    string
@@ -57,7 +57,7 @@ func TestCreate(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	svc := newService()
 
-	const op errors.Op = "accounts/service.Update"
+	const op errors.Op = "app/accounts/service.Update"
 
 	account := accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 	ctx := context.Background()
@@ -103,7 +103,7 @@ func TestUpdate(t *testing.T) {
 func TestRetrieve(t *testing.T) {
 	svc := newService()
 
-	const op errors.Op = "accounts/service.Retrieve"
+	const op errors.Op = "app/accounts/service.Retrieve"
 
 	account := accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 	ctx := context.Background()
@@ -139,7 +139,7 @@ func TestRetrieve(t *testing.T) {
 func TestList(t *testing.T) {
 	svc := newService()
 
-	const op errors.Op = "accounts/service.List"
+	const op errors.Op = "app/accounts/service.List"
 
 	account := accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 

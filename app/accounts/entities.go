@@ -16,18 +16,18 @@ const (
 
 // Account represents an account entity
 type Account struct {
-	ID            string
-	Name          string
-	Type          AccountType
-	NumberOfSeats int
-	Active        bool
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID            string      `json:"id,omitempty"`
+	Name          string      `json:"name,omitempty"`
+	Type          AccountType `json:"type,omitempty"`
+	NumberOfSeats int         `json:"seats,omitempty"`
+	Active        bool        `json:"active,omitempty"`
+	CreatedAt     time.Time   `json:"created_at,omitempty"`
+	UpdatedAt     time.Time   `json:"updated_at,omitempty"`
 }
 
 // Validate validates an account at registration time
 func (ac *Account) Validate() error {
-	const op errors.Op = "accounts/account.Validate"
+	const op errors.Op = "app/accounts/account.Validate"
 
 	if ac.Name == "" {
 		return errors.E(op, "invalid account: missing name", errors.KindBadRequest)

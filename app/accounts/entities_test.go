@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestValidate(t *testing.T) {
+func TestValidateAccount(t *testing.T) {
 
-	const op errors.Op = "accounts/account.Validate"
+	const op errors.Op = "app/accounts/account.Validate"
 	cases := []struct {
 		desc    string
 		account accounts.Account
