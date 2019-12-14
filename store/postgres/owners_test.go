@@ -226,7 +226,7 @@ func TestRetrieveAllOwners(t *testing.T) {
 		size := uint64(len(page.Owners))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
-		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got %d\n", desc, err))
+		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got '%v'\n", desc, err))
 	}
 }
 

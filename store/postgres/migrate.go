@@ -10,130 +10,84 @@ func migrateDB(db *sql.DB) error {
 	migrations := &migrate.MemoryMigrationSource{
 		Migrations: []*migrate.Migration{
 			{
-				Id: "paypack_1",
+				Id: "v1.0.0",
 
 				Up: []string{
 					`CREATE TABLE IF NOT EXISTS users (
 						id       	UUID,
-						email    	VARCHAR(254) UNIQUE,
+						username    VARCHAR(254) UNIQUE,
+						cell 		VARCHAR(254) NOT NULL DEFAULT 'not set',
+						sector 		VARCHAR(254) NOT NULL DEFAULT 'not set',
+						village 	VARCHAR(254) NOT NULL DEFAULT 'not set',
 						password 	CHAR(60)	 NOT NULL,
 						PRIMARY  	KEY (id)
-					)`,
-				},
+					);`,
 
-				Down: []string{
-					"DROP TABLE users",
-				},
-			},
-			{
-
-				Id: "paypack_2",
-
-				Up: []string{
 					`CREATE TABLE IF NOT EXISTS owners (
 						id	   		UUID,
 						fname  		VARCHAR(1024) NOT NULL,
 						lname  		VARCHAR(1024) NOT NULL,
-						phone  		VARCHAR(15)   NOT NULL,
+						phone  		VARCHAR(15)   NOT NULL UNIQUE,
 						PRIMARY 	KEY(id)
-					)`,
+					);`,
 
 					`CREATE TABLE IF NOT EXISTS properties (
 						id			TEXT,
 						owner		UUID,
+						due 		NUMERIC (9, 2) NOT NULL DEFAULT (0),
 						sector		VARCHAR(254) NOT NULL,
 						cell		VARCHAR(254) NOT NULL,
 						village		VARCHAR(254) NOT NULL,
+						for_rent 	BOOLEAN DEFAULT FALSE,
+						occupied 	BOOLEAN DEFAULT TRUE,
+						recorded_by UUID NOT NULL,
+						FOREIGN KEY(recorded_by) references users(id) ON DELETE CASCADE ON UPDATE CASCADE,
 						FOREIGN KEY(owner) references owners(id) ON DELETE CASCADE ON UPDATE CASCADE,
 						PRIMARY 	KEY(id)
-					)`,
+					);`,
+
 					`CREATE TABLE IF NOT EXISTS transactions (
 						id 				UUID,
 						madeby 			UUID,
 						madefor			TEXT,
 						amount    		VARCHAR(254),
 						method  		VARCHAR(254),
-						date_modified 	TIMESTAMP,
+						date_recorded 	TIMESTAMP,
 						is_valid    	BOOLEAN DEFAULT false,
 						FOREIGN KEY(madefor) references properties(id) ON DELETE CASCADE ON UPDATE CASCADE,
 						FOREIGN KEY(madeby) references owners(id) ON DELETE CASCADE ON UPDATE CASCADE,
 						PRIMARY KEY	(id)
-					)`,
-				},
+					);`,
 
-				Down: []string{
-					"DROP TABLE owners",
-					"DROP TABLE properties",
-					"DROP TABLE transactions",
-				},
-			},
-			{
-				Id: "paypack_3",
-
-				Up: []string{
-					`ALTER TABLE properties ADD COLUMN due NUMERIC (9, 2) NOT NULL DEFAULT (0);`,
-				},
-
-				Down: []string{
-					`ALTER TABLE properties DROP COLUMN  monthlty_due`,
-				},
-			},
-			{
-				Id: "paypack_4",
-
-				Up: []string{
-					`ALTER TABLE transactions ADD COLUMN date_recorded TIMESTAMP;`,
-				},
-
-				Down: []string{
-					`ALTER TABLE transactions DROP COLUMN  date_recorded`,
-				},
-			},
-			{
-				Id: "paypack_5",
-
-				Up: []string{
-					`ALTER TABLE users ADD COLUMN cell VARCHAR(254);`,
-				},
-
-				Down: []string{
-					`ALTER TABLE users DROP COLUMN  cell;`,
-				},
-			},
-			{
-				Id: "paypack_6",
-
-				Up: []string{
-					`ALTER TABLE owners 
-						ADD UNIQUE (phone);
-					`,
-				},
-
-				Down: []string{
-					`ALTER TABLE owners 
-						DROP COLUMN  password;
-					`,
-				},
-			},
-			{
-				Id: "paypack_7",
-
-				Up: []string{
 					`CREATE TABLE IF NOT EXISTS messages (
 						id 			UUID,
 						title 		TEXT NOT NULL,
 						body  		TEXT,
 						hidden 		BOOLEAN DEFAULT false,
-						creator	VARCHAR(15) NOT NULL,
+						creator		VARCHAR(15) NOT NULL,
 						created_at 	TIMESTAMP,
 						updated_at  TIMESTAMP,
 						PRIMARY KEY(id)
-					)`,
+					);`,
+
+					`CREATE table IF NOT EXISTS accounts (
+						id 				UUID,
+						name 			TEXT NOT NULL,
+						type 			VARCHAR(3) NOT NULL,
+						active			BOOLEAN DEFAULT true,
+						seats 			INTEGER,
+						created_at 	TIMESTAMP,
+						updated_at  TIMESTAMP,
+						PRIMARY KEY(id)
+					);`,
 				},
 
 				Down: []string{
-					`DROP TABLE messages;
-					`,
+					"DROP TABLE users",
+					"DROP TABLE owners",
+					"DROP TABLE properties",
+					"DROP TABLE transactions",
+					"DROP TABLE messages",
 				},
 			},
 			// {
@@ -154,48 +108,6 @@ func migrateDB(db *sql.DB) error {
 			// 		`ALTER TABLE owners ADD COLUMN password VARCHAR(60) NOT NULL;`,
 			// 	},
 			// },
-			{
-				Id: "paypack_8",
-
-				Up: []string{
-					`ALTER TABLE properties
-						ADD COLUMN occupied BOOLEAN DEFAULT FALSE,
-						ADD COLUMN recorded_by UUID NOT NULL,
-						ADD CONSTRAINT recorded_by FOREIGN KEY(recorded_by) references users(id);
-					`,
-				},
-
-				Down: []string{
-					`ALTER TABLE properties
-						DROP COLUMN occupied;
-						DROP CONSTRAINT recorded_by;
-						DROP COLUMN recorded_by;
-					`,
-				},
-			},
-			{
-				Id: "paypack_9",
-
-				Up: []string{
-					`ALTER TABLE users
-						ADD COLUMN sector  VARCHAR(254) NOT NULL DEFAULT 'unset',
-						ADD COLUMN village VARCHAR(254) NOT NULL DEFAULT 'unset',
-						ALTER COLUMN cell SET NOT NULL,
-						ALTER COLUMN cell SET DEFAULT 'unset';			
-					`,
-					`ALTER TABLE users
-						RENAME COLUMN email TO username;
-					`,
-				},
-
-				Down: []string{
-					`ALTER TABLE users
-						DROP COLUMN sector,
-						DROP COLUMN village,
-						RENAME COLUMN username TO email;
-					`,
-				},
-			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
