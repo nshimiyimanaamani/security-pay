@@ -73,8 +73,8 @@ export default {
       if (email && key) {
         this.loading = true;
         this.axios
-          .post("https://quarks-paypack.herokuapp.com/api/users/tokens", {
-            email: email,
+          .post(this.endpoint+"/users/tokens", {
+            username: email,
             password: key
           })
           .then(res => {
@@ -85,7 +85,7 @@ export default {
           })
           .catch(err => {
             console.warn(err);
-            delete sessionStorage.getItem("token");
+            delete sessionStorage.token;
             this.loading = false;
           });
       }
