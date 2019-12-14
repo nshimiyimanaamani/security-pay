@@ -296,7 +296,7 @@ export default {
         { key: "address.sector", label: "sector", sortable: true },
         { key: "address.cell", label: "Cell", sortable: true },
         { key: "address.village", label: "Village", sortable: true },
-        { key: "occupied", label: "Irakodeshwa", sortable: true },
+        { key: "occupied", label: "Rented", sortable: true },
         { key: "due", label: "Amount", sortable: false }
       ],
       items: [],
@@ -374,12 +374,30 @@ export default {
     "search.name"() {
       handler: {
         this.search.datalist = new Array();
+        const searchedName = this.search.name;
         this.tableItems = this.filter().filter(obj => {
-          this.search.datalist.push(obj.owner);
-          return obj.owner
-            .toLowerCase()
-            .includes(this.search.name.toLowerCase());
+          const name = this.lc(obj.owner.fname + " " + obj.owner.lname);
+          this.search.datalist = [...new Set([...this.search.datalist, name])];
+          if (name.includes(searchedName)) {
+            const fname = this.lc(
+              searchedName
+                .split(" ")
+                .slice(0, 1)
+                .join(" ")
+            );
+            const lname = this.lc(
+              searchedName
+                .split(" ")
+                .slice(1, -1)
+                .join(" ")
+            );
+            return (
+              obj.owner.fname.toLowerCase().includes(fname) ||
+              obj.owner.lname.toLowerCase().includes(lname)
+            );
+          }
         });
+        console.log(this.tableItems);
         while (this.search.datalist.length > 5) {
           this.search.datalist.pop();
         }
@@ -526,17 +544,16 @@ export default {
           delete value.thClass;
         }
       });
+      const sector = this.select.sector ? this.select.sector.toLowerCase() : "";
+      const cell = this.select.cell ? this.select.cell.toLowerCase() : "";
+      const village = this.select.village
+        ? this.select.village.toLowerCase()
+        : "";
       return this.items.filter(item => {
         return (
-          item.address.sector
-            .toLowerCase()
-            .includes(this.select.sector.toLowerCase()) &&
-          item.address.cell
-            .toLowerCase()
-            .includes(this.select.cell.toLowerCase()) &&
-          item.address.village
-            .toLowerCase()
-            .includes(this.select.village.toLowerCase())
+          item.address.sector.toLowerCase().includes(sector) &&
+          item.address.cell.toLowerCase().includes(cell) &&
+          item.address.village.toLowerCase().includes(village)
         );
       });
     },
@@ -604,6 +621,9 @@ export default {
     capitalize(string) {
       string.toLowerCase();
       return string.charAt(0).toUpperCase() + string.slice(1);
+    },
+    lc(a) {
+      return a.toLowerCase();
     },
     confirm(message) {
       return this.$bvModal.msgBoxConfirm(message, {
