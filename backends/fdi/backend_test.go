@@ -36,6 +36,7 @@ func newBackend() (payment.Backend, error) {
 }
 
 func TestStatus(t *testing.T) {
+	t.Skip("Skipping testing with external deps")
 	bck, err := newBackend()
 	require.Nil(t, err, fmt.Sprintf("unexpected error %v", err))
 
@@ -48,6 +49,7 @@ func TestStatus(t *testing.T) {
 }
 
 func TestAuth(t *testing.T) {
+	t.Skip("Skipping testing in CI environment")
 	bck, err := newBackend()
 	require.Nil(t, err, fmt.Sprintf("unexpected error %v", err))
 
@@ -61,6 +63,7 @@ func TestAuth(t *testing.T) {
 }
 
 func TestPull(t *testing.T) {
+	t.Skip("Skipping testing in CI environment")
 	bck, err := newBackend()
 	require.Nil(t, err, fmt.Sprintf("unexpected error %v", err))
 

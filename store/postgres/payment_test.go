@@ -6,10 +6,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rugwirobaker/paypack-backend/app/accounts"
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
-	"github.com/rugwirobaker/paypack-backend/app/users"
+	"github.com/rugwirobaker/paypack-backend/app/user"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
@@ -20,26 +21,46 @@ import (
 func TestSaveTransaction(t *testing.T) {
 	repo := postgres.NewPaymentRepo(db)
 	props := postgres.NewPropertyStore(db)
+	defer CleanDB(t, "transactions", "properties", "owners", "agents")
 
 	const op errors.Op = "postgres.paymentRepo.Save"
 
-	defer CleanDB(t, "transactions", "properties", "owners", "users")
-
 	var amount = 1000
+	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
-	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
-	savedUser, err := saveUser(t, db, user)
+	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err = saveOwner(t, db, owner)
+	agent := user.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Account:   savedAccount.ID,
+	}
+
+	savedAgent, err := saveAgent(t, db, agent)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	savedOwner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+
+	sown, err := saveOwner(t, db, savedOwner)
+
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:         nanoid.New(nil).ID(),
-		Owner:      owner,
-		Due:        float64(amount),
-		RecordedBy: savedUser.ID,
+		ID:    nanoid.New(nil).ID(),
+		Owner: properties.Owner{ID: sown.ID},
+		Address: properties.Address{
+			Sector:  "Remera",
+			Cell:    "Gishushu",
+			Village: "Ingabo",
+		},
+		Due:        float64(1000),
+		RecordedBy: savedAgent.Telephone,
 		Occupied:   true,
 	}
 
@@ -87,21 +108,42 @@ func TestRetrieveCode(t *testing.T) {
 
 	defer CleanDB(t, "transactions", "properties", "owners", "users")
 
-	var amount = 1000
+	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
-	user := users.User{ID: uuid.New().ID(), Username: "email", Password: "password"}
-	savedUser, err := saveUser(t, db, user)
+	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	_, err = saveOwner(t, db, owner)
+	agent := user.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Account:   savedAccount.ID,
+	}
+
+	savedAgent, err := saveAgent(t, db, agent)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	savedOwner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+
+	sown, err := saveOwner(t, db, savedOwner)
+
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
-		ID:         nanoid.New(nil).ID(),
-		Owner:      owner,
-		Due:        float64(amount),
-		RecordedBy: savedUser.ID,
+		ID:    nanoid.New(nil).ID(),
+		Owner: properties.Owner{ID: sown.ID},
+		Address: properties.Address{
+			Sector:  "Remera",
+			Cell:    "Gishushu",
+			Village: "Ingabo",
+		},
+		Due:        float64(1000),
+		RecordedBy: savedAgent.Telephone,
+		Occupied:   true,
 	}
 
 	ctx := context.Background()

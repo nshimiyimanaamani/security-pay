@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/go-redis/redis/v7"
+	"github.com/rugwirobaker/paypack-backend/app/accounts"
 	"github.com/rugwirobaker/paypack-backend/app/feedback"
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/owners"
@@ -20,6 +21,7 @@ import (
 
 // Services aggrates all the services
 type Services struct {
+	Accounts     accounts.Service
 	Feedback     feedback.Service
 	Owners       owners.Service
 	Payment      payment.Service
@@ -31,6 +33,7 @@ type Services struct {
 // Init initialises all services
 func Init(db *sql.DB, rclient *redis.Client, b payment.Backend, secret string) *Services {
 	services := &Services{
+		Accounts:     bootAccountsService(db),
 		Feedback:     bootFeedbackService(db),
 		Owners:       bootOwnersService(db),
 		Payment:      bootPaymentService(db, rclient, b),
@@ -88,4 +91,11 @@ func bootPaymentService(db *sql.DB, rclient *redis.Client, bc payment.Backend) p
 	queue := rstore.NewQueue(rclient)
 	opts := &payment.Options{Idp: idp, Backend: bc, Repo: repo, Queue: queue}
 	return payment.New(opts)
+}
+
+func bootAccountsService(db *sql.DB) accounts.Service {
+	repo := postgres.NewAccountRepository(db)
+	idp := uuid.New()
+	opts := &accounts.Options{Repository: repo, IDP: idp}
+	return accounts.New(opts)
 }

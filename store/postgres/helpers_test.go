@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/rugwirobaker/paypack-backend/app/accounts"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
+	"github.com/rugwirobaker/paypack-backend/app/user"
 	"github.com/rugwirobaker/paypack-backend/app/users"
 )
 
@@ -40,7 +42,17 @@ func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) (transactions
 }
 
 func saveUser(t *testing.T, db *sql.DB, user users.User) (users.User, error) {
-	q := `INSERT INTO users (id, username, password, cell, sector, village) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
+	q := `
+		INSERT INTO users (
+			id, 
+			username, 
+			password, 
+			cell, 
+			sector, 
+			village
+		) VALUES (
+			$1, $2, $3, $4, $5, $6
+		) RETURNING id;`
 
 	empty := users.User{}
 
@@ -49,6 +61,54 @@ func saveUser(t *testing.T, db *sql.DB, user users.User) (users.User, error) {
 	}
 	return user, nil
 
+}
+
+func saveAgent(t *testing.T, db *sql.DB, agent user.Agent) (user.Agent, error) {
+	q := `
+		INSERT INTO agents (
+			telephone, 
+			first_name, 
+			last_name, 
+			cell,
+			sector, 
+			village, 
+			password, 
+			account, 
+			created_at, 
+			updated_at
+		) VALUES (
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+		) RETURNING telephone;
+		`
+	empty := user.Agent{}
+
+	if _, err := db.Exec(q, agent.Telephone, agent.FirstName, agent.LastName, agent.Cell, agent.Sector, agent.Village,
+		agent.Password, agent.Account, agent.CreatedAt, agent.UpdatedAt); err != nil {
+		return empty, err
+	}
+	return agent, nil
+}
+
+func saveAccount(t *testing.T, db *sql.DB, acc accounts.Account) (accounts.Account, error) {
+	q := `
+		INSERT INTO accounts (
+			id, 
+			name, 
+			type, 
+			seats, 
+			created_at, 
+			updated_at
+		) VALUES (
+			$1, $2, $3, $4, $5, $6
+		) RETURNING id;`
+
+	empty := accounts.Account{}
+
+	_, err := db.Exec(q, acc.ID, acc.Name, acc.Type, acc.NumberOfSeats, acc.CreatedAt, acc.UpdatedAt)
+	if err != nil {
+		return empty, err
+	}
+	return acc, nil
 }
 
 func CleanDB(t *testing.T, tables ...string) {

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	accountsEndpoints "github.com/rugwirobaker/paypack-backend/api/http/accounts"
 	feedbackEndpoints "github.com/rugwirobaker/paypack-backend/api/http/feedback"
 	"github.com/rugwirobaker/paypack-backend/api/http/health"
 	ownersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/owners"
@@ -17,6 +18,7 @@ import (
 
 // HandlerOptions ...
 type HandlerOptions struct {
+	AccountsOptions *accountsEndpoints.HandlerOpts
 	FeedbackOptions *feedbackEndpoints.HandlerOpts
 	OwnersOptions   *ownersEndpoints.HandlerOpts
 	PayOptions      *paymentEndpoints.HandlerOpts
@@ -55,7 +57,13 @@ func NewHandlerOptions(s *Services, lggr *log.Logger) *HandlerOptions {
 		Logger:  lggr,
 	}
 
+	accountsOpts := &accountsEndpoints.HandlerOpts{
+		Service: s.Accounts,
+		Logger:  lggr,
+	}
+
 	opts := &HandlerOptions{
+		AccountsOptions: accountsOpts,
 		FeedbackOptions: feedOpts,
 		OwnersOptions:   ownersOpts,
 		PropsOptions:    proOpts,
