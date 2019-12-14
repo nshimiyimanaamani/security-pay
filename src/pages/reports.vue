@@ -100,6 +100,7 @@
     >
       <template v-slot:cell(due)="data">{{Number(data.item.due).toLocaleString()}} Rwf</template>
       <template v-slot:cell(owner)="data">{{data.item.owner.fname +" "+ data.item.owner.lname}}</template>
+      <template v-slot:cell(occupied)="data">{{data.item.occupied?"OYA":"YEGO"}}</template>
       <template v-slot:cell(index)="data">
         <article class="text-center">{{data.index + 1}}</article>
       </template>
@@ -295,6 +296,7 @@ export default {
         { key: "address.sector", label: "sector", sortable: true },
         { key: "address.cell", label: "Cell", sortable: true },
         { key: "address.village", label: "Village", sortable: true },
+        { key: "occupied", label: "Irakodeshwa", sortable: true },
         { key: "due", label: "Amount", sortable: false }
       ],
       items: [],
@@ -402,6 +404,7 @@ export default {
         .then(res => {
           this.items = new Array();
           this.items = res.data.Properties;
+          console.log(this.items);
           this.loading.request = false;
         })
         .catch(err => {
@@ -474,6 +477,7 @@ export default {
               sector: "remera"
             },
             due: this.modal.form.due.toString(),
+            occupied: true,
             recorded_by: "6de63fec-5f4a-4867-ae4c-3f3af70c9166"
           })
           .then(res => {
