@@ -73,7 +73,7 @@ export default {
       if (email && key) {
         this.loading = true;
         this.axios
-          .post(this.endpoint+"/users/tokens", {
+          .post(this.endpoint + "/users/tokens", {
             username: email,
             password: key
           })
@@ -84,6 +84,7 @@ export default {
             this.loading = false;
           })
           .catch(err => {
+            this.$snotify.error(`Wrong username or password, Try again!`);
             console.warn(err);
             delete sessionStorage.token;
             this.loading = false;

@@ -180,9 +180,7 @@
               type="number"
               placeholder="Phone number"
             ></b-form-input>
-            <b-form-invalid-feedback
-              :state="checkNumber"
-            >Phone number must be greater than or equal 10.</b-form-invalid-feedback>
+            <b-form-invalid-feedback :state="checkNumber">Please use a valid Phone number!</b-form-invalid-feedback>
           </b-form-group>
           <b-form-group
             id="input-group-4"
@@ -239,6 +237,7 @@
 <script>
 import jsPDF from "jspdf";
 const { District, Sector, Cell, Village } = require("rwanda");
+const { isPhoneNumber } = require("rwa-validator");
 import "jspdf-autotable";
 export default {
   name: "reports",
@@ -345,13 +344,8 @@ export default {
       return array;
     },
     checkNumber() {
-      if (this.modal.form.phone) {
-        if (this.modal.form.phone.length >= 1) {
-          return this.modal.form.phone.length >= 10;
-        } else {
-          return null;
-        }
-      }
+      const n = this.modal.form.phone;
+      return n ? isPhoneNumber(n) : null;
     }
   },
   watch: {

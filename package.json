@@ -19,6 +19,7 @@
     "jspdf-autotable": "^3.2.2",
     "node-sass": "^4.12.0",
     "portal-vue": "^2.1.6",
+    "rwa-validator": "^1.0.5",
     "rwanda": "^1.0.3",
     "vue": "^2.6.10",
     "vue-axios": "^2.1.4",
