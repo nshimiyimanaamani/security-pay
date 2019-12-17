@@ -7,23 +7,19 @@ import (
 )
 
 // Role represents user access level
-type Role int
+type Role string
 
 const (
 	// Dev has access oveer all accounts
-	Dev = iota + 1
+	Dev = "dev"
 	// Admin has access level only to the sector they manage
-	Admin
+	Admin = "admin"
 	// Basic has access to only a single cell.
-	Basic
+	Basic = "basic"
 
 	// Min is the minimun privilage level
-	Min
+	Min = "min"
 )
-
-func (r Role) String() string {
-	return [...]string{"ent", "dev", "basic", "min"}[r]
-}
 
 // PageMetadata contains page metadata that helps navigation.
 type PageMetadata struct {
@@ -37,7 +33,7 @@ type Administrator struct {
 	Email     string    `json:"email,omitempty"`
 	Password  string    `json:"password,omitempty"`
 	Account   string    `json:"account,omitempty"`
-	Role      string    `json:"role,omitempty"`
+	Role      Role      `json:"role,omitempty"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }

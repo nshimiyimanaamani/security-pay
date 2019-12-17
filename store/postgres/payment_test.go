@@ -39,6 +39,7 @@ func TestSaveTransaction(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   savedAccount.ID,
 	}
 
@@ -121,6 +122,7 @@ func TestRetrieveCode(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   savedAccount.ID,
 	}
 

@@ -27,7 +27,7 @@ func migrateDB(db *sql.DB) error {
 					`CREATE TABLE IF NOT EXISTS users (
 						username    VARCHAR(254),
 						password 	CHAR(60)	 NOT NULL,
-						role	 	SMALLINT NOT NULL DEFAULT 1 CHECK(role in (1, 2, 3, 4)),
+						role	 	VARCHAR(5) NOT NULL DEFAULT 1 CHECK(role in ('dev', 'admin', 'basic', 'min')),
 						account		UUID NOT NULL,
 						created_at 	TIMESTAMP,
 						updated_at  TIMESTAMP,
@@ -38,20 +38,20 @@ func migrateDB(db *sql.DB) error {
 
 					`CREATE TABLE IF NOT EXISTS developers (
 						email 	VARCHAR(254) PRIMARY KEY REFERENCES users(username),
-						role	SMALLINT NOT NULL DEFAULT(1) check (role = 1),
+						role	VARCHAR(5)  NOT NULL DEFAULT('dev') check (role = 'dev'),
 						FOREIGN KEY(email, role) REFERENCES users(username, role)
 					);`,
 
 					`CREATE TABLE IF NOT EXISTS admins (
 						email 		VARCHAR(254) PRIMARY KEY REFERENCES users(username),
-						role	 	SMALLINT NOT NULL DEFAULT(2) check (role = 2),
+						role	 	VARCHAR(5) NOT NULL DEFAULT('admin') check (role = 'admin'),
 						FOREIGN KEY(email, role) REFERENCES users(username, role)
 					);`,
 
 					`CREATE TABLE IF NOT EXISTS managers (
 						email 		VARCHAR(254) PRIMARY KEY REFERENCES users(username),
 						cell 		TEXT NOT NULL DEFAULT 'not set',
-						role	 	SMALLINT NOT NULL DEFAULT(2) check (role = 3),
+						role	 	VARCHAR(5) NOT NULL DEFAULT('basic') check (role = 'basic'),
 						FOREIGN KEY(email, role) REFERENCES users(username, role)
 					);`,
 
@@ -62,7 +62,7 @@ func migrateDB(db *sql.DB) error {
 						cell 		VARCHAR(254) NOT NULL DEFAULT 'not set',
 						sector 		VARCHAR(254) NOT NULL DEFAULT 'not set',
 						village 	VARCHAR(254) NOT NULL DEFAULT 'not set',
-						role	 	SMALLINT NOT NULL DEFAULT(3)  check (role = 4),
+						role	 	VARCHAR(5) NOT NULL DEFAULT('agent') check (role = 'min'),
 						FOREIGN KEY(telephone, role) REFERENCES users(username, role)
 					);`,
 

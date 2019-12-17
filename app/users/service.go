@@ -56,6 +56,7 @@ type service struct {
 	repo   Repository
 }
 
+// Options ...
 type Options struct {
 	Hasher hasher.Hasher
 	Repo   Repository

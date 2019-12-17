@@ -63,26 +63,21 @@ func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) (transactions
 // }
 
 func saveAgent(t *testing.T, db *sql.DB, agent users.Agent) (users.Agent, error) {
+
 	q := `
-		INSERT INTO agents (
-			telephone, 
-			first_name, 
-			last_name, 
-			cell,
-			sector, 
-			village, 
+		INSERT into users (
+			username, 
 			password, 
+			role, 
 			account, 
 			created_at, 
 			updated_at
-		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10
-		) RETURNING telephone;
-		`
+		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING username
+	`
 	empty := users.Agent{}
 
-	if _, err := db.Exec(q, agent.Telephone, agent.FirstName, agent.LastName, agent.Cell, agent.Sector, agent.Village,
-		agent.Password, agent.Account, agent.CreatedAt, agent.UpdatedAt); err != nil {
+	if _, err := db.Exec(q, agent.Telephone, agent.FirstName, agent.Role,
+		agent.Account, agent.CreatedAt, agent.UpdatedAt); err != nil {
 		return empty, err
 	}
 	return agent, nil

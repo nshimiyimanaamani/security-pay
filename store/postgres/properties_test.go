@@ -33,6 +33,7 @@ func TestSaveProperty(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   account.ID,
 	}
 
@@ -110,6 +111,7 @@ func TestUpdateProperty(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   account.ID,
 	}
 
@@ -204,6 +206,7 @@ func TestRetrieveByID(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   savedAccount.ID,
 	}
 
@@ -266,6 +269,7 @@ func TestRetrieveByOwner(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   savedAccount.ID,
 	}
 
@@ -358,6 +362,7 @@ func TestRetrieveBySector(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   savedAccount.ID,
 	}
 
@@ -450,6 +455,7 @@ func TestRetrieveByCell(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   savedAccount.ID,
 	}
 
@@ -543,6 +549,7 @@ func TestRetrieveByVillage(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   savedAccount.ID,
 	}
 

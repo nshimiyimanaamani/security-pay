@@ -42,6 +42,7 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   account.ID,
 	}
 
@@ -117,6 +118,7 @@ func TestRetrieveAll(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   account.ID,
 	}
 
@@ -204,6 +206,7 @@ func TestRetrieveByProperty(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   account.ID,
 	}
 
@@ -300,6 +303,7 @@ func TestRetrieveByMethod(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   account.ID,
 	}
 
