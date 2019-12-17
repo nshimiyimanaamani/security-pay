@@ -37,7 +37,7 @@ func (svc *service) ListManagers(ctx context.Context, offset, limit uint64) (Man
 	}
 	return page, nil
 }
-func (svc *service) UpdateManager(ctx context.Context, user Manager) error {
+func (svc *service) UpdateManagerCreds(ctx context.Context, user Manager) error {
 	const op errors.Op = "app/users/service.UpdateManagerCreds"
 
 	err := svc.repo.UpdateManagerCreds(ctx, user)

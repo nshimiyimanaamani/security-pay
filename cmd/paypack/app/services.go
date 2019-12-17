@@ -38,13 +38,13 @@ func Init(db *sql.DB, rclient *redis.Client, b payment.Backend, secret string) *
 		Payment:      bootPaymentService(db, rclient, b),
 		Properties:   bootPropertiesService(db),
 		Transactions: bootTransactionsService(db),
-		Users:        bootUserService(db, secret),
+		Users:        bootUserService(db),
 	}
 	return services
 }
 
 // bootUserService configures the users service
-func bootUserService(db *sql.DB, secret string) users.Service {
+func bootUserService(db *sql.DB) users.Service {
 	hasher := bcrypt.New()
 	repo := postgres.NewUserRepository(db)
 	opts := &users.Options{Repo: repo, Hasher: hasher}

@@ -64,5 +64,8 @@ type Options struct {
 
 // New creates an instance of users.Service
 func New(opts *Options) Service {
-	return nil
+	return &service{
+		hasher: opts.Hasher,
+		repo:   opts.Repo,
+	}
 }
