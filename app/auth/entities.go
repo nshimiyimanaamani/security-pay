@@ -1,8 +1,8 @@
 package auth
 
-// Errors
-var (
-	ErrAccessDenied = "missing or invalid credentials provided"
-)
-
-//TODO: global authentication
+// Credentials is user login info
+type Credentials struct {
+	Username string
+	Password string
+	Role     string
+}

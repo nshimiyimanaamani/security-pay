@@ -9,8 +9,9 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
-func (repo *userRepository) SaveDeveloper(ctx context.Context, user users.Developer) (users.Developer, error) {
-	const op errors.Op = "store/postgres/usersRepository.SaveDeveloper"
+// SaveAdmin ...
+func (repo *userRepository) SaveAdmin(ctx context.Context, user users.Administrator) (users.Administrator, error) {
+	const op errors.Op = "store/postgres/usersRepository.SaveAdmin"
 
 	q := `
 		INSERT into users (
@@ -21,10 +22,19 @@ func (repo *userRepository) SaveDeveloper(ctx context.Context, user users.Develo
 			created_at, 
 			updated_at
 		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING username
-		`
-	_, err := repo.Exec(q, user.Email, user.Password, user.Role, user.Account, user.CreatedAt, user.UpdatedAt)
+	`
+
+	empty := users.Administrator{}
+
+	tx, err := repo.BeginTx(ctx, &sql.TxOptions{
+		Isolation: sql.LevelDefault,
+	})
+
 	if err != nil {
-		empty := users.Developer{}
+		return empty, errors.E(op, err, errors.KindUnexpected)
+	}
+	_, err = tx.Exec(q, user.Email, user.Password, user.Role, user.Account, user.CreatedAt, user.UpdatedAt)
+	if err != nil {
 
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -32,17 +42,17 @@ func (repo *userRepository) SaveDeveloper(ctx context.Context, user users.Develo
 			case errDuplicate:
 				return empty, errors.E(op, "user already exists", err, errors.KindAlreadyExists)
 			case errInvalid, errTruncation:
-				return empty, errors.E(op, err, "invalid user data", err, errors.KindBadRequest)
+				return empty, errors.E(op, "invalid user data", err, errors.KindBadRequest)
 			}
 		}
+		tx.Rollback()
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 	q = `INSERT INTO admins(email, role) VALUES ($1, $2) RETURNING email`
 
-	_, err = repo.Exec(q, user.Email, user.Role)
+	_, err = tx.Exec(q, user.Email, user.Role)
 	if err != nil {
-		empty := users.Developer{}
-
+		empty := users.Administrator{}
 		pqErr, ok := err.(*pq.Error)
 		if ok {
 			switch pqErr.Code.Name() {
@@ -52,20 +62,22 @@ func (repo *userRepository) SaveDeveloper(ctx context.Context, user users.Develo
 				return empty, errors.E(op, err, "invalid user data", err, errors.KindBadRequest)
 			}
 		}
+		tx.Rollback()
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
-
+	tx.Commit()
 	return user, nil
 }
-func (repo *userRepository) RetrieveDeveloper(ctx context.Context, id string) (users.Developer, error) {
-	const op errors.Op = "store/postgres/usersRepository.RetrieveDeveloper"
+
+func (repo *userRepository) RetrieveAdmin(ctx context.Context, id string) (users.Administrator, error) {
+	const op errors.Op = "store/postgres/usersRepository.RetrieveAdmin"
 
 	q := `SELECT username, account, role, created_at, update_at FROM users WHERE username=$1`
 
-	var user = users.Developer{}
+	var user = users.Administrator{}
 
 	if err := repo.QueryRow(q, id).Scan(&user.Email, &user.Account, &user.Role, &user.CreatedAt, &user.UpdatedAt); err != nil {
-		empty := users.Developer{}
+		empty := users.Administrator{}
 
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
@@ -76,8 +88,8 @@ func (repo *userRepository) RetrieveDeveloper(ctx context.Context, id string) (u
 	return user, nil
 }
 
-func (repo *userRepository) ListDevelopers(ctx context.Context, offset, limit uint64) (users.DeveloperPage, error) {
-	const op errors.Op = "store/postgres/usersRepository.ListDevelopers"
+func (repo *userRepository) ListAdmins(ctx context.Context, offset, limit uint64) (users.AdministratorPage, error) {
+	const op errors.Op = "store/postgres/usersRepository.ListAdmins"
 
 	q := `
 		SELECT 
@@ -86,37 +98,37 @@ func (repo *userRepository) ListDevelopers(ctx context.Context, offset, limit ui
 			role,  
 			created_at, 
 			updated_at 
-		FROM users 
+		FROM users
 			ORDER BY username LIMIT $1 OFFSET $2
-		WHERE users.role=1;`
+		WHERE users.role=2;`
 
-	var items = []users.Developer{}
+	var items = []users.Administrator{}
 
 	rows, err := repo.Query(q, limit, offset)
 	if err != nil {
-		return users.DeveloperPage{}, errors.E(op, err, errors.KindUnexpected)
+		return users.AdministratorPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	defer rows.Close()
 
 	for rows.Next() {
-		c := users.Developer{}
+		c := users.Administrator{}
 
 		if err := rows.Scan(); err != nil {
-			return users.DeveloperPage{}, errors.E(op, err, errors.KindUnexpected)
+			return users.AdministratorPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM users WHERE role=1;`
+	q = `SELECT COUNT(*) FROM users WHERE role=2;`
 
 	var total uint64
 	if err := repo.QueryRow(q).Scan(&total); err != nil {
-		return users.DeveloperPage{}, errors.E(op, err, errors.KindUnexpected)
+		return users.AdministratorPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
-	page := users.DeveloperPage{
-		Developers: items,
+	page := users.AdministratorPage{
+		Administrators: items,
 		PageMetadata: users.PageMetadata{
 			Total:  total,
 			Offset: offset,
@@ -126,8 +138,8 @@ func (repo *userRepository) ListDevelopers(ctx context.Context, offset, limit ui
 	return page, nil
 }
 
-func (repo *userRepository) UpdateDeveloperCreds(ctx context.Context, user users.Developer) error {
-	const op errors.Op = "store/postgres/usersRepository.UpdateDeveloper"
+func (repo *userRepository) UpdateAdminCreds(ctx context.Context, user users.Administrator) error {
+	const op errors.Op = "store/postgres/usersRepository.UpdateAdmin"
 
 	q := `UPDATE users SET password=$1, updated_at=$2 WHERE username=$3`
 

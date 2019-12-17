@@ -11,7 +11,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/accounts"
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
-	"github.com/rugwirobaker/paypack-backend/app/user"
+	"github.com/rugwirobaker/paypack-backend/app/users"
 
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
@@ -34,7 +34,7 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	agent := user.Agent{
+	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
 		LastName:  "last",
@@ -109,7 +109,7 @@ func TestRetrieveAll(t *testing.T) {
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	agent := user.Agent{
+	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
 		LastName:  "last",
@@ -196,7 +196,7 @@ func TestRetrieveByProperty(t *testing.T) {
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	agent := user.Agent{
+	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
 		LastName:  "last",
@@ -292,7 +292,7 @@ func TestRetrieveByMethod(t *testing.T) {
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	agent := user.Agent{
+	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
 		LastName:  "last",
