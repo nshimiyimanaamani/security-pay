@@ -1,92 +1,68 @@
 package users
 
 import (
-	"errors"
+	"context"
 
-	"github.com/rugwirobaker/paypack-backend/app/identity"
+	"github.com/rugwirobaker/paypack-backend/pkg/hasher"
 )
 
-var (
-	// ErrConflict attempt to create an entity with an alreasdy existing id
-	ErrConflict = errors.New("user already exists")
-	// ErrUnauthorizedAccess indicates missing or invalid credentials provided
-	// when accessing a protected resource.
-	ErrUnauthorizedAccess = errors.New("missing or invalid credentials provided")
-
-	//ErrInvalidEntity indicates malformed entity specification (e.g.
-	//invalid username,  password, account).
-	ErrInvalidEntity = errors.New("invalid entity format")
-
-	// ErrNotFound indicates a non-existent entity request.
-	ErrNotFound = errors.New("non-existent entity")
-)
-
-//Service defines the users API
+// Service defines users usecases
 type Service interface {
-	// Register creates new user account. In case of the failed registration, a
-	// non-nil error value is returned.
-	Register(User) (User, error)
-
-	// Login authenticates the user given its credentials. Successful
-	// authentication generates new access token. Failed invocations are
-	// identified by the non-nil error values in the response.
-	Login(User) (string, error)
-
-	// Identify validates user's token. If token is valid, user's id
-	// is returned. If token is invalid, or invocation failed for some
-	// other reason, non-nil error values are returned in response.
-	Identify(string) (string, error)
+	Admins
+	Agents
+	Developers
+	Managers
 }
 
-var _ Service = (*usersService)(nil)
-
-type usersService struct {
-	hasher  Hasher
-	tempIdp TempIdentityProvider
-	idp     identity.Provider
-	store   Store
+// Admins ...
+type Admins interface {
+	DeleteAdmin(ctx context.Context, id string) error
+	RegisterAdmin(ctx context.Context, user Administrator) (Administrator, error)
+	RetrieveAdmin(ctx context.Context, id string) (Administrator, error)
+	ListAdmins(ctx context.Context, offset, limit uint64) (AdministratorPage, error)
+	UpdateAdminCreds(ctx context.Context, user Administrator) error
 }
 
-//New instanciates a new Service.
-func New(hasher Hasher, tempIdp TempIdentityProvider, idp identity.Provider, store Store) Service {
-	return &usersService{hasher: hasher, tempIdp: tempIdp, idp: idp, store: store}
+// Agents ...
+type Agents interface {
+	DeleteAgent(ctx context.Context, id string) error
+	RegisterAgent(ctx context.Context, user Agent) (Agent, error)
+	RetrieveAgent(ctx context.Context, id string) (Agent, error)
+	ListAgents(ctx context.Context, offset, limit uint64) (AgentPage, error)
+	UpdateAgent(ctx context.Context, user Agent) error
+	UpdateAgentCreds(ctx context.Context, user Agent) error
 }
 
-func (svc *usersService) Register(user User) (User, error) {
-	empty := User{}
-	if err := user.Validate(); err != nil {
-		return empty, ErrInvalidEntity
-	}
-
-	hash, err := svc.hasher.Hash(user.Password)
-	if err != nil {
-		return empty, ErrInvalidEntity
-	}
-
-	user.Password = hash
-
-	user.ID = svc.idp.ID()
-
-	return svc.store.Save(user)
+// Developers ...
+type Developers interface {
+	DeleteDeveloper(ctx context.Context, id string) error
+	RegisterDeveloper(ctx context.Context, user Developer) (Developer, error)
+	RetrieveDeveloper(ctx context.Context, id string) (Developer, error)
+	ListDevelopers(ctx context.Context, offset, limit uint64) (DeveloperPage, error)
+	UpdateDeveloperCreds(ctx context.Context, user Developer) error
 }
 
-func (svc *usersService) Login(user User) (string, error) {
-	dbUser, err := svc.store.RetrieveByID(user.Username)
-	if err != nil {
-		return "", ErrUnauthorizedAccess
-	}
-
-	if err := svc.hasher.Compare(user.Password, dbUser.Password); err != nil {
-		return "", ErrUnauthorizedAccess
-	}
-
-	return svc.tempIdp.TemporaryKey(user.Username)
+// Managers ...
+type Managers interface {
+	DeleteManager(ctx context.Context, id string) error
+	RegisterManager(ctx context.Context, user Manager) (Manager, error)
+	RetrieveManager(ctx context.Context, id string) (Manager, error)
+	ListManagers(ctx context.Context, offset, limit uint64) (ManagerPage, error)
+	UpdateManagerCreds(ctx context.Context, user Manager) error
 }
 
-func (svc *usersService) Identify(token string) (string, error) {
-	id, err := svc.tempIdp.Identity(token)
-	if err != nil {
-		return "", ErrUnauthorizedAccess
-	}
-	return id, nil
+type service struct {
+	hasher hasher.Hasher
+	repo   Repository
+}
+
+// Options ...
+type Options struct {
+	Hasher hasher.Hasher
+	Repo   Repository
+}
+
+// New creates an instance of users.Service
+func New(opts *Options) Service {
+	return nil
 }

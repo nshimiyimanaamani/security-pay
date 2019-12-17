@@ -8,7 +8,6 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/accounts"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
-	"github.com/rugwirobaker/paypack-backend/app/user"
 	"github.com/rugwirobaker/paypack-backend/app/users"
 )
 
@@ -41,49 +40,44 @@ func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) (transactions
 	return tx, nil
 }
 
-func saveUser(t *testing.T, db *sql.DB, user users.User) (users.User, error) {
+// func saveUser(t *testing.T, db *sql.DB, user users.User) (users.User, error) {
+// 	q := `
+// 		INSERT INTO users (
+// 			id,
+// 			username,
+// 			password,
+// 			cell,
+// 			sector,
+// 			village
+// 		) VALUES (
+// 			$1, $2, $3, $4, $5, $6
+// 		) RETURNING id;`
+
+// 	empty := users.User{}
+
+// 	if _, err := db.Exec(q, user.ID, user.Username, user.Password, user.Cell, user.Sector, user.Village); err != nil {
+// 		return empty, err
+// 	}
+// 	return user, nil
+
+// }
+
+func saveAgent(t *testing.T, db *sql.DB, agent users.Agent) (users.Agent, error) {
+
 	q := `
-		INSERT INTO users (
-			id, 
+		INSERT into users (
 			username, 
 			password, 
-			cell, 
-			sector, 
-			village
-		) VALUES (
-			$1, $2, $3, $4, $5, $6
-		) RETURNING id;`
-
-	empty := users.User{}
-
-	if _, err := db.Exec(q, user.ID, user.Username, user.Password, user.Cell, user.Sector, user.Village); err != nil {
-		return empty, err
-	}
-	return user, nil
-
-}
-
-func saveAgent(t *testing.T, db *sql.DB, agent user.Agent) (user.Agent, error) {
-	q := `
-		INSERT INTO agents (
-			telephone, 
-			first_name, 
-			last_name, 
-			cell,
-			sector, 
-			village, 
-			password, 
+			role, 
 			account, 
 			created_at, 
 			updated_at
-		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10
-		) RETURNING telephone;
-		`
-	empty := user.Agent{}
+		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING username
+	`
+	empty := users.Agent{}
 
-	if _, err := db.Exec(q, agent.Telephone, agent.FirstName, agent.LastName, agent.Cell, agent.Sector, agent.Village,
-		agent.Password, agent.Account, agent.CreatedAt, agent.UpdatedAt); err != nil {
+	if _, err := db.Exec(q, agent.Telephone, agent.FirstName, agent.Role,
+		agent.Account, agent.CreatedAt, agent.UpdatedAt); err != nil {
 		return empty, err
 	}
 	return agent, nil

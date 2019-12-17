@@ -10,7 +10,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
-	"github.com/rugwirobaker/paypack-backend/app/user"
+	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
@@ -31,7 +31,7 @@ func TestSaveTransaction(t *testing.T) {
 	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	agent := user.Agent{
+	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
 		LastName:  "last",
@@ -39,6 +39,7 @@ func TestSaveTransaction(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   savedAccount.ID,
 	}
 
@@ -113,7 +114,7 @@ func TestRetrieveCode(t *testing.T) {
 	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	agent := user.Agent{
+	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
 		LastName:  "last",
@@ -121,6 +122,7 @@ func TestRetrieveCode(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   savedAccount.ID,
 	}
 

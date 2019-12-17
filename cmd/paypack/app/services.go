@@ -12,9 +12,8 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/users"
-	"github.com/rugwirobaker/paypack-backend/app/users/bcrypt"
-	"github.com/rugwirobaker/paypack-backend/app/users/jwt"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
+	"github.com/rugwirobaker/paypack-backend/pkg/hasher/bcrypt"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	rstore "github.com/rugwirobaker/paypack-backend/store/redis"
 )
@@ -47,10 +46,9 @@ func Init(db *sql.DB, rclient *redis.Client, b payment.Backend, secret string) *
 // bootUserService configures the users service
 func bootUserService(db *sql.DB, secret string) users.Service {
 	hasher := bcrypt.New()
-	tempid := jwt.New(secret)
-	idp := uuid.New()
-	store := postgres.NewUserStore(db)
-	return users.New(hasher, tempid, idp, store)
+	repo := postgres.NewUserRepository(db)
+	opts := &users.Options{Repo: repo, Hasher: hasher}
+	return users.New(opts)
 }
 
 // bootPropertyService configures the properties service

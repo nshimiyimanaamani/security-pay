@@ -1,10 +1,12 @@
 package jwt
 
 import (
+	"context"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/rugwirobaker/paypack-backend/app/users"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/rugwirobaker/paypack-backend/pkg/tokens"
 )
 
 const (
@@ -12,14 +14,14 @@ const (
 	duration time.Duration = 10 * time.Hour
 )
 
-var _ users.TempIdentityProvider = (*jwtIdentityProvider)(nil)
+var _ tokens.JWTProvider = (*jwtIdentityProvider)(nil)
 
 type jwtIdentityProvider struct {
 	secret string
 }
 
 // New instantiates a JWT identity provider.
-func New(secret string) users.TempIdentityProvider {
+func New(secret string) tokens.JWTProvider {
 	return &jwtIdentityProvider{secret}
 }
 
@@ -28,7 +30,9 @@ func New(secret string) users.TempIdentityProvider {
 // 	jwt.StandardClaims
 // }
 
-func (idp *jwtIdentityProvider) TemporaryKey(id string) (string, error) {
+func (idp *jwtIdentityProvider) TemporaryKey(ctx context.Context, id string) (string, error) {
+	const op errors.Op = "pkg/tokens/jwt.TemporaryKey"
+
 	now := time.Now().UTC()
 	exp := now.Add(duration)
 
@@ -41,17 +45,19 @@ func (idp *jwtIdentityProvider) TemporaryKey(id string) (string, error) {
 	return idp.jwt(claims)
 }
 
-func (idp *jwtIdentityProvider) Identity(key string) (string, error) {
+func (idp *jwtIdentityProvider) Identity(ctx context.Context, key string) (string, error) {
+	const op errors.Op = "pkg/tokens/jwt.Identidy"
+
 	token, err := jwt.Parse(key, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, users.ErrUnauthorizedAccess
+			return nil, errors.E(op, "access denied: invalid token", errors.KindAccessDenied)
 		}
 
 		return []byte(idp.secret), nil
 	})
 
 	if err != nil {
-		return "", users.ErrUnauthorizedAccess
+		return "", errors.E(op, "access denied: invalid token", errors.KindAccessDenied)
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
@@ -61,6 +67,12 @@ func (idp *jwtIdentityProvider) Identity(key string) (string, error) {
 }
 
 func (idp *jwtIdentityProvider) jwt(claims jwt.StandardClaims) (string, error) {
+	const op errors.Op = "pkg/tokens/jwt.TemporaryKey"
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(idp.secret))
+	tokenString, err := token.SignedString([]byte(idp.secret))
+	if err != nil {
+		return "", errors.E(op, err)
+	}
+	return tokenString, nil
 }

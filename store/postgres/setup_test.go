@@ -71,7 +71,7 @@ func TestMain(m *testing.M) {
 	)
 
 	if db, err = postgres.Connect(connString); err != nil {
-		log.Fatalf("failed to connect to test DB: %v", err)
+		log.Fatalf("failed to connect to test DB: '%v'", err)
 	}
 	defer db.Close()
 

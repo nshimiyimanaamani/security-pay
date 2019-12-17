@@ -38,6 +38,23 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		panic("absolutely unacceptable handler opts")
 	}
 
-	r.Handle(RegisterUserRoute, LogEntryHandler(Register, opts)).Methods(http.MethodPost)
-	r.Handle(LoginUserRoute, LogEntryHandler(Login, opts)).Methods(http.MethodPost)
+	r.Handle(RegisterAdminRoute, LogEntryHandler(RegisterAdmin, opts)).Methods(http.MethodPost)
+	r.Handle(RetrieveAdminRoute, LogEntryHandler(RetrieveAdmin, opts)).Methods(http.MethodGet)
+	r.Handle(UpdateAdminCredsRoute, LogEntryHandler(UpdateAdminCreds, opts)).Methods(http.MethodPut)
+
+	r.Handle(RegisterAgentRoute, LogEntryHandler(RegisterAgent, opts)).Methods(http.MethodPost)
+	r.Handle(RetrieveAgentRoute, LogEntryHandler(RetrieveAgent, opts)).Methods(http.MethodGet)
+	r.Handle(ListAgentsRoute, LogEntryHandler(ListAgents, opts)).Methods(http.MethodGet)
+	r.Handle(UpdateAgentCredsRoute, LogEntryHandler(UpdateAgentsCreds, opts)).Methods(http.MethodPut)
+	r.Handle(UpdateAgentRoute, LogEntryHandler(UpdateAgentDetails, opts)).Methods(http.MethodPut)
+
+	r.Handle(RegisterDeveloperRoute, LogEntryHandler(RegisterDeveloper, opts)).Methods(http.MethodPost)
+	r.Handle(RetrieveDeveloperRoute, LogEntryHandler(RetrieveDeveloper, opts)).Methods(http.MethodGet)
+	r.Handle(ListDevelopersRoute, LogEntryHandler(ListDevelopers, opts)).Methods(http.MethodGet)
+	r.Handle(UpdateDeveloperCredsRoute, LogEntryHandler(UpdateDeveloperCreds, opts)).Methods(http.MethodPut)
+
+	r.Handle(RegisterManagerRoute, LogEntryHandler(RegisterManager, opts)).Methods(http.MethodPost)
+	r.Handle(RetrieveManagerRoute, LogEntryHandler(RetrieveManager, opts)).Methods(http.MethodGet)
+	r.Handle(ListManagersRoute, LogEntryHandler(ListManagers, opts)).Methods(http.MethodGet)
+	r.Handle(UpdateManagerCredsRoute, LogEntryHandler(UpdateManagerCreds, opts)).Methods(http.MethodPut)
 }

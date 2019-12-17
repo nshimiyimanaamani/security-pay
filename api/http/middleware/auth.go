@@ -14,8 +14,8 @@ func Authenticate(svc auth.Service) mux.MiddlewareFunc {
 		f := func(w http.ResponseWriter, r *http.Request) {
 			s := strings.Split(r.Header.Get("Authorization"), "Bearer")
 
-			if err := svc.Authenticate(r.Context(), s[1]); err != nil {
-				
+			if _, err := svc.Identify(r.Context(), s[1]); err != nil {
+
 			}
 
 			h.ServeHTTP(w, r)

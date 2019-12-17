@@ -19,6 +19,7 @@ const (
 	KindNotImplemented     = http.StatusNotImplemented
 	KindRedirect           = http.StatusMovedPermanently
 	KindUnsupportedContent = http.StatusUnsupportedMediaType
+	KindAccessDenied       = http.StatusForbidden
 )
 
 var _ (error) = (*Error)(nil)

@@ -8,7 +8,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/accounts"
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
-	"github.com/rugwirobaker/paypack-backend/app/user"
+	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
@@ -25,7 +25,7 @@ func TestSaveProperty(t *testing.T) {
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	agent := user.Agent{
+	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
 		LastName:  "last",
@@ -33,6 +33,7 @@ func TestSaveProperty(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   account.ID,
 	}
 
@@ -102,7 +103,7 @@ func TestUpdateProperty(t *testing.T) {
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	agent := user.Agent{
+	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
 		LastName:  "last",
@@ -110,6 +111,7 @@ func TestUpdateProperty(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   account.ID,
 	}
 
@@ -196,7 +198,7 @@ func TestRetrieveByID(t *testing.T) {
 	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	agent := user.Agent{
+	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
 		LastName:  "last",
@@ -204,6 +206,7 @@ func TestRetrieveByID(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   savedAccount.ID,
 	}
 
@@ -258,7 +261,7 @@ func TestRetrieveByOwner(t *testing.T) {
 	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	agent := user.Agent{
+	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
 		LastName:  "last",
@@ -266,6 +269,7 @@ func TestRetrieveByOwner(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   savedAccount.ID,
 	}
 
@@ -350,7 +354,7 @@ func TestRetrieveBySector(t *testing.T) {
 	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	agent := user.Agent{
+	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
 		LastName:  "last",
@@ -358,6 +362,7 @@ func TestRetrieveBySector(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   savedAccount.ID,
 	}
 
@@ -442,7 +447,7 @@ func TestRetrieveByCell(t *testing.T) {
 	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	agent := user.Agent{
+	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
 		LastName:  "last",
@@ -450,6 +455,7 @@ func TestRetrieveByCell(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   savedAccount.ID,
 	}
 
@@ -535,7 +541,7 @@ func TestRetrieveByVillage(t *testing.T) {
 	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	agent := user.Agent{
+	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
 		LastName:  "last",
@@ -543,6 +549,7 @@ func TestRetrieveByVillage(t *testing.T) {
 		Cell:      "cell",
 		Sector:    "Sector",
 		Village:   "village",
+		Role:      users.Dev,
 		Account:   savedAccount.ID,
 	}
 
