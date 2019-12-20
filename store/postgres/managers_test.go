@@ -8,7 +8,6 @@ import (
 
 	"github.com/rugwirobaker/paypack-backend/app/accounts"
 	"github.com/rugwirobaker/paypack-backend/app/users"
-	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
@@ -20,7 +19,7 @@ func TestSaveManager(t *testing.T) {
 
 	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
+	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
 
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -44,8 +43,8 @@ func TestSaveManager(t *testing.T) {
 		},
 		{
 			desc: "save manager with invalid data",
-			user: users.Manager{Email: "email@gmail.com", Password: "password", Role: users.Basic, Account: "invalid"},
-			err:  errors.E(op, "invalid account data", errors.KindBadRequest),
+			user: users.Manager{Email: "invalid_account@gmail.com", Password: "password", Role: users.Basic, Account: "invalid"},
+			err:  errors.E(op, "invalid input data: account not found", errors.KindNotFound),
 		},
 	}
 
@@ -61,7 +60,7 @@ func TestRetrieveManager(t *testing.T) {
 
 	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
+	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
 
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -102,7 +101,7 @@ func TestUpdateManagerCreds(t *testing.T) {
 
 	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
+	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
 
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -141,7 +140,7 @@ func TestListManagers(t *testing.T) {
 
 	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
+	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
 
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))

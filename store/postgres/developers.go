@@ -41,9 +41,9 @@ func (repo *userRepository) SaveDeveloper(ctx context.Context, user users.Develo
 			case errDuplicate:
 				tx.Rollback()
 				return empty, errors.E(op, err, "user already exists", errors.KindAlreadyExists)
-			case errInvalid, errTruncation:
+			case errFK:
 				tx.Rollback()
-				return empty, errors.E(op, err, "invalid account data", errors.KindBadRequest)
+				return empty, errors.E(op, err, "invalid input data: account not found", errors.KindNotFound)
 			}
 		}
 		tx.Rollback()

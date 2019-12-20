@@ -28,9 +28,10 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 	repo := postgres.NewTransactionRepository(db)
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "transactions", "properties", "owners", "users")
+	defer CleanDB(t, "transactions", "properties", "owners")
+	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -104,9 +105,10 @@ func TestRetrieveAll(t *testing.T) {
 	repo := postgres.NewTransactionRepository(db)
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "transactions", "properties", "owners", "users")
+	defer CleanDB(t, "transactions", "properties", "owners")
+	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -192,9 +194,10 @@ func TestRetrieveByProperty(t *testing.T) {
 	repo := postgres.NewTransactionRepository(db)
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "transactions", "properties", "owners", "users")
+	defer CleanDB(t, "transactions", "properties", "owners")
+	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
@@ -289,9 +292,10 @@ func TestRetrieveByMethod(t *testing.T) {
 	repo := postgres.NewTransactionRepository(db)
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "transactions", "properties", "owners", "users")
+	defer CleanDB(t, "transactions", "properties", "owners")
+	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 

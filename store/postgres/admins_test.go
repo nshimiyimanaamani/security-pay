@@ -8,7 +8,6 @@ import (
 
 	"github.com/rugwirobaker/paypack-backend/app/accounts"
 	"github.com/rugwirobaker/paypack-backend/app/users"
-	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
@@ -22,9 +21,9 @@ func TestSaveAdmin(t *testing.T) {
 
 	const op errors.Op = "store/postgres/userRepository.SaveAdmin"
 
-	id := uuid.New().ID()
+	id := "gasabo.remera"
 
-	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
 
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -47,7 +46,7 @@ func TestSaveAdmin(t *testing.T) {
 		{
 			desc: "save administrator with invalid account",
 			user: users.Administrator{Account: "invalid", Email: "email2@example.com", Role: users.Admin},
-			err:  errors.E(op, "invalid account data", errors.KindBadRequest),
+			err:  errors.E(op, "invalid input data: account not found", errors.KindNotFound),
 		},
 	}
 
@@ -63,7 +62,7 @@ func TestRetrieveAdmin(t *testing.T) {
 
 	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	id := uuid.New().ID()
+	id := "gasabo.remera"
 
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -104,7 +103,7 @@ func TestUpdateAdminCreds(t *testing.T) {
 
 	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	id := uuid.New().ID()
+	id := "gasabo.remera"
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
@@ -144,7 +143,7 @@ func TestListAdmins(t *testing.T) {
 
 	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))

@@ -18,9 +18,10 @@ import (
 func TestSaveProperty(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners", "agents", "accounts")
+	defer CleanDB(t, "properties", "owners")
+	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -96,9 +97,10 @@ func TestSaveProperty(t *testing.T) {
 func TestUpdateProperty(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners", "agents", "accounts")
+	defer CleanDB(t, "properties", "owners")
+	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -191,9 +193,10 @@ func TestUpdateProperty(t *testing.T) {
 func TestRetrieveByID(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners", "agents", "accounts")
+	defer CleanDB(t, "properties", "owners")
+	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 
 	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -254,9 +257,10 @@ func TestRetrieveByID(t *testing.T) {
 func TestRetrieveByOwner(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners", "agents", "accounts")
+	defer CleanDB(t, "properties", "owners")
+	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -347,9 +351,10 @@ func TestRetrieveByOwner(t *testing.T) {
 func TestRetrieveBySector(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners", "agents", "accounts")
+	defer CleanDB(t, "properties", "owners")
+	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -440,9 +445,10 @@ func TestRetrieveBySector(t *testing.T) {
 func TestRetrieveByCell(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners", "agents", "accounts")
+	defer CleanDB(t, "properties", "owners")
+	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -534,9 +540,10 @@ func TestRetrieveByCell(t *testing.T) {
 func TestRetrieveByVillage(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners", "agents", "accounts")
+	defer CleanDB(t, "properties", "owners")
+	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))

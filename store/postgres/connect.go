@@ -25,5 +25,9 @@ func Connect(url string) (*sql.DB, error) {
 		return nil, err
 	}
 
+	if err := seedDB(db); err != nil {
+		return nil, err
+	}
+
 	return db, nil
 }

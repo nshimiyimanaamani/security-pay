@@ -19,7 +19,7 @@ func TestSaveAccount(t *testing.T) {
 
 	const op errors.Op = "store/postgres.accountRepository.Save"
 
-	id := uuid.New().ID()
+	id := "paypack.developers"
 
 	cases := []struct {
 		desc    string
@@ -37,20 +37,20 @@ func TestSaveAccount(t *testing.T) {
 			err:     errors.E(op, "account already exists", errors.KindAlreadyExists),
 		},
 		{
-			desc:    "save account with invalid uuid",
+			desc:    "save account with invalid id",
 			account: accounts.Account{ID: "invalid", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs},
-			err:     errors.E(op, "invalid account data ", errors.KindBadRequest),
+			err:     errors.E(op, "invalid input data: sector not found", errors.KindNotFound),
 		},
-		{
-			desc:    "save account with empty name",
-			account: accounts.Account{ID: "invalid", NumberOfSeats: 10, Type: accounts.Devs},
-			err:     errors.E(op, "invalid account data ", errors.KindBadRequest),
-		},
-		{
-			desc:    "save account with empty type",
-			account: accounts.Account{ID: "invalid", Name: "remera", NumberOfSeats: 10},
-			err:     errors.E(op, "invalid account data ", errors.KindBadRequest),
-		},
+		// {
+		// 	desc:    "save account with empty name",
+		// 	account: accounts.Account{ID: "invalid", NumberOfSeats: 10, Type: accounts.Devs},
+		// 	err:     errors.E(op, "invalid account data ", errors.KindBadRequest),
+		// },
+		// {
+		// 	desc:    "save account with empty type",
+		// 	account: accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10},
+		// 	err:     errors.E(op, "invalid account data ", errors.KindBadRequest),
+		// },
 	}
 
 	for _, tc := range cases {
@@ -66,7 +66,7 @@ func TestUpdateAccount(t *testing.T) {
 
 	const op errors.Op = "store/postgres.accountRepository.Update"
 
-	id := uuid.New().ID()
+	id := "paypack.developers"
 
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -103,7 +103,7 @@ func TestRetrieveAccount(t *testing.T) {
 
 	const op errors.Op = "store/postgres.accountRepository.Retrieve"
 
-	id := uuid.New().ID()
+	id := "paypack.developers"
 
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -144,12 +144,23 @@ func TestListAccounts(t *testing.T) {
 
 	defer CleanDB(t, "accounts")
 
-	account := accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	data := []struct {
+		id          string
+		name        string
+		accountType accounts.AccountType
+	}{
+		{id: "paypack.test", name: "test", accountType: accounts.Devs},
+		{id: "paypack.developers", name: "developers", accountType: accounts.Devs},
+		{id: "gasabo.remera", name: "remera", accountType: accounts.Bens},
+		{id: "gasabo.kimironko", name: "kimironko", accountType: accounts.Bens},
+	}
 
-	n := uint64(10)
+	n := uint64(4)
 	for i := uint64(0); i < n; i++ {
 		ctx := context.Background()
-		account.ID = uuid.New().ID()
+
+		account := accounts.Account{ID: data[i].id, Name: data[i].name, NumberOfSeats: 10, Type: data[i].accountType}
+
 		_, err := repo.Save(ctx, account)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}

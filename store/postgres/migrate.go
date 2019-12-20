@@ -13,22 +13,30 @@ func migrateDB(db *sql.DB) error {
 				Id: "v1.0.0",
 
 				Up: []string{
+					`CREATE table IF NOT EXISTS sectors(
+						sector			VARCHAR(256),
+						created_at 		TIMESTAMP,
+						updated_at  	TIMESTAMP,
+						PRIMARY KEY(sector)
+					);`,
+
 					`CREATE table IF NOT EXISTS accounts (
-						id 				UUID,
+						id 				VARCHAR(256),
 						name 			TEXT NOT NULL,
-						type 			VARCHAR(3) NOT NULL,
+						type 			VARCHAR(3) NOT NULL CHECK(type in ('dev', 'ben')),
 						active			BOOLEAN DEFAULT true,
 						seats 			INTEGER,
-						created_at 	TIMESTAMP,
-						updated_at  TIMESTAMP,
+						created_at 		TIMESTAMP,
+						updated_at  	TIMESTAMP,
+						FOREIGN KEY(id) references sectors(sector) ON DELETE CASCADE ON UPDATE CASCADE,
 						PRIMARY KEY(id)
 					);`,
 
 					`CREATE TABLE IF NOT EXISTS users (
 						username    VARCHAR(254),
 						password 	CHAR(60)	 NOT NULL,
-						role	 	VARCHAR(5) NOT NULL DEFAULT 1 CHECK(role in ('dev', 'admin', 'basic', 'min')),
-						account		UUID NOT NULL,
+						role	 	VARCHAR(5) NOT NULL DEFAULT 'dev' CHECK(role in ('dev', 'admin', 'basic', 'min')),
+						account		VARCHAR(256) NOT NULL,
 						created_at 	TIMESTAMP,
 						updated_at  TIMESTAMP,
 						FOREIGN KEY(account) references accounts(id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -115,14 +123,17 @@ func migrateDB(db *sql.DB) error {
 				},
 
 				Down: []string{
-					"DROP TABLE users",
-					"DROP TABLE owners",
-					"DROP TABLE properties",
 					"DROP TABLE transactions",
+					"DROP TABLE properties",
+					"DROP TABLE owners",
 					"DROP TABLE messages",
-					"DROP TABLE accounts",
+					"DROP TABLE admins",
 					"DROP TABLE agents",
 					"DROP TABLE managers",
+					"DROP TABLE developers",
+					"DROP TABLE users",
+					"DROP TABLE accounts",
+					"DROP TABLE sectors",
 				},
 			},
 			// {

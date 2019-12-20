@@ -8,7 +8,6 @@ import (
 
 	"github.com/rugwirobaker/paypack-backend/app/accounts"
 	"github.com/rugwirobaker/paypack-backend/app/users"
-	"github.com/rugwirobaker/paypack-backend/app/uuid"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
@@ -20,7 +19,7 @@ func TestSaveDeveloper(t *testing.T) {
 
 	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 
 	saved, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -44,8 +43,8 @@ func TestSaveDeveloper(t *testing.T) {
 		},
 		{
 			desc: "save developer with invalid data",
-			user: users.Developer{Email: "email@gmail.com", Password: "password", Role: users.Dev, Account: "invalid"},
-			err:  errors.E(op, "invalid account data", errors.KindBadRequest),
+			user: users.Developer{Email: "invalid_account@gmail.com", Password: "password", Role: users.Dev, Account: "invalid"},
+			err:  errors.E(op, "invalid input data: account not found", errors.KindNotFound),
 		},
 	}
 
@@ -62,7 +61,7 @@ func TestRetrieveDeveloper(t *testing.T) {
 
 	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -101,7 +100,7 @@ func TestUpdateDeveloperCreds(t *testing.T) {
 
 	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -140,7 +139,7 @@ func TestListDevelopers(t *testing.T) {
 
 	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
