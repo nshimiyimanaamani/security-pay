@@ -9,6 +9,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/users"
+	"github.com/stretchr/testify/require"
 )
 
 func saveOwner(t *testing.T, db *sql.DB, owner properties.Owner) (properties.Owner, error) {
@@ -39,28 +40,6 @@ func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) (transactions
 	}
 	return tx, nil
 }
-
-// func saveUser(t *testing.T, db *sql.DB, user users.User) (users.User, error) {
-// 	q := `
-// 		INSERT INTO users (
-// 			id,
-// 			username,
-// 			password,
-// 			cell,
-// 			sector,
-// 			village
-// 		) VALUES (
-// 			$1, $2, $3, $4, $5, $6
-// 		) RETURNING id;`
-
-// 	empty := users.User{}
-
-// 	if _, err := db.Exec(q, user.ID, user.Username, user.Password, user.Cell, user.Sector, user.Village); err != nil {
-// 		return empty, err
-// 	}
-// 	return user, nil
-
-// }
 
 func saveAgent(t *testing.T, db *sql.DB, agent users.Agent) (users.Agent, error) {
 
@@ -109,6 +88,7 @@ func CleanDB(t *testing.T, tables ...string) {
 	t.Helper()
 	for _, table := range tables {
 		q := fmt.Sprintf("DELETE FROM %s", table)
-		db.Exec(q)
+		_, err := db.Exec(q)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 }

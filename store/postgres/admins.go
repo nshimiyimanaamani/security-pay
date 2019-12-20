@@ -11,7 +11,7 @@ import (
 
 // SaveAdmin ...
 func (repo *userRepository) SaveAdmin(ctx context.Context, user users.Administrator) (users.Administrator, error) {
-	const op errors.Op = "store/postgres/usersRepository.SaveAdmin"
+	const op errors.Op = "store/postgres/userRepository.SaveAdmin"
 
 	q := `
 		INSERT into users (
@@ -40,9 +40,11 @@ func (repo *userRepository) SaveAdmin(ctx context.Context, user users.Administra
 		if ok {
 			switch pqErr.Code.Name() {
 			case errDuplicate:
-				return empty, errors.E(op, "user already exists", err, errors.KindAlreadyExists)
+				tx.Rollback()
+				return empty, errors.E(op, err, "user already exists", errors.KindAlreadyExists)
 			case errInvalid, errTruncation:
-				return empty, errors.E(op, "invalid user data", err, errors.KindBadRequest)
+				tx.Rollback()
+				return empty, errors.E(op, err, "invalid account data", errors.KindBadRequest)
 			}
 		}
 		tx.Rollback()
@@ -57,9 +59,11 @@ func (repo *userRepository) SaveAdmin(ctx context.Context, user users.Administra
 		if ok {
 			switch pqErr.Code.Name() {
 			case errDuplicate:
-				return empty, errors.E(op, "user already exists", err, errors.KindAlreadyExists)
+				tx.Rollback()
+				return empty, errors.E(op, err, "user already exists", errors.KindAlreadyExists)
 			case errInvalid, errTruncation:
-				return empty, errors.E(op, err, "invalid user data", err, errors.KindBadRequest)
+				tx.Rollback()
+				return empty, errors.E(op, err, "invalid account data", errors.KindBadRequest)
 			}
 		}
 		tx.Rollback()
@@ -70,9 +74,9 @@ func (repo *userRepository) SaveAdmin(ctx context.Context, user users.Administra
 }
 
 func (repo *userRepository) RetrieveAdmin(ctx context.Context, id string) (users.Administrator, error) {
-	const op errors.Op = "store/postgres/usersRepository.RetrieveAdmin"
+	const op errors.Op = "store/postgres/userRepository.RetrieveAdmin"
 
-	q := `SELECT username, account, role, created_at, update_at FROM users WHERE username=$1`
+	q := `SELECT username, account, role, created_at, updated_at FROM users WHERE username=$1`
 
 	var user = users.Administrator{}
 
@@ -89,7 +93,7 @@ func (repo *userRepository) RetrieveAdmin(ctx context.Context, id string) (users
 }
 
 func (repo *userRepository) ListAdmins(ctx context.Context, offset, limit uint64) (users.AdministratorPage, error) {
-	const op errors.Op = "store/postgres/usersRepository.ListAdmins"
+	const op errors.Op = "store/postgres/userRepository.ListAdmins"
 
 	q := `
 		SELECT 
@@ -98,9 +102,8 @@ func (repo *userRepository) ListAdmins(ctx context.Context, offset, limit uint64
 			role,  
 			created_at, 
 			updated_at 
-		FROM users
-			ORDER BY username LIMIT $1 OFFSET $2
-		WHERE users.role=2;`
+		FROM users WHERE role='admin' ORDER BY username LIMIT $1 OFFSET $2;
+	`
 
 	var items = []users.Administrator{}
 
@@ -114,13 +117,13 @@ func (repo *userRepository) ListAdmins(ctx context.Context, offset, limit uint64
 	for rows.Next() {
 		c := users.Administrator{}
 
-		if err := rows.Scan(); err != nil {
+		if err := rows.Scan(&c.Email, &c.Account, &c.Role, &c.CreatedAt, &c.UpdatedAt); err != nil {
 			return users.AdministratorPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM users WHERE role=2;`
+	q = `SELECT COUNT(*) FROM users WHERE role='admin';`
 
 	var total uint64
 	if err := repo.QueryRow(q).Scan(&total); err != nil {
@@ -139,7 +142,7 @@ func (repo *userRepository) ListAdmins(ctx context.Context, offset, limit uint64
 }
 
 func (repo *userRepository) UpdateAdminCreds(ctx context.Context, user users.Administrator) error {
-	const op errors.Op = "store/postgres/usersRepository.UpdateAdmin"
+	const op errors.Op = "store/postgres/userRepository.UpdateAdminCreds"
 
 	q := `UPDATE users SET password=$1, updated_at=$2 WHERE username=$3`
 
@@ -153,7 +156,7 @@ func (repo *userRepository) UpdateAdminCreds(ctx context.Context, user users.Adm
 		return errors.E(op, err, errors.KindUnexpected)
 	}
 	if cnt == 0 {
-		return errors.E(op, "user not found", errors.KindNotFound)
+		return errors.E(op, err, "user not found", errors.KindNotFound)
 	}
 	return nil
 }

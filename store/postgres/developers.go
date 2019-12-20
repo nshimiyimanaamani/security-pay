@@ -10,7 +10,7 @@ import (
 )
 
 func (repo *userRepository) SaveDeveloper(ctx context.Context, user users.Developer) (users.Developer, error) {
-	const op errors.Op = "store/postgres/usersRepository.SaveDeveloper"
+	const op errors.Op = "store/postgres.userRepository.SaveDeveloper"
 
 	q := `
 		INSERT into users (
@@ -21,8 +21,38 @@ func (repo *userRepository) SaveDeveloper(ctx context.Context, user users.Develo
 			created_at, 
 			updated_at
 		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING username
-		`
-	_, err := repo.Exec(q, user.Email, user.Password, user.Role, user.Account, user.CreatedAt, user.UpdatedAt)
+	`
+
+	empty := users.Developer{}
+
+	tx, err := repo.BeginTx(ctx, &sql.TxOptions{
+		Isolation: sql.LevelDefault,
+	})
+
+	if err != nil {
+		return empty, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	_, err = tx.Exec(q, user.Email, user.Password, user.Role, user.Account, user.CreatedAt, user.UpdatedAt)
+	if err != nil {
+		pqErr, ok := err.(*pq.Error)
+		if ok {
+			switch pqErr.Code.Name() {
+			case errDuplicate:
+				tx.Rollback()
+				return empty, errors.E(op, err, "user already exists", errors.KindAlreadyExists)
+			case errInvalid, errTruncation:
+				tx.Rollback()
+				return empty, errors.E(op, err, "invalid account data", errors.KindBadRequest)
+			}
+		}
+		tx.Rollback()
+		return empty, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	q = `INSERT INTO developers(email, role) VALUES ($1, $2) RETURNING email`
+
+	_, err = tx.Exec(q, user.Email, user.Role)
 	if err != nil {
 		empty := users.Developer{}
 
@@ -30,37 +60,23 @@ func (repo *userRepository) SaveDeveloper(ctx context.Context, user users.Develo
 		if ok {
 			switch pqErr.Code.Name() {
 			case errDuplicate:
-				return empty, errors.E(op, "user already exists", err, errors.KindAlreadyExists)
+				tx.Rollback()
+				return empty, errors.E(op, err, "user already exists", errors.KindAlreadyExists)
 			case errInvalid, errTruncation:
-				return empty, errors.E(op, err, "invalid user data", err, errors.KindBadRequest)
+				tx.Rollback()
+				return empty, errors.E(op, err, "invalid account data", errors.KindBadRequest)
 			}
 		}
+		tx.Rollback()
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
-	q = `INSERT INTO admins(email, role) VALUES ($1, $2) RETURNING email`
-
-	_, err = repo.Exec(q, user.Email, user.Role)
-	if err != nil {
-		empty := users.Developer{}
-
-		pqErr, ok := err.(*pq.Error)
-		if ok {
-			switch pqErr.Code.Name() {
-			case errDuplicate:
-				return empty, errors.E(op, "user already exists", err, errors.KindAlreadyExists)
-			case errInvalid, errTruncation:
-				return empty, errors.E(op, err, "invalid user data", err, errors.KindBadRequest)
-			}
-		}
-		return empty, errors.E(op, err, errors.KindUnexpected)
-	}
-
+	tx.Commit()
 	return user, nil
 }
 func (repo *userRepository) RetrieveDeveloper(ctx context.Context, id string) (users.Developer, error) {
-	const op errors.Op = "store/postgres/usersRepository.RetrieveDeveloper"
+	const op errors.Op = "store/postgres/userRepository.RetrieveDeveloper"
 
-	q := `SELECT username, account, role, created_at, update_at FROM users WHERE username=$1`
+	q := `SELECT username, account, role, created_at, updated_at FROM users WHERE username=$1`
 
 	var user = users.Developer{}
 
@@ -77,7 +93,7 @@ func (repo *userRepository) RetrieveDeveloper(ctx context.Context, id string) (u
 }
 
 func (repo *userRepository) ListDevelopers(ctx context.Context, offset, limit uint64) (users.DeveloperPage, error) {
-	const op errors.Op = "store/postgres/usersRepository.ListDevelopers"
+	const op errors.Op = "store/postgres/userRepository.ListDevelopers"
 
 	q := `
 		SELECT 
@@ -86,9 +102,9 @@ func (repo *userRepository) ListDevelopers(ctx context.Context, offset, limit ui
 			role,  
 			created_at, 
 			updated_at 
-		FROM users 
-			ORDER BY username LIMIT $1 OFFSET $2
-		WHERE users.role=1;`
+		FROM users WHERE role='dev' ORDER BY username LIMIT $1 OFFSET $2
+		;
+	`
 
 	var items = []users.Developer{}
 
@@ -102,13 +118,13 @@ func (repo *userRepository) ListDevelopers(ctx context.Context, offset, limit ui
 	for rows.Next() {
 		c := users.Developer{}
 
-		if err := rows.Scan(); err != nil {
+		if err := rows.Scan(&c.Email, &c.Account, &c.Role, &c.CreatedAt, &c.UpdatedAt); err != nil {
 			return users.DeveloperPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM users WHERE role=1;`
+	q = `SELECT COUNT(*) FROM users WHERE role='dev';`
 
 	var total uint64
 	if err := repo.QueryRow(q).Scan(&total); err != nil {
@@ -127,7 +143,7 @@ func (repo *userRepository) ListDevelopers(ctx context.Context, offset, limit ui
 }
 
 func (repo *userRepository) UpdateDeveloperCreds(ctx context.Context, user users.Developer) error {
-	const op errors.Op = "store/postgres/usersRepository.UpdateDeveloper"
+	const op errors.Op = "store/postgres.userRepository.UpdateDeveloperCreds"
 
 	q := `UPDATE users SET password=$1, updated_at=$2 WHERE username=$3`
 
@@ -141,7 +157,7 @@ func (repo *userRepository) UpdateDeveloperCreds(ctx context.Context, user users
 		return errors.E(op, err, errors.KindUnexpected)
 	}
 	if cnt == 0 {
-		return errors.E(op, "user not found", errors.KindNotFound)
+		return errors.E(op, err, "user not found", errors.KindNotFound)
 	}
 	return nil
 }
