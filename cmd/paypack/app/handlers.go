@@ -5,6 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 	accountsEndpoints "github.com/rugwirobaker/paypack-backend/api/http/accounts"
+	authEndpoints "github.com/rugwirobaker/paypack-backend/api/http/auth"
 	feedbackEndpoints "github.com/rugwirobaker/paypack-backend/api/http/feedback"
 	"github.com/rugwirobaker/paypack-backend/api/http/health"
 	ownersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/owners"
@@ -19,6 +20,7 @@ import (
 // HandlerOptions ...
 type HandlerOptions struct {
 	AccountsOptions *accountsEndpoints.HandlerOpts
+	AuthOptions     *authEndpoints.HandlerOpts
 	FeedbackOptions *feedbackEndpoints.HandlerOpts
 	OwnersOptions   *ownersEndpoints.HandlerOpts
 	PayOptions      *paymentEndpoints.HandlerOpts
@@ -62,7 +64,13 @@ func NewHandlerOptions(s *Services, lggr *log.Logger) *HandlerOptions {
 		Logger:  lggr,
 	}
 
+	authOpts := &authEndpoints.HandlerOpts{
+		Service: s.Auth,
+		Logger:  lggr,
+	}
+
 	opts := &HandlerOptions{
+		AuthOptions:     authOpts,
 		AccountsOptions: accountsOpts,
 		FeedbackOptions: feedOpts,
 		OwnersOptions:   ownersOpts,
@@ -94,4 +102,8 @@ func Register(mux *mux.Router, opts *HandlerOptions) {
 	paymentEndpoints.RegisterHandlers(mux, opts.PayOptions)
 
 	transactionsEndpoints.RegisterHandlers(mux, opts.TransOptions)
+
+	accountsEndpoints.RegisterHandlers(mux, opts.AccountsOptions)
+
+	authEndpoints.RegisterHandlers(mux, opts.AuthOptions)
 }

@@ -13,17 +13,24 @@ func (svc *service) RegisterAgent(ctx context.Context, user Agent) (Agent, error
 		return Agent{}, errors.E(op, err)
 	}
 
-	user.Password = svc.pgen.Generate(ctx)
+	plain := svc.pgen.Generate(ctx)
+
+	password, err := svc.hasher.Hash(plain)
+	if err != nil {
+		return Agent{}, errors.E(op, err)
+	}
+	user.Password = password
 
 	user.Role = Min
 
 	now := time.Now()
 	user.CreatedAt, user.UpdatedAt = now, now
 
-	user, err := svc.repo.SaveAgent(ctx, user)
+	user, err = svc.repo.SaveAgent(ctx, user)
 	if err != nil {
 		return Agent{}, errors.E(op, err)
 	}
+	user.Password = plain
 	return user, nil
 }
 func (svc *service) RetrieveAgent(ctx context.Context, id string) (Agent, error) {
@@ -51,6 +58,12 @@ func (svc *service) UpdateAgentCreds(ctx context.Context, user Agent) error {
 	if user.Password == "" {
 		return errors.E(op, "invalid user: missing password", errors.KindBadRequest)
 	}
+
+	password, err := svc.hasher.Hash(user.Password)
+	if err != nil {
+		return errors.E(op, err)
+	}
+	user.Password = password
 
 	user.UpdatedAt = time.Now()
 

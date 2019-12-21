@@ -14,14 +14,25 @@ func (svc *service) RegisterAdmin(ctx context.Context, user Administrator) (Admi
 		return Administrator{}, errors.E(op, err)
 	}
 
+	plain := svc.pgen.Generate(ctx)
+
+	password, err := svc.hasher.Hash(plain)
+	if err != nil {
+		return Administrator{}, errors.E(op, err)
+	}
+	user.Password = password
+
 	user.Role = Admin
 
 	now := time.Now()
 	user.CreatedAt, user.UpdatedAt = now, now
 
-	user.Password = svc.pgen.Generate(ctx)
-
-	return svc.repo.SaveAdmin(ctx, user)
+	user, err = svc.repo.SaveAdmin(ctx, user)
+	if err != nil {
+		return Administrator{}, errors.E(op, err)
+	}
+	user.Password = plain
+	return user, nil
 }
 func (svc *service) RetrieveAdmin(ctx context.Context, id string) (Administrator, error) {
 	const op errors.Op = "app/users/service.RetrieveAdmin"
@@ -49,6 +60,12 @@ func (svc *service) UpdateAdminCreds(ctx context.Context, user Administrator) er
 	}
 
 	user.UpdatedAt = time.Now()
+
+	password, err := svc.hasher.Hash(user.Password)
+	if err != nil {
+		return errors.E(op, err)
+	}
+	user.Password = password
 
 	if err := svc.repo.UpdateAdminCreds(ctx, user); err != nil {
 		return errors.E(op, err)

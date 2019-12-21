@@ -20,11 +20,11 @@ func NewAuthRepository(db *sql.DB) auth.Repository {
 func (repo *authRepository) Retrieve(ctx context.Context, username string) (auth.Credentials, error) {
 	const op errors.Op = "store/postgres/authRepository.Retrieve"
 
-	q := `SELECT username, role, password FROM users WHERE username=$1`
+	q := `SELECT username, account, role, password FROM users WHERE username=$1`
 
 	creds := auth.Credentials{}
 
-	if err := repo.QueryRow(q, username).Scan(&creds.Username, &creds.Role, &creds.Password); err != nil {
+	if err := repo.QueryRow(q, username).Scan(&creds.Username, &creds.Account, &creds.Role, &creds.Password); err != nil {
 		if err == sql.ErrNoRows {
 			return creds, errors.E(op, "user not found: invalid username or password", errors.KindNotFound)
 		}

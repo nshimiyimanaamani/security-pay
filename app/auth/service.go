@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/rugwirobaker/paypack-backend/pkg/hasher"
+	"github.com/rugwirobaker/paypack-backend/pkg/passwords"
 )
 
 var _ (Service) = (*service)(nil)
@@ -22,10 +22,26 @@ type Service interface {
 	Identify(ctx context.Context, token string) (string, error)
 }
 
+// Options minimises New function signature
+type Options struct {
+	Hasher passwords.Hasher
+	Repo   Repository
+	JWT    JWTProvider
+}
+
 type service struct {
-	hasher hasher.Hasher
+	hasher passwords.Hasher
 	repo   Repository
 	jwt    JWTProvider
+}
+
+// New creates a new auth.Service instance
+func New(opts *Options) Service {
+	return &service{
+		hasher: opts.Hasher,
+		repo:   opts.Repo,
+		jwt:    opts.JWT,
+	}
 }
 
 // encode creds including role

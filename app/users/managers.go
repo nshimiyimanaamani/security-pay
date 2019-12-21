@@ -19,12 +19,19 @@ func (svc *service) RegisterManager(ctx context.Context, user Manager) (Manager,
 	now := time.Now()
 	user.CreatedAt, user.UpdatedAt = now, now
 
-	user.Password = svc.pgen.Generate(ctx)
+	plain := svc.pgen.Generate(ctx)
 
-	user, err := svc.repo.SaveManager(ctx, user)
+	password, err := svc.hasher.Hash(plain)
 	if err != nil {
 		return Manager{}, errors.E(op, err)
 	}
+	user.Password = password
+
+	user, err = svc.repo.SaveManager(ctx, user)
+	if err != nil {
+		return Manager{}, errors.E(op, err)
+	}
+	user.Password = plain
 	return user, nil
 }
 
@@ -53,10 +60,15 @@ func (svc *service) UpdateManagerCreds(ctx context.Context, user Manager) error 
 		return errors.E(op, "invalid user: missing password", errors.KindBadRequest)
 	}
 
+	password, err := svc.hasher.Hash(user.Password)
+	if err != nil {
+		return errors.E(op, err)
+	}
+	user.Password = password
+
 	user.UpdatedAt = time.Now()
 
-	err := svc.repo.UpdateManagerCreds(ctx, user)
-	if err != nil {
+	if err := svc.repo.UpdateManagerCreds(ctx, user); err != nil {
 		return errors.E(op, err)
 	}
 	return nil
