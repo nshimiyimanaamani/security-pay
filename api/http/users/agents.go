@@ -162,7 +162,7 @@ func UpdateAgentDetails(lgger log.Entry, svc users.Service) http.Handler {
 		vars := mux.Vars(r)
 		user.Telephone = vars["phone"]
 
-		err = svc.UpdateAgentCreds(r.Context(), user)
+		err = svc.UpdateAgent(r.Context(), user)
 		if err != nil {
 			lgger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)

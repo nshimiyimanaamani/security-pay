@@ -2,15 +2,25 @@ package users
 
 import (
 	"context"
+	"time"
 
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
 func (svc *service) RegisterAdmin(ctx context.Context, user Administrator) (Administrator, error) {
 	const op errors.Op = "app/users/service.RegisterAdmin"
+
 	if err := user.Validate(); err != nil {
 		return Administrator{}, errors.E(op, err)
 	}
+
+	user.Role = Admin
+
+	now := time.Now()
+	user.CreatedAt, user.UpdatedAt = now, now
+
+	user.Password = svc.pgen.Generate(ctx)
+
 	return svc.repo.SaveAdmin(ctx, user)
 }
 func (svc *service) RetrieveAdmin(ctx context.Context, id string) (Administrator, error) {
@@ -33,6 +43,12 @@ func (svc *service) ListAdmins(ctx context.Context, offset, limit uint64) (Admin
 }
 func (svc *service) UpdateAdminCreds(ctx context.Context, user Administrator) error {
 	const op errors.Op = "app/users/service.RegisterAdmin"
+
+	if user.Password == "" {
+		return errors.E(op, "invalid user: missing password", errors.KindBadRequest)
+	}
+
+	user.UpdatedAt = time.Now()
 
 	if err := svc.repo.UpdateAdminCreds(ctx, user); err != nil {
 		return errors.E(op, err)

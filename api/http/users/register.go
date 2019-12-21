@@ -44,17 +44,20 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 
 	r.Handle(RegisterAgentRoute, LogEntryHandler(RegisterAgent, opts)).Methods(http.MethodPost)
 	r.Handle(RetrieveAgentRoute, LogEntryHandler(RetrieveAgent, opts)).Methods(http.MethodGet)
-	r.Handle(ListAgentsRoute, LogEntryHandler(ListAgents, opts)).Methods(http.MethodGet)
-	r.Handle(UpdateAgentCredsRoute, LogEntryHandler(UpdateAgentsCreds, opts)).Methods(http.MethodPut)
 	r.Handle(UpdateAgentRoute, LogEntryHandler(UpdateAgentDetails, opts)).Methods(http.MethodPut)
+	r.Handle(UpdateAgentCredsRoute, LogEntryHandler(UpdateAgentsCreds, opts)).Methods(http.MethodPut)
+	r.Handle(ListAgentsRoute, LogEntryHandler(ListAgents, opts)).Methods(http.MethodGet).
+		Queries("offset", "{offset}", "limit", "{limit}")
 
 	r.Handle(RegisterDeveloperRoute, LogEntryHandler(RegisterDeveloper, opts)).Methods(http.MethodPost)
 	r.Handle(RetrieveDeveloperRoute, LogEntryHandler(RetrieveDeveloper, opts)).Methods(http.MethodGet)
-	r.Handle(ListDevelopersRoute, LogEntryHandler(ListDevelopers, opts)).Methods(http.MethodGet)
 	r.Handle(UpdateDeveloperCredsRoute, LogEntryHandler(UpdateDeveloperCreds, opts)).Methods(http.MethodPut)
+	r.Handle(ListDevelopersRoute, LogEntryHandler(ListDevelopers, opts)).Methods(http.MethodGet).
+		Queries("offset", "{offset}", "limit", "{limit}")
 
 	r.Handle(RegisterManagerRoute, LogEntryHandler(RegisterManager, opts)).Methods(http.MethodPost)
 	r.Handle(RetrieveManagerRoute, LogEntryHandler(RetrieveManager, opts)).Methods(http.MethodGet)
-	r.Handle(ListManagersRoute, LogEntryHandler(ListManagers, opts)).Methods(http.MethodGet)
 	r.Handle(UpdateManagerCredsRoute, LogEntryHandler(UpdateManagerCreds, opts)).Methods(http.MethodPut)
+	r.Handle(ListManagersRoute, LogEntryHandler(ListManagers, opts)).Methods(http.MethodGet).
+		Queries("offset", "{offset}", "limit", "{limit}")
 }

@@ -4,15 +4,15 @@ package users
 const (
 	RegisterAdminRoute    = "/accounts/admin"
 	RetrieveAdminRoute    = "/accounts/admin/{email}"
-	UpdateAdminCredsRoute = "/accounts/{account}/admin{email}"
+	UpdateAdminCredsRoute = "/accounts/admin/creds/{email}"
 )
 
 // agents routes
 const (
 	RegisterAgentRoute    = "/accounts/agents"
-	RetrieveAgentRoute    = "/accounts/admin/{phone}"
+	RetrieveAgentRoute    = "/accounts/agents/{phone}"
 	UpdateAgentRoute      = "/accounts/agents/{phone}"
-	UpdateAgentCredsRoute = "/accounts/agents/{phone}"
+	UpdateAgentCredsRoute = "/accounts/agents/creds/{phone}"
 	ListAgentsRoute       = "/accounts/agents"
 )
 
@@ -20,7 +20,7 @@ const (
 const (
 	RegisterDeveloperRoute    = "/accounts/developers"
 	RetrieveDeveloperRoute    = "/accounts/developers/{email}"
-	UpdateDeveloperCredsRoute = "/accounts/developers/{email}"
+	UpdateDeveloperCredsRoute = "/accounts/developers/creds/{email}"
 	ListDevelopersRoute       = "/accounts/developers"
 )
 
@@ -28,6 +28,6 @@ const (
 const (
 	RegisterManagerRoute    = "/accounts/managers"
 	RetrieveManagerRoute    = "/accounts/managers/{email}"
-	UpdateManagerCredsRoute = "/accounts/managers{email}"
+	UpdateManagerCredsRoute = "/accounts/managers/creds/{email}"
 	ListManagersRoute       = "/accounts/managers"
 )

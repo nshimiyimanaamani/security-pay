@@ -29,6 +29,10 @@ type Account struct {
 func (ac *Account) Validate() error {
 	const op errors.Op = "app/accounts/account.Validate"
 
+	if ac.ID == "" {
+		return errors.E(op, "invalid account: missing id", errors.KindBadRequest)
+	}
+
 	if ac.Name == "" {
 		return errors.E(op, "invalid account: missing name", errors.KindBadRequest)
 	}

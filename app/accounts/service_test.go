@@ -32,18 +32,23 @@ func TestCreate(t *testing.T) {
 
 		{
 			desc:    "create a valid account",
-			account: accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs},
+			account: accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs},
 			err:     nil,
 		},
 		{
 			desc:    "update account with missing name",
-			account: accounts.Account{NumberOfSeats: 10, Type: accounts.Devs},
+			account: accounts.Account{ID: "paypack.developers", NumberOfSeats: 10, Type: accounts.Devs},
 			err:     errors.E(op, "invalid account: missing name"),
 		},
 		{
 			desc:    "update account with missing type",
-			account: accounts.Account{Name: "remera", NumberOfSeats: 10},
+			account: accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10},
 			err:     errors.E(op, "invalid account: missing type"),
+		},
+		{
+			desc:    "update account with missing account id(sector)",
+			account: accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs},
+			err:     errors.E(op, "invalid account: missing id"),
 		},
 	}
 
@@ -59,7 +64,7 @@ func TestUpdate(t *testing.T) {
 
 	const op errors.Op = "app/accounts/service.Update"
 
-	account := accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 	ctx := context.Background()
 
 	saved, err := svc.Create(ctx, account)
@@ -83,12 +88,12 @@ func TestUpdate(t *testing.T) {
 		},
 		{
 			desc:    "update account with missing name",
-			account: accounts.Account{NumberOfSeats: 10, Type: accounts.Devs},
+			account: accounts.Account{ID: saved.ID, NumberOfSeats: 10, Type: accounts.Devs},
 			err:     errors.E(op, "invalid account: missing name"),
 		},
 		{
 			desc:    "update account with missing type",
-			account: accounts.Account{Name: "remera", NumberOfSeats: 10},
+			account: accounts.Account{ID: saved.ID, Name: "remera", NumberOfSeats: 10},
 			err:     errors.E(op, "invalid account: missing type"),
 		},
 	}
@@ -105,7 +110,7 @@ func TestRetrieve(t *testing.T) {
 
 	const op errors.Op = "app/accounts/service.Retrieve"
 
-	account := accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 	ctx := context.Background()
 
 	saved, err := svc.Create(ctx, account)
@@ -141,7 +146,7 @@ func TestList(t *testing.T) {
 
 	const op errors.Op = "app/accounts/service.List"
 
-	account := accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
