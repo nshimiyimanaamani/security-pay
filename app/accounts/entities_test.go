@@ -10,8 +10,8 @@ import (
 )
 
 func TestValidateAccount(t *testing.T) {
-
 	const op errors.Op = "app/accounts/account.Validate"
+
 	cases := []struct {
 		desc    string
 		account accounts.Account
@@ -19,18 +19,23 @@ func TestValidateAccount(t *testing.T) {
 	}{
 		{
 			desc:    "validate valid account",
-			account: accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs},
+			account: accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs},
 			err:     nil,
 		},
 		{
 			desc:    "validate account with missing name",
-			account: accounts.Account{NumberOfSeats: 10, Type: accounts.Devs},
+			account: accounts.Account{ID: "paypack.developers", NumberOfSeats: 10, Type: accounts.Devs},
 			err:     errors.E(op, "invalid account: missing name", errors.KindBadRequest),
 		},
 		{
 			desc:    "validate account with missing type",
-			account: accounts.Account{Name: "remera", NumberOfSeats: 10},
+			account: accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10},
 			err:     errors.E(op, "invalid account: missing type", errors.KindBadRequest),
+		},
+		{
+			desc:    "validate account with missing account id(sector)",
+			account: accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs},
+			err:     errors.E(op, "invalid account: missing id", errors.KindBadRequest),
 		},
 	}
 

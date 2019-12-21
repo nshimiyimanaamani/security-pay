@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-redis/redis/v7"
 	"github.com/rugwirobaker/paypack-backend/app/accounts"
+	"github.com/rugwirobaker/paypack-backend/app/auth"
 	"github.com/rugwirobaker/paypack-backend/app/feedback"
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/owners"
@@ -13,7 +14,9 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
-	"github.com/rugwirobaker/paypack-backend/pkg/hasher/bcrypt"
+	"github.com/rugwirobaker/paypack-backend/pkg/passwords/bcrypt"
+	"github.com/rugwirobaker/paypack-backend/pkg/passwords/randgen"
+	"github.com/rugwirobaker/paypack-backend/pkg/tokens/jwt"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	rstore "github.com/rugwirobaker/paypack-backend/store/redis"
 )
@@ -21,6 +24,7 @@ import (
 // Services aggrates all the services
 type Services struct {
 	Accounts     accounts.Service
+	Auth         auth.Service
 	Feedback     feedback.Service
 	Owners       owners.Service
 	Payment      payment.Service
@@ -39,15 +43,25 @@ func Init(db *sql.DB, rclient *redis.Client, b payment.Backend, secret string) *
 		Properties:   bootPropertiesService(db),
 		Transactions: bootTransactionsService(db),
 		Users:        bootUserService(db),
+		Auth:         bootAuthService(db, secret),
 	}
 	return services
+}
+
+func bootAuthService(db *sql.DB, secret string) auth.Service {
+	hasher := bcrypt.New()
+	repo := postgres.NewAuthRepository(db)
+	jwt := jwt.New(secret)
+	opts := &auth.Options{Hasher: hasher, Repo: repo, JWT: jwt}
+	return auth.New(opts)
 }
 
 // bootUserService configures the users service
 func bootUserService(db *sql.DB) users.Service {
 	hasher := bcrypt.New()
+	generator := randgen.New()
 	repo := postgres.NewUserRepository(db)
-	opts := &users.Options{Repo: repo, Hasher: hasher}
+	opts := &users.Options{Repo: repo, Hasher: hasher, PGen: generator}
 	return users.New(opts)
 }
 

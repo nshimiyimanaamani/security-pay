@@ -32,8 +32,10 @@ func (repo *accountRepository) Save(ctx context.Context, acc accounts.Account) (
 			switch pqErr.Code.Name() {
 			case errDuplicate:
 				return empty, errors.E(op, err, "account already exists", errors.KindAlreadyExists)
+			case errFK:
+				return empty, errors.E(op, err, "invalid input data: sector not found", errors.KindNotFound)
 			case errInvalid, errTruncation:
-				return empty, errors.E(op, err, "invalid account data ", errors.KindBadRequest)
+				return empty, errors.E(op, err, "invalid input data ", errors.KindBadRequest)
 			}
 		}
 		return empty, errors.E(op, err, errors.KindUnexpected)

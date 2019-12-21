@@ -10,55 +10,71 @@ import (
 )
 
 func (repo *userRepository) SaveManager(ctx context.Context, user users.Manager) (users.Manager, error) {
-	const op errors.Op = "store/postgres/usersRepository.SaveManager"
+	const op errors.Op = "store/postgres.userRepository.SaveManager"
 
 	q := `
-	INSERT into users (
-		username, 
-		password, 
-		role, 
-		account, 
-		created_at, 
-		updated_at
-	) VALUES ($1, $2, $3, $4, $5, $6) RETURNING username
+		INSERT into users (
+			username, 
+			password, 
+			role, 
+			account, 
+			created_at, 
+			updated_at
+		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING username
 	`
-	_, err := repo.Exec(q, user.Email, user.Password, user.Role, user.Account, user.CreatedAt, user.UpdatedAt)
+
+	empty := users.Manager{}
+
+	tx, err := repo.BeginTx(ctx, &sql.TxOptions{
+		Isolation: sql.LevelDefault,
+	})
+
+	if err != nil {
+		return empty, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	_, err = tx.Exec(q, user.Email, user.Password, user.Role, user.Account, user.CreatedAt, user.UpdatedAt)
+	if err != nil {
+
+		pqErr, ok := err.(*pq.Error)
+		if ok {
+			switch pqErr.Code.Name() {
+			case errDuplicate:
+				tx.Rollback()
+				return empty, errors.E(op, err, "user already exists", errors.KindAlreadyExists)
+			case errFK:
+				tx.Rollback()
+				return empty, errors.E(op, err, "invalid input data: account not found", errors.KindNotFound)
+			}
+		}
+		return empty, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	q = `INSERT INTO managers(email, role, cell) VALUES ($1, $2, $3) RETURNING email`
+
+	_, err = tx.Exec(q, user.Email, user.Role, user.Cell)
 	if err != nil {
 		empty := users.Manager{}
 		pqErr, ok := err.(*pq.Error)
 		if ok {
 			switch pqErr.Code.Name() {
 			case errDuplicate:
-				return empty, errors.E(op, "user already exists", err, errors.KindAlreadyExists)
+				tx.Rollback()
+				return empty, errors.E(op, err, "user already exists", errors.KindAlreadyExists)
 			case errInvalid, errTruncation:
-				return empty, errors.E(op, err, "invalid user data", err, errors.KindBadRequest)
+				tx.Rollback()
+				return empty, errors.E(op, err, "invalid user data", errors.KindBadRequest)
 			}
 		}
+		tx.Rollback()
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
-
-	q = `INSERT INTO admins(email, role, cell) VALUES ($1, $2) RETURNING email`
-
-	_, err = repo.Exec(q, user.Email, user.Role, user.Cell)
-	if err != nil {
-		empty := users.Manager{}
-		pqErr, ok := err.(*pq.Error)
-		if ok {
-			switch pqErr.Code.Name() {
-			case errDuplicate:
-				return empty, errors.E(op, "user already exists", err, errors.KindAlreadyExists)
-			case errInvalid, errTruncation:
-				return empty, errors.E(op, err, "invalid user data", err, errors.KindBadRequest)
-			}
-		}
-		return empty, errors.E(op, err, errors.KindUnexpected)
-	}
-
+	tx.Commit()
 	return user, nil
 }
 
 func (repo *userRepository) RetrieveManager(ctx context.Context, id string) (users.Manager, error) {
-	const op errors.Op = "store/postgres/usersRepository.RetrieveManager"
+	const op errors.Op = "store/postgres/userRepository.RetrieveManager"
 
 	q := `
 		SELECT 
@@ -66,12 +82,13 @@ func (repo *userRepository) RetrieveManager(ctx context.Context, id string) (use
 			users.account, 
 			users.role, 
 			users.created_at, 
-			users.update_at 
+			users.updated_at,
 			managers.cell
 		FROM 
-			users WHERE username=$1
+			users 
 		INNER JOIN
-			managers ON users.username=managers.email ;
+			managers ON users.username=managers.email
+		WHERE users.username=$1;
 	`
 
 	var user = users.Manager{}
@@ -81,7 +98,7 @@ func (repo *userRepository) RetrieveManager(ctx context.Context, id string) (use
 
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
-			return empty, errors.E(op, "user not found", errors.KindNotFound)
+			return empty, errors.E(op, err, "user not found", errors.KindNotFound)
 		}
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -89,7 +106,7 @@ func (repo *userRepository) RetrieveManager(ctx context.Context, id string) (use
 }
 
 func (repo *userRepository) ListManagers(ctx context.Context, offset, limit uint64) (users.ManagerPage, error) {
-	const op errors.Op = "store/postgres/usersRepository.ListManagers"
+	const op errors.Op = "store/postgres/userRepository.ListManagers"
 
 	q := `
 		SELECT 
@@ -99,11 +116,13 @@ func (repo *userRepository) ListManagers(ctx context.Context, offset, limit uint
 			users.created_at, 
 			users.updated_at,
 			managers.cell
-		FROM users ORDER BY 
-			username LIMIT $1 OFFSET $2
+		FROM 
+			users 
 		INNER JOIN 
 			managers ON users.username=managers.email
-		WHERE users.role=3;
+		WHERE 
+			users.role='basic' 
+		ORDER BY username LIMIT $1 OFFSET $2;
 	`
 
 	var items = []users.Manager{}
@@ -124,7 +143,7 @@ func (repo *userRepository) ListManagers(ctx context.Context, offset, limit uint
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM users WHERE role=3;`
+	q = `SELECT COUNT(*) FROM users WHERE role='basic';`
 
 	var total uint64
 	if err := repo.QueryRow(q).Scan(&total); err != nil {
@@ -143,7 +162,7 @@ func (repo *userRepository) ListManagers(ctx context.Context, offset, limit uint
 }
 
 func (repo *userRepository) UpdateManagerCreds(ctx context.Context, user users.Manager) error {
-	const op errors.Op = "store/postgres/usersRepository.UpdateManager"
+	const op errors.Op = "store/postgres.userRepository.UpdateManagerCreds"
 
 	q := `UPDATE users SET password=$1, updated_at=$2 WHERE username=$3`
 

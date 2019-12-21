@@ -2,16 +2,37 @@ package users
 
 import (
 	"context"
+	"time"
 
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
 func (svc *service) RegisterAdmin(ctx context.Context, user Administrator) (Administrator, error) {
 	const op errors.Op = "app/users/service.RegisterAdmin"
+
 	if err := user.Validate(); err != nil {
 		return Administrator{}, errors.E(op, err)
 	}
-	return svc.repo.SaveAdmin(ctx, user)
+
+	plain := svc.pgen.Generate(ctx)
+
+	password, err := svc.hasher.Hash(plain)
+	if err != nil {
+		return Administrator{}, errors.E(op, err)
+	}
+	user.Password = password
+
+	user.Role = Admin
+
+	now := time.Now()
+	user.CreatedAt, user.UpdatedAt = now, now
+
+	user, err = svc.repo.SaveAdmin(ctx, user)
+	if err != nil {
+		return Administrator{}, errors.E(op, err)
+	}
+	user.Password = plain
+	return user, nil
 }
 func (svc *service) RetrieveAdmin(ctx context.Context, id string) (Administrator, error) {
 	const op errors.Op = "app/users/service.RetrieveAdmin"
@@ -33,6 +54,18 @@ func (svc *service) ListAdmins(ctx context.Context, offset, limit uint64) (Admin
 }
 func (svc *service) UpdateAdminCreds(ctx context.Context, user Administrator) error {
 	const op errors.Op = "app/users/service.RegisterAdmin"
+
+	if user.Password == "" {
+		return errors.E(op, "invalid user: missing password", errors.KindBadRequest)
+	}
+
+	user.UpdatedAt = time.Now()
+
+	password, err := svc.hasher.Hash(user.Password)
+	if err != nil {
+		return errors.E(op, err)
+	}
+	user.Password = password
 
 	if err := svc.repo.UpdateAdminCreds(ctx, user); err != nil {
 		return errors.E(op, err)

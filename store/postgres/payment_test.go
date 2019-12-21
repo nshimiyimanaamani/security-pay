@@ -22,11 +22,12 @@ func TestSaveTransaction(t *testing.T) {
 	repo := postgres.NewPaymentRepo(db)
 	props := postgres.NewPropertyStore(db)
 	defer CleanDB(t, "transactions", "properties", "owners", "agents")
+	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
 	const op errors.Op = "postgres.paymentRepo.Save"
 
 	var amount = 1000
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -105,11 +106,12 @@ func TestRetrieveCode(t *testing.T) {
 	repo := postgres.NewPaymentRepo(db)
 	props := postgres.NewPropertyStore(db)
 
+	defer CleanDB(t, "transactions", "properties", "owners", "users")
+	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+
 	const op errors.Op = "postgres.paymentRepo.RetrieveCode"
 
-	defer CleanDB(t, "transactions", "properties", "owners", "users")
-
-	account := accounts.Account{ID: uuid.New().ID(), Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	savedAccount, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))

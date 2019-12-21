@@ -2,6 +2,8 @@ package users
 
 import (
 	"context"
+	"time"
+
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
@@ -12,10 +14,24 @@ func (svc *service) RegisterManager(ctx context.Context, user Manager) (Manager,
 		return Manager{}, errors.E(op, err)
 	}
 
-	user, err := svc.repo.SaveManager(ctx, user)
+	user.Role = Basic
+
+	now := time.Now()
+	user.CreatedAt, user.UpdatedAt = now, now
+
+	plain := svc.pgen.Generate(ctx)
+
+	password, err := svc.hasher.Hash(plain)
 	if err != nil {
 		return Manager{}, errors.E(op, err)
 	}
+	user.Password = password
+
+	user, err = svc.repo.SaveManager(ctx, user)
+	if err != nil {
+		return Manager{}, errors.E(op, err)
+	}
+	user.Password = plain
 	return user, nil
 }
 
@@ -40,8 +56,19 @@ func (svc *service) ListManagers(ctx context.Context, offset, limit uint64) (Man
 func (svc *service) UpdateManagerCreds(ctx context.Context, user Manager) error {
 	const op errors.Op = "app/users/service.UpdateManagerCreds"
 
-	err := svc.repo.UpdateManagerCreds(ctx, user)
+	if user.Password == "" {
+		return errors.E(op, "invalid user: missing password", errors.KindBadRequest)
+	}
+
+	password, err := svc.hasher.Hash(user.Password)
 	if err != nil {
+		return errors.E(op, err)
+	}
+	user.Password = password
+
+	user.UpdatedAt = time.Now()
+
+	if err := svc.repo.UpdateManagerCreds(ctx, user); err != nil {
 		return errors.E(op, err)
 	}
 	return nil

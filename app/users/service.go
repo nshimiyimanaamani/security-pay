@@ -3,7 +3,7 @@ package users
 import (
 	"context"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/hasher"
+	"github.com/rugwirobaker/paypack-backend/pkg/passwords"
 )
 
 // Service defines users usecases
@@ -52,13 +52,15 @@ type Managers interface {
 }
 
 type service struct {
-	hasher hasher.Hasher
+	pgen   passwords.Generator
+	hasher passwords.Hasher
 	repo   Repository
 }
 
 // Options ...
 type Options struct {
-	Hasher hasher.Hasher
+	PGen   passwords.Generator
+	Hasher passwords.Hasher
 	Repo   Repository
 }
 
@@ -67,5 +69,6 @@ func New(opts *Options) Service {
 	return &service{
 		hasher: opts.Hasher,
 		repo:   opts.Repo,
+		pgen:   opts.PGen,
 	}
 }

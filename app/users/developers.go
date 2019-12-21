@@ -1,8 +1,11 @@
 package users
 
-import "context"
+import (
+	"context"
+	"time"
 
-import "github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+)
 
 func (svc *service) RegisterDeveloper(ctx context.Context, user Developer) (Developer, error) {
 	const op errors.Op = "app/users/service.RegisterDeveloper"
@@ -11,10 +14,24 @@ func (svc *service) RegisterDeveloper(ctx context.Context, user Developer) (Deve
 		return Developer{}, errors.E(op, err)
 	}
 
-	user, err := svc.repo.SaveDeveloper(ctx, user)
+	plain := user.Password
+
+	password, err := svc.hasher.Hash(plain)
 	if err != nil {
 		return Developer{}, errors.E(op, err)
 	}
+	user.Password = password
+
+	user.Role = Dev
+
+	now := time.Now()
+	user.CreatedAt, user.UpdatedAt = now, now
+
+	user, err = svc.repo.SaveDeveloper(ctx, user)
+	if err != nil {
+		return Developer{}, errors.E(op, err)
+	}
+	user.Password = plain
 	return user, nil
 }
 
@@ -39,8 +56,20 @@ func (svc *service) ListDevelopers(ctx context.Context, offset, limit uint64) (D
 }
 func (svc *service) UpdateDeveloperCreds(ctx context.Context, user Developer) error {
 	const op errors.Op = "app/users/service.UpdateDeveloperCreds"
-	err := svc.repo.UpdateDeveloperCreds(ctx, user)
+
+	if user.Password == "" {
+		return errors.E(op, "invalid user: missing password", errors.KindBadRequest)
+	}
+
+	password, err := svc.hasher.Hash(user.Password)
 	if err != nil {
+		return errors.E(op, err)
+	}
+	user.Password = password
+
+	user.UpdatedAt = time.Now()
+
+	if err := svc.repo.UpdateDeveloperCreds(ctx, user); err != nil {
 		return errors.E(op, err)
 	}
 	return nil

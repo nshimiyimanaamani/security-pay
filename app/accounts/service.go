@@ -2,6 +2,7 @@ package accounts
 
 import (
 	"context"
+	"time"
 
 	"github.com/rugwirobaker/paypack-backend/app/identity"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
@@ -39,6 +40,10 @@ func (svc *service) Create(ctx context.Context, acc Account) (Account, error) {
 	if err := acc.Validate(); err != nil {
 		return Account{}, errors.E(op, err)
 	}
+	now := time.Now()
+	acc.CreatedAt = now
+	acc.UpdatedAt = now
+
 	return svc.repo.Save(ctx, acc)
 }
 

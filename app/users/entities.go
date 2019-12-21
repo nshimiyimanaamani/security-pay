@@ -45,14 +45,8 @@ func (ent *Administrator) Validate() error {
 	if ent.Email == "" {
 		return errors.E(op, "invalid manager: missing email", errors.KindBadRequest)
 	}
-	if ent.Password == "" {
-		return errors.E(op, "invalid manager: missing password", errors.KindBadRequest)
-	}
 	if ent.Account == "" {
 		return errors.E(op, "invalid manager: missing account", errors.KindBadRequest)
-	}
-	if ent.Role == "" {
-		return errors.E(op, "invalid manager: missing role", errors.KindBadRequest)
 	}
 	return nil
 }
@@ -77,7 +71,7 @@ func (ent *Agent) Validate() error {
 	const op errors.Op = "app/accounts/agent.Validate"
 
 	if ent.Telephone == "" {
-		return errors.E(op, "invalid agent: missing email", errors.KindBadRequest)
+		return errors.E(op, "invalid agent: missing phone", errors.KindBadRequest)
 	}
 	if ent.FirstName == "" || ent.LastName == "" {
 		return errors.E(op, "invalid agent: missing names", errors.KindBadRequest)
@@ -85,14 +79,8 @@ func (ent *Agent) Validate() error {
 	if ent.Cell == "" || ent.Sector == "" || ent.Village == "" {
 		return errors.E(op, "invalid agent: missing address references", errors.KindBadRequest)
 	}
-	if ent.Password == "" {
-		return errors.E(op, "invalid manager: missing password", errors.KindBadRequest)
-	}
 	if ent.Account == "" {
 		return errors.E(op, "invalid manager: missing account", errors.KindBadRequest)
-	}
-	if ent.Role == "" {
-		return errors.E(op, "invalid manager: missing role", errors.KindBadRequest)
 	}
 	return nil
 }
@@ -120,9 +108,6 @@ func (ent *Developer) Validate() error {
 	if ent.Account == "" {
 		return errors.E(op, "invalid manager: missing account", errors.KindBadRequest)
 	}
-	if ent.Role == "" {
-		return errors.E(op, "invalid manager: missing role", errors.KindBadRequest)
-	}
 	return nil
 }
 
@@ -146,14 +131,8 @@ func (ent *Manager) Validate() error {
 	if ent.Cell == "" {
 		return errors.E(op, "invalid manager: missing cell", errors.KindBadRequest)
 	}
-	if ent.Password == "" {
-		return errors.E(op, "invalid manager: missing password", errors.KindBadRequest)
-	}
 	if ent.Account == "" {
 		return errors.E(op, "invalid manager: missing account", errors.KindBadRequest)
-	}
-	if ent.Role == "" {
-		return errors.E(op, "invalid manager: missing role", errors.KindBadRequest)
 	}
 	return nil
 }

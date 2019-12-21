@@ -10,17 +10,17 @@ import (
 )
 
 func (repo *userRepository) SaveAgent(ctx context.Context, user users.Agent) (users.Agent, error) {
-	const op errors.Op = "store/postgres/usersRepository.SaveAgent"
+	const op errors.Op = "store/postgres/userRepository.SaveAgent"
 
 	q := `
-	INSERT into users (
-		username, 
-		password, 
-		role, 
-		account, 
-		created_at, 
-		updated_at
-	) VALUES ($1, $2, $3, $4, $5, $6) RETURNING username
+		INSERT into users (
+			username, 
+			password, 
+			role, 
+			account, 
+			created_at, 
+			updated_at
+		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING username;
 	`
 
 	empty := users.Agent{}
@@ -40,29 +40,37 @@ func (repo *userRepository) SaveAgent(ctx context.Context, user users.Agent) (us
 		if ok {
 			switch pqErr.Code.Name() {
 			case errDuplicate:
-				return empty, errors.E(op, "user already exists", err, errors.KindAlreadyExists)
-			case errInvalid, errTruncation:
-				return empty, errors.E(op, err, "invalid user data", err, errors.KindBadRequest)
+				tx.Rollback()
+				return empty, errors.E(op, err, "user already exists", errors.KindAlreadyExists)
+			case errFK:
+				tx.Rollback()
+				return empty, errors.E(op, err, "invalid input data: account not found", errors.KindNotFound)
 			}
 		}
 		tx.Rollback()
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
-	q = `INSERT INTO agents (telephone, first_name, last_name, cell, sector, village role) RETURNING telephone`
+	q = `
+		INSERT INTO agents (
+			telephone, 
+			role, 
+			first_name, last_name,
+			cell, sector, village
+		) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING telephone;`
 
-	_, err = repo.Exec(q, user.Telephone, user.FirstName, user.LastName, user.Cell, user.Sector, user.Village)
+	_, err = tx.Exec(q, user.Telephone, user.Role, user.FirstName, user.LastName, user.Cell, user.Sector, user.Village)
 
 	if err != nil {
-		empty := users.Agent{}
-
 		pqErr, ok := err.(*pq.Error)
 		if ok {
 			switch pqErr.Code.Name() {
 			case errDuplicate:
-				return empty, errors.E(op, "user already exists", err, errors.KindAlreadyExists)
+				tx.Rollback()
+				return empty, errors.E(op, err, "user already exists", errors.KindAlreadyExists)
 			case errInvalid, errTruncation:
-				return empty, errors.E(op, err, "invalid user data", err, errors.KindBadRequest)
+				tx.Rollback()
+				return empty, errors.E(op, err, "invalid user data", errors.KindBadRequest)
 			}
 		}
 		tx.Rollback()
@@ -73,18 +81,18 @@ func (repo *userRepository) SaveAgent(ctx context.Context, user users.Agent) (us
 }
 
 func (repo *userRepository) RetrieveAgent(ctx context.Context, id string) (users.Agent, error) {
-	const op errors.Op = "store/postgres/usersRepository.RetrieveAgent"
+	const op errors.Op = "store/postgres/userRepository.RetrieveAgent"
 
 	var user = users.Agent{}
 
-	q := `SELECT username, account, role, created_at, update_at FROM users WHERE username=$1`
+	q := `SELECT username, account, role, created_at, updated_at FROM users WHERE username=$1`
 
 	if err := repo.QueryRow(q, id).Scan(&user.Telephone, &user.Account, &user.Role, &user.CreatedAt, &user.UpdatedAt); err != nil {
 		empty := users.Agent{}
 
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
-			return empty, errors.E(op, "user not found", errors.KindNotFound)
+			return empty, errors.E(op, err, "user not found", errors.KindNotFound)
 		}
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -96,7 +104,7 @@ func (repo *userRepository) RetrieveAgent(ctx context.Context, id string) (users
 
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
-			return empty, errors.E(op, "user not found", errors.KindNotFound)
+			return empty, errors.E(op, err, "user not found", errors.KindNotFound)
 		}
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -104,7 +112,7 @@ func (repo *userRepository) RetrieveAgent(ctx context.Context, id string) (users
 }
 
 func (repo *userRepository) ListAgents(ctx context.Context, offset, limit uint64) (users.AgentPage, error) {
-	const op errors.Op = "store/postgres/usersRepository.ListDevelopers"
+	const op errors.Op = "store/postgres/userRepository.ListDevelopers"
 
 	q := `
 		SELECT 
@@ -116,11 +124,13 @@ func (repo *userRepository) ListAgents(ctx context.Context, offset, limit uint64
 			agents.cell,
 			agents.sector,
 			agents.village
-		FROM users ORDER BY 
-			username LIMIT $1 OFFSET $2
+		FROM 
+			users 
 		INNER JOIN 
-			managers ON users.username=agents.telephone
-		WHERE users.role=4;
+			agents ON users.username=agents.telephone
+		WHERE 
+			users.role='min' 
+		ORDER BY users.username LIMIT $1 OFFSET $2;
 	`
 
 	var items = []users.Agent{}
@@ -135,13 +145,13 @@ func (repo *userRepository) ListAgents(ctx context.Context, offset, limit uint64
 	for rows.Next() {
 		c := users.Agent{}
 
-		if err := rows.Scan(&c.Telephone, &c.Account, &c.Role, &c.CreatedAt, &c.UpdatedAt, &c.Cell); err != nil {
+		if err := rows.Scan(&c.Telephone, &c.Account, &c.Role, &c.CreatedAt, &c.UpdatedAt, &c.Cell, &c.Sector, &c.Village); err != nil {
 			return users.AgentPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM users WHERE role=4;`
+	q = `SELECT COUNT(*) FROM users WHERE role='min';`
 
 	var total uint64
 	if err := repo.QueryRow(q).Scan(&total); err != nil {
@@ -160,7 +170,7 @@ func (repo *userRepository) ListAgents(ctx context.Context, offset, limit uint64
 }
 
 func (repo *userRepository) UpdateAgentDetails(ctx context.Context, user users.Agent) error {
-	const op errors.Op = "store/postgres/usersRepository.UpdateAgentDetails"
+	const op errors.Op = "store/postgres/userRepository.UpdateAgentDetails"
 
 	q := `
 		UPDATE agents SET 
@@ -169,7 +179,7 @@ func (repo *userRepository) UpdateAgentDetails(ctx context.Context, user users.A
 			cell=$3,
 			sector=$4,
 			village=$5
-		WHERE username=$6`
+		WHERE telephone=$6`
 
 	res, err := repo.Exec(q, user.FirstName, user.LastName, user.Cell, user.Sector, user.Village, user.Telephone)
 
@@ -181,13 +191,13 @@ func (repo *userRepository) UpdateAgentDetails(ctx context.Context, user users.A
 		return errors.E(op, err, errors.KindUnexpected)
 	}
 	if cnt == 0 {
-		return errors.E(op, "user not found", errors.KindNotFound)
+		return errors.E(op, err, "user not found", errors.KindNotFound)
 	}
 	return nil
 }
 
 func (repo *userRepository) UpdateAgentCreds(ctx context.Context, user users.Agent) error {
-	const op errors.Op = "store/postgres/usersRepository.UpdateAgentCreds"
+	const op errors.Op = "store/postgres/userRepository.UpdateAgentCreds"
 
 	q := `UPDATE users SET password=$1, updated_at=$2 WHERE username=$3`
 
