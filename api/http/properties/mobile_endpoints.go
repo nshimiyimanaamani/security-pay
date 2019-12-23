@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
@@ -38,7 +39,7 @@ type PropertyPage struct {
 }
 
 // MRetrieveProperty retrieves properties for mobile
-func MRetrieveProperty(logger log.Entry, svc properties.Service) http.Handler {
+func MRetrieveProperty(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -47,11 +48,12 @@ func MRetrieveProperty(logger log.Entry, svc properties.Service) http.Handler {
 
 		property, err := svc.RetrieveProperty(ctx, id)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		response := Property{
+		res := Property{
 			ID:         property.ID,
 			Due:        property.Due,
 			RecordedBy: property.RecordedBy,
@@ -65,8 +67,9 @@ func MRetrieveProperty(logger log.Entry, svc properties.Service) http.Handler {
 			Village:    property.Address.Village,
 		}
 
-		if err = EncodeResponse(w, http.StatusOK, response); err != nil {
-			EncodeError(w, err)
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}
@@ -75,19 +78,23 @@ func MRetrieveProperty(logger log.Entry, svc properties.Service) http.Handler {
 }
 
 // MListPropertyByOwner handles property list by owner(for mobile)
-func MListPropertyByOwner(logger log.Entry, svc properties.Service) http.Handler {
+func MListPropertyByOwner(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		vars := mux.Vars(r)
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
+
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
+
 		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
@@ -95,11 +102,12 @@ func MListPropertyByOwner(logger log.Entry, svc properties.Service) http.Handler
 
 		page, err := svc.ListPropertiesByOwner(ctx, owner, offset, limit)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		response := PropertyPage{
+		res := PropertyPage{
 			PageMetadata: PageMetadata{
 				Total:  page.Total,
 				Offset: page.Offset,
@@ -121,11 +129,12 @@ func MListPropertyByOwner(logger log.Entry, svc properties.Service) http.Handler
 				Cell:       p.Address.Cell,
 				Village:    p.Address.Village,
 			}
-			response.Properties = append(response.Properties, property)
+			res.Properties = append(res.Properties, property)
 		}
 
-		if err = EncodeResponse(w, http.StatusOK, response); err != nil {
-			EncodeError(w, err)
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}
@@ -134,29 +143,35 @@ func MListPropertyByOwner(logger log.Entry, svc properties.Service) http.Handler
 }
 
 // MListPropertyBySector handles property list by sector
-func MListPropertyBySector(logger log.Entry, svc properties.Service) http.Handler {
+func MListPropertyBySector(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		vars := mux.Vars(r)
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
+
 		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
+
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
 		page, err := svc.ListPropertiesBySector(ctx, vars["sector"], offset, limit)
+
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		response := PropertyPage{
+		res := PropertyPage{
 			PageMetadata: PageMetadata{
 				Total:  page.Total,
 				Offset: page.Offset,
@@ -178,11 +193,12 @@ func MListPropertyBySector(logger log.Entry, svc properties.Service) http.Handle
 				Cell:       p.Address.Cell,
 				Village:    p.Address.Village,
 			}
-			response.Properties = append(response.Properties, property)
+			res.Properties = append(res.Properties, property)
 		}
 
-		if err = EncodeResponse(w, http.StatusOK, response); err != nil {
-			EncodeError(w, err)
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}
@@ -191,29 +207,33 @@ func MListPropertyBySector(logger log.Entry, svc properties.Service) http.Handle
 }
 
 // MListPropertyByCell handles property list by cell(for mobile)
-func MListPropertyByCell(logger log.Entry, svc properties.Service) http.Handler {
+func MListPropertyByCell(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		vars := mux.Vars(r)
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
+
 		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
 		page, err := svc.ListPropertiesByCell(ctx, vars["cell"], offset, limit)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		response := PropertyPage{
+		res := PropertyPage{
 			PageMetadata: PageMetadata{
 				Total:  page.Total,
 				Offset: page.Offset,
@@ -235,12 +255,13 @@ func MListPropertyByCell(logger log.Entry, svc properties.Service) http.Handler 
 				Cell:       p.Address.Cell,
 				Village:    p.Address.Village,
 			}
-			response.Properties = append(response.Properties, property)
+			res.Properties = append(res.Properties, property)
 
 		}
 
-		if err = EncodeResponse(w, http.StatusOK, response); err != nil {
-			EncodeError(w, err)
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}
@@ -249,29 +270,33 @@ func MListPropertyByCell(logger log.Entry, svc properties.Service) http.Handler 
 }
 
 // MListPropertyByVillage handles property list by owner
-func MListPropertyByVillage(logger log.Entry, svc properties.Service) http.Handler {
+func MListPropertyByVillage(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		vars := mux.Vars(r)
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
+
 		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
 		page, err := svc.ListPropertiesByVillage(ctx, vars["village"], offset, limit)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		response := PropertyPage{
+		res := PropertyPage{
 			PageMetadata: PageMetadata{
 				Total:  page.Total,
 				Offset: page.Offset,
@@ -293,11 +318,12 @@ func MListPropertyByVillage(logger log.Entry, svc properties.Service) http.Handl
 				Cell:       p.Address.Cell,
 				Village:    p.Address.Village,
 			}
-			response.Properties = append(response.Properties, property)
+			res.Properties = append(res.Properties, property)
 		}
 
-		if err = EncodeResponse(w, http.StatusOK, response); err != nil {
-			EncodeError(w, err)
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}

@@ -7,6 +7,7 @@ import (
 	//"github.com/lib/pq"
 	"github.com/lib/pq"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
 var _ (properties.Repository) = (*propertiesStore)(nil)
@@ -21,6 +22,8 @@ func NewPropertyStore(db *sql.DB) properties.Repository {
 }
 
 func (str *propertiesStore) Save(ctx context.Context, pro properties.Property) (properties.Property, error) {
+	const op errors.Op = "store/postgres/propertiesStore.Save"
+
 	q := `INSERT INTO properties (id, owner, due, sector, cell, village, recorded_by, occupied) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
 
 	empty := properties.Property{}
@@ -31,20 +34,20 @@ func (str *propertiesStore) Save(ctx context.Context, pro properties.Property) (
 		if ok {
 			switch pqErr.Code.Name() {
 			case errDuplicate:
-				return empty, properties.ErrConflict
+				return empty, errors.E(op, err, "property already exists", errors.KindAlreadyExists)
 			case errFK:
-				return empty, properties.ErrOwnerNotFound
-			case errInvalid, errTruncation:
-				return empty, properties.ErrInvalidEntity
+				return empty, errors.E(op, err, "property not found", errors.KindNotFound)
 			}
 		}
-		return empty, err
+		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	return pro, nil
 }
 
 func (str *propertiesStore) UpdateProperty(ctx context.Context, pro properties.Property) error {
+	const op errors.Op = "store/postgres/propertiesStore.UpdateProperty"
+
 	q := `UPDATE properties SET owner=$1, due=$2, occupied=$3 WHERE id=$4;`
 
 	res, err := str.db.Exec(q, pro.Owner.ID, pro.Due, pro.Occupied, pro.ID)
@@ -53,7 +56,7 @@ func (str *propertiesStore) UpdateProperty(ctx context.Context, pro properties.P
 		if ok {
 			switch pqErr.Code.Name() {
 			case errInvalid, errTruncation:
-				return properties.ErrInvalidEntity
+				return errors.E(op, err, "invalid property")
 			}
 		}
 		return err
@@ -64,12 +67,14 @@ func (str *propertiesStore) UpdateProperty(ctx context.Context, pro properties.P
 		return err
 	}
 	if cnt == 0 {
-		return properties.ErrPropertyNotFound
+		return errors.E(op, "property not found")
 	}
 	return nil
 }
 
 func (str *propertiesStore) RetrieveByID(ctx context.Context, id string) (properties.Property, error) {
+	const op errors.Op = "store/postgres/propertiesStore.RetrieveByID"
+
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell,  
@@ -94,7 +99,7 @@ func (str *propertiesStore) RetrieveByID(ctx context.Context, id string) (proper
 
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
-			return empty, properties.ErrPropertyNotFound
+			return empty, errors.E(op, err, "property not found", errors.KindNotFound)
 		}
 
 		return empty, err
@@ -103,6 +108,8 @@ func (str *propertiesStore) RetrieveByID(ctx context.Context, id string) (proper
 }
 
 func (str *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, offset, limit uint64) (properties.PropertyPage, error) {
+	const op errors.Op = "store/postgres/propertiesStore.RetrieveByOwner"
+
 	q := `SELECT 
 			properties.id, properties.sector, properties.cell, 
 			properties.village, properties.due, properties.recorded_by,
@@ -120,7 +127,7 @@ func (str *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, o
 
 	rows, err := str.db.Query(q, owner, limit, offset)
 	if err != nil {
-		return properties.PropertyPage{}, err
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	defer rows.Close()
 
@@ -132,7 +139,7 @@ func (str *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, o
 			&c.Due, &c.RecordedBy, &c.Occupied,
 			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
-			return properties.PropertyPage{}, err
+			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
 
 		items = append(items, c)
@@ -142,7 +149,7 @@ func (str *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, o
 
 	var total uint64
 	if err := str.db.QueryRow(q, owner).Scan(&total); err != nil {
-		return properties.PropertyPage{}, err
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	page := properties.PropertyPage{
@@ -157,6 +164,8 @@ func (str *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, o
 }
 
 func (str *propertiesStore) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64) (properties.PropertyPage, error) {
+	const op errors.Op = "store/postgres/propertiesStore.RetrieveBySector"
+
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
@@ -175,7 +184,7 @@ func (str *propertiesStore) RetrieveBySector(ctx context.Context, sector string,
 
 	rows, err := str.db.Query(q, sector, limit, offset)
 	if err != nil {
-		return properties.PropertyPage{}, err
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	defer rows.Close()
 
@@ -187,7 +196,7 @@ func (str *propertiesStore) RetrieveBySector(ctx context.Context, sector string,
 			&c.Due, &c.RecordedBy, &c.Occupied,
 			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
-			return properties.PropertyPage{}, err
+			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
 
 		items = append(items, c)
@@ -197,7 +206,7 @@ func (str *propertiesStore) RetrieveBySector(ctx context.Context, sector string,
 
 	var total uint64
 	if err := str.db.QueryRow(q, sector).Scan(&total); err != nil {
-		return properties.PropertyPage{}, err
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	page := properties.PropertyPage{
@@ -212,6 +221,8 @@ func (str *propertiesStore) RetrieveBySector(ctx context.Context, sector string,
 }
 
 func (str *propertiesStore) RetrieveByCell(ctx context.Context, cell string, offset, limit uint64) (properties.PropertyPage, error) {
+	const op errors.Op = "store/postgres/propertiesStore.RetrieveByCell"
+
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
@@ -229,7 +240,7 @@ func (str *propertiesStore) RetrieveByCell(ctx context.Context, cell string, off
 
 	rows, err := str.db.Query(q, cell, limit, offset)
 	if err != nil {
-		return properties.PropertyPage{}, err
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	defer rows.Close()
 
@@ -241,7 +252,7 @@ func (str *propertiesStore) RetrieveByCell(ctx context.Context, cell string, off
 			&c.Due, &c.RecordedBy, &c.Occupied,
 			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
-			return properties.PropertyPage{}, err
+			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
 
 		items = append(items, c)
@@ -251,7 +262,7 @@ func (str *propertiesStore) RetrieveByCell(ctx context.Context, cell string, off
 
 	var total uint64
 	if err := str.db.QueryRow(q, cell).Scan(&total); err != nil {
-		return properties.PropertyPage{}, err
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	page := properties.PropertyPage{
@@ -266,6 +277,8 @@ func (str *propertiesStore) RetrieveByCell(ctx context.Context, cell string, off
 }
 
 func (str *propertiesStore) RetrieveByVillage(ctx context.Context, village string, offset, limit uint64) (properties.PropertyPage, error) {
+	const op errors.Op = "store/postgres/propertiesStore.RetrieveByVillage"
+
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
@@ -283,7 +296,7 @@ func (str *propertiesStore) RetrieveByVillage(ctx context.Context, village strin
 
 	rows, err := str.db.Query(q, village, limit, offset)
 	if err != nil {
-		return properties.PropertyPage{}, err
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	defer rows.Close()
 
@@ -295,7 +308,7 @@ func (str *propertiesStore) RetrieveByVillage(ctx context.Context, village strin
 			&c.Due, &c.RecordedBy, &c.Occupied,
 			&c.Owner.ID, &c.Owner.Lname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
-			return properties.PropertyPage{}, err
+			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
 
 		items = append(items, c)
@@ -305,7 +318,7 @@ func (str *propertiesStore) RetrieveByVillage(ctx context.Context, village strin
 
 	var total uint64
 	if err := str.db.QueryRow(q, village).Scan(&total); err != nil {
-		return properties.PropertyPage{}, err
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	page := properties.PropertyPage{

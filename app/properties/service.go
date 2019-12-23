@@ -2,24 +2,24 @@ package properties
 
 import (
 	"context"
-	"errors"
 
 	"github.com/rugwirobaker/paypack-backend/app/identity"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
-var (
-	// ErrConflict attempt to create an entity with an alreasdy existing id
-	ErrConflict = errors.New("property already exists")
-	//ErrInvalidEntity indicates malformed entity specification (e.g.
-	//invalid username,  password, account).
-	ErrInvalidEntity = errors.New("invalid property entity")
+// var (
+// 	// ErrConflict attempt to create an entity with an alreasdy existing id
+// 	ErrConflict = errors.New("property already exists")
+// 	//ErrInvalidEntity indicates malformed entity specification (e.g.
+// 	//invalid username,  password, account).
+// 	ErrInvalidEntity = errors.New("invalid property entity")
 
-	// ErrPropertyNotFound indicates a non-existent entity request.
-	ErrPropertyNotFound = errors.New("property not found")
+// 	// ErrPropertyNotFound indicates a non-existent entity request.
+// 	ErrPropertyNotFound = errors.New("property not found")
 
-	//ErrOwnerNotFound indicates that the referenced owner does not exists yet in the repository
-	ErrOwnerNotFound = errors.New("owner not found")
-)
+// 	//ErrOwnerNotFound indicates that the referenced owner does not exists yet in the repository
+// 	ErrOwnerNotFound = errors.New("owner not found")
+// )
 
 // nanoid settings
 const (
@@ -74,42 +74,81 @@ func New(idp identity.Provider, repo Repository) Service {
 }
 
 func (svc *propertyService) RegisterProperty(ctx context.Context, p Property) (Property, error) {
+	const op errors.Op = "app/properties/service.RegisterProperty"
+
 	if err := p.Validate(); err != nil {
-		return Property{}, err
+		return Property{}, errors.E(op, err)
 	}
 
 	p.ID = svc.idp.ID()
 
 	property, err := svc.repo.Save(ctx, p)
 	if err != nil {
-		return Property{}, err
+		return Property{}, errors.E(op, err)
 	}
 	return property, nil
 }
 
 func (svc *propertyService) UpdateProperty(ctx context.Context, prop Property) error {
+	const op errors.Op = "app/properties/service.UpdateProperty"
+
 	if err := prop.Validate(); err != nil {
-		return err
+		return errors.E(op, err)
 	}
-	return svc.repo.UpdateProperty(ctx, prop)
+
+	if err := svc.repo.UpdateProperty(ctx, prop); err != nil {
+		return errors.E(op, err)
+	}
+	return nil
 }
 
 func (svc *propertyService) RetrieveProperty(ctx context.Context, uid string) (Property, error) {
-	return svc.repo.RetrieveByID(ctx, uid)
+	const op errors.Op = "app/properties/service.RetrieveProperty"
+
+	property, err := svc.repo.RetrieveByID(ctx, uid)
+	if err != nil {
+		return Property{}, errors.E(op, err)
+	}
+
+	return property, nil
 }
 
 func (svc *propertyService) ListPropertiesByOwner(ctx context.Context, owner string, offset, limit uint64) (PropertyPage, error) {
-	return svc.repo.RetrieveByOwner(ctx, owner, offset, limit)
+	const op errors.Op = "app/properties/service.ListPropertiesByOwner"
+
+	page, err := svc.repo.RetrieveByOwner(ctx, owner, offset, limit)
+	if err != nil {
+		return PropertyPage{}, errors.E(op, err)
+	}
+	return page, nil
 }
 
 func (svc *propertyService) ListPropertiesBySector(ctx context.Context, sector string, offset, limit uint64) (PropertyPage, error) {
-	return svc.repo.RetrieveBySector(ctx, sector, offset, limit)
+	const op errors.Op = "app/properties/service.ListPropertiesBySector"
+
+	page, err := svc.repo.RetrieveBySector(ctx, sector, offset, limit)
+	if err != nil {
+		return PropertyPage{}, errors.E(op, err)
+	}
+	return page, nil
 }
 
 func (svc *propertyService) ListPropertiesByCell(ctx context.Context, cell string, offset, limit uint64) (PropertyPage, error) {
-	return svc.repo.RetrieveByCell(ctx, cell, offset, limit)
+	const op errors.Op = "app/properties/service.ListPropertiesByCell"
+
+	page, err := svc.repo.RetrieveByCell(ctx, cell, offset, limit)
+	if err != nil {
+		return PropertyPage{}, errors.E(op, err)
+	}
+	return page, nil
 }
 
 func (svc *propertyService) ListPropertiesByVillage(ctx context.Context, village string, offset, limit uint64) (PropertyPage, error) {
-	return svc.repo.RetrieveByVillage(ctx, village, offset, limit)
+	const op errors.Op = "app/properties/service.ListPropertiesByVillage"
+
+	page, err := svc.repo.RetrieveByVillage(ctx, village, offset, limit)
+	if err != nil {
+		return PropertyPage{}, errors.E(op, err)
+	}
+	return page, nil
 }

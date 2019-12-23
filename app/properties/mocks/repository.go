@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/rugwirobaker/paypack-backend/app/properties"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
 var _ (properties.Repository) = (*propertyStoreMock)(nil)
@@ -27,18 +28,19 @@ func NewRepository(owners map[string]properties.Owner) properties.Repository {
 }
 
 func (str *propertyStoreMock) Save(ctx context.Context, property properties.Property) (properties.Property, error) {
+	const op errors.Op = "app/properties/mocks/repository.Save"
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
 	empty := properties.Property{}
 
 	if _, ok := str.owners[property.Owner.ID]; !ok {
-		return empty, properties.ErrOwnerNotFound
+		return empty, errors.E(op, "owner not found", errors.KindNotFound)
 	}
 
 	for _, prt := range str.properties {
 		if prt.ID == property.ID {
-			return empty, properties.ErrConflict
+			return empty, errors.E(op, "property already exists", errors.KindAlreadyExists)
 		}
 	}
 
@@ -49,11 +51,13 @@ func (str *propertyStoreMock) Save(ctx context.Context, property properties.Prop
 }
 
 func (str *propertyStoreMock) UpdateProperty(ctx context.Context, property properties.Property) error {
+	const op errors.Op = "app/properties/mocks/repository.UpdateProperty"
+
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
 	if _, ok := str.properties[property.ID]; !ok {
-		return properties.ErrPropertyNotFound
+		return errors.E(op, "property not found", errors.KindNotFound)
 	}
 
 	str.properties[property.ID] = property
@@ -62,18 +66,22 @@ func (str *propertyStoreMock) UpdateProperty(ctx context.Context, property prope
 }
 
 func (str *propertyStoreMock) RetrieveByID(ctx context.Context, id string) (properties.Property, error) {
+	const op errors.Op = "app/properties/mocks/repository.RetrieveByID"
+
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
 	val, ok := str.properties[id]
 	if !ok {
-		return properties.Property{}, properties.ErrPropertyNotFound
+		return properties.Property{}, errors.E(op, "property not found", errors.KindNotFound)
 	}
 
 	return val, nil
 }
 
 func (str *propertyStoreMock) RetrieveByOwner(ctx context.Context, owner string, offset, limit uint64) (properties.PropertyPage, error) {
+	const op errors.Op = "app/properties/mocks/repository.RetrieveByOwner"
+
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -111,6 +119,8 @@ func (str *propertyStoreMock) RetrieveByOwner(ctx context.Context, owner string,
 }
 
 func (str *propertyStoreMock) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64) (properties.PropertyPage, error) {
+	const op errors.Op = "app/properties/mocks/repository.RetrieveBySector"
+
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -148,6 +158,8 @@ func (str *propertyStoreMock) RetrieveBySector(ctx context.Context, sector strin
 }
 
 func (str *propertyStoreMock) RetrieveByCell(ctx context.Context, cell string, offset, limit uint64) (properties.PropertyPage, error) {
+	const op errors.Op = "app/properties/mocks/repository.RetrieveByCell"
+
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -185,6 +197,8 @@ func (str *propertyStoreMock) RetrieveByCell(ctx context.Context, cell string, o
 }
 
 func (str *propertyStoreMock) RetrieveByVillage(ctx context.Context, village string, offset, limit uint64) (properties.PropertyPage, error) {
+	const op errors.Op = "app/properties/mocks/repository.RetrieveByVillage"
+
 	str.mu.Lock()
 	defer str.mu.Unlock()
 

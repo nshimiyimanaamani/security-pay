@@ -9,6 +9,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/properties/mocks"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -33,7 +34,7 @@ func makeOwners(owner properties.Owner) map[string]properties.Owner {
 	return owners
 }
 
-func TestAddProperty(t *testing.T) {
+func TestRegisterProperty(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
@@ -51,6 +52,7 @@ func TestAddProperty(t *testing.T) {
 	}
 
 	emptyDue := properties.Property{
+		Owner:      properties.Owner{ID: owner.ID},
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		RecordedBy: uuid.New().ID(),
 	}
@@ -62,21 +64,39 @@ func TestAddProperty(t *testing.T) {
 		RecordedBy: uuid.New().ID(),
 	}
 
+	const op errors.Op = "app/properties/service.RegisterProperty"
+
 	cases := []struct {
 		desc     string
 		property properties.Property
 		err      error
 	}{
-		{"add valid property", property, nil},
-		{"add invalid property", invalidProperty, properties.ErrInvalidEntity},
-		{"add property with empty montly due", emptyDue, properties.ErrInvalidEntity},
-		{"add with unsaved owner", withUnsavedOwner, properties.ErrOwnerNotFound},
+		{
+			desc:     "add valid property",
+			property: property,
+			err:      nil,
+		},
+		{
+			desc:     "add property with missing owner",
+			property: invalidProperty,
+			err:      errors.E(op, "invalid property: missing owner"),
+		},
+		{
+			desc:     "add property with empty montly due",
+			property: emptyDue,
+			err:      errors.E(op, "invalid property: missing due"),
+		},
+		{
+			desc:     "add with unsaved owner",
+			property: withUnsavedOwner,
+			err:      errors.E(op, "owner not found"),
+		},
 	}
 
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := svc.RegisterProperty(ctx, tc.property)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }
 
@@ -98,6 +118,7 @@ func TestUpdate(t *testing.T) {
 	}
 
 	emptyDue := properties.Property{
+		Owner:      properties.Owner{ID: owner.ID},
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		RecordedBy: uuid.New().ID(),
 	}
@@ -105,6 +126,8 @@ func TestUpdate(t *testing.T) {
 	ctx := context.Background()
 	saved, err := svc.RegisterProperty(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	const op errors.Op = "app/properties/service.UpdateProperty"
 
 	cases := []struct {
 		desc     string
@@ -119,28 +142,28 @@ func TestUpdate(t *testing.T) {
 		{
 			desc:     "update with wrong property data",
 			property: invalidProperty,
-			err:      properties.ErrInvalidEntity,
+			err:      errors.E(op, "invalid property: missing owner"),
 		},
 		{
 			desc:     "update non-existant property",
 			property: property,
-			err:      properties.ErrPropertyNotFound,
+			err:      errors.E(op, "property not found"),
 		},
 		{
 			desc:     "update property with empty due",
 			property: emptyDue,
-			err:      properties.ErrInvalidEntity,
+			err:      errors.E(op, "invalid property: missing due"),
 		},
 	}
 
 	for _, tc := range cases {
 		ctx := context.Background()
 		err := svc.UpdateProperty(ctx, tc.property)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }
 
-func TestViewProperty(t *testing.T) {
+func TestRetrieveProperty(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
@@ -155,6 +178,8 @@ func TestViewProperty(t *testing.T) {
 	saved, err := svc.RegisterProperty(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
+	const op errors.Op = "app/properties/service.RetrieveProperty"
+
 	cases := []struct {
 		desc     string
 		identity string
@@ -168,14 +193,14 @@ func TestViewProperty(t *testing.T) {
 		{
 			desc:     "view non-existing property",
 			identity: wrongValue,
-			err:      properties.ErrPropertyNotFound,
+			err:      errors.E(op, "property not found"),
 		},
 	}
 
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := svc.RetrieveProperty(ctx, tc.identity)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }
 

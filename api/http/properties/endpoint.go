@@ -1,45 +1,40 @@
 package properties
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
 // RegisterProperty handles property registration
 func RegisterProperty(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-
-		if err := CheckContentType(r); err != nil {
-			EncodeError(w, err)
-			return
-		}
 
 		var property properties.Property
 
-		if err := json.NewDecoder(r.Body).Decode(&property); err != nil {
-			EncodeError(w, err)
-			return
-		}
-
-		if err := property.Validate(); err != nil {
-			EncodeError(w, err)
-			return
-		}
-
-		saved, err := svc.RegisterProperty(ctx, property)
+		err := Decode(r, &property)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		if err = EncodeResponse(w, http.StatusCreated, saved); err != nil {
-			EncodeError(w, err)
+		res, err := svc.RegisterProperty(r.Context(), property)
+		if err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		defer r.Body.Close()
+
+		if err := encode(w, http.StatusCreated, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}
@@ -50,34 +45,29 @@ func RegisterProperty(lgger log.Entry, svc properties.Service) http.Handler {
 // UpdateProperty handles property update
 func UpdateProperty(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-
-		if err := CheckContentType(r); err != nil {
-			EncodeError(w, err)
-			return
-		}
 
 		var property properties.Property
-		if err := json.NewDecoder(r.Body).Decode(&property); err != nil {
-			EncodeError(w, err)
-			return
-		}
 
-		if err := property.Validate(); err != nil {
-			EncodeError(w, err)
+		err := Decode(r, &property)
+		if err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
 		vars := mux.Vars(r)
 		property.ID = vars["id"]
 
-		err := svc.UpdateProperty(ctx, property)
+		res := svc.UpdateProperty(r.Context(), property)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
-		if err = EncodeResponse(w, http.StatusOK, property); err != nil {
-			EncodeError(w, err)
+
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}
@@ -88,19 +78,21 @@ func UpdateProperty(lgger log.Entry, svc properties.Service) http.Handler {
 // RetrieveProperty handles property retrieval
 func RetrieveProperty(lgger log.Entry, svc properties.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
 
 		vars := mux.Vars(r)
+
 		id := vars["id"]
 
-		property, err := svc.RetrieveProperty(ctx, id)
+		res, err := svc.RetrieveProperty(r.Context(), id)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		if err = EncodeResponse(w, http.StatusOK, property); err != nil {
-			EncodeError(w, err)
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}
@@ -116,25 +108,29 @@ func ListPropertyByOwner(lgger log.Entry, svc properties.Service) http.Handler {
 		vars := mux.Vars(r)
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
 		owner := vars["owner"]
 
-		page, err := svc.ListPropertiesByOwner(ctx, owner, offset, limit)
+		res, err := svc.ListPropertiesByOwner(ctx, owner, offset, limit)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		if err = EncodeResponse(w, http.StatusOK, page); err != nil {
-			EncodeError(w, err)
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}
@@ -150,23 +146,28 @@ func ListPropertyBySector(lgger log.Entry, svc properties.Service) http.Handler 
 		vars := mux.Vars(r)
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
+
 		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		page, err := svc.ListPropertiesBySector(ctx, vars["sector"], offset, limit)
+		res, err := svc.ListPropertiesBySector(ctx, vars["sector"], offset, limit)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		if err = EncodeResponse(w, http.StatusOK, page); err != nil {
-			EncodeError(w, err)
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}
@@ -183,23 +184,28 @@ func ListPropertyByCell(lgger log.Entry, svc properties.Service) http.Handler {
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
+
 		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		page, err := svc.ListPropertiesByCell(ctx, vars["cell"], offset, limit)
+		res, err := svc.ListPropertiesByCell(ctx, vars["cell"], offset, limit)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		if err = EncodeResponse(w, http.StatusOK, page); err != nil {
-			EncodeError(w, err)
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}
@@ -215,23 +221,28 @@ func ListPropertyByVillage(lgger log.Entry, svc properties.Service) http.Handler
 		vars := mux.Vars(r)
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
+
 		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		page, err := svc.ListPropertiesByVillage(ctx, vars["village"], offset, limit)
+		res, err := svc.ListPropertiesByVillage(ctx, vars["village"], offset, limit)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		if err = EncodeResponse(w, http.StatusOK, page); err != nil {
-			EncodeError(w, err)
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}

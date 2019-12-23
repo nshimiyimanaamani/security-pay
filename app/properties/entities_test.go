@@ -7,10 +7,13 @@ import (
 
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestValidate(t *testing.T) {
+	const op errors.Op = "app/properties/property.Validate"
+
 	cases := []struct {
 		desc     string
 		property properties.Property
@@ -33,7 +36,7 @@ func TestValidate(t *testing.T) {
 				Due:        float64(1000),
 				RecordedBy: uuid.New().ID(),
 			},
-			err: properties.ErrInvalidEntity,
+			err: errors.E(op, "invalid property: missing owner", errors.KindBadRequest),
 		},
 		{
 			desc: "validate with empty montly due",
@@ -41,7 +44,7 @@ func TestValidate(t *testing.T) {
 				Owner:   properties.Owner{ID: uuid.New().ID()},
 				Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 			},
-			err: properties.ErrInvalidEntity,
+			err: errors.E(op, "invalid property: missing due", errors.KindBadRequest),
 		},
 		{
 			desc: "validate with empty address",
@@ -51,21 +54,21 @@ func TestValidate(t *testing.T) {
 				Due:        float64(1000),
 				RecordedBy: uuid.New().ID(),
 			},
-			err: properties.ErrInvalidEntity,
+			err: errors.E(op, "invalid property: invalid address", errors.KindBadRequest),
 		},
-		// {
-		// 	desc: "validate with empty recorded by",
-		// 	property: properties.Property{
-		// 		Owner:   properties.Owner{ID: uuid.New().ID()},
-		// 		Address: properties.Address{},
-		// 		Due:     float64(1000),
-		// 	},
-		// 	err: properties.ErrInvalidEntity,
-		// },
+		{
+			desc: "validate with empty recorded by",
+			property: properties.Property{
+				Owner:   properties.Owner{ID: uuid.New().ID()},
+				Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+				Due:     float64(1000),
+			},
+			err: errors.E(op, "invalid property: missing recording agent", errors.KindBadRequest),
+		},
 	}
 
 	for _, tc := range cases {
 		err := tc.property.Validate()
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s", tc.desc, tc.err, err))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }

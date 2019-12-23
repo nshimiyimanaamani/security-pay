@@ -91,7 +91,7 @@ func migrateDB(db *sql.DB) error {
 						village		VARCHAR(254) NOT NULL,
 						for_rent 	BOOLEAN DEFAULT FALSE,
 						occupied 	BOOLEAN DEFAULT TRUE,
-						recorded_by VARCHAR(15) NOT NULL,
+						recorded_by VARCHAR(254) NOT NULL,
 						FOREIGN KEY(recorded_by) references users(username) ON DELETE CASCADE ON UPDATE CASCADE,
 						FOREIGN KEY(owner) references owners(id) ON DELETE CASCADE ON UPDATE CASCADE,
 						PRIMARY 	KEY(id)

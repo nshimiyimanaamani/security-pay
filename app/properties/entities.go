@@ -1,5 +1,7 @@
 package properties
 
+import "github.com/rugwirobaker/paypack-backend/pkg/errors"
+
 // Property defines a property(house) data model
 type Property struct {
 	ID         string  `json:"id,omitempty"`
@@ -25,8 +27,10 @@ type Address struct {
 
 // Validate address
 func (addr *Address) Validate() error {
+	const op errors.Op = "app/properties/address.Validate"
+
 	if addr.Sector == "" || addr.Cell == "" || addr.Village == "" {
-		return ErrInvalidEntity
+		return errors.E(op, "invalid property: invalid address", errors.KindBadRequest)
 	}
 	return nil
 }
@@ -40,19 +44,20 @@ type PageMetadata struct {
 
 // Validate validates a Property entity an returns nil error if it's valid.
 func (prt *Property) Validate() error {
+	const op errors.Op = "app/properties/property.Validate"
 	if err := prt.Owner.Validate(); err != nil {
-		return err
+		return errors.E(op, err, errors.Kind(err))
 	}
 
 	if err := prt.Address.Validate(); err != nil {
-		return err
+		return errors.E(op, err, errors.Kind(err))
 	}
 	if prt.Due == float64(0) {
-		return ErrInvalidEntity
+		return errors.E(op, "invalid property: missing due", errors.KindBadRequest)
 	}
-	// if prt.RecordedBy == "" {
-	// 	return ErrInvalidEntity
-	// }
+	if prt.RecordedBy == "" {
+		return errors.E(op, "invalid property: missing recording agent", errors.KindBadRequest)
+	}
 	return nil
 }
 
@@ -72,8 +77,9 @@ type OwnerPage struct {
 
 // Validate validates owner instance fields
 func (ow *Owner) Validate() error {
+	const op errors.Op = "app/properties/owner.Validate"
 	if ow.ID == "" {
-		return ErrInvalidEntity
+		return errors.E(op, "invalid property: missing owner", errors.KindBadRequest)
 	}
 	return nil
 }
