@@ -35,8 +35,8 @@ func (str *propertiesStore) Save(ctx context.Context, pro properties.Property) (
 			switch pqErr.Code.Name() {
 			case errDuplicate:
 				return empty, errors.E(op, err, "property already exists", errors.KindAlreadyExists)
-			case errFK:
-				return empty, errors.E(op, err, "property not found", errors.KindNotFound)
+			case errFK, errTruncation, errInvalid:
+				return empty, errors.E(op, err, "owner not found", errors.KindNotFound)
 			}
 		}
 		return empty, errors.E(op, err, errors.KindUnexpected)
@@ -56,7 +56,7 @@ func (str *propertiesStore) UpdateProperty(ctx context.Context, pro properties.P
 		if ok {
 			switch pqErr.Code.Name() {
 			case errInvalid, errTruncation:
-				return errors.E(op, err, "invalid property")
+				return errors.E(op, err, "invalid property", errors.KindBadRequest)
 			}
 		}
 		return err
@@ -67,7 +67,7 @@ func (str *propertiesStore) UpdateProperty(ctx context.Context, pro properties.P
 		return err
 	}
 	if cnt == 0 {
-		return errors.E(op, "property not found")
+		return errors.E(op, "property not found", errors.KindNotFound)
 	}
 	return nil
 }

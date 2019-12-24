@@ -104,10 +104,6 @@ func TestRegisterProperty(t *testing.T) {
 	//fake id
 	property.ID = "1"
 
-	res := toJSON(property)
-	invalidEntityRes := toJSON(Error{"invalid property entity"})
-	unsupportedContentRes := toJSON(Error{"unsupported content type"})
-
 	cases := []struct {
 		desc        string
 		req         string
@@ -121,42 +117,42 @@ func TestRegisterProperty(t *testing.T) {
 			req:         data,
 			contentType: contentType,
 			status:      http.StatusCreated,
-			res:         res,
+			res:         toJSON(property),
 		},
 		{
 			desc:        "add property with invalid data",
 			req:         invalidData,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
-			res:         invalidEntityRes,
+			res:         toJSON(map[string]string{"error": "invalid property: missing owner"}),
 		},
 		{
 			desc:        "add property with invalid request format",
 			req:         "{",
 			contentType: contentType,
 			status:      http.StatusBadRequest,
-			res:         invalidEntityRes,
+			res:         toJSON(map[string]string{"error": "invalid request: wrong data format"}),
 		},
 		{
 			desc:        "add property with empty JSON request",
 			req:         "{}",
 			contentType: contentType,
 			status:      http.StatusBadRequest,
-			res:         invalidEntityRes,
+			res:         toJSON(map[string]string{"error": "invalid property: missing owner"}),
 		},
 		{
 			desc:        "add property with empty request",
 			req:         "",
 			contentType: contentType,
 			status:      http.StatusBadRequest,
-			res:         invalidEntityRes,
+			res:         toJSON(map[string]string{"error": "invalid request: wrong data format"}),
 		},
 		{
 			desc:        "add property with missing content type",
-			req:         data,
+			req:         toJSON(property),
 			contentType: "",
 			status:      http.StatusUnsupportedMediaType,
-			res:         unsupportedContentRes,
+			res:         toJSON(map[string]string{"error": "invalid request: invalid content type"}),
 		},
 	}
 
@@ -218,11 +214,6 @@ func TestUpdateProperty(t *testing.T) {
 		Occupied:   saved.Occupied,
 	}
 
-	data := toJSON(res)
-	notFoundMessage := toJSON(Error{"property not found"})
-	invalidEntityMessage := toJSON(Error{"invalid property entity"})
-	unsupportedContentMessage := toJSON(Error{"unsupported content type"})
-
 	cases := []struct {
 		desc        string
 		req         string
@@ -234,27 +225,27 @@ func TestUpdateProperty(t *testing.T) {
 	}{
 		{
 			desc:        "update existing property",
-			req:         data,
+			req:         toJSON(res),
 			id:          saved.ID,
 			contentType: contentType,
 			status:      http.StatusOK,
-			res:         data,
+			res:         toJSON(map[string]string{"message": fmt.Sprintf("property: '%s' successfully updated", res.ID)}),
 		},
 		{
 			desc:        "update non-existent property",
-			req:         data,
+			req:         toJSON(res),
 			id:          strconv.FormatUint(wrongID, 10),
 			contentType: contentType,
 			status:      http.StatusNotFound,
-			res:         notFoundMessage,
+			res:         toJSON(map[string]string{"error": "property not found"}),
 		},
 		{
 			desc:        "update property with invalid id",
-			req:         data,
+			req:         toJSON(res),
 			id:          "invalid",
 			contentType: contentType,
 			status:      http.StatusNotFound,
-			res:         notFoundMessage,
+			res:         toJSON(map[string]string{"error": "property not found"}),
 		},
 		{
 			desc:        "update property with invalid data format",
@@ -262,7 +253,7 @@ func TestUpdateProperty(t *testing.T) {
 			id:          saved.ID,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
-			res:         invalidEntityMessage,
+			res:         toJSON(map[string]string{"error": "invalid request: wrong data format"}),
 		},
 		{
 			desc:        "update property with empty request",
@@ -270,15 +261,15 @@ func TestUpdateProperty(t *testing.T) {
 			id:          saved.ID,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
-			res:         invalidEntityMessage,
+			res:         toJSON(map[string]string{"error": "invalid request: wrong data format"}),
 		},
 		{
 			desc:        "update thing without content type",
-			req:         data,
+			req:         toJSON(res),
 			id:          saved.ID,
 			contentType: "",
 			status:      http.StatusUnsupportedMediaType,
-			res:         unsupportedContentMessage,
+			res:         toJSON(map[string]string{"error": "invalid request: invalid content type"}),
 		},
 	}
 
@@ -340,9 +331,6 @@ func TestRetrieveProperty(t *testing.T) {
 		Occupied:   saved.Occupied,
 	}
 
-	data := toJSON(res)
-	notFoundRes := toJSON(Error{"property not found"})
-
 	cases := []struct {
 		desc        string
 		id          string
@@ -356,21 +344,21 @@ func TestRetrieveProperty(t *testing.T) {
 			id:   saved.ID,
 
 			status: http.StatusOK,
-			res:    data,
+			res:    toJSON(res),
 		},
 		{
 			desc: "view non-existent owner",
 			id:   strconv.FormatUint(wrongID, 10),
 
 			status: http.StatusNotFound,
-			res:    notFoundRes,
+			res:    toJSON(map[string]string{"error": "property not found"}),
 		},
 		{
 			desc: "view property by passing invalid id",
 			id:   "invalid",
 
 			status: http.StatusNotFound,
-			res:    notFoundRes,
+			res:    toJSON(map[string]string{"error": "property not found"}),
 		},
 	}
 
@@ -434,7 +422,7 @@ func TestListPropertiesByOwner(t *testing.T) {
 		data = append(data, res)
 	}
 
-	transactionURL := fmt.Sprintf("%s/properties", ts.URL)
+	propertiesURL := fmt.Sprintf("%s/properties", ts.URL)
 
 	cases := []struct {
 		desc string
@@ -447,21 +435,21 @@ func TestListPropertiesByOwner(t *testing.T) {
 			desc: "get a list of properties",
 
 			status: http.StatusOK,
-			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", transactionURL, owner.ID, 0, 5),
+			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", propertiesURL, owner.ID, 0, 5),
 			res:    data[0:5],
 		},
 		{
 			desc: "get a list of properties with negative offset",
 
 			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", transactionURL, owner.ID, -1, 5),
+			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", propertiesURL, owner.ID, -1, 5),
 			res:    nil,
 		},
 		{
 			desc: "get a list of properties with negative limit",
 
 			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", transactionURL, owner.ID, 1, -5),
+			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", propertiesURL, owner.ID, 1, -5),
 			res:    nil,
 		},
 	}

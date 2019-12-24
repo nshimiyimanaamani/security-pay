@@ -6,7 +6,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
@@ -49,7 +48,7 @@ func MRetrieveProperty(lgger log.Entry, svc properties.Service) http.Handler {
 		property, err := svc.RetrieveProperty(ctx, id)
 		if err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 
@@ -69,7 +68,7 @@ func MRetrieveProperty(lgger log.Entry, svc properties.Service) http.Handler {
 
 		if err := encode(w, http.StatusOK, res); err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 	}
@@ -87,14 +86,14 @@ func MListPropertyByOwner(lgger log.Entry, svc properties.Service) http.Handler 
 
 		if err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 
 		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 		if err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 
@@ -103,7 +102,7 @@ func MListPropertyByOwner(lgger log.Entry, svc properties.Service) http.Handler 
 		page, err := svc.ListPropertiesByOwner(ctx, owner, offset, limit)
 		if err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 
@@ -134,7 +133,7 @@ func MListPropertyByOwner(lgger log.Entry, svc properties.Service) http.Handler 
 
 		if err := encode(w, http.StatusOK, res); err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 	}
@@ -151,7 +150,7 @@ func MListPropertyBySector(lgger log.Entry, svc properties.Service) http.Handler
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 
@@ -159,7 +158,7 @@ func MListPropertyBySector(lgger log.Entry, svc properties.Service) http.Handler
 
 		if err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 
@@ -167,7 +166,7 @@ func MListPropertyBySector(lgger log.Entry, svc properties.Service) http.Handler
 
 		if err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 
@@ -198,7 +197,7 @@ func MListPropertyBySector(lgger log.Entry, svc properties.Service) http.Handler
 
 		if err := encode(w, http.StatusOK, res); err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 	}
@@ -215,21 +214,21 @@ func MListPropertyByCell(lgger log.Entry, svc properties.Service) http.Handler {
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 
 		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 		if err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 
 		page, err := svc.ListPropertiesByCell(ctx, vars["cell"], offset, limit)
 		if err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 
@@ -261,7 +260,7 @@ func MListPropertyByCell(lgger log.Entry, svc properties.Service) http.Handler {
 
 		if err := encode(w, http.StatusOK, res); err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 	}
@@ -278,21 +277,21 @@ func MListPropertyByVillage(lgger log.Entry, svc properties.Service) http.Handle
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 
 		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 		if err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 
 		page, err := svc.ListPropertiesByVillage(ctx, vars["village"], offset, limit)
 		if err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 
@@ -323,7 +322,7 @@ func MListPropertyByVillage(lgger log.Entry, svc properties.Service) http.Handle
 
 		if err := encode(w, http.StatusOK, res); err != nil {
 			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 	}

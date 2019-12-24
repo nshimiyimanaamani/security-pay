@@ -3,6 +3,8 @@ package properties
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
 func encode(w http.ResponseWriter, code int, response interface{}) error {
@@ -12,9 +14,17 @@ func encode(w http.ResponseWriter, code int, response interface{}) error {
 	return json.NewEncoder(w).Encode(response)
 }
 
-func encodeErr(w http.ResponseWriter, code int, err error) {
+func encodeErr(w http.ResponseWriter, err error) {
 	w.Header().Set("Content-Type", "application/json")
 
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+	var msg string
+
+	if errors.Kind(err) == errors.KindUnexpected {
+		msg = "internal server error"
+	}
+
+	msg = err.Error()
+
+	w.WriteHeader(errors.Kind(err))
+	json.NewEncoder(w).Encode(map[string]string{"error": msg})
 }

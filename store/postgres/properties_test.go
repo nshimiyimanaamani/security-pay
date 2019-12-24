@@ -10,6 +10,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -65,6 +66,8 @@ func TestSaveProperty(t *testing.T) {
 		Due: float64(1000),
 	}
 
+	const op errors.Op = "store/postgres/propertiesStore.Save"
+
 	cases := []struct {
 		desc     string
 		property properties.Property
@@ -79,18 +82,18 @@ func TestSaveProperty(t *testing.T) {
 		{
 			desc:     "save property with conflicting id",
 			property: new,
-			err:      properties.ErrConflict,
+			err:      errors.E(op, "property already exists", errors.KindAlreadyExists),
 		},
 		{
 			desc:     "save property with invalid owner id",
 			property: invalid,
-			err:      properties.ErrInvalidEntity,
+			err:      errors.E(op, "owner not found", errors.KindNotFound),
 		},
 	}
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := props.Save(ctx, tc.property)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }
 
@@ -142,6 +145,8 @@ func TestUpdateProperty(t *testing.T) {
 	sp, err := props.Save(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
+	const op errors.Op = "store/postgres/propertiesStore.UpdateProperty"
+
 	cases := []struct {
 		desc     string
 		property properties.Property
@@ -164,10 +169,10 @@ func TestUpdateProperty(t *testing.T) {
 				},
 				Due: float64(1000),
 			},
-			err: properties.ErrPropertyNotFound,
+			err: errors.E(op, "property not found", errors.KindNotFound),
 		},
 		{
-			desc: "udpate property with invalid owner",
+			desc: "update property with invalid owner",
 			property: properties.Property{
 				ID:    nanoid.New(nil).ID(),
 				Owner: properties.Owner{ID: wrongValue},
@@ -178,7 +183,7 @@ func TestUpdateProperty(t *testing.T) {
 				},
 				Due: float64(1000),
 			},
-			err: properties.ErrInvalidEntity,
+			err: errors.E(op, "invalid property", errors.KindBadRequest),
 		},
 	}
 
@@ -236,14 +241,28 @@ func TestRetrieveByID(t *testing.T) {
 	ctx := context.Background()
 	sp, _ := props.Save(ctx, property)
 
+	const op errors.Op = "store/postgres/propertiesStore.RetrieveByID"
+
 	cases := []struct {
 		desc string
 		id   string
 		err  error
 	}{
-		{"retrieve existing property", sp.ID, nil},
-		{"retrieve non-existing property", nanoid.New(nil).ID(), properties.ErrPropertyNotFound},
-		{"retrieve with malformed id", wrongValue, properties.ErrPropertyNotFound},
+		{
+			desc: "retrieve existing property",
+			id:   sp.ID,
+			err:  nil,
+		},
+		{
+			desc: "retrieve non-existing property",
+			id:   nanoid.New(nil).ID(),
+			err:  errors.E(op, "property not found", errors.KindNotFound),
+		},
+		{
+			desc: "retrieve with malformed id",
+			id:   wrongValue,
+			err:  errors.E(op, "property not found", errors.KindNotFound),
+		},
 	}
 
 	for _, tc := range cases {
@@ -308,6 +327,7 @@ func TestRetrieveByOwner(t *testing.T) {
 		_, err := props.Save(ctx, p)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
+
 	cases := map[string]struct {
 		owner  string
 		offset uint64
