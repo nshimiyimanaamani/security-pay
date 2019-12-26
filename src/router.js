@@ -3,6 +3,9 @@
 import Vue from "vue";
 import Router from "vue-router";
 import axios from 'axios';
+import {
+  store
+} from './store'
 import login from "./pages/login.vue";
 import register from "./pages/register.vue";
 import startPage from "./Layouts/main.vue";
@@ -14,6 +17,8 @@ import cells from "./pages/cells.vue";
 import reports from './pages/reports.vue'
 
 Vue.use(Router);
+
+var jwt = require("jsonwebtoken");
 
 let router = new Router({
   mode: "history",
@@ -89,8 +94,10 @@ let router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
+  const decoded = jwt.decode(sessionStorage.token);
   if (to.matched.some(record => record.meta.requireAuth)) {
-    if (!sessionStorage.token) {
+    if (!decoded) {
+      store.state.user = null
       next({
         path: '/',
         params: {
@@ -99,10 +106,12 @@ router.beforeEach((to, from, next) => {
       })
     } else {
       axios.defaults.headers.common['Authorization'] = sessionStorage.token;
+      store.state.user = decoded
       next()
     }
   } else if (to.matched.some(record => record.meta.guest)) {
-    if (!sessionStorage.token) {
+    if (!decoded) {
+      delete sessionStorage.token
       next()
     } else {
       next({

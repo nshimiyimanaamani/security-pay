@@ -317,9 +317,7 @@ export default {
     cellOptions() {
       const sector = this.select.sector;
       if (sector) {
-        return Cell("Kigali", "Gasabo", sector);
-      } else {
-        return Cell("Kigali", "Gasabo", "Remera");
+        return this.$store.getters.getCellsArray;
       }
     },
     villageOptions() {

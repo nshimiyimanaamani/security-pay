@@ -73,13 +73,12 @@ export default {
       if (email && key) {
         this.loading = true;
         this.axios
-          .post(this.endpoint + "/users/tokens", {
+          .post(this.endpoint + "/accounts/login", {
             username: email,
             password: key
           })
           .then(res => {
             sessionStorage.setItem("token", res.data.token);
-            sessionStorage.setItem("email", email);
             this.$router.push("dashboard");
             this.loading = false;
           })
