@@ -1,30 +1,35 @@
-package jwt
+package jwt_test
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/rugwirobaker/paypack-backend/app/auth"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/rugwirobaker/paypack-backend/pkg/tokens"
+	"github.com/rugwirobaker/paypack-backend/pkg/tokens/jwt"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"golang.org/x/net/context"
 )
 
 var (
 	secret  = "secret"
 	id      = "valid"
+	role    = "dev"
+	account = "paypack.developers"
 	invalid = "invalid"
 )
 
-func newIdentityProvider() tokens.JWTProvider {
-	return New(secret)
+func newIdentityProvider() auth.JWTProvider {
+	return jwt.New(secret)
 }
-
-func TestTemporaryKey(t *testing.T) {}
 
 func TestIdentity(t *testing.T) {
 	idp := newIdentityProvider()
-	token, _ := idp.TemporaryKey(context.Background(), id)
+	creds := auth.Credentials{Username: id, Role: role, Account: account}
+
+	token, err := idp.TemporaryKey(context.Background(), creds)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	const op errors.Op = "pkg/tokens/jwt.Identidy"
 
