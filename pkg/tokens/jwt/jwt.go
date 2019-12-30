@@ -5,8 +5,8 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/rugwirobaker/paypack-backend/app/auth"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/rugwirobaker/paypack-backend/pkg/tokens"
 )
 
 const (
@@ -14,41 +14,51 @@ const (
 	duration time.Duration = 10 * time.Hour
 )
 
-var _ tokens.JWTProvider = (*jwtIdentityProvider)(nil)
+var _ auth.JWTProvider = (*jwtIdentityProvider)(nil)
 
 type jwtIdentityProvider struct {
 	secret string
 }
 
 // New instantiates a JWT identity provider.
-func New(secret string) tokens.JWTProvider {
+func New(secret string) auth.JWTProvider {
 	return &jwtIdentityProvider{secret}
 }
 
-// type claims struct {
-// 	admin bool
-// 	jwt.StandardClaims
-// }
+// Claims are custom jwt
+type Claims struct {
+	Username string `json:"username"`
+	Role     string `json:"role"`
+	Account  string `json:"account"`
+	jwt.StandardClaims
+}
 
-func (idp *jwtIdentityProvider) TemporaryKey(ctx context.Context, id string) (string, error) {
+func (idp *jwtIdentityProvider) TemporaryKey(ctx context.Context, creds auth.Credentials) (string, error) {
 	const op errors.Op = "pkg/tokens/jwt.TemporaryKey"
 
 	now := time.Now().UTC()
 	exp := now.Add(duration)
 
-	claims := jwt.StandardClaims{
-		Subject:   id,
-		Issuer:    issuer,
-		IssuedAt:  now.Unix(),
-		ExpiresAt: exp.Unix(),
+	claims := &Claims{
+		Username: creds.Username,
+		Role:     creds.Role,
+		Account:  creds.Account,
+		StandardClaims: jwt.StandardClaims{
+			Subject:   creds.Username,
+			Issuer:    issuer,
+			IssuedAt:  now.Unix(),
+			ExpiresAt: exp.Unix(),
+		},
 	}
 	return idp.jwt(claims)
 }
 
-func (idp *jwtIdentityProvider) Identity(ctx context.Context, key string) (string, error) {
+func (idp *jwtIdentityProvider) Identity(ctx context.Context, key string) (auth.Credentials, error) {
 	const op errors.Op = "pkg/tokens/jwt.Identidy"
 
-	token, err := jwt.Parse(key, func(token *jwt.Token) (interface{}, error) {
+	var claims Claims
+
+	token, err := jwt.ParseWithClaims(key, &claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.E(op, "access denied: invalid token", errors.KindAccessDenied)
 		}
@@ -57,16 +67,22 @@ func (idp *jwtIdentityProvider) Identity(ctx context.Context, key string) (strin
 	})
 
 	if err != nil {
-		return "", errors.E(op, "access denied: invalid token", errors.KindAccessDenied)
+		return auth.Credentials{}, errors.E(op, err, "access denied: invalid token", errors.KindAccessDenied)
 	}
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return claims["sub"].(string), nil
+	claims, ok := token.Claims.(Claims)
+	if ok && token.Valid {
+		creds := auth.Credentials{
+			Username: claims.Username,
+			Account:  claims.Account,
+			Role:     claims.Role,
+		}
+		return creds, nil
 	}
-	return "", nil
+	return auth.Credentials{}, nil
 }
 
-func (idp *jwtIdentityProvider) jwt(claims jwt.StandardClaims) (string, error) {
+func (idp *jwtIdentityProvider) jwt(claims jwt.Claims) (string, error) {
 	const op errors.Op = "pkg/tokens/jwt.TemporaryKey"
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

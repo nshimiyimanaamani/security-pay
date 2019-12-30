@@ -19,7 +19,7 @@ type Service interface {
 	// Identify validates user's token. If token is valid, user's id
 	// is returned. If token is invalid, or invocation failed for some
 	// other reason, non-nil error values are returned in response.
-	Identify(ctx context.Context, token string) (string, error)
+	Identify(ctx context.Context, token string) (Credentials, error)
 }
 
 // Options minimises New function signature
@@ -56,21 +56,20 @@ func (svc *service) Login(ctx context.Context, user Credentials) (string, error)
 		return "", errors.E(op, err)
 	}
 
-	token, err := svc.jwt.TemporaryKey(ctx, user.Username)
+	token, err := svc.jwt.TemporaryKey(ctx, creds)
 	if err != nil {
 		return "", errors.E(op, err)
 	}
-
 	return token, nil
 }
 
 // must return creds
-func (svc *service) Identify(ctx context.Context, token string) (string, error) {
+func (svc *service) Identify(ctx context.Context, token string) (Credentials, error) {
 	const op errors.Op = "app/auth/service.Identify"
 
-	id, err := svc.jwt.Identity(ctx, token)
+	creds, err := svc.jwt.Identity(ctx, token)
 	if err != nil {
-		return "", errors.E(op, err)
+		return Credentials{}, errors.E(op, err)
 	}
-	return id, nil
+	return creds, nil
 }

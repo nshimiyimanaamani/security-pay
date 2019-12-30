@@ -32,7 +32,7 @@ func Login(lgger log.Entry, svc auth.Service) http.Handler {
 		}
 		defer r.Body.Close()
 
-		if err := encode(w, http.StatusCreated, map[string]string{"token": token}); err != nil {
+		if err := encode(w, http.StatusOK, map[string]string{"token": token}); err != nil {
 			err := errors.E(op, err)
 			lgger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)
