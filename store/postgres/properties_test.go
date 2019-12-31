@@ -137,6 +137,7 @@ func TestUpdateProperty(t *testing.T) {
 			Village: "Ingabo",
 		},
 		Due:        float64(1000),
+		ForRent:    true,
 		RecordedBy: savedAgent.Telephone,
 		Occupied:   true,
 	}
