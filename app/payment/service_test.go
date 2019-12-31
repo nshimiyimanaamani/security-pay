@@ -13,19 +13,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newService(properties []string) payment.Service {
+func newService(invoice uint64, properties []string) payment.Service {
 	idp := mocks.NewIdentityProvider()
 	backend := mocks.NewBackend()
 	queue := mocks.NewQueue()
-	repo := mocks.NewRepository(properties)
+	repo := mocks.NewRepository(invoice, properties)
 	opts := &payment.Options{Idp: idp, Backend: backend, Queue: queue, Repo: repo}
 	return payment.New(opts)
 }
 
 func TestInitialize(t *testing.T) {
 	code := uuid.New().ID()
+	invoice := uint64(1000)
 	properties := []string{code}
-	svc := newService(properties)
+	svc := newService(invoice, properties)
 
 	const op errors.Op = "app.payment.Initialize"
 
@@ -65,8 +66,9 @@ func TestInitialize(t *testing.T) {
 
 func TestConfirm(t *testing.T) {
 	code := uuid.New().ID()
+	invoice := uint64(1000)
 	properties := []string{code}
-	svc := newService(properties)
+	svc := newService(invoice, properties)
 
 	tx := payment.Transaction{
 		ID:     uuid.New().ID(),

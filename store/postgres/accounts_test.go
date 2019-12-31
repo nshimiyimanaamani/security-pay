@@ -15,7 +15,7 @@ import (
 
 func TestSaveAccount(t *testing.T) {
 	repo := postgres.NewAccountRepository(db)
-	defer CleanDB(t, "accounts")
+	defer CleanDB(t)
 
 	const op errors.Op = "store/postgres.accountRepository.Save"
 
@@ -62,7 +62,7 @@ func TestSaveAccount(t *testing.T) {
 
 func TestUpdateAccount(t *testing.T) {
 	repo := postgres.NewAccountRepository(db)
-	defer CleanDB(t, "accounts")
+	defer CleanDB(t)
 
 	const op errors.Op = "store/postgres.accountRepository.Update"
 
@@ -99,7 +99,7 @@ func TestUpdateAccount(t *testing.T) {
 
 func TestRetrieveAccount(t *testing.T) {
 	repo := postgres.NewAccountRepository(db)
-	defer CleanDB(t, "accounts")
+	defer CleanDB(t)
 
 	const op errors.Op = "store/postgres.accountRepository.Retrieve"
 
@@ -142,7 +142,7 @@ func TestRetrieveAccount(t *testing.T) {
 func TestListAccounts(t *testing.T) {
 	repo := postgres.NewAccountRepository(db)
 
-	defer CleanDB(t, "accounts")
+	defer CleanDB(t)
 
 	data := []struct {
 		id          string

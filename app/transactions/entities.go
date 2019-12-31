@@ -12,6 +12,7 @@ type Transaction struct {
 	Address      map[string]string
 	Amount       float64
 	Method       string
+	Invoice      uint64
 	DateRecorded time.Time
 }
 

@@ -17,7 +17,7 @@ import (
 func TestSaveAgent(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	phone := "0780456000"
 
@@ -61,7 +61,7 @@ func TestSaveAgent(t *testing.T) {
 func TestRetrieveAgent(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -100,7 +100,7 @@ func TestRetrieveAgent(t *testing.T) {
 func TestUpdateAgentDetails(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -139,7 +139,7 @@ func TestUpdateAgentDetails(t *testing.T) {
 func TestUpdateAgentCreds(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -178,7 +178,7 @@ func TestUpdateAgentCreds(t *testing.T) {
 func TestListAgents(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 

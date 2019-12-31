@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/rugwirobaker/paypack-backend/app/accounts"
+	"github.com/rugwirobaker/paypack-backend/app/invoices"
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/users"
@@ -26,10 +27,8 @@ var (
 
 func TestSingleTransactionRetrieveByID(t *testing.T) {
 	repo := postgres.NewTransactionRepository(db)
-	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "transactions", "properties", "owners")
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 	account, err := saveAccount(t, db, account)
@@ -63,9 +62,12 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 		RecordedBy: savedAgent.Telephone,
 		Occupied:   true,
 	}
+	property, err = saveProperty(t, db, property)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	ctx := context.Background()
-	_, err = props.Save(ctx, property)
+	//save invoice
+	invoice := invoices.Invoice{Amount: property.Due, Property: property.ID, Status: invoices.Pending}
+	invoice, err = saveInvoice(t, db, invoice)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	method := "kcb"
@@ -74,8 +76,9 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 		ID:           uuid.New().ID(),
 		MadeBy:       owner.ID,
 		MadeFor:      property.ID,
-		Amount:       amount,
+		Amount:       invoice.Amount,
 		Method:       method,
+		Invoice:      invoice.ID,
 		DateRecorded: time.Now(),
 	}
 
@@ -95,7 +98,7 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := repo.RetrieveByID(ctx, tc.id)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected err '%s' got '%s'\n", tc.desc, tc.err, err))
 	}
 
 }
@@ -103,10 +106,8 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 func TestRetrieveAll(t *testing.T) {
 	idp := uuid.New()
 	repo := postgres.NewTransactionRepository(db)
-	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "transactions", "properties", "owners")
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 	account, err := saveAccount(t, db, account)
@@ -123,26 +124,26 @@ func TestRetrieveAll(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-
-	savedAgent, err := saveAgent(t, db, agent)
+	agent, err = saveAgent(t, db, agent)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-
-	sown, err := saveOwner(t, db, owner)
-
+	owner, err = saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
 		ID:         nanoid.New(nil).ID(),
-		Owner:      properties.Owner{ID: sown.ID},
+		Owner:      properties.Owner{ID: owner.ID},
 		Due:        float64(1000),
-		RecordedBy: savedAgent.Telephone,
+		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
+	property, err = saveProperty(t, db, property)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	ctx := context.Background()
-	_, err = props.Save(ctx, property)
+	//save invoice
+	invoice := invoices.Invoice{Amount: property.Due, Property: property.ID, Status: invoices.Pending}
+	invoice, err = saveInvoice(t, db, invoice)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	method := "mtn"
@@ -150,15 +151,23 @@ func TestRetrieveAll(t *testing.T) {
 	n := uint64(10)
 
 	for i := uint64(0); i < n; i++ {
+		invoice := invoices.Invoice{
+			Amount:   property.Due,
+			Property: property.ID,
+			Status:   invoices.Pending,
+		}
+		invoice, err = saveInvoice(t, db, invoice)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
 		tx := transactions.Transaction{
 			ID:           idp.ID(),
 			MadeBy:       owner.ID,
 			MadeFor:      property.ID,
-			Amount:       amount,
+			Amount:       invoice.Amount,
 			Method:       method,
+			Invoice:      invoice.ID,
 			DateRecorded: time.Now(),
 		}
-
 		_, err = saveTx(t, db, tx)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
@@ -192,10 +201,8 @@ func TestRetrieveAll(t *testing.T) {
 func TestRetrieveByProperty(t *testing.T) {
 	idp := uuid.New()
 	repo := postgres.NewTransactionRepository(db)
-	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "transactions", "properties", "owners")
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 	account, err := saveAccount(t, db, account)
@@ -230,8 +237,7 @@ func TestRetrieveByProperty(t *testing.T) {
 		Occupied:   true,
 	}
 
-	ctx := context.Background()
-	_, err = props.Save(ctx, property)
+	property, err = saveProperty(t, db, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	method := "airtel"
@@ -239,11 +245,20 @@ func TestRetrieveByProperty(t *testing.T) {
 	n := uint64(10)
 
 	for i := uint64(0); i < n; i++ {
+		invoice := invoices.Invoice{
+			Amount:   property.Due,
+			Property: property.ID,
+			Status:   invoices.Pending,
+		}
+		invoice, err = saveInvoice(t, db, invoice)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
 		tx := transactions.Transaction{
 			ID:           idp.ID(),
 			MadeBy:       owner.ID,
 			MadeFor:      property.ID,
-			Amount:       amount,
+			Amount:       invoice.Amount,
+			Invoice:      invoice.ID,
 			Method:       method,
 			DateRecorded: time.Now(),
 		}
@@ -290,10 +305,8 @@ func TestRetrieveByProperty(t *testing.T) {
 func TestRetrieveByMethod(t *testing.T) {
 	idp := uuid.New()
 	repo := postgres.NewTransactionRepository(db)
-	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "transactions", "properties", "owners")
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 	account, err := saveAccount(t, db, account)
@@ -315,9 +328,7 @@ func TestRetrieveByMethod(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-
 	sown, err := saveOwner(t, db, owner)
-
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
@@ -327,8 +338,7 @@ func TestRetrieveByMethod(t *testing.T) {
 		RecordedBy: savedAgent.Telephone,
 		Occupied:   true,
 	}
-	ctx := context.Background()
-	_, err = props.Save(ctx, property)
+	property, err = saveProperty(t, db, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	method := "equity"
@@ -336,11 +346,20 @@ func TestRetrieveByMethod(t *testing.T) {
 	n := uint64(10)
 
 	for i := uint64(0); i < n; i++ {
+		invoice := invoices.Invoice{
+			Amount:   property.Due,
+			Property: property.ID,
+			Status:   invoices.Pending,
+		}
+		invoice, err = saveInvoice(t, db, invoice)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
 		tx := transactions.Transaction{
 			ID:           idp.ID(),
 			MadeBy:       owner.ID,
 			MadeFor:      property.ID,
-			Amount:       amount,
+			Amount:       invoice.Amount,
+			Invoice:      invoice.ID,
 			Method:       method,
 			DateRecorded: time.Now(),
 		}

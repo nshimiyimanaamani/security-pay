@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/lib/pq"
 	"github.com/rugwirobaker/paypack-backend/app/payment"
@@ -20,13 +19,18 @@ func NewPaymentRepo(db *sql.DB) payment.Repository {
 }
 
 func (repo *paymentRepo) Save(ctx context.Context, tx payment.Transaction) error {
-	const op errors.Op = "postgres.paymentRepo.Save"
+	const op errors.Op = "store/postgres/paymentRepo.Save"
 
-	q := `INSERT INTO transactions (id, madefor, amount, method, date_recorded) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+	q := `
+		INSERT INTO transactions (
+			id, 
+			madefor, 
+			amount, 
+			method, 
+			invoice
+		) VALUES ($1, $2, $3, $4, $5) RETURNING created_at`
 
-	tx.RecordedAt = time.Now()
-
-	_, err := repo.Exec(q, tx.ID, tx.Code, tx.Amount, tx.Method, tx.RecordedAt)
+	err := repo.QueryRow(q, tx.ID, tx.Code, tx.Amount, tx.Method, tx.Invoice).Scan(&tx.RecordedAt)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -42,8 +46,8 @@ func (repo *paymentRepo) Save(ctx context.Context, tx payment.Transaction) error
 	return nil
 }
 
-func (repo *paymentRepo) RetrieveCode(ctx context.Context, code string) (string, error) {
-	const op errors.Op = "postgres.paymentRepo.RetrieveCode"
+func (repo *paymentRepo) RetrieveProperty(ctx context.Context, code string) (string, error) {
+	const op errors.Op = "store/postgres/paymentRepo.RetrieveProperty"
 
 	q := `SELECT id FROM properties WHERE id=$1`
 
@@ -58,4 +62,22 @@ func (repo *paymentRepo) RetrieveCode(ctx context.Context, code string) (string,
 	}
 
 	return property, nil
+}
+
+func (repo *paymentRepo) OldestInvoice(ctx context.Context, property string) (uint64, error) {
+	const op errors.Op = "store/postgres/paymentRepo.OldestInvoice"
+
+	q := `SELECT id FROM invoices WHERE created_at = (SELECT MIN(created_at) FROM invoices WHERE property=$1 AND status='pending');`
+
+	var invoice uint64
+
+	if err := repo.QueryRow(q, property).Scan(&invoice); err != nil {
+		pqErr, ok := err.(*pq.Error)
+		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
+			return 0, errors.E(op, err, "no invoice found", errors.KindNotFound)
+		}
+		return 0, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	return invoice, nil
 }

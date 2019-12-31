@@ -17,7 +17,7 @@ import (
 func TestSaveAdmin(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	const op errors.Op = "store/postgres/userRepository.SaveAdmin"
 
@@ -60,7 +60,7 @@ func TestSaveAdmin(t *testing.T) {
 func TestRetrieveAdmin(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	id := "gasabo.remera"
 
@@ -101,7 +101,7 @@ func TestRetrieveAdmin(t *testing.T) {
 func TestUpdateAdminCreds(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	id := "gasabo.remera"
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
@@ -141,7 +141,7 @@ func TestUpdateAdminCreds(t *testing.T) {
 func TestListAdmins(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 

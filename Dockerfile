@@ -13,11 +13,11 @@ RUN GO111MODULE=on go mod download
 COPY . .
 
 
-ARG VERSION="unset"
+ARG VERSION="$(git rev-parse --short HEAD)"
 
 RUN DATE="$(date -u +%Y-%m-%d-%H:%M:%S-%Z)" 
 
-RUN GO111MODULE=on CGO_ENABLED=0 go build -ldflags "-X github.com/rugwirobaker/paypack-backend/pkg/build.version=$VERSION -X github.com/rugwirobaker/pkg/paypack-backend/build.buildDate=$DATE" -o /bin/paypack ./cmd/paypack
+RUN GO111MODULE=on CGO_ENABLED=0 go build -ldflags "-X github.com/rugwirobaker/paypack-backend/pkg/build.version=$VERSION -X github.com/rugwirobaker/paypack-backend/pkg/build.buildDate=$DATE" -o /bin/paypack ./cmd/paypack
 
 
 #package stage

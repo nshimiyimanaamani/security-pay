@@ -29,7 +29,7 @@ const (
 func TestSaveOwner(t *testing.T) {
 	repo := postgres.NewOwnerRepo(db)
 
-	defer CleanDB(t, "owners")
+	defer CleanDB(t)
 
 	new := owners.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 
@@ -65,7 +65,7 @@ func TestSaveOwner(t *testing.T) {
 func TestUpdateOwner(t *testing.T) {
 	repo := postgres.NewOwnerRepo(db)
 
-	defer CleanDB(t, "owners")
+	defer CleanDB(t)
 
 	owner := owners.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 
@@ -106,7 +106,7 @@ func TestUpdateOwner(t *testing.T) {
 func TestRetrieveOwner(t *testing.T) {
 	repo := postgres.NewOwnerRepo(db)
 
-	defer CleanDB(t, "owners")
+	defer CleanDB(t)
 
 	owner := owners.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 
@@ -135,7 +135,7 @@ func TestRetrieveOwner(t *testing.T) {
 func TestSearch(t *testing.T) {
 	repo := postgres.NewOwnerRepo(db)
 
-	defer CleanDB(t, "owners")
+	defer CleanDB(t)
 
 	owner := owners.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 
@@ -184,7 +184,7 @@ func TestSearch(t *testing.T) {
 func TestRetrieveAllOwners(t *testing.T) {
 	repo := postgres.NewOwnerRepo(db)
 
-	defer CleanDB(t, "owners")
+	defer CleanDB(t)
 
 	n := uint64(10)
 
@@ -233,7 +233,7 @@ func TestRetrieveAllOwners(t *testing.T) {
 func TestRetrieveOwnerByPhone(t *testing.T) {
 	repo := postgres.NewOwnerRepo(db)
 
-	defer CleanDB(t, "owners")
+	defer CleanDB(t)
 
 	new := owners.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 
