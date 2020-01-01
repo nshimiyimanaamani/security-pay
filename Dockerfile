@@ -13,7 +13,7 @@ RUN GO111MODULE=on go mod download
 COPY . .
 
 
-ARG VERSION="$(git rev-parse --short HEAD)"
+ARG VERSION="unset"
 
 RUN DATE="$(date -u +%Y-%m-%d-%H:%M:%S-%Z)" 
 
