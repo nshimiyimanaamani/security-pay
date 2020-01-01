@@ -48,13 +48,19 @@ func (svc service) Initilize(ctx context.Context, tx Transaction) (Status, error
 		return empty, errors.E(op, err, errors.Kind(err))
 	}
 
-	code, err := svc.repo.RetrieveCode(ctx, tx.Code)
+	code, err := svc.repo.RetrieveProperty(ctx, tx.Code)
 	if err != nil {
 		return empty, errors.E(op, err, errors.Kind(err))
 	}
 
-	tx.ID = svc.idp.ID()
 	tx.Code = code
+
+	invoice, err := svc.repo.OldestInvoice(ctx, tx.Code)
+
+	tx.Invoice = invoice
+
+	//identify
+	tx.ID = svc.idp.ID()
 
 	status, err := svc.backend.Pull(ctx, tx)
 	if err != nil {

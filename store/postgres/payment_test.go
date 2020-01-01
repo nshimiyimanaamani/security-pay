@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/rugwirobaker/paypack-backend/app/accounts"
+	"github.com/rugwirobaker/paypack-backend/app/invoices"
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
@@ -20,16 +20,13 @@ import (
 
 func TestSaveTransaction(t *testing.T) {
 	repo := postgres.NewPaymentRepo(db)
-	props := postgres.NewPropertyStore(db)
-	defer CleanDB(t, "transactions", "properties", "owners", "agents")
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
 
-	const op errors.Op = "postgres.paymentRepo.Save"
+	defer CleanDB(t)
 
-	var amount = 1000
+	const op errors.Op = "store/postgres/paymentRepo.Save"
+
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-
-	savedAccount, err := saveAccount(t, db, account)
+	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	agent := users.Agent{
@@ -41,34 +38,33 @@ func TestSaveTransaction(t *testing.T) {
 		Sector:    "Sector",
 		Village:   "village",
 		Role:      users.Dev,
-		Account:   savedAccount.ID,
+		Account:   account.ID,
 	}
-
-	savedAgent, err := saveAgent(t, db, agent)
+	agent, err = saveAgent(t, db, agent)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	savedOwner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-
-	sown, err := saveOwner(t, db, savedOwner)
-
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner, err = saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: properties.Owner{ID: sown.ID},
+		Owner: properties.Owner{ID: owner.ID},
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
 		Due:        float64(1000),
-		RecordedBy: savedAgent.Telephone,
+		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
+	property, err = saveProperty(t, db, property)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %v", err))
 
-	ctx := context.Background()
-	_, err = props.Save(ctx, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	invoice := invoices.Invoice{Amount: property.Due, Property: property.ID, Status: invoices.Pending}
+	invoice, err = saveInvoice(t, db, invoice)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %v", err))
 
 	id := uuid.New().ID()
 	method := "bk"
@@ -80,17 +76,17 @@ func TestSaveTransaction(t *testing.T) {
 	}{
 		{
 			desc: "save new transaction",
-			tx:   payment.Transaction{ID: id, Code: property.ID, Amount: float64(amount), Method: method, RecordedAt: time.Now()},
+			tx:   payment.Transaction{ID: id, Code: property.ID, Amount: invoice.Amount, Invoice: invoice.ID, Method: method},
 			err:  nil,
 		},
 		{
 			desc: "save duplicate transaction",
-			tx:   payment.Transaction{ID: id, Code: property.ID, Amount: float64(amount), Method: method, RecordedAt: time.Now()},
+			tx:   payment.Transaction{ID: id, Code: property.ID, Amount: invoice.Amount, Invoice: invoice.ID, Method: method},
 			err:  errors.E(op, "duplicate transaction", errors.KindAlreadyExists),
 		},
 		{
 			desc: "save owner with invalid id",
-			tx:   payment.Transaction{ID: "invalid", Code: property.ID, Amount: float64(amount), Method: method, RecordedAt: time.Now()},
+			tx:   payment.Transaction{ID: "invalid", Code: property.ID, Amount: invoice.Amount, Invoice: invoice.ID, Method: method},
 			err:  errors.E(op, "invalid transaction entity", errors.KindBadRequest),
 		},
 	}
@@ -98,22 +94,19 @@ func TestSaveTransaction(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		err := repo.Save(ctx, tc.tx)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error: '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }
 
-func TestRetrieveCode(t *testing.T) {
+func TestRetrieveProperty(t *testing.T) {
 	repo := postgres.NewPaymentRepo(db)
-	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "transactions", "properties", "owners", "users")
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
-	const op errors.Op = "postgres.paymentRepo.RetrieveCode"
+	const op errors.Op = "store/postgres/paymentRepo.RetrieveProperty"
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-
-	savedAccount, err := saveAccount(t, db, account)
+	account, err := saveAccount(t, db, account)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	agent := users.Agent{
@@ -125,16 +118,13 @@ func TestRetrieveCode(t *testing.T) {
 		Sector:    "Sector",
 		Village:   "village",
 		Role:      users.Dev,
-		Account:   savedAccount.ID,
+		Account:   account.ID,
 	}
-
-	savedAgent, err := saveAgent(t, db, agent)
+	agent, err = saveAgent(t, db, agent)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-	savedOwner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-
-	sown, err := saveOwner(t, db, savedOwner)
-
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	sown, err := saveOwner(t, db, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	property := properties.Property{
@@ -146,12 +136,11 @@ func TestRetrieveCode(t *testing.T) {
 			Village: "Ingabo",
 		},
 		Due:        float64(1000),
-		RecordedBy: savedAgent.Telephone,
+		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
 
-	ctx := context.Background()
-	saved, err := props.Save(ctx, property)
+	saved, err := saveProperty(t, db, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	cases := []struct {
@@ -177,8 +166,80 @@ func TestRetrieveCode(t *testing.T) {
 	}
 	for _, tc := range cases {
 		ctx := context.Background()
-		_, err := repo.RetrieveCode(ctx, tc.id)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		_, err := repo.RetrieveProperty(ctx, tc.id)
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error: '%s' got '%s'\n", tc.desc, tc.err, err))
 	}
 
+}
+
+func TestOldestInvoice(t *testing.T) {
+	repo := postgres.NewPaymentRepo(db)
+
+	defer CleanDB(t)
+
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account, err := saveAccount(t, db, account)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	agent := users.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Role:      users.Dev,
+		Account:   account.ID,
+	}
+	agent, err = saveAgent(t, db, agent)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner, err = saveOwner(t, db, owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	property := properties.Property{
+		ID:    nanoid.New(nil).ID(),
+		Owner: properties.Owner{ID: owner.ID},
+		Address: properties.Address{
+			Sector:  "Remera",
+			Cell:    "Gishushu",
+			Village: "Ingabo",
+		},
+		Due:        float64(1000),
+		RecordedBy: agent.Telephone,
+		Occupied:   true,
+	}
+	property, err = saveProperty(t, db, property)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	invoice := invoices.Invoice{Amount: property.Due, Property: property.ID, Status: invoices.Pending}
+	invoice, err = saveInvoice(t, db, invoice)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	const op errors.Op = "store/postgres/paymentRepo.OldestInvoice"
+
+	cases := []struct {
+		desc     string
+		property string
+		err      error
+	}{
+		{
+			desc:     "retrieve oldest invoice for existing property",
+			property: invoice.Property,
+			err:      nil,
+		},
+		{
+			desc:     "retrieve oldest invoice for existing property",
+			property: "invalid",
+			err:      errors.E(op, err, "no invoice found", errors.KindNotFound),
+		},
+	}
+
+	for _, tc := range cases {
+		ctx := context.Background()
+		_, err := repo.OldestInvoice(ctx, tc.property)
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error: '%v' got '%v'\n", tc.desc, tc.err, err))
+	}
 }

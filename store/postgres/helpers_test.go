@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/rugwirobaker/paypack-backend/app/accounts"
+	"github.com/rugwirobaker/paypack-backend/app/invoices"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/users"
@@ -28,13 +29,20 @@ func saveOwner(t *testing.T, db *sql.DB, owner properties.Owner) (properties.Own
 func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) (transactions.Transaction, error) {
 	t.Helper()
 
-	q := `INSERT INTO transactions (id, madefor, madeby, amount,
-		 method, date_recorded) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
+	q := `
+		INSERT INTO transactions (
+			id, 
+			madefor, 
+			madeby, 
+			amount,
+			method, 
+			invoice
+		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING created_at;
 	`
 
 	var empty = transactions.Transaction{}
 
-	_, err := db.Exec(q, tx.ID, tx.MadeFor, tx.MadeBy, tx.Amount, tx.Method, tx.DateRecorded)
+	err := db.QueryRow(q, tx.ID, tx.MadeFor, tx.MadeBy, tx.Amount, tx.Method, tx.Invoice).Scan(&tx.DateRecorded)
 	if err != nil {
 		return empty, err
 	}
@@ -84,11 +92,63 @@ func saveAccount(t *testing.T, db *sql.DB, acc accounts.Account) (accounts.Accou
 	return acc, nil
 }
 
-func CleanDB(t *testing.T, tables ...string) {
-	t.Helper()
-	for _, table := range tables {
-		q := fmt.Sprintf("DELETE FROM %s", table)
-		_, err := db.Exec(q)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+func saveProperty(t *testing.T, db *sql.DB, pp properties.Property) (properties.Property, error) {
+	q := `
+		INSERT INTO properties (
+			id, 
+			owner, 
+			due,
+			sector, 
+			cell, 
+			village, 
+			recorded_by, 
+			occupied
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+
+	_, err := db.Exec(q, pp.ID, pp.Owner.ID, pp.Due, pp.Address.Sector, pp.Address.Cell, pp.Address.Village, pp.RecordedBy, pp.Occupied)
+
+	if err != nil {
+		return properties.Property{}, err
 	}
+	return pp, nil
+}
+
+func saveInvoice(t *testing.T, db *sql.DB, inv invoices.Invoice) (invoices.Invoice, error) {
+	q := `
+		INSERT INTO invoices (
+			amount, 
+			property, 
+			status
+		) VALUES (
+			$1, $2, $3
+	) RETURNING id, amount, property, status, created_at, updated_at;
+	`
+
+	err := db.QueryRow(q, inv.Amount, inv.Property, inv.Status).
+		Scan(&inv.ID, &inv.Amount, &inv.Property, &inv.Status, &inv.CreatedAt, &inv.UpdatedAt)
+
+	if err != nil {
+		return invoices.Invoice{}, err
+	}
+	return inv, nil
+}
+
+func CleanDB(t *testing.T) {
+	q := `
+		TRUNCATE TABLE 
+			messages, 
+			transactions, 
+			invoices, 
+			properties,
+			owners, 
+			agents, 
+			managers, 
+			admins, 
+			developers,
+			users,
+			accounts
+	`
+
+	_, err := db.Exec(q)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 }

@@ -15,7 +15,7 @@ type transactionStore struct {
 	db *sql.DB
 }
 
-// NewTransactionRepository instanctiates a new transactiob store interface
+// NewTransactionRepository instanctiates a new transactions.Repository interface
 func NewTransactionRepository(db *sql.DB) transactions.Repository {
 	return &transactionStore{db}
 }
@@ -23,7 +23,7 @@ func NewTransactionRepository(db *sql.DB) transactions.Repository {
 func (str *transactionStore) Save(ctx context.Context, tx transactions.Transaction) (string, error) {
 	q := `
 		INSERT INTO transactions (id, madefor, madeby, 
-		amount, method, date_recorded) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
+		amount, method, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
 	`
 
 	_, err := str.db.Exec(q, tx.ID, tx.MadeFor, tx.MadeBy, tx.Amount, tx.Method, tx.DateRecorded)
@@ -47,7 +47,7 @@ func (str *transactionStore) RetrieveByID(ctx context.Context, id string) (trans
 	q := `
 		SELECT 
 			transactions.id, transactions.amount, transactions.method, 
-			transactions.date_recorded, properties.sector, properties.cell, 
+			transactions.created_at, properties.sector, properties.cell, 
 			properties.village, owners.fname, owners.lname
 		FROM 
 			transactions
@@ -93,7 +93,7 @@ func (str *transactionStore) RetrieveAll(ctx context.Context, offset uint64, lim
 	q := `
 	SELECT 
 		transactions.id, transactions.amount, transactions.method, 
-		transactions.date_recorded, properties.sector, properties.cell, 
+		transactions.created_at, properties.sector, properties.cell, 
 		properties.village, owners.fname, owners.lname
 	FROM 
 		transactions
@@ -160,7 +160,7 @@ func (str *transactionStore) RetrieveByProperty(ctx context.Context, property st
 	q := `
 	SELECT 
 		transactions.id, transactions.amount, transactions.method, 
-		transactions.date_recorded, properties.sector, properties.cell, 
+		transactions.created_at, properties.sector, properties.cell, 
 		properties.village, owners.fname, owners.lname
 	FROM 
 		transactions
@@ -228,7 +228,7 @@ func (str *transactionStore) RetrieveByMethod(method string, offset, limit uint6
 	q := `
 		SELECT 
 			transactions.id,transactions.amount, transactions.method, 
-			transactions.date_recorded, properties.sector, properties.cell, 
+			transactions.created_at, properties.sector, properties.cell, 
 			properties.village, owners.fname, owners.lname
 		FROM 
 			transactions

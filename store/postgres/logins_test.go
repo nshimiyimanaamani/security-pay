@@ -16,7 +16,7 @@ import (
 func TestLoginRetrieve(t *testing.T) {
 	repo := postgres.NewAuthRepository(db)
 
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 

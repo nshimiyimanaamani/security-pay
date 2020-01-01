@@ -17,7 +17,7 @@ import (
 func TestSaveDeveloper(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -59,7 +59,7 @@ func TestSaveDeveloper(t *testing.T) {
 func TestRetrieveDeveloper(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -98,7 +98,7 @@ func TestRetrieveDeveloper(t *testing.T) {
 func TestUpdateDeveloperCreds(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -137,7 +137,7 @@ func TestUpdateDeveloperCreds(t *testing.T) {
 func TestListDevelopers(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 

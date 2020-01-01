@@ -51,12 +51,13 @@ func (cb *Callback) Validate() error {
 
 // Transaction ...
 type Transaction struct {
-	ID         string  `json:"id,omitempty"`
-	Code       string  `json:"code,omitempty"`
-	Amount     float64 `json:"amount,string,omitempty"`
-	Phone      string  `json:"phone,omitempty"`
-	Method     string  `json:"payment_method,omitempty"`
-	RecordedAt time.Time
+	ID         string    `json:"id,omitempty"`
+	Code       string    `json:"code,omitempty"`
+	Amount     float64   `json:"amount,string,omitempty"`
+	Phone      string    `json:"phone,omitempty"`
+	Invoice    uint64    `json:"invoce_id,omitempty"`
+	Method     string    `json:"payment_method,omitempty"`
+	RecordedAt time.Time `json:"recorded_at,omitempty"`
 }
 
 // Validate returns an error if the Transaction entity doesn't adhere to

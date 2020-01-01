@@ -16,7 +16,7 @@ import (
 func TestSaveMessage(t *testing.T) {
 	repo := postgres.NewMessageStore(db)
 
-	defer CleanDB(t, "messages")
+	defer CleanDB(t)
 
 	message := feedback.Message{
 		ID: uuid.New().ID(), Title: "title",
@@ -53,7 +53,7 @@ func TestSaveMessage(t *testing.T) {
 func TestUpdateMessage(t *testing.T) {
 	repo := postgres.NewMessageStore(db)
 
-	defer CleanDB(t, "messages")
+	defer CleanDB(t)
 
 	message := feedback.Message{
 		ID: uuid.New().ID(), Title: "title",
@@ -94,7 +94,7 @@ func TestUpdateMessage(t *testing.T) {
 func TestRetrieveMessage(t *testing.T) {
 	repo := postgres.NewMessageStore(db)
 
-	defer CleanDB(t, "messages")
+	defer CleanDB(t)
 
 	message := feedback.Message{
 		ID: uuid.New().ID(), Title: "title",
@@ -128,7 +128,7 @@ func TestRetrieveMessage(t *testing.T) {
 func TestDeleteMessage(t *testing.T) {
 	repo := postgres.NewMessageStore(db)
 
-	defer CleanDB(t, "messages")
+	defer CleanDB(t)
 
 	message := feedback.Message{
 		ID: uuid.New().ID(), Title: "title",

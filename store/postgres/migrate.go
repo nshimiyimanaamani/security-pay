@@ -13,12 +13,39 @@ func migrateDB(db *sql.DB) error {
 				Id: "v1.0.0",
 
 				Up: []string{
+					`
+					CREATE OR REPLACE FUNCTION trigger_set_timestamp()
+					RETURNS TRIGGER AS $$
+					BEGIN
+					  NEW.updated_at = NOW();
+					  RETURN NEW;
+					END;
+					$$ LANGUAGE plpgsql;`,
+
+					`
+					CREATE OR REPLACE FUNCTION trigger_set_invoice_status()
+					RETURNS TRIGGER AS $$
+					BEGIN
+					  UPDATE invoices SET status='payed' WHERE status='pending' AND invoices.id=NEW.invoice;
+					  RETURN NEW;
+					END;
+					$$ LANGUAGE plpgsql;`,
+
 					`CREATE table IF NOT EXISTS sectors(
 						sector			VARCHAR(256),
 						created_at 		TIMESTAMP,
 						updated_at  	TIMESTAMP,
 						PRIMARY KEY(sector)
 					);`,
+
+					`
+					CREATE OR REPLACE FUNCTION trigger_initial_invoice()
+					RETURNS TRIGGER AS $$
+					BEGIN
+						INSERT INTO invoices (amount, property) VALUES (NEW.due, NEW.id);
+						RETURN NEW;
+					END;
+					$$ LANGUAGE plpgsql;`,
 
 					`CREATE table IF NOT EXISTS accounts (
 						id 				VARCHAR(256),
@@ -95,20 +122,52 @@ func migrateDB(db *sql.DB) error {
 						FOREIGN KEY(recorded_by) references users(username) ON DELETE CASCADE ON UPDATE CASCADE,
 						FOREIGN KEY(owner) references owners(id) ON DELETE CASCADE ON UPDATE CASCADE,
 						PRIMARY 	KEY(id)
-					);`,
+					);
+
+					CREATE TRIGGER create_initial_invoice
+					AFTER INSERT ON properties
+					FOR EACH ROW
+					EXECUTE PROCEDURE trigger_initial_invoice();
+					`,
+
+					`CREATE TABLE IF NOT EXISTS invoices (
+						id SERIAL,
+						amount 		NUMERIC (9, 2) NOT NULL DEFAULT (0),
+						property 	TEXT,
+						status 		VARCHAR(8) NOT NULL DEFAULT 'pending' CHECK(status in ('pending', 'payed')),
+						created_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
+						updated_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
+						UNIQUE(id, amount),
+						FOREIGN KEY(property) references properties(id) ON DELETE CASCADE ON UPDATE CASCADE,
+						PRIMARY KEY(id)
+					);
+
+					CREATE TRIGGER set_timestamp
+					BEFORE UPDATE ON invoices
+					FOR EACH ROW
+					EXECUTE PROCEDURE trigger_set_timestamp();
+					`,
 
 					`CREATE TABLE IF NOT EXISTS transactions (
 						id 				UUID,
 						madeby 			UUID,
 						madefor			TEXT,
-						amount    		VARCHAR(254),
+						invoice			SERIAL,
+						amount    		NUMERIC (9, 2) NOT NULL DEFAULT (0),
 						method  		VARCHAR(254),
-						date_recorded 	TIMESTAMP,
+						created_at 		TIMESTAMP NOT NULL DEFAULT NOW(),
 						is_valid    	BOOLEAN DEFAULT false,
 						FOREIGN KEY(madefor) references properties(id) ON DELETE CASCADE ON UPDATE CASCADE,
 						FOREIGN KEY(madeby) references owners(id) ON DELETE CASCADE ON UPDATE CASCADE,
+						FOREIGN KEY(invoice, amount) references invoices(id, amount) ON DELETE CASCADE ON UPDATE CASCADE,
 						PRIMARY KEY	(id)
-					);`,
+					);
+
+					CREATE TRIGGER set_invoice_status
+					AFTER INSERT ON transactions
+					FOR EACH ROW
+					EXECUTE PROCEDURE trigger_set_invoice_status();
+					`,
 
 					`CREATE TABLE IF NOT EXISTS messages (
 						id 			UUID,

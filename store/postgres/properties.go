@@ -48,9 +48,9 @@ func (str *propertiesStore) Save(ctx context.Context, pro properties.Property) (
 func (str *propertiesStore) UpdateProperty(ctx context.Context, pro properties.Property) error {
 	const op errors.Op = "store/postgres/propertiesStore.UpdateProperty"
 
-	q := `UPDATE properties SET owner=$1, due=$2, occupied=$3 WHERE id=$4;`
+	q := `UPDATE properties SET owner=$1, due=$2, occupied=$3, for_rent=$4 WHERE id=$5;`
 
-	res, err := str.db.Exec(q, pro.Owner.ID, pro.Due, pro.Occupied, pro.ID)
+	res, err := str.db.Exec(q, pro.Owner.ID, pro.Due, pro.ForRent, pro.Occupied, pro.ID)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -79,7 +79,7 @@ func (str *propertiesStore) RetrieveByID(ctx context.Context, id string) (proper
 		SELECT 
 			properties.id, properties.sector, properties.cell,  
 			properties.village, properties.due, properties.recorded_by,
-			properties.occupied,
+			properties.occupied, properties.for_rent,
 			owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
@@ -92,7 +92,7 @@ func (str *propertiesStore) RetrieveByID(ctx context.Context, id string) (proper
 
 	if err := str.db.QueryRow(q, id).Scan(
 		&prt.ID, &prt.Address.Sector, &prt.Address.Cell, &prt.Address.Village,
-		&prt.Due, &prt.RecordedBy, &prt.Occupied, &prt.Owner.ID,
+		&prt.Due, &prt.RecordedBy, &prt.Occupied, &prt.ForRent, &prt.Owner.ID,
 		&prt.Owner.Fname, &prt.Owner.Lname, &prt.Owner.Phone,
 	); err != nil {
 		empty := properties.Property{}
@@ -113,7 +113,7 @@ func (str *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, o
 	q := `SELECT 
 			properties.id, properties.sector, properties.cell, 
 			properties.village, properties.due, properties.recorded_by,
-			properties.occupied,
+			properties.occupied, properties.for_rent,
 			owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
@@ -136,7 +136,7 @@ func (str *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, o
 
 		if err := rows.Scan(
 			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
-			&c.Due, &c.RecordedBy, &c.Occupied,
+			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent,
 			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
@@ -170,7 +170,7 @@ func (str *propertiesStore) RetrieveBySector(ctx context.Context, sector string,
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
 			properties.village, properties.due, properties.recorded_by, 
-			properties.occupied,
+			properties.occupied, properties.for_rent,
 			owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
@@ -193,7 +193,7 @@ func (str *propertiesStore) RetrieveBySector(ctx context.Context, sector string,
 
 		if err := rows.Scan(
 			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
-			&c.Due, &c.RecordedBy, &c.Occupied,
+			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent,
 			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
@@ -227,7 +227,7 @@ func (str *propertiesStore) RetrieveByCell(ctx context.Context, cell string, off
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
 			properties.village, properties.due, properties.recorded_by, 
-			properties.occupied,
+			properties.occupied, properties.for_rent,
 			owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
@@ -249,7 +249,7 @@ func (str *propertiesStore) RetrieveByCell(ctx context.Context, cell string, off
 
 		if err := rows.Scan(
 			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
-			&c.Due, &c.RecordedBy, &c.Occupied,
+			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent,
 			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
@@ -283,7 +283,7 @@ func (str *propertiesStore) RetrieveByVillage(ctx context.Context, village strin
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
 			properties.village, properties.due, properties.recorded_by, 
-			properties.occupied,
+			properties.occupied, properties.for_rent,
 			owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
@@ -305,7 +305,7 @@ func (str *propertiesStore) RetrieveByVillage(ctx context.Context, village strin
 
 		if err := rows.Scan(
 			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
-			&c.Due, &c.RecordedBy, &c.Occupied,
+			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent,
 			&c.Owner.ID, &c.Owner.Lname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)

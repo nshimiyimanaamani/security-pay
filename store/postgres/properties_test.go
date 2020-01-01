@@ -19,8 +19,7 @@ import (
 func TestSaveProperty(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners")
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -100,8 +99,7 @@ func TestSaveProperty(t *testing.T) {
 func TestUpdateProperty(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners")
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -137,6 +135,7 @@ func TestUpdateProperty(t *testing.T) {
 			Village: "Ingabo",
 		},
 		Due:        float64(1000),
+		ForRent:    true,
 		RecordedBy: savedAgent.Telephone,
 		Occupied:   true,
 	}
@@ -198,8 +197,7 @@ func TestUpdateProperty(t *testing.T) {
 func TestRetrieveByID(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners")
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -276,8 +274,7 @@ func TestRetrieveByID(t *testing.T) {
 func TestRetrieveByOwner(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners")
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -371,8 +368,7 @@ func TestRetrieveByOwner(t *testing.T) {
 func TestRetrieveBySector(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners")
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -465,8 +461,7 @@ func TestRetrieveBySector(t *testing.T) {
 func TestRetrieveByCell(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners")
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -560,8 +555,7 @@ func TestRetrieveByCell(t *testing.T) {
 func TestRetrieveByVillage(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
-	defer CleanDB(t, "properties", "owners")
-	defer CleanDB(t, "admins", "developers", "managers", "agents", "users", "accounts")
+	defer CleanDB(t)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 

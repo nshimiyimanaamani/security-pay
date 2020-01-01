@@ -9,6 +9,7 @@ type Property struct {
 	Owner      Owner   `json:"owner,omitempty"`
 	Address    Address `json:"address,omitempty"`
 	Occupied   bool    `json:"occupied,omitempty"`
+	ForRent    bool    `json:"for_rent,omitempty"`
 	RecordedBy string  `json:"recorded_by,omitempty"`
 }
 
