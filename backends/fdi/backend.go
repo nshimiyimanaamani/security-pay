@@ -95,7 +95,7 @@ func (cli *backend) Pull(ctx context.Context, tx payment.Transaction) (payment.S
 		Message: res.Message,
 		Status:  res.Status,
 		TxID:    res.Data.TrxRef,
-		TxState: res.Data.State,
+		TxState: payment.State(res.Data.State),
 	}
 	return status, nil
 }

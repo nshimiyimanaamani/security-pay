@@ -7,12 +7,22 @@ import "time"
 // TxExpiration is the time it takes for a non confirmed treansaction to expire
 const TxExpiration = time.Minute * 10
 
+// State defines transaction states
+type State string
+
+//Possible transaction states
+const (
+	Pending    State = "processing"
+	Failed     State = "failed"
+	Successful State = "successful"
+)
+
 // Status ...
 type Status struct {
 	Status  string `json:"status,omitempty"`
 	TxID    string `json:"transaction_id,omitempty"`
 	Message string `json:"message,omitempty"`
-	TxState string `json:"transaction_state,omitempty"`
+	TxState State  `json:"transaction_state,omitempty"`
 }
 
 // Callback defines the response got from the callback
@@ -25,7 +35,7 @@ type Callback struct {
 type CallBackData struct {
 	GwRef  string `json:"gwRef"`
 	TrxRef string `json:"trxRef"`
-	State  string `json:"state"`
+	State  State  `json:"state"`
 }
 
 // Validate validats a callback
