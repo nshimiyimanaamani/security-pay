@@ -43,25 +43,25 @@ func New(opts *Options) Service {
 func (svc service) Initilize(ctx context.Context, tx Transaction) (Status, error) {
 	const op errors.Op = "app.payment.Initialize"
 
-	empty := Status{}
+	failed := Status{TxState: "failed"}
 	if err := tx.Validate(); err != nil {
-		return empty, errors.E(op, err)
+		return failed, errors.E(op, err)
 	}
 
 	code, err := svc.repo.RetrieveProperty(ctx, tx.Code)
 	if err != nil {
-		return empty, errors.E(op, err)
+		return failed, errors.E(op, err)
 	}
 
 	tx.Code = code
 
 	invoice, err := svc.repo.OldestInvoice(ctx, tx.Code)
 	if err != nil {
-		return empty, errors.E(op, err)
+		return failed, errors.E(op, err)
 	}
 
 	if invoice.Amount != tx.Amount {
-		return empty, errors.E(op, " wrong payment amount", errors.KindBadRequest)
+		return failed, errors.E(op, " wrong payment amount", errors.KindBadRequest)
 	}
 
 	identity := func() {
@@ -72,10 +72,10 @@ func (svc service) Initilize(ctx context.Context, tx Transaction) (Status, error
 
 	status, err := svc.backend.Pull(ctx, tx)
 	if err != nil {
-		return empty, errors.E(op, err)
+		return failed, errors.E(op, err)
 	}
 	if err := svc.queue.Set(ctx, tx); err != nil {
-		return empty, errors.E(op, err)
+		return failed, errors.E(op, err)
 	}
 	return status, nil
 }
@@ -85,6 +85,10 @@ func (svc service) Confirm(ctx context.Context, cb Callback) error {
 
 	if err := cb.Validate(); err != nil {
 		return errors.E(op, err)
+	}
+
+	if cb.Data.State != Successful {
+		return errors.E(op, "transaction failed unexpectedly", errors.KindUnexpected)
 	}
 
 	tx, err := svc.queue.Get(ctx, cb.Data.TrxRef)

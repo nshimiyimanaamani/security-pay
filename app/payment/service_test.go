@@ -36,7 +36,7 @@ func TestInitialize(t *testing.T) {
 	cases := []struct {
 		desc    string
 		payment payment.Transaction
-		state   string
+		state   payment.State
 		errKind int
 		err     error
 	}{
@@ -49,16 +49,19 @@ func TestInitialize(t *testing.T) {
 		{
 			desc:    "initialize payment with invalid data",
 			payment: payment.Transaction{Code: code, Amount: invoice.Amount, Phone: "0784607135"},
+			state:   "failed",
 			err:     errors.E(op, "payment method must be specified"),
 		},
 		{
 			desc:    "initialize payment with unsaved house code",
 			payment: payment.Transaction{Code: uuid.New().ID(), Amount: invoice.Amount, Phone: "0784607135", Method: "mtn-momo-rw"},
+			state:   "failed",
 			err:     errors.E(op, "property not found"),
 		},
 		{
 			desc:    "initialize payment with invalid amount(different from invoice)",
 			payment: payment.Transaction{Code: code, Amount: 100, Phone: "0784607135", Method: "mtn-momo-rw"},
+			state:   "failed",
 			err:     errors.E(op, " wrong payment amount", errors.KindBadRequest),
 		},
 	}
@@ -105,7 +108,7 @@ func TestConfirm(t *testing.T) {
 				Data: payment.CallBackData{
 					GwRef:  uuid.New().ID(),
 					TrxRef: res.TxID,
-					State:  "success",
+					State:  payment.Successful,
 				},
 			},
 			err: nil,
@@ -116,7 +119,7 @@ func TestConfirm(t *testing.T) {
 				Data: payment.CallBackData{
 					GwRef:  uuid.New().ID(),
 					TrxRef: uuid.New().ID(),
-					State:  "success",
+					State:  payment.Successful,
 				},
 			},
 			err: errors.E(op, "status field must not be empty"),

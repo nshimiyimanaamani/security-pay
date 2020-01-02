@@ -70,7 +70,7 @@ func TestValidateCallback(t *testing.T) {
 				Data: payment.CallBackData{
 					GwRef:  uuid.New().ID(),
 					TrxRef: uuid.New().ID(),
-					State:  uuid.New().ID(),
+					State:  payment.Successful,
 				},
 			},
 			err: nil,
@@ -81,7 +81,7 @@ func TestValidateCallback(t *testing.T) {
 				Data: payment.CallBackData{
 					GwRef:  uuid.New().ID(),
 					TrxRef: uuid.New().ID(),
-					State:  uuid.New().ID(),
+					State:  payment.Failed,
 				},
 			},
 			err: errors.E(op, "status field must not be empty", errors.KindBadRequest),
@@ -92,7 +92,7 @@ func TestValidateCallback(t *testing.T) {
 				Status: "success",
 				Data: payment.CallBackData{
 					TrxRef: uuid.New().ID(),
-					State:  uuid.New().ID(),
+					State:  payment.Failed,
 				},
 			},
 			err: errors.E(op, "gwRef field must not be empty", errors.KindBadRequest),
@@ -103,7 +103,7 @@ func TestValidateCallback(t *testing.T) {
 				Status: "success",
 				Data: payment.CallBackData{
 					GwRef: uuid.New().ID(),
-					State: uuid.New().ID(),
+					State: payment.Failed,
 				},
 			},
 			err: errors.E(op, "trxRef field must not be empty", errors.KindBadRequest),
