@@ -31,13 +31,6 @@ func migrateDB(db *sql.DB) error {
 					END;
 					$$ LANGUAGE plpgsql;`,
 
-					`CREATE table IF NOT EXISTS sectors(
-						sector			VARCHAR(256),
-						created_at 		TIMESTAMP,
-						updated_at  	TIMESTAMP,
-						PRIMARY KEY(sector)
-					);`,
-
 					`
 					CREATE OR REPLACE FUNCTION trigger_initial_invoice()
 					RETURNS TRIGGER AS $$
@@ -46,6 +39,13 @@ func migrateDB(db *sql.DB) error {
 						RETURN NEW;
 					END;
 					$$ LANGUAGE plpgsql;`,
+
+					`CREATE table IF NOT EXISTS sectors(
+						sector			VARCHAR(256),
+						created_at 		TIMESTAMP,
+						updated_at  	TIMESTAMP,
+						PRIMARY KEY(sector)
+					);`,
 
 					`CREATE table IF NOT EXISTS accounts (
 						id 				VARCHAR(256),
@@ -152,7 +152,7 @@ func migrateDB(db *sql.DB) error {
 						id 				UUID,
 						madeby 			UUID,
 						madefor			TEXT,
-						invoice			SERIAL,
+						invoice			SERIAL UNIQUE,
 						amount    		NUMERIC (9, 2) NOT NULL DEFAULT (0),
 						method  		VARCHAR(254),
 						created_at 		TIMESTAMP NOT NULL DEFAULT NOW(),

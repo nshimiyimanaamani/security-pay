@@ -13,18 +13,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newService(invoice uint64, properties []string) payment.Service {
+func newService(inv payment.Invoice, properties []string) payment.Service {
 	idp := mocks.NewIdentityProvider()
 	backend := mocks.NewBackend()
 	queue := mocks.NewQueue()
-	repo := mocks.NewRepository(invoice, properties)
+	repo := mocks.NewRepository(inv, properties)
 	opts := &payment.Options{Idp: idp, Backend: backend, Queue: queue, Repo: repo}
 	return payment.New(opts)
 }
 
 func TestInitialize(t *testing.T) {
 	code := uuid.New().ID()
-	invoice := uint64(1000)
+	invoice := payment.Invoice{
+		ID:     uint64(1000),
+		Amount: float64(1000),
+	}
 	properties := []string{code}
 	svc := newService(invoice, properties)
 
@@ -39,19 +42,24 @@ func TestInitialize(t *testing.T) {
 	}{
 		{
 			desc:    "initialize payment with valid data",
-			payment: payment.Transaction{Code: code, Amount: 1000, Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Transaction{Code: code, Amount: invoice.Amount, Phone: "0784607135", Method: "mtn-momo-rw"},
 			state:   "processing",
 			err:     nil,
 		},
 		{
 			desc:    "initialize payment with invalid data",
-			payment: payment.Transaction{Code: code, Amount: 1000, Phone: "0784607135"},
-			err:     errors.E(op, "payment method must be specified", errors.KindBadRequest),
+			payment: payment.Transaction{Code: code, Amount: invoice.Amount, Phone: "0784607135"},
+			err:     errors.E(op, "payment method must be specified"),
 		},
 		{
 			desc:    "initialize payment with unsaved house code",
-			payment: payment.Transaction{Code: uuid.New().ID(), Amount: 1000, Phone: "0784607135", Method: "mtn-momo-rw"},
-			err:     errors.E(op, "property not found", errors.KindNotFound),
+			payment: payment.Transaction{Code: uuid.New().ID(), Amount: invoice.Amount, Phone: "0784607135", Method: "mtn-momo-rw"},
+			err:     errors.E(op, "property not found"),
+		},
+		{
+			desc:    "initialize payment with invalid amount(different from invoice)",
+			payment: payment.Transaction{Code: code, Amount: 100, Phone: "0784607135", Method: "mtn-momo-rw"},
+			err:     errors.E(op, " wrong payment amount", errors.KindBadRequest),
 		},
 	}
 
@@ -66,7 +74,10 @@ func TestInitialize(t *testing.T) {
 
 func TestConfirm(t *testing.T) {
 	code := uuid.New().ID()
-	invoice := uint64(1000)
+	invoice := payment.Invoice{
+		ID:     uint64(1000),
+		Amount: float64(1000),
+	}
 	properties := []string{code}
 	svc := newService(invoice, properties)
 
@@ -108,7 +119,7 @@ func TestConfirm(t *testing.T) {
 					State:  "success",
 				},
 			},
-			err: errors.E(op, "status field must not be empty", errors.KindBadRequest),
+			err: errors.E(op, "status field must not be empty"),
 		},
 	}
 

@@ -72,3 +72,9 @@ func (repo *invoiceRepository) Retrieve(ctx context.Context, property string, mo
 	}
 	return page, nil
 }
+
+func (repo *invoiceRepository) Generate(ctx context.Context) error {
+	const op errors.Op = "store/postgres/invoiceRepository.Retrieve"
+
+	return errors.E(op, errors.KindNotImplemented)
+}

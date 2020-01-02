@@ -51,3 +51,9 @@ func (repo *repository) Retrieve(ctx context.Context, property string, months ui
 	}
 	return page, nil
 }
+
+func (repo *repository) Generate(ctx context.Context) error {
+	const op errors.Op = "app/invoices/mocks/repository.Retrieve"
+
+	return errors.E(op, errors.KindNotImplemented)
+}

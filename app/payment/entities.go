@@ -81,3 +81,9 @@ func (py *Transaction) Validate() error {
 	}
 	return nil
 }
+
+// Invoice ...
+type Invoice struct {
+	ID     uint64
+	Amount float64
+}

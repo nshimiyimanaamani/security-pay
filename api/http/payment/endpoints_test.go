@@ -41,7 +41,7 @@ func (tr testRequest) make() (*http.Response, error) {
 	return tr.client.Do(req)
 }
 
-func newService(invoice uint64, properties []string) payment.Service {
+func newService(invoice payment.Invoice, properties []string) payment.Service {
 	idp := mocks.NewIdentityProvider()
 	backend := mocks.NewBackend()
 	queue := mocks.NewQueue()
@@ -61,7 +61,10 @@ func newServer(svc payment.Service) *httptest.Server {
 }
 func TestInitialize(t *testing.T) {
 	code := uuid.New().ID()
-	invoice := uint64(1000)
+	invoice := payment.Invoice{
+		ID:     uint64(1000),
+		Amount: float64(1000),
+	}
 	properties := []string{code}
 	svc := newService(invoice, properties)
 	srv := newServer(svc)
@@ -100,7 +103,10 @@ func TestInitialize(t *testing.T) {
 
 func TestConfirm(t *testing.T) {
 	code := uuid.New().ID()
-	invoice := uint64(1000)
+	invoice := payment.Invoice{
+		ID:     uint64(1000),
+		Amount: float64(1000),
+	}
 	properties := []string{code}
 	svc := newService(invoice, properties)
 	srv := newServer(svc)

@@ -64,19 +64,19 @@ func (repo *paymentRepo) RetrieveProperty(ctx context.Context, code string) (str
 	return property, nil
 }
 
-func (repo *paymentRepo) OldestInvoice(ctx context.Context, property string) (uint64, error) {
+func (repo *paymentRepo) OldestInvoice(ctx context.Context, property string) (payment.Invoice, error) {
 	const op errors.Op = "store/postgres/paymentRepo.OldestInvoice"
 
-	q := `SELECT id FROM invoices WHERE created_at = (SELECT MIN(created_at) FROM invoices WHERE property=$1 AND status='pending');`
+	q := `SELECT id, amount FROM invoices WHERE created_at = (SELECT MIN(created_at) FROM invoices WHERE property=$1 AND status='pending');`
 
-	var invoice uint64
+	invoice := payment.Invoice{}
 
-	if err := repo.QueryRow(q, property).Scan(&invoice); err != nil {
+	if err := repo.QueryRow(q, property).Scan(&invoice.ID, &invoice.Amount); err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
-			return 0, errors.E(op, err, "no invoice found", errors.KindNotFound)
+			return payment.Invoice{}, errors.E(op, err, "no invoice found", errors.KindNotFound)
 		}
-		return 0, errors.E(op, err, errors.KindUnexpected)
+		return payment.Invoice{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	return invoice, nil
