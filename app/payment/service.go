@@ -45,29 +45,37 @@ func (svc service) Initilize(ctx context.Context, tx Transaction) (Status, error
 
 	empty := Status{}
 	if err := tx.Validate(); err != nil {
-		return empty, errors.E(op, err, errors.Kind(err))
+		return empty, errors.E(op, err)
 	}
 
 	code, err := svc.repo.RetrieveProperty(ctx, tx.Code)
 	if err != nil {
-		return empty, errors.E(op, err, errors.Kind(err))
+		return empty, errors.E(op, err)
 	}
 
 	tx.Code = code
 
 	invoice, err := svc.repo.OldestInvoice(ctx, tx.Code)
+	if err != nil {
+		return empty, errors.E(op, err)
+	}
 
-	tx.Invoice = invoice
+	if invoice.Amount != tx.Amount {
+		return empty, errors.E(op, " wrong payment amount", errors.KindBadRequest)
+	}
 
-	//identify
-	tx.ID = svc.idp.ID()
+	identity := func() {
+		tx.Invoice = invoice.ID
+		tx.ID = svc.idp.ID()
+	}
+	identity()
 
 	status, err := svc.backend.Pull(ctx, tx)
 	if err != nil {
-		return empty, errors.E(op, err, errors.Kind(err))
+		return empty, errors.E(op, err)
 	}
 	if err := svc.queue.Set(ctx, tx); err != nil {
-		return empty, errors.E(op, err, errors.Kind(err))
+		return empty, errors.E(op, err)
 	}
 	return status, nil
 }
@@ -76,20 +84,20 @@ func (svc service) Confirm(ctx context.Context, cb Callback) error {
 	const op errors.Op = "app.payment.Confirm"
 
 	if err := cb.Validate(); err != nil {
-		return errors.E(op, err, errors.Kind(err))
+		return errors.E(op, err)
 	}
 
 	tx, err := svc.queue.Get(ctx, cb.Data.TrxRef)
 	if err != nil {
-		return errors.E(op, err, errors.Kind(err))
+		return errors.E(op, err)
 	}
 
 	if err := svc.repo.Save(ctx, tx); err != nil {
-		return errors.E(op, err, errors.Kind(err))
+		return errors.E(op, err)
 	}
 	//remove tx from the cache
 	if err := svc.queue.Remove(ctx, tx.ID); err != nil {
-		return errors.E(op, err, errors.Kind(err))
+		return errors.E(op, err)
 	}
 	return nil
 }

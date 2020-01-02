@@ -15,15 +15,15 @@ type repoMock struct {
 	mu         sync.Mutex
 	txs        map[string]payment.Transaction
 	properties []string
-	invoice    uint64
+	invoice    payment.Invoice
 }
 
 // NewRepository ...
-func NewRepository(invoice uint64, properties []string) payment.Repository {
+func NewRepository(inv payment.Invoice, properties []string) payment.Repository {
 	return &repoMock{
 		txs:        make(map[string]payment.Transaction),
 		properties: properties,
-		invoice:    invoice,
+		invoice:    inv,
 	}
 }
 
@@ -58,7 +58,7 @@ func (repo *repoMock) RetrieveProperty(ctx context.Context, code string) (string
 	return "", errors.E(op, "property not found", errors.KindNotFound)
 }
 
-func (repo *repoMock) OldestInvoice(ctx context.Context, property string) (uint64, error) {
+func (repo *repoMock) OldestInvoice(ctx context.Context, property string) (payment.Invoice, error) {
 	const op errors.Op = "app/mocks/repoMock.OldestInvoice"
 
 	for _, val := range repo.properties {
@@ -66,5 +66,5 @@ func (repo *repoMock) OldestInvoice(ctx context.Context, property string) (uint6
 			return repo.invoice, nil
 		}
 	}
-	return 0, errors.E(op, "no invoice found", errors.KindNotFound)
+	return payment.Invoice{}, errors.E(op, "no invoice found", errors.KindNotFound)
 }

@@ -6,6 +6,7 @@ import "github.com/rugwirobaker/paypack-backend/pkg/errors"
 
 // Service ...
 type Service interface {
+	Create(ctx context.Context) error
 	Retrieve(ctx context.Context, property string, months uint) (InvoicePage, error)
 }
 
@@ -33,4 +34,10 @@ func (svc *service) Retrieve(ctx context.Context, property string, months uint) 
 		return InvoicePage{}, errors.E(op, err)
 	}
 	return page, nil
+}
+
+func (svc *service) Create(ctx context.Context) error {
+	const op errors.Op = "app/invoices/service.Create"
+
+	return errors.E(op, errors.KindNotImplemented)
 }
