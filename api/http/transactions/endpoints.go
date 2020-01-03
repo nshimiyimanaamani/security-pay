@@ -1,46 +1,50 @@
 package transactions
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
 // Record handles transaction record
-func Record(logger log.Entry, svc transactions.Service) http.Handler {
+func Record(lgger log.Entry, svc transactions.Service) http.Handler {
+	const op errors.Op = "api/http/transactions.Record"
+
 	f := func(w http.ResponseWriter, r *http.Request) {
 
-		if err := CheckContentType(r); err != nil {
-			EncodeError(w, err)
-			return
-		}
-
 		var transaction transactions.Transaction
-		if err := json.NewDecoder(r.Body).Decode(&transaction); err != nil {
-			EncodeError(w, err)
+
+		err := Decode(r, &transaction)
+		if err != nil {
+			err := errors.E(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
+		defer r.Body.Close()
 
 		if err := transaction.Validate(); err != nil {
-			EncodeError(w, err)
+			err := errors.E(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		transaction, err := svc.Record(r.Context(), transaction)
+		res, err := svc.Record(r.Context(), transaction)
 		if err != nil {
-			EncodeError(w, err)
+			err := errors.E(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		response := recordTransRes{
-			ID: transaction.ID,
-		}
-		if err = EncodeResponse(w, response); err != nil {
-			EncodeError(w, err)
+		if err := encode(w, http.StatusCreated, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}
@@ -48,29 +52,24 @@ func Record(logger log.Entry, svc transactions.Service) http.Handler {
 }
 
 // Retrieve handles transaction retrieval
-func Retrieve(logger log.Entry, svc transactions.Service) http.Handler {
+func Retrieve(lgger log.Entry, svc transactions.Service) http.Handler {
+	const op errors.Op = "api/http/transactions.Retrieve"
+
 	f := func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		id := vars["id"]
 
-		transaction, err := svc.Retrieve(r.Context(), id)
+		var id = vars["id"]
+
+		res, err := svc.Retrieve(r.Context(), id)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		response := viewTransRes{
-			ID:           transaction.ID,
-			Property:     transaction.MadeFor,
-			Owner:        transaction.MadeBy,
-			Amount:       transaction.Amount,
-			Method:       transaction.Method,
-			Address:      transaction.Address,
-			DateRecorded: transaction.DateRecorded,
-		}
-
-		if err = EncodeResponse(w, response); err != nil {
-			EncodeError(w, err)
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}
@@ -78,55 +77,38 @@ func Retrieve(logger log.Entry, svc transactions.Service) http.Handler {
 }
 
 // List handles transaction list
-func List(logger log.Entry, svc transactions.Service) http.Handler {
+func List(lgger log.Entry, svc transactions.Service) http.Handler {
+	const op errors.Op = "api/http/transactions.List"
 	f := func(w http.ResponseWriter, r *http.Request) {
 
 		vars := mux.Vars(r)
 
-		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
+		offset, err := strconv.ParseUint(vars["offset"], 10, 64)
 		if err != nil {
-			EncodeError(w, err)
+			err = errors.E(op, err, "invalid offset value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
+		limit, err := strconv.ParseUint(vars["limit"], 10, 64)
 		if err != nil {
-			EncodeError(w, err)
+			err = errors.E(op, err, "invalid limit value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		var page transactions.TransactionPage
-
-		page, err = svc.List(r.Context(), offset, limit)
+		res, err := svc.List(r.Context(), offset, limit)
 		if err != nil {
-			EncodeError(w, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
-		response := transPageRes{
-			pageRes: pageRes{
-				Total:  page.Total,
-				Offset: page.Offset,
-				Limit:  page.Limit,
-			},
-			Transactions: []viewTransRes{},
-		}
-
-		for _, transaction := range page.Transactions {
-			view := viewTransRes{
-				ID:           transaction.ID,
-				Property:     transaction.MadeFor,
-				Owner:        transaction.MadeBy,
-				Amount:       transaction.Amount,
-				Method:       transaction.Method,
-				Address:      transaction.Address,
-				DateRecorded: transaction.DateRecorded,
-			}
-			response.Transactions = append(response.Transactions, view)
-		}
-
-		if err = EncodeResponse(w, response); err != nil {
-			EncodeError(w, err)
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 	}
@@ -134,15 +116,85 @@ func List(logger log.Entry, svc transactions.Service) http.Handler {
 }
 
 // ListByProperty handles transactions retrieval given house code
-func ListByProperty(logger log.Entry, svc transactions.Service) http.Handler {
-	f := func(w http.ResponseWriter, r *http.Request) {}
+func ListByProperty(lgger log.Entry, svc transactions.Service) http.Handler {
+	const op errors.Op = "api/http/transactions.ListByProperty"
+
+	f := func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+
+		var property = vars["property"]
+
+		offset, err := strconv.ParseUint(vars["offset"], 10, 64)
+		if err != nil {
+			err = errors.E(op, err, "invalid offset value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		limit, err := strconv.ParseUint(vars["limit"], 10, 64)
+		if err != nil {
+			err = errors.E(op, err, "invalid limit value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		res, err := svc.ListByProperty(r.Context(), property, offset, limit)
+		if err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+	}
 
 	return http.HandlerFunc(f)
 }
 
-// ListByOwner handles transactions retrieval given house code
-func ListByOwner(logger log.Entry, svc transactions.Service) http.Handler {
-	f := func(w http.ResponseWriter, r *http.Request) {}
+// ListByMethod handles transactions retrieval given the transaction method
+func ListByMethod(lgger log.Entry, svc transactions.Service) http.Handler {
+	const op errors.Op = "api/http/transactions.ListByMethod"
+
+	f := func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+
+		var method = vars["method"]
+
+		offset, err := strconv.ParseUint(vars["offset"], 10, 64)
+		if err != nil {
+			err = errors.E(op, err, "invalid offset value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		limit, err := strconv.ParseUint(vars["limit"], 10, 64)
+		if err != nil {
+			err = errors.E(op, err, "invalid limit value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		res, err := svc.ListByMethod(r.Context(), method, offset, limit)
+		if err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+	}
 
 	return http.HandlerFunc(f)
 }

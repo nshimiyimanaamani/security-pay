@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/gorilla/mux"
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
@@ -89,8 +88,7 @@ func TestRecord(t *testing.T) {
 	defer ts.Close()
 	client := ts.Client()
 
-	data := toJSON(transaction)
-	invalidData := toJSON(transactions.Transaction{Amount: 1000.00, Method: "BK"})
+	id := "1"
 
 	cases := []struct {
 		desc        string
@@ -101,14 +99,14 @@ func TestRecord(t *testing.T) {
 	}{
 		{
 			desc:        "record a valid transaction",
-			req:         data,
+			req:         toJSON(transactions.Transaction{ID: id, Amount: 100, Method: "bk", MadeFor: "1000", MadeBy: "1000"}),
 			contentType: contentType,
 			token:       token,
 			status:      http.StatusCreated,
 		},
 		{
 			desc:        "record transaction with invalid property",
-			req:         invalidData,
+			req:         toJSON(transactions.Transaction{Amount: 1000.00, Method: "BK"}),
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 		},
@@ -135,7 +133,7 @@ func TestRecord(t *testing.T) {
 		},
 		{
 			desc:        "record transaction with missing content type",
-			req:         data,
+			req:         toJSON(transactions.Transaction{ID: id, Amount: 100, Method: "bk", MadeFor: "1000", MadeBy: "1000"}),
 			contentType: "",
 			token:       token,
 			status:      http.StatusUnsupportedMediaType,
@@ -166,19 +164,8 @@ func TestRetrieve(t *testing.T) {
 	client := ts.Client()
 
 	ctx := context.Background()
-	strx, err := svc.Record(ctx, transaction)
+	saved, err := svc.Record(ctx, transaction)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-
-	trxRes := transRes{
-		ID:       strx.ID,
-		Property: strx.MadeFor,
-		Owner:    strx.MadeBy,
-		Amount:   strx.Amount,
-		Method:   strx.Method,
-	}
-
-	data := toJSON(trxRes)
-	notFoundRes := toJSON(errRes{"non-existent entity"})
 
 	cases := []struct {
 		desc   string
@@ -189,17 +176,17 @@ func TestRetrieve(t *testing.T) {
 	}{
 		{
 			desc:   "view existing transaction",
-			id:     strx.ID,
+			id:     saved.ID,
 			token:  token,
 			status: http.StatusOK,
-			res:    data,
+			res:    toJSON(saved),
 		},
 		{
 			desc:   "view non-existent transaction",
 			id:     strconv.FormatUint(wrongID, 10),
 			token:  token,
 			status: http.StatusNotFound,
-			res:    notFoundRes,
+			res:    toJSON(map[string]string{"error": "transaction not found"}),
 		},
 	}
 
@@ -228,21 +215,14 @@ func TestList(t *testing.T) {
 	defer ts.Close()
 	client := ts.Client()
 
-	data := []transRes{}
+	data := []transactions.Transaction{}
 
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
-		tx, err := svc.Record(ctx, transaction)
+		saved, err := svc.Record(ctx, transaction)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
-		trxRes := transRes{
-			ID:       tx.ID,
-			Property: tx.MadeFor,
-			Owner:    tx.MadeBy,
-			Amount:   tx.Amount,
-			Method:   tx.Method,
-		}
-		data = append(data, trxRes)
+		data = append(data, saved)
 	}
 
 	transactionURL := fmt.Sprintf("%s/transactions", ts.URL)
@@ -252,7 +232,7 @@ func TestList(t *testing.T) {
 		token  string
 		status int
 		url    string
-		res    []transRes
+		res    []transactions.Transaction
 	}{
 		{
 			desc:   "get a list of transactions",
@@ -287,30 +267,141 @@ func TestList(t *testing.T) {
 
 		res, err := req.make()
 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
-		var data transPageRes
+		var data transactions.TransactionPage
 		json.NewDecoder(res.Body).Decode(&data)
 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
 		assert.ElementsMatch(t, tc.res, data.Transactions, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Transactions))
 	}
 }
 
-type errRes struct {
-	Message string `json:"message"`
+func TestListByProperty(t *testing.T) {
+	svc := newService(map[string]string{token: email})
+	ts := newServer(svc)
+
+	defer ts.Close()
+	client := ts.Client()
+
+	data := []transactions.Transaction{}
+
+	for i := 0; i < 100; i++ {
+		ctx := context.Background()
+		saved, err := svc.Record(ctx, transaction)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+		data = append(data, saved)
+	}
+
+	transactionURL := fmt.Sprintf("%s/transactions", ts.URL)
+
+	cases := []struct {
+		desc   string
+		token  string
+		status int
+		url    string
+		res    []transactions.Transaction
+	}{
+		{
+			desc:   "get a list of transactions",
+			token:  token,
+			status: http.StatusOK,
+			url:    fmt.Sprintf("%s?property=%s&offset=%d&limit=%d", transactionURL, transaction.MadeFor, 0, 5),
+			res:    data[0:5],
+		},
+		{
+			desc:   "get a list of transactions with negative offset",
+			token:  token,
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s?property=%s&offset=%d&limit=%d", transactionURL, transaction.MadeFor, -1, 5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of transactions with negative limit",
+			token:  token,
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s?property=%s&offset=%d&limit=%d", transactionURL, transaction.MadeFor, 1, -5),
+			res:    nil,
+		},
+	}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client: client,
+			method: http.MethodGet,
+			token:  tc.token,
+			url:    tc.url,
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		var data transactions.TransactionPage
+		json.NewDecoder(res.Body).Decode(&data)
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code '%d' got '%d'", tc.desc, tc.status, res.StatusCode))
+		assert.ElementsMatch(t, tc.res, data.Transactions, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Transactions))
+	}
 }
 
-type transRes struct {
-	ID           string            `json:"id,omitempty"`
-	Property     string            `json:"property,omitempty"`
-	Owner        string            `json:"owner,omitempty"`
-	Amount       float64           `json:"amount,omitempty"`
-	Address      map[string]string `json:"address,omitempty"`
-	Method       string            `json:"method,omitempty"`
-	DateRecorded time.Time         `json:"recorded,omitempty"`
-}
+func TestListMethod(t *testing.T) {
+	svc := newService(map[string]string{token: email})
+	ts := newServer(svc)
 
-type transPageRes struct {
-	Transactions []transRes `json:"transactions"`
-	Total        uint64     `json:"total"`
-	Offset       uint64     `json:"offset"`
-	Limit        uint64     `json:"limit"`
+	defer ts.Close()
+	client := ts.Client()
+
+	data := []transactions.Transaction{}
+
+	for i := 0; i < 100; i++ {
+		ctx := context.Background()
+		saved, err := svc.Record(ctx, transaction)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+		data = append(data, saved)
+	}
+
+	transactionURL := fmt.Sprintf("%s/transactions", ts.URL)
+
+	cases := []struct {
+		desc   string
+		token  string
+		status int
+		url    string
+		res    []transactions.Transaction
+	}{
+		{
+			desc:   "get a list of transactions",
+			token:  token,
+			status: http.StatusOK,
+			url:    fmt.Sprintf("%s?method=%s&offset=%d&limit=%d", transactionURL, transaction.Method, 0, 5),
+			res:    data[0:5],
+		},
+		{
+			desc:   "get a list of transactions with negative offset",
+			token:  token,
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s?method=%s&offset=%d&limit=%d", transactionURL, transaction.Method, -1, 5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of transactions with negative limit",
+			token:  token,
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s?method=%s&offset=%d&limit=%d", transactionURL, transaction.Method, 1, -5),
+			res:    nil,
+		},
+	}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client: client,
+			method: http.MethodGet,
+			token:  tc.token,
+			url:    tc.url,
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		var data transactions.TransactionPage
+		json.NewDecoder(res.Body).Decode(&data)
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.ElementsMatch(t, tc.res, data.Transactions, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Transactions))
+	}
 }

@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
 var _ (transactions.Repository) = (*transactionRepoMock)(nil)
@@ -25,6 +26,8 @@ func NewRepository() transactions.Repository {
 }
 
 func (str *transactionRepoMock) Save(ctx context.Context, tx transactions.Transaction) (string, error) {
+	const op errors.Op = "app/transactions/mocks/repository.Save"
+
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -35,17 +38,23 @@ func (str *transactionRepoMock) Save(ctx context.Context, tx transactions.Transa
 }
 
 func (str *transactionRepoMock) RetrieveByID(ctx context.Context, id string) (transactions.Transaction, error) {
+	const op errors.Op = "app/transactions/mocks/repository.RetrieveByID"
+
 	str.mu.Lock()
 	defer str.mu.Unlock()
+
+	empty := transactions.Transaction{}
 	val, ok := str.transactions[id]
 	if !ok {
-		return transactions.Transaction{}, transactions.ErrNotFound
+		return empty, errors.E(op, "transaction not found", errors.KindNotFound)
 	}
 
 	return val, nil
 }
 
 func (str *transactionRepoMock) RetrieveAll(ctx context.Context, offset, limit uint64) (transactions.TransactionPage, error) {
+	const op errors.Op = "app/transactions/mocks/repository.RetrieveAll"
+
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -78,6 +87,8 @@ func (str *transactionRepoMock) RetrieveAll(ctx context.Context, offset, limit u
 }
 
 func (str *transactionRepoMock) RetrieveByProperty(ctx context.Context, p string, offset, limit uint64) (transactions.TransactionPage, error) {
+	const op errors.Op = "app/transactions/mocks/repository.RetrieveByProperty"
+
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -109,9 +120,36 @@ func (str *transactionRepoMock) RetrieveByProperty(ctx context.Context, p string
 	return page, nil
 }
 
-func (str *transactionRepoMock) RetrieveByPeriod(ctx context.Context, offset, limit uint64) (transactions.TransactionPage, error) {
+func (str *transactionRepoMock) RetrieveByMethod(ctx context.Context, m string, offset, limit uint64) (transactions.TransactionPage, error) {
+	const op errors.Op = "app/transactions/mocks/repository.RetrieveByMethod"
+
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
-	return transactions.TransactionPage{}, nil
+	items := make([]transactions.Transaction, 0)
+
+	if offset < 0 || limit <= 0 {
+		return transactions.TransactionPage{}, nil
+	}
+
+	first := uint64(offset) + 1
+	last := first + uint64(limit)
+
+	//check whether the tranaction belongs to a given property
+	for _, v := range str.transactions {
+		id, _ := strconv.ParseUint(v.ID, 10, 64)
+		if v.Method == m && id >= first && id < last {
+			items = append(items, v)
+		}
+	}
+
+	sort.SliceStable(items, func(i, j int) bool {
+		return items[i].ID < items[j].ID
+	})
+
+	page := transactions.TransactionPage{
+		Transactions: items,
+	}
+
+	return page, nil
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
 	"github.com/rugwirobaker/paypack-backend/app/users"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
@@ -85,20 +86,34 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 	_, err = saveTx(t, db, transaction)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
+	const op errors.Op = "store/postgres/transactionsRepository.RetrieveByID"
+
 	cases := []struct {
 		desc string
 		id   string
 		err  error
 	}{
-		{"retrieve existing transaction", transaction.ID, nil},
-		{"retrieve non existing transaction", uuid.New().ID(), transactions.ErrNotFound},
-		{"retrieve with malformed id", wrongValue, transactions.ErrNotFound},
+		{
+			desc: "retrieve existing transaction",
+			id:   transaction.ID,
+			err:  nil,
+		},
+		{
+			desc: "retrieve non existing transaction",
+			id:   uuid.New().ID(),
+			err:  errors.E(op, "transaction not found", errors.KindNotFound),
+		},
+		{
+			desc: "retrieve with malformed id",
+			id:   wrongValue,
+			err:  errors.E(op, "transaction not found", errors.KindNotFound),
+		},
 	}
 
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := repo.RetrieveByID(ctx, tc.id)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected err '%s' got '%s'\n", tc.desc, tc.err, err))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 
 }
@@ -377,7 +392,7 @@ func TestRetrieveByMethod(t *testing.T) {
 
 	for desc, tc := range cases {
 		ctx := context.Background()
-		page, err := repo.RetrieveByPeriod(ctx, tc.offset, tc.limit)
+		page, err := repo.RetrieveByMethod(ctx, tc.method, tc.offset, tc.limit)
 		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got %d\n", desc, err))
 		size := uint64(len(page.Transactions))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))

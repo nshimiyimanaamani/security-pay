@@ -2,23 +2,22 @@ package transactions
 
 import (
 	"context"
-	"errors"
-	"time"
 
 	"github.com/rugwirobaker/paypack-backend/app/identity"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
-var (
-	// ErrConflict attempt to create an entity with an alreasdy existing id
-	ErrConflict = errors.New("entity already exists")
+// var (
+// 	// ErrConflict attempt to create an entity with an alreasdy existing id
+// 	ErrConflict = errors.New("entity already exists")
 
-	//ErrInvalidEntity indicates malformed entity specification (e.g.
-	//invalid username,  password, account).
-	ErrInvalidEntity = errors.New("invalid entity format")
+// 	//ErrInvalidEntity indicates malformed entity specification (e.g.
+// 	//invalid username,  password, account).
+// 	ErrInvalidEntity = errors.New("invalid entity format")
 
-	// ErrNotFound indicates a non-existent entity request.
-	ErrNotFound = errors.New("non-existent entity")
-)
+// 	// ErrNotFound indicates a non-existent entity request.
+// 	ErrNotFound = errors.New("non-existent entity")
+// )
 
 // nanoid conf
 var (
@@ -44,12 +43,12 @@ type Service interface {
 
 	// ListTransactionByDate retrieves data about a subset of transactions that were made using
 	// a given method.
-	ListByPeriod(ctx context.Context, offset, limit uint64) (TransactionPage, error)
+	ListByMethod(ctx context.Context, m string, offset, limit uint64) (TransactionPage, error)
 }
 
-var _ Service = (*transactionsService)(nil)
+var _ Service = (*service)(nil)
 
-type transactionsService struct {
+type service struct {
 	idp  identity.Provider
 	repo Repository
 }
@@ -62,42 +61,69 @@ type Options struct {
 
 //New instantiates a new transaxtions service
 func New(opts *Options) Service {
-	return &transactionsService{
+	return &service{
 		idp:  opts.Idp,
 		repo: opts.Repo,
 	}
 }
 
-func (svc *transactionsService) Record(ctx context.Context, tx Transaction) (Transaction, error) {
+func (svc *service) Record(ctx context.Context, tx Transaction) (Transaction, error) {
+	const op errors.Op = "app/transactions/service.Record"
+
 	if err := tx.Validate(); err != nil {
-		return Transaction{}, err
+		return Transaction{}, errors.E(op, err)
 	}
 
 	tx.ID = svc.idp.ID()
 
 	id, err := svc.repo.Save(ctx, tx)
 	if err != nil {
-		return Transaction{}, err
+		return Transaction{}, errors.E(op, err)
 	}
 	tx.ID = id
 
-	tx.DateRecorded = time.Now()
+	// tx.DateRecorded = time.Now()
 
 	return tx, nil
 }
 
-func (svc *transactionsService) Retrieve(ctx context.Context, uid string) (Transaction, error) {
-	return svc.repo.RetrieveByID(ctx, uid)
+func (svc *service) Retrieve(ctx context.Context, uid string) (Transaction, error) {
+	const op errors.Op = "app/transactions/service.Retrieve"
+
+	tx, err := svc.repo.RetrieveByID(ctx, uid)
+	if err != nil {
+		return Transaction{}, errors.E(op, err)
+	}
+	return tx, nil
 }
 
-func (svc *transactionsService) List(ctx context.Context, offset, limit uint64) (TransactionPage, error) {
-	return svc.repo.RetrieveAll(ctx, offset, limit)
+func (svc *service) List(ctx context.Context, offset, limit uint64) (TransactionPage, error) {
+	const op errors.Op = "app/transactions/service.List"
+
+	page, err := svc.repo.RetrieveAll(ctx, offset, limit)
+	if err != nil {
+		return TransactionPage{}, errors.E(op, err)
+	}
+	return page, nil
 }
 
-func (svc *transactionsService) ListByProperty(ctx context.Context, p string, offset, limit uint64) (TransactionPage, error) {
-	return svc.repo.RetrieveByProperty(ctx, p, offset, limit)
+func (svc *service) ListByProperty(ctx context.Context, p string, offset, limit uint64) (TransactionPage, error) {
+	const op errors.Op = "app/transactions/service.ListByProperty"
+
+	page, err := svc.repo.RetrieveByProperty(ctx, p, offset, limit)
+	if err != nil {
+		return TransactionPage{}, errors.E(op, err)
+	}
+
+	return page, nil
 }
 
-func (svc *transactionsService) ListByPeriod(ctx context.Context, offset, limit uint64) (TransactionPage, error) {
-	return svc.repo.RetrieveByPeriod(ctx, offset, limit)
+func (svc *service) ListByMethod(ctx context.Context, m string, offset, limit uint64) (TransactionPage, error) {
+	const op errors.Op = "app/transactions/service.ListByPeriod"
+
+	page, err := svc.repo.RetrieveByMethod(ctx, m, offset, limit)
+	if err != nil {
+		return TransactionPage{}, errors.E(op, err)
+	}
+	return page, nil
 }

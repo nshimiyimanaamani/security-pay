@@ -20,20 +20,23 @@ func Create(lgger log.Entry, svc accounts.Service) http.Handler {
 
 		err := Decode(r, &account)
 		if err != nil {
-			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
-			return
-		}
-
-		res, err := svc.Create(r.Context(), account)
-		if err != nil {
+			err = errors.E(op, err)
 			lgger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 		defer r.Body.Close()
 
+		res, err := svc.Create(r.Context(), account)
+		if err != nil {
+			err = errors.E(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
 		if err := encode(w, http.StatusCreated, res); err != nil {
+			err = errors.E(op, err)
 			lgger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)
 			return
@@ -54,11 +57,13 @@ func Retrieve(lgger log.Entry, svc accounts.Service) http.Handler {
 
 		res, err := svc.Retrieve(r.Context(), id)
 		if err != nil {
+			err = errors.E(op, err)
 			lgger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 		if err := encode(w, http.StatusOK, res); err != nil {
+			err = errors.E(op, err)
 			lgger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)
 			return
@@ -77,6 +82,7 @@ func Update(lgger log.Entry, svc accounts.Service) http.Handler {
 
 		err := Decode(r, &account)
 		if err != nil {
+			err = errors.E(op, err)
 			lgger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)
 			return
@@ -87,6 +93,7 @@ func Update(lgger log.Entry, svc accounts.Service) http.Handler {
 
 		err = svc.Update(r.Context(), account)
 		if err != nil {
+			err = errors.E(op, err)
 			lgger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)
 			return
@@ -94,6 +101,7 @@ func Update(lgger log.Entry, svc accounts.Service) http.Handler {
 		defer r.Body.Close()
 
 		if err := encode(w, http.StatusOK, map[string]string{"message": fmt.Sprintf("account[%s]: updated", account.ID)}); err != nil {
+			err = errors.E(op, err)
 			lgger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)
 			return
@@ -129,12 +137,14 @@ func List(lgger log.Entry, svc accounts.Service) http.Handler {
 
 		res, err := svc.List(r.Context(), offset, limit)
 		if err != nil {
+			err = errors.E(op, err)
 			lgger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
 		if err := encode(w, http.StatusOK, res); err != nil {
+			err = errors.E(op, err)
 			lgger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)
 			return

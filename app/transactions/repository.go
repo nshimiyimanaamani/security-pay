@@ -17,6 +17,6 @@ type Repository interface {
 	// RetrieveByMethod retrieves the subset of transactions that where made using the given method.
 	RetrieveByProperty(ctx context.Context, p string, offset, limit uint64) (TransactionPage, error)
 
-	// RetrieveByMonth retrieves the subset of transactions that where made during the given month.
-	RetrieveByPeriod(ctx context.Context, offset, limit uint64) (TransactionPage, error)
+	// RetrieveByMethodretrieves the subset of transactions that where made during the given month.
+	RetrieveByMethod(ctx context.Context, m string, offset, limit uint64) (TransactionPage, error)
 }

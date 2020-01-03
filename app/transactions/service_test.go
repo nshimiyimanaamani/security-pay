@@ -7,6 +7,7 @@ import (
 
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/transactions/mocks"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -14,7 +15,7 @@ import (
 var transaction = transactions.Transaction{
 	ID:      "1000-4433-3343",
 	Amount:  1000.00,
-	Method:  "BK",
+	Method:  "bk",
 	MadeFor: "1000-4433-3343",
 	MadeBy:  "1000-4433-3343",
 }
@@ -32,6 +33,8 @@ func newService() transactions.Service {
 func TestRecordTransaction(t *testing.T) {
 	svc := newService()
 
+	const op errors.Op = "app/transactions/service.Record"
+
 	cases := []struct {
 		desc        string
 		token       string
@@ -46,22 +49,25 @@ func TestRecordTransaction(t *testing.T) {
 		{
 			desc:        "add invalid transaction",
 			transaction: transactions.Transaction{Amount: 1000.00},
-			err:         transactions.ErrInvalidEntity,
+			err:         errors.E(op, "invalid transaction"),
 		},
 	}
 
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := svc.Record(ctx, tc.transaction)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }
 
-func TestViewTransaction(t *testing.T) {
+func TestRetrieveTransaction(t *testing.T) {
 	svc := newService()
 
 	ctx := context.Background()
-	transaction, _ := svc.Record(ctx, transaction)
+	transaction, err := svc.Record(ctx, transaction)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	const op errors.Op = "app/transactions/service.Retrieve"
 
 	cases := []struct {
 		desc     string
@@ -77,14 +83,14 @@ func TestViewTransaction(t *testing.T) {
 		{
 			desc:     "view non-existing transaction",
 			identity: wrong,
-			err:      transactions.ErrNotFound,
+			err:      errors.E(op, "transaction not found"),
 		},
 	}
 
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := svc.Retrieve(ctx, tc.identity)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }
 
@@ -98,6 +104,8 @@ func TestListTransactions(t *testing.T) {
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	}
+
+	const op errors.Op = "app/transactions/service.List"
 
 	cases := []struct {
 		desc   string
@@ -167,6 +175,8 @@ func TestListTransactionsByProperty(t *testing.T) {
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
 
+	const op errors.Op = "app/transactions/service.ListByProperty"
+
 	cases := []struct {
 		desc     string
 		token    string
@@ -225,14 +235,16 @@ func TestListTransactionsByMethod(t *testing.T) {
 
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
-		//change transaction property for half the transactiona
+		//change transaction method for half the transactions
 		if i >= uint64(5) {
-			transaction.MadeFor = "1000-4433-0000"
+			transaction.Method = "mtn"
 		}
 		ctx := context.Background()
 		_, err := svc.Record(ctx, transaction)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	}
+
+	const op errors.Op = "app/transactions/service.ListByMethod"
 
 	cases := []struct {
 		desc   string
@@ -242,11 +254,45 @@ func TestListTransactionsByMethod(t *testing.T) {
 		limit  uint64
 		size   uint64
 		err    error
-	}{}
+	}{
+		{
+			desc:   "list all transactions with existing transaction method",
+			method: transaction.Method,
+			offset: 0,
+			limit:  n,
+			size:   n / 2,
+			err:    nil,
+		},
+		{
+			desc:   "list the last transaction with existant transaction method",
+			method: transaction.Method,
+			offset: n - 1,
+			limit:  n,
+			size:   1,
+			err:    nil,
+		},
+
+		{
+			desc:   "list half the transaction with existant transaction method",
+			method: transaction.Method,
+			offset: n / 2,
+			limit:  n,
+			size:   n / 2,
+			err:    nil,
+		},
+		{
+			desc:   "list with zero limit",
+			method: transaction.Method,
+			offset: 1,
+			limit:  0,
+			size:   0,
+			err:    nil,
+		},
+	}
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		page, err := svc.ListByPeriod(ctx, tc.offset, tc.limit)
+		page, err := svc.ListByMethod(ctx, tc.method, tc.offset, tc.limit)
 		size := uint64(len(page.Transactions))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
