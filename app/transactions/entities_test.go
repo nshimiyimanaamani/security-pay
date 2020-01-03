@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -17,6 +18,8 @@ func TestTransactionValidate(t *testing.T) {
 	method := "BK"
 	property := "1000-4433-34343"
 	owner := "1000-4433-34343"
+
+	const op errors.Op = "app/transactions/transaction.Validate"
 
 	cases := []struct {
 		desc string
@@ -33,12 +36,12 @@ func TestTransactionValidate(t *testing.T) {
 		{
 			desc: "validate user with invalid data",
 			tx:   transactions.Transaction{},
-			err:  transactions.ErrInvalidEntity,
+			err:  errors.E(op, "invalid transaction", errors.KindBadRequest),
 		},
 	}
 
 	for _, tc := range cases {
 		err := tc.tx.Validate()
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s", tc.desc, tc.err, err))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }

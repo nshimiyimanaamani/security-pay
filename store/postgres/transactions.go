@@ -7,20 +7,23 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
-var _ (transactions.Repository) = (*transactionStore)(nil)
+var _ (transactions.Repository) = (*txRepository)(nil)
 
-type transactionStore struct {
+type txRepository struct {
 	db *sql.DB
 }
 
 // NewTransactionRepository instanctiates a new transactions.Repository interface
 func NewTransactionRepository(db *sql.DB) transactions.Repository {
-	return &transactionStore{db}
+	return &txRepository{db}
 }
 
-func (str *transactionStore) Save(ctx context.Context, tx transactions.Transaction) (string, error) {
+func (str *txRepository) Save(ctx context.Context, tx transactions.Transaction) (string, error) {
+	const op errors.Op = "store/postgres/transactionsRepository.Save"
+
 	q := `
 		INSERT INTO transactions (id, madefor, madeby, 
 		amount, method, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
@@ -32,18 +35,20 @@ func (str *transactionStore) Save(ctx context.Context, tx transactions.Transacti
 		if ok {
 			switch pqErr.Code.Name() {
 			case errDuplicate:
-				return "", transactions.ErrConflict
+				return "", errors.E(op, err, "transaction already exists", errors.KindAlreadyExists)
 			case errInvalid, errTruncation:
-				return "", transactions.ErrInvalidEntity
+				return "", errors.E(op, err, "invalid transaction", errors.KindBadRequest)
 			}
 		}
-		return "", err
+		return "", errors.E(op, err, errors.KindUnexpected)
 	}
 	return tx.ID, nil
 }
 
 //seletect tx[id, amount, method, recorded]; properties[sector, cell, village] owner[fname, lname]
-func (str *transactionStore) RetrieveByID(ctx context.Context, id string) (transactions.Transaction, error) {
+func (str *txRepository) RetrieveByID(ctx context.Context, id string) (transactions.Transaction, error) {
+	const op errors.Op = "store/postgres/transactionsRepository.RetrieveByID"
+
 	q := `
 		SELECT 
 			transactions.id, transactions.amount, transactions.method, 
@@ -73,10 +78,12 @@ func (str *transactionStore) RetrieveByID(ctx context.Context, id string) (trans
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 
+		empty := transactions.Transaction{}
+
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
-			return tx, transactions.ErrNotFound
+			return empty, errors.E(op, err, "transaction not found", errors.KindNotFound)
 		}
-		return tx, err
+		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 	if sector != "" && cell != "" && village != "" {
 		tx.Address["sector"] = sector
@@ -89,7 +96,9 @@ func (str *transactionStore) RetrieveByID(ctx context.Context, id string) (trans
 	return tx, nil
 }
 
-func (str *transactionStore) RetrieveAll(ctx context.Context, offset uint64, limit uint64) (transactions.TransactionPage, error) {
+func (str *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit uint64) (transactions.TransactionPage, error) {
+	const op errors.Op = "store/postgres/transactionsRepository.RetrieveAll"
+
 	q := `
 	SELECT 
 		transactions.id, transactions.amount, transactions.method, 
@@ -103,12 +112,13 @@ func (str *transactionStore) RetrieveAll(ctx context.Context, offset uint64, lim
 		owners ON transactions.madeby=owners.id 
 	ORDER BY transactions.id LIMIT $1 OFFSET $2
 	`
+	empty := transactions.TransactionPage{}
 
 	var items = []transactions.Transaction{}
 
 	rows, err := str.db.Query(q, limit, offset)
 	if err != nil {
-		return transactions.TransactionPage{}, err
+		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 	defer rows.Close()
 
@@ -125,7 +135,7 @@ func (str *transactionStore) RetrieveAll(ctx context.Context, offset uint64, lim
 			&c.ID, &c.Amount, &c.Method, &c.DateRecorded,
 			&sector, &cell, &village, &fname, &lname,
 		); err != nil {
-			return transactions.TransactionPage{}, err
+			return empty, errors.E(op, err, errors.KindUnexpected)
 		}
 		if sector != "" && cell != "" && village != "" {
 			c.Address["sector"] = sector
@@ -142,7 +152,7 @@ func (str *transactionStore) RetrieveAll(ctx context.Context, offset uint64, lim
 
 	var total uint64
 	if err := str.db.QueryRow(q).Scan(&total); err != nil {
-		return transactions.TransactionPage{}, err
+		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	page := transactions.TransactionPage{
@@ -156,7 +166,9 @@ func (str *transactionStore) RetrieveAll(ctx context.Context, offset uint64, lim
 	return page, nil
 }
 
-func (str *transactionStore) RetrieveByProperty(ctx context.Context, property string, offset, limit uint64) (transactions.TransactionPage, error) {
+func (str *txRepository) RetrieveByProperty(ctx context.Context, property string, offset, limit uint64) (transactions.TransactionPage, error) {
+	const op errors.Op = "store/postgres/transactionsRepository.RetrieveByProperty"
+
 	q := `
 	SELECT 
 		transactions.id, transactions.amount, transactions.method, 
@@ -173,11 +185,13 @@ func (str *transactionStore) RetrieveByProperty(ctx context.Context, property st
 	ORDER BY transactions.id LIMIT $2 OFFSET $3
 	`
 
+	empty := transactions.TransactionPage{}
+
 	var items = []transactions.Transaction{}
 
 	rows, err := str.db.Query(q, property, limit, offset)
 	if err != nil {
-		return transactions.TransactionPage{}, err
+		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 	defer rows.Close()
 
@@ -193,7 +207,7 @@ func (str *transactionStore) RetrieveByProperty(ctx context.Context, property st
 			&c.ID, &c.Amount, &c.Method, &c.DateRecorded,
 			&sector, &cell, &village, &fname, &lname,
 		); err != nil {
-			return transactions.TransactionPage{}, err
+			return empty, errors.E(op, err, errors.KindUnexpected)
 		}
 		if sector != "" && cell != "" && village != "" {
 			c.Address["sector"] = sector
@@ -210,7 +224,7 @@ func (str *transactionStore) RetrieveByProperty(ctx context.Context, property st
 
 	var total uint64
 	if err := str.db.QueryRow(q, property).Scan(&total); err != nil {
-		return transactions.TransactionPage{}, err
+		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	page := transactions.TransactionPage{
@@ -224,7 +238,9 @@ func (str *transactionStore) RetrieveByProperty(ctx context.Context, property st
 	return page, err
 }
 
-func (str *transactionStore) RetrieveByMethod(method string, offset, limit uint64) (transactions.TransactionPage, error) {
+func (str *txRepository) RetrieveByMethod(ctx context.Context, method string, offset, limit uint64) (transactions.TransactionPage, error) {
+	const op errors.Op = "store/postgres/transactionsRepository.RetrieveByMethod"
+
 	q := `
 		SELECT 
 			transactions.id,transactions.amount, transactions.method, 
@@ -240,12 +256,13 @@ func (str *transactionStore) RetrieveByMethod(method string, offset, limit uint6
 			transactions.method = $1 
 		ORDER BY transactions.id LIMIT $2 OFFSET $3
 	`
+	empty := transactions.TransactionPage{}
 
 	var items = []transactions.Transaction{}
 
 	rows, err := str.db.Query(q, method, limit, offset)
 	if err != nil {
-		return transactions.TransactionPage{}, err
+		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 	defer rows.Close()
 
@@ -261,7 +278,7 @@ func (str *transactionStore) RetrieveByMethod(method string, offset, limit uint6
 			&c.ID, &c.Amount, &c.Method, &c.DateRecorded,
 			&sector, &cell, &village, &fname, &lname,
 		); err != nil {
-			return transactions.TransactionPage{}, err
+			return empty, errors.E(op, err, errors.KindUnexpected)
 		}
 		if sector != "" && cell != "" && village != "" {
 			c.Address["sector"] = sector
@@ -278,7 +295,7 @@ func (str *transactionStore) RetrieveByMethod(method string, offset, limit uint6
 
 	var total uint64
 	if err := str.db.QueryRow(q, method).Scan(&total); err != nil {
-		return transactions.TransactionPage{}, err
+		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	page := transactions.TransactionPage{
@@ -290,8 +307,4 @@ func (str *transactionStore) RetrieveByMethod(method string, offset, limit uint6
 		},
 	}
 	return page, nil
-}
-
-func (str *transactionStore) RetrieveByPeriod(ctx context.Context, offset, limit uint64) (transactions.TransactionPage, error) {
-	return transactions.TransactionPage{}, nil
 }

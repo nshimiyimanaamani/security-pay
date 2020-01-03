@@ -319,13 +319,14 @@ func TestList(t *testing.T) {
 	defer srv.Close()
 	client := srv.Client()
 
-	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 
 	data := []accounts.Account{}
 
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
 		ctx := context.Background()
+		account.ID = fmt.Sprintf("paypack.%d", i)
 		saved, err := svc.Create(ctx, account)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 		data = append(data, saved)

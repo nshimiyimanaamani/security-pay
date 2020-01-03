@@ -1,19 +1,20 @@
 package transactions
 
 import (
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"time"
 )
 
 //Transaction defines a payment made for a property(i.e house).
 type Transaction struct {
-	ID           string
-	MadeFor      string
-	MadeBy       string
-	Address      map[string]string
-	Amount       float64
-	Method       string
-	Invoice      uint64
-	DateRecorded time.Time
+	ID           string            `json:"id"`
+	MadeFor      string            `json:"madefor"`
+	MadeBy       string            `json:"madeby"`
+	Address      map[string]string `json:"address"`
+	Amount       float64           `json:"amount"`
+	Method       string            `json:"method"`
+	Invoice      uint64            `json:"invoice"`
+	DateRecorded time.Time         `json:"date_recorded"`
 }
 
 // PageMetadata contains page metadata that helps navigation.
@@ -32,8 +33,10 @@ type TransactionPage struct {
 //Validate ensure that all Transaction's field are of the valid format
 //and returns a non nil error if it's not
 func (tr *Transaction) Validate() error {
+	const op errors.Op = "app/transactions/transaction.Validate"
+
 	if tr.Amount == 0 || tr.Method == "" || tr.MadeFor == "" || tr.MadeBy == "" {
-		return ErrInvalidEntity
+		return errors.E(op, "invalid transaction", errors.KindBadRequest)
 	}
 	return nil
 }
