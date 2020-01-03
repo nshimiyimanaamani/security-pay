@@ -13,7 +13,7 @@ import (
 var _ (transactions.Repository) = (*txRepository)(nil)
 
 type txRepository struct {
-	db *sql.DB
+	*sql.DB
 }
 
 // NewTransactionRepository instanctiates a new transactions.Repository interface
@@ -21,15 +21,21 @@ func NewTransactionRepository(db *sql.DB) transactions.Repository {
 	return &txRepository{db}
 }
 
-func (str *txRepository) Save(ctx context.Context, tx transactions.Transaction) (string, error) {
+func (repo *txRepository) Save(ctx context.Context, tx transactions.Transaction) (string, error) {
 	const op errors.Op = "store/postgres/transactionsRepository.Save"
 
 	q := `
-		INSERT INTO transactions (id, madefor, madeby, 
-		amount, method, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
+		INSERT INTO transactions (
+			id, 
+			madefor, 
+			madeby, 
+			amount, 
+			method,
+			invoice
+		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING created_at
 	`
 
-	_, err := str.db.Exec(q, tx.ID, tx.MadeFor, tx.MadeBy, tx.Amount, tx.Method, tx.DateRecorded)
+	err := repo.QueryRow(q, tx.ID, tx.MadeFor, tx.MadeBy, tx.Amount, tx.Method).Scan(&tx.DateRecorded)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -46,12 +52,12 @@ func (str *txRepository) Save(ctx context.Context, tx transactions.Transaction) 
 }
 
 //seletect tx[id, amount, method, recorded]; properties[sector, cell, village] owner[fname, lname]
-func (str *txRepository) RetrieveByID(ctx context.Context, id string) (transactions.Transaction, error) {
+func (repo *txRepository) RetrieveByID(ctx context.Context, id string) (transactions.Transaction, error) {
 	const op errors.Op = "store/postgres/transactionsRepository.RetrieveByID"
 
 	q := `
 		SELECT 
-			transactions.id, transactions.amount, transactions.method, 
+			transactions.id, transactions.amount, transactions.method, transactions.madefor,
 			transactions.created_at, properties.sector, properties.cell, 
 			properties.village, owners.fname, owners.lname
 		FROM 
@@ -71,8 +77,8 @@ func (str *txRepository) RetrieveByID(ctx context.Context, id string) (transacti
 
 	var fname, lname string
 
-	err := str.db.QueryRow(q, id).Scan(
-		&tx.ID, &tx.Amount, &tx.Method, &tx.DateRecorded,
+	err := repo.QueryRow(q, id).Scan(
+		&tx.ID, &tx.Amount, &tx.Method, &tx.MadeFor, &tx.DateRecorded,
 		&sector, &cell, &village, &fname, &lname,
 	)
 	if err != nil {
@@ -96,12 +102,12 @@ func (str *txRepository) RetrieveByID(ctx context.Context, id string) (transacti
 	return tx, nil
 }
 
-func (str *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit uint64) (transactions.TransactionPage, error) {
+func (repo *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit uint64) (transactions.TransactionPage, error) {
 	const op errors.Op = "store/postgres/transactionsRepository.RetrieveAll"
 
 	q := `
 	SELECT 
-		transactions.id, transactions.amount, transactions.method, 
+		transactions.id, transactions.amount, transactions.method, transactions.madefor,
 		transactions.created_at, properties.sector, properties.cell, 
 		properties.village, owners.fname, owners.lname
 	FROM 
@@ -116,7 +122,7 @@ func (str *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit u
 
 	var items = []transactions.Transaction{}
 
-	rows, err := str.db.Query(q, limit, offset)
+	rows, err := repo.Query(q, limit, offset)
 	if err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -132,7 +138,7 @@ func (str *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit u
 		var fname, lname string
 
 		if err := rows.Scan(
-			&c.ID, &c.Amount, &c.Method, &c.DateRecorded,
+			&c.ID, &c.Amount, &c.Method, &c.MadeFor, &c.DateRecorded,
 			&sector, &cell, &village, &fname, &lname,
 		); err != nil {
 			return empty, errors.E(op, err, errors.KindUnexpected)
@@ -151,7 +157,7 @@ func (str *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit u
 	q = `SELECT COUNT(*) FROM transactions`
 
 	var total uint64
-	if err := str.db.QueryRow(q).Scan(&total); err != nil {
+	if err := repo.QueryRow(q).Scan(&total); err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -166,12 +172,12 @@ func (str *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit u
 	return page, nil
 }
 
-func (str *txRepository) RetrieveByProperty(ctx context.Context, property string, offset, limit uint64) (transactions.TransactionPage, error) {
+func (repo *txRepository) RetrieveByProperty(ctx context.Context, property string, offset, limit uint64) (transactions.TransactionPage, error) {
 	const op errors.Op = "store/postgres/transactionsRepository.RetrieveByProperty"
 
 	q := `
 	SELECT 
-		transactions.id, transactions.amount, transactions.method, 
+		transactions.id, transactions.amount, transactions.method, transactions.madefor, 
 		transactions.created_at, properties.sector, properties.cell, 
 		properties.village, owners.fname, owners.lname
 	FROM 
@@ -189,7 +195,7 @@ func (str *txRepository) RetrieveByProperty(ctx context.Context, property string
 
 	var items = []transactions.Transaction{}
 
-	rows, err := str.db.Query(q, property, limit, offset)
+	rows, err := repo.Query(q, property, limit, offset)
 	if err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -204,7 +210,7 @@ func (str *txRepository) RetrieveByProperty(ctx context.Context, property string
 		var fname, lname string
 
 		if err := rows.Scan(
-			&c.ID, &c.Amount, &c.Method, &c.DateRecorded,
+			&c.ID, &c.Amount, &c.Method, &c.MadeFor, &c.DateRecorded,
 			&sector, &cell, &village, &fname, &lname,
 		); err != nil {
 			return empty, errors.E(op, err, errors.KindUnexpected)
@@ -223,7 +229,7 @@ func (str *txRepository) RetrieveByProperty(ctx context.Context, property string
 	q = `SELECT COUNT(*) FROM transactions WHERE madefor = $1`
 
 	var total uint64
-	if err := str.db.QueryRow(q, property).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, property).Scan(&total); err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -238,12 +244,12 @@ func (str *txRepository) RetrieveByProperty(ctx context.Context, property string
 	return page, err
 }
 
-func (str *txRepository) RetrieveByMethod(ctx context.Context, method string, offset, limit uint64) (transactions.TransactionPage, error) {
+func (repo *txRepository) RetrieveByMethod(ctx context.Context, method string, offset, limit uint64) (transactions.TransactionPage, error) {
 	const op errors.Op = "store/postgres/transactionsRepository.RetrieveByMethod"
 
 	q := `
 		SELECT 
-			transactions.id,transactions.amount, transactions.method, 
+			transactions.id,transactions.amount, transactions.method, transactions.madefor,
 			transactions.created_at, properties.sector, properties.cell, 
 			properties.village, owners.fname, owners.lname
 		FROM 
@@ -260,7 +266,7 @@ func (str *txRepository) RetrieveByMethod(ctx context.Context, method string, of
 
 	var items = []transactions.Transaction{}
 
-	rows, err := str.db.Query(q, method, limit, offset)
+	rows, err := repo.Query(q, method, limit, offset)
 	if err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -275,7 +281,7 @@ func (str *txRepository) RetrieveByMethod(ctx context.Context, method string, of
 		var fname, lname string
 
 		if err := rows.Scan(
-			&c.ID, &c.Amount, &c.Method, &c.DateRecorded,
+			&c.ID, &c.Amount, &c.Method, &c.MadeFor, &c.DateRecorded,
 			&sector, &cell, &village, &fname, &lname,
 		); err != nil {
 			return empty, errors.E(op, err, errors.KindUnexpected)
@@ -294,7 +300,7 @@ func (str *txRepository) RetrieveByMethod(ctx context.Context, method string, of
 	q = `SELECT COUNT(*) FROM transactions WHERE method = $1`
 
 	var total uint64
-	if err := str.db.QueryRow(q, method).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, method).Scan(&total); err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 

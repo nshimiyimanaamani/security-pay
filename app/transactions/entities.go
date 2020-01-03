@@ -7,14 +7,14 @@ import (
 
 //Transaction defines a payment made for a property(i.e house).
 type Transaction struct {
-	ID           string            `json:"id"`
-	MadeFor      string            `json:"madefor"`
-	MadeBy       string            `json:"madeby"`
-	Address      map[string]string `json:"address"`
-	Amount       float64           `json:"amount"`
-	Method       string            `json:"method"`
-	Invoice      uint64            `json:"invoice"`
-	DateRecorded time.Time         `json:"date_recorded"`
+	ID           string            `json:"id,omitempty"`
+	MadeFor      string            `json:"madefor,omitempty"`
+	MadeBy       string            `json:"madeby,omitempty"`
+	Address      map[string]string `json:"address,omitempty"`
+	Amount       float64           `json:"amount,omitempty"`
+	Method       string            `json:"method,omitempty"`
+	Invoice      uint64            `json:"invoice,omitempty"`
+	DateRecorded time.Time         `json:"date_recorded,omitempty"`
 }
 
 // PageMetadata contains page metadata that helps navigation.
