@@ -3,20 +3,20 @@
     <vue-title title="Paypack | Transactions" />
     <div class="totals">
       <b-row>
-        <b-col cols="6" class="text-white ml-auto py-2" style="font-size: 40px">RWF 9,986.55</b-col>
+        <b-col cols="6" class="text-white ml-auto py-2" style="font-size: 40px">{{'RWF '+total()}}</b-col>
       </b-row>
       <b-row class="text-white">
         <b-col cols="2" class="ml-auto">
           <p>BK Acc.</p>
-          <p>500 M</p>
+          <p>RWF {{bkTotal()}}</p>
         </b-col>
         <b-col cols="2" class="m-0">
           <p>MTN MoMo</p>
-          <p>60 M</p>
+          <p>RWF {{mtnTotal()}}</p>
         </b-col>
         <b-col cols="2" class="m-0">
           <p>AIRTEL MONEY</p>
-          <p>79 M</p>
+          <p>RWF {{airtelTotal()}}</p>
         </b-col>
       </b-row>
     </div>
@@ -39,6 +39,9 @@
         </template>
         <template v-slot:cell(amount)="data">
           <article class="text-center">{{Number(data.value).toLocaleString()}} Frw</article>
+        </template>
+        <template v-slot:cell(date_recorded)="data">
+          <article class="text-center">{{datify(data.value)}}</article>
         </template>
         <template v-slot:table-busy>
           <div class="text-center my-2">
@@ -68,28 +71,33 @@ export default {
       table: {
         fields: [
           {
-            key: "owner",
-            label: "Name",
+            key: "madeby",
+            label: "Payee",
             sortable: true,
-            thClass: "table-name"
+            tdClass: "table-name"
+          },
+          {
+            key: "madefor",
+            label: "Payed for",
+            sortable: true
           },
           {
             key: "method",
             label: "Payed With",
             sortable: true,
-            thClass: "text-center table-icon"
+            thClass: "text-center"
           },
           {
             key: "amount",
             label: "Amount",
             sortable: false,
-            thClass: "text-center table-amount"
+            thClass: "text-center"
           },
           {
-            key: "recorded",
+            key: "date_recorded",
             label: "Date",
             sortable: true,
-            thClass: "text-center table-date"
+            thClass: "text-center"
           }
         ],
         items: []
@@ -108,26 +116,55 @@ export default {
     requestItems() {
       this.loading = true;
       this.axios
-        .get(this.endpoint + "/transactions?offset=1&limit=100")
+        .get(this.endpoint + "/transactions?offset=0&limit=5")
         .then(res => {
-          if (res.status == 200) {
-            this.table.items = res.data.transactions;
-            this.loading = false;
-          } else {
-            this.$snotify.info(`Failed to load Transactions`);
-          }
+          this.table.items = res.data.Transactions;
+          console.log(this.table.items);
+          this.loading = false;
         })
         .catch(err => {
           this.loading = false;
           this.table.items = [];
-          if (navigator.onLine && err.response.status == "404") {
-            this.$snotify.info(`Failed to load Transactions`);
-          } else if (navigator.onLine && err.response.status != "404") {
-            this.$snotify.info(err.response.data.error);
-          } else if (!navigator.onLine) {
-            this.$snotify.info(`Please connect to the internet...`);
-          }
+          const error = navigator.onLine
+            ? err.response.data.error
+            : "Please connect to the internet...";
+          this.$snotify.error(error);
         });
+    },
+    total() {
+      let total = 0;
+      this.table.items.forEach(element => {
+        total += element.amount;
+      });
+      return total;
+    },
+    mtnTotal() {
+      let total = 0;
+      const filtered = this.table.items.filter(data => data.method == "mtn");
+      filtered.forEach(element => {
+        total += element.amount;
+      });
+      return total;
+    },
+    airtelTotal() {
+      let total = 0;
+      const filtered = this.table.items.filter(data => data.method == "airtel");
+      filtered.forEach(element => {
+        total += element.amount;
+      });
+      return total;
+    },
+    bkTotal() {
+      let total = 0;
+      const filtered = this.table.items.filter(data => data.method == "bk");
+      filtered.forEach(element => {
+        total += element.amount;
+      });
+      return total;
+    },
+    datify(date) {
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      return new Date(date).toLocaleDateString("en-EN", options);
     }
   }
 };
