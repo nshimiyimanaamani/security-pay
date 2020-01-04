@@ -100,3 +100,38 @@ func TestRetrieve(t *testing.T) {
 		assert.Equal(t, tc.res, data, fmt.Sprintf("%s: expected body %s got %s", tc.desc, tc.res, data))
 	}
 }
+
+func TestMRetrieve(t *testing.T) {
+	svc := newService()
+	srv := newServer(svc)
+
+	defer srv.Close()
+	client := srv.Client()
+
+	cases := []struct {
+		desc        string
+		req         string
+		contentType string
+		status      int
+		res         string
+	}{}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client:      client,
+			method:      http.MethodPost,
+			url:         fmt.Sprintf("%s/mobile/billing/invoices", srv.URL),
+			contentType: tc.contentType,
+			body:        strings.NewReader(tc.req),
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		body, err := ioutil.ReadAll(res.Body)
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		data := strings.Trim(string(body), "\n")
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.Equal(t, tc.res, data, fmt.Sprintf("%s: expected body %s got %s", tc.desc, tc.res, data))
+	}
+}
