@@ -41,4 +41,7 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 	r.Handle(RetrieveInvoicesRoute, LogEntryHandler(Retrieve, opts)).Methods(http.MethodGet).
 		Queries("property", "{property}", "months", "{months}")
 
+	r.Handle(RetrieveInvoiceOnMobileRoute, LogEntryHandler(Retrieve, opts)).Methods(http.MethodGet).
+		Queries("property", "{property}", "months", "{months}")
+
 }

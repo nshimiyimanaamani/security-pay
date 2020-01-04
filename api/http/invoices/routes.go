@@ -1,4 +1,7 @@
 package invoices
 
-// RetrieveInvoicesRoute is the http route to retrive invoices
-const RetrieveInvoicesRoute = "/billing/invoices"
+// invoices routes
+const (
+	RetrieveInvoicesRoute        = "/billing/invoices"
+	RetrieveInvoiceOnMobileRoute = "/mobile/billing/invoices"
+)
