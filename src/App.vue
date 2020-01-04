@@ -41,6 +41,7 @@ export default {
 #app {
   height: 100vh;
   width: 100vw;
+  overflow-x: auto;
 }
 @import url("./assets/css/main.css");
 .offline-indicator {

@@ -123,6 +123,11 @@ export default {
           this.filterBy_village();
         })
         .catch(err => {
+          if (navigator.onLine) {
+            this.$snotify.info(err.response.data.error);
+          } else if (!navigator.onLine) {
+            this.$snotify.info(`Please connect to the internet...`);
+          }
           this.state.loading = false;
           console.log(err);
           return [];

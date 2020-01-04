@@ -17,8 +17,10 @@ import "../node_modules/chart.js/dist/Chart.js";
 import axios from 'axios'
 import VueAxios from 'vue-axios';
 import titleComponent from './components/title.vue';
+import VueSimpleContextMenu from 'vue-simple-context-menu'
 
 Vue.component('vue-title', titleComponent);
+Vue.component('vue-simple-context-menu', VueSimpleContextMenu);
 
 Vue.use(VueAxios, axios)
 Vue.use(BootstrapVue);

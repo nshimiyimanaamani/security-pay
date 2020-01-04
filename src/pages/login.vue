@@ -1,7 +1,7 @@
 <template>
   <div>
     <vue-title title="Paypack | Login" />
-    <div class="loginPage">
+    <div class="loginPage p-3">
       <b-row
         class="loginTitle m-auto justify-content-sm-center"
         style="height: 50%;width: fit-content"
@@ -18,13 +18,7 @@
         <b-col sm="8" md="7" lg="4" xl="3">
           <b-form class="loginForm" @submit.prevent="login">
             <b-form-group class="loginUsername mb-4">
-              <b-form-input
-                type="email"
-                id="username"
-                v-model="form.email"
-                required
-                placeholder="Email..."
-              ></b-form-input>
+              <b-form-input id="username" v-model="form.email" required placeholder="Username..."></b-form-input>
             </b-form-group>
             <b-form-group class="loginPassword mb-4">
               <b-form-input
@@ -83,10 +77,13 @@ export default {
             this.loading = false;
           })
           .catch(err => {
-            this.$snotify.error(`Wrong username or password, Try again!`);
-            console.warn(err);
+            const message = navigator.onLine
+              ? err.response.data.error
+              : "Connect to the internet to log in";
+            this.$snotify.error(message);
             delete sessionStorage.token;
             this.loading = false;
+            console.log(err.response)
           });
       }
     }

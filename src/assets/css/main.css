@@ -1,3 +1,5 @@
+@import '../../../node_modules/vue-simple-context-menu/dist/vue-simple-context-menu.css';
+
 html,
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;

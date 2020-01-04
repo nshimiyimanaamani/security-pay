@@ -12,12 +12,13 @@ import startPage from "./Layouts/main.vue";
 import dashboard from "./pages/dashboard.vue";
 import transactions from "./pages/transactions.vue";
 import dashboardLayout from "./Layouts/dashboardLayout.vue";
+import accounts from "./pages/createAccount.vue"
 import village from "./pages/village.vue";
 import cells from "./pages/cells.vue";
 import reports from './pages/reports.vue'
+import agentView from './Layouts/agentView.vue'
 
 Vue.use(Router);
-
 var jwt = require("jsonwebtoken");
 
 let router = new Router({
@@ -85,42 +86,75 @@ let router = new Router({
           name: 'reports',
           component: reports,
           meta: {
-            requireAuth: true
+            requireAuth: true,
+          }
+        },
+        {
+          path: "/create",
+          name: "createAccounts",
+          component: accounts,
+          meta: {
+            requireAuth: true,
+            forDev: true
           }
         }
       ]
+    },
+    {
+      path: '/agent',
+      name: "agentView",
+      component: agentView,
+      meta: {
+        requireAuth: true,
+        agent: true
+      }
     }
   ]
 });
 
 router.beforeEach((to, from, next) => {
   const decoded = jwt.decode(sessionStorage.token);
-  if (to.matched.some(record => record.meta.requireAuth)) {
-    if (!decoded) {
-      store.state.user = null
+  if (decoded) {
+    axios.defaults.headers.common['Authorization'] = sessionStorage.token;
+    store.state.user = decoded
+    if (decoded.role == "min") {
+      if (to.matched.some(record => record.meta.agent)) {
+        next()
+      } else {
+        next({
+          name: "agentView"
+        })
+      }
+    } else if (decoded.role != "dev") {
+      if (to.matched.some(record => record.meta.forDev)) {
+        router.back()
+        console.log("back...")
+      }
+    } else {
+      if (to.matched.some(record => record.meta.requireAuth)) {
+        next()
+      } else if (to.matched.some(record => record.meta.guest)) {
+        next({
+          name: 'dashboard'
+        })
+
+      } else {
+        next()
+      }
+    }
+  } else {
+    store.state.user = null
+    delete sessionStorage.token
+    if (to.matched.some(record => record.meta.requireAuth)) {
       next({
         path: '/',
         params: {
           nextUrl: to.fullPath
         }
       })
-    } else {
-      axios.defaults.headers.common['Authorization'] = sessionStorage.token;
-      store.state.user = decoded
+    } else if (to.matched.some(record => record.meta.guest)) {
       next()
     }
-  } else if (to.matched.some(record => record.meta.guest)) {
-    if (!decoded) {
-      delete sessionStorage.token
-      next()
-    } else {
-      next({
-        name: 'dashboard'
-      })
-    }
-  } else {
-    next()
   }
 })
-
 export default router

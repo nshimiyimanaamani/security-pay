@@ -1,3 +1,5 @@
+import router from '../router.js'
+
 const {
   District,
   Sector,
@@ -26,8 +28,9 @@ const mutations = {
   },
   logout(state) {
     delete sessionStorage.token;
-    delete sessionStorage.email;
-    state.token = null;
+    state.user = null
+    console.log("logged Out...")
+    router.push('/')
   },
 }
 export default mutations

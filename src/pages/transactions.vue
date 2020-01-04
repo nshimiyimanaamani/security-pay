@@ -113,12 +113,20 @@ export default {
           if (res.status == 200) {
             this.table.items = res.data.transactions;
             this.loading = false;
+          } else {
+            this.$snotify.info(`Failed to load Transactions`);
           }
         })
         .catch(err => {
           this.loading = false;
           this.table.items = [];
-          console.log(err);
+          if (navigator.onLine && err.response.status == "404") {
+            this.$snotify.info(`Failed to load Transactions`);
+          } else if (navigator.onLine && err.response.status != "404") {
+            this.$snotify.info(err.response.data.error);
+          } else if (!navigator.onLine) {
+            this.$snotify.info(`Please connect to the internet...`);
+          }
         });
     }
   }

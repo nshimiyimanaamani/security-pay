@@ -97,6 +97,7 @@
       show-empty
       :current-page="pagination.currentPage"
       :per-page="pagination.perPage"
+      @row-contextmenu="editHouse"
     >
       <template v-slot:cell(due)="data">{{Number(data.item.due).toLocaleString()}} Rwf</template>
       <template v-slot:cell(owner)="data">{{data.item.owner.fname +" "+ data.item.owner.lname}}</template>
@@ -193,7 +194,7 @@
               id="range-1"
               v-model="modal.form.due"
               type="range"
-              min="0"
+              min="500"
               max="10000"
               step="500"
             ></b-form-input>
@@ -232,15 +233,34 @@
         </b-form>
       </b-card>
     </div>
+    <b-modal id="updateModal" v-model="updateModal.show" hide-footer>
+      <template v-slot:modal-title>Modify House</template>
+      <update-house
+        v-if="updateModal.show"
+        :item="updateModal.item"
+        :option="updateModal.option"
+        v-on:closeModal="closeUpdateModal"
+      />
+    </b-modal>
+    <vue-simple-context-menu
+      :elementId="'rightmenu'"
+      :options="rightMenu.options"
+      :ref="'rightMenu'"
+      @option-clicked="showUpdateModal"
+    ></vue-simple-context-menu>
   </div>
 </template>
 <script>
+import updateHouse from "../components/updateHouse.vue";
 import jsPDF from "jspdf";
-const { District, Sector, Cell, Village } = require("rwanda");
+const { Village } = require("rwanda");
 const { isPhoneNumber } = require("rwa-validator");
 import "jspdf-autotable";
 export default {
   name: "reports",
+  components: {
+    "update-house": updateHouse
+  },
   data() {
     return {
       selected: null,
@@ -251,6 +271,14 @@ export default {
       loading: {
         progress: false,
         request: false
+      },
+      rightMenu: {
+        options: [{ name: "Edit", slug: "edit" }]
+      },
+      updateModal: {
+        show: false,
+        item: [],
+        option: []
       },
       modal: {
         show: false,
@@ -275,7 +303,7 @@ export default {
         datalist: []
       },
       select: {
-        sector: null,
+        sector: "Remera",
         cell: null,
         village: null,
         sectorOptions: [],
@@ -315,22 +343,14 @@ export default {
       return [this.activeSector];
     },
     cellOptions() {
-      const sector = this.select.sector;
-      if (sector) {
-        return this.$store.getters.getCellsArray;
-      }
+      return this.$store.getters.getCellsArray;
     },
     villageOptions() {
-      const sector = this.select.sector;
       const cell = this.select.cell;
-      if (sector && cell) {
-        return Village("Kigali", "Gasabo", sector, cell);
+      if (cell) {
+        return Village("Kigali", "Gasabo", "Remera", cell);
       } else {
-        if (cell) {
-          return Village("Kigali", "Gasabo", "Remera", cell);
-        } else {
-          return [];
-        }
+        return [];
       }
     },
     activeSector() {
@@ -344,6 +364,9 @@ export default {
     checkNumber() {
       const n = this.modal.form.phone;
       return n ? isPhoneNumber(n) : null;
+    },
+    user() {
+      return this.$store.getters.userDetails;
     }
   },
   watch: {
@@ -402,12 +425,34 @@ export default {
         .then(res => {
           this.items = new Array();
           this.items = res.data.Properties;
-          console.log(this.items);
           this.loading.request = false;
         })
         .catch(err => {
-          console.log(err);
+          console.log(err.response.data.error);
         });
+    },
+    editHouse(house, index, evt) {
+      evt.preventDefault();
+      Object.defineProperty(event, "pageX", {
+        value: event.pageX - 205,
+        writable: true
+      });
+      Object.defineProperty(event, "pageY", {
+        value: event.pageY - 50,
+        writable: true
+      });
+      this.$refs.rightMenu.showMenu(evt, house);
+    },
+    showUpdateModal(data) {
+      if (data) {
+        this.updateModal.item = data.item ? data.item : {};
+        this.updateModal.option = data.option ? data.option : {};
+        this.updateModal.show = data.item ? true : false;
+      }
+    },
+    closeUpdateModal() {
+      this.loadData();
+      this.updateModal.show = false;
     },
     search_user() {
       if (!this.modal.switch) {
@@ -434,36 +479,39 @@ export default {
           })
           .catch(err => {
             this.modal.loading = false;
-            const message =
-              fname +
-              " " +
-              lname +
-              " is not registered! Do you want to register this user?";
-            this.confirm(message).then(state => {
-              if (state === true) {
-                this.modal.loading = true;
-                this.axios
-                  .post(`${this.endpoint}/owners`, {
-                    fname: fname,
-                    lname: lname,
-                    phone: phone
-                  })
-                  .then(res => {
-                    this.modal.loading = false;
-                    this.modal.switch = true;
-                    this.modal.title = "Register Property";
-                    this.modal.btnContent = "Register";
-                    this.modal.form.id = res.data.id;
-                    this.$snotify.info(
-                      `User created. proceeding to registration...`
-                    );
-                  });
-              }
-            });
+            if (navigator.onLine && err.response.status == "404") {
+              const message =
+                fname +
+                " " +
+                lname +
+                " is not registered! Do you want to register this user?";
+              this.confirm(message).then(state => {
+                if (state === true) {
+                  this.modal.loading = true;
+                  this.axios
+                    .post(`${this.endpoint}/owners`, {
+                      fname: fname,
+                      lname: lname,
+                      phone: phone
+                    })
+                    .then(res => {
+                      this.modal.loading = false;
+                      this.modal.switch = true;
+                      this.modal.title = "Register Property";
+                      this.modal.btnContent = "Register";
+                      this.modal.form.id = res.data.id;
+                      this.$snotify.info(
+                        `User created. proceeding to registration...`
+                      );
+                    });
+                }
+              });
+            } else if (!navigator.onLine) {
+              this.$snotify.info(`Please connect to the internet...`);
+            }
           });
       } else if (this.modal.switch) {
         this.modal.loading = true;
-        console.log(this.modal, this.select);
         this.axios
           .post(this.endpoint + "/properties", {
             owner: {
@@ -476,7 +524,7 @@ export default {
             },
             due: this.modal.form.due.toString(),
             occupied: true,
-            recorded_by: "6de63fec-5f4a-4867-ae4c-3f3af70c9166"
+            recorded_by: this.user.username
           })
           .then(res => {
             this.resetModal();
@@ -485,7 +533,7 @@ export default {
           })
           .catch(err => {
             this.modal.loading = false;
-            this.$snotify.error(`Property Registration Failed!`);
+            this.$snotify.info(`Property Registration Failed!`);
           });
       }
     },

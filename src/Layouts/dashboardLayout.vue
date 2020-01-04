@@ -3,7 +3,6 @@
     <div class="dashboardSidebar">
       <h1>P A Y P A C K</h1>
       <hr />
-      <!-- <center>{{activeSector.toUpperCase()}}</center> -->
       <ul class="sidebarLinks">
         <router-link to="/dashboard">
           <li>Overview</li>
@@ -41,6 +40,9 @@
         <router-link to="#">
           <li>Penalties</li>
         </router-link>
+        <router-link to="/create" v-if="user.role == 'dev'">
+          <li>Create Accounts</li>
+        </router-link>
       </ul>
       <p class="text-center powered" for="powered">
         Powered By
@@ -72,6 +74,9 @@ export default {
     },
     activeSector() {
       return this.$store.getters.getActiveSector;
+    },
+    user() {
+      return this.$store.getters.userDetails;
     }
   },
   methods: {
