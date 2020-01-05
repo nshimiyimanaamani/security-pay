@@ -26,10 +26,10 @@ func newService() invoices.Service {
 	return invoices.New(opts)
 }
 
-func TestRetrieve(t *testing.T) {
+func TestRetrieveAll(t *testing.T) {
 	svc := newService()
 
-	const op errors.Op = "app/invoices/service.Retrieve"
+	const op errors.Op = "app/invoices/service.RetrieveAll"
 
 	cases := []struct {
 		desc     string
@@ -56,9 +56,13 @@ func TestRetrieve(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		page, err := svc.Retrieve(ctx, tc.property, tc.months)
+		page, err := svc.RetrieveAll(ctx, tc.property, tc.months)
 		size := uint(len(page.Invoices))
 		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 	}
 }
+
+func TestRetrievePending(t *testing.T) {}
+
+func TestRetrievePayed(t *testing.T) {}

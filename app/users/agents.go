@@ -87,5 +87,10 @@ func (svc *service) UpdateAgent(ctx context.Context, user Agent) error {
 func (svc *service) DeleteAgent(ctx context.Context, id string) error {
 	const op errors.Op = "app/users/service.DeleteAgent"
 
+	err := svc.repo.DeleteAgent(ctx, id)
+	if err != nil {
+		errors.E(op, err)
+	}
+
 	return errors.E(op, errors.KindNotImplemented)
 }

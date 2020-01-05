@@ -179,3 +179,31 @@ func UpdateAgentDetails(lgger log.Entry, svc users.Service) http.Handler {
 
 	return http.HandlerFunc(f)
 }
+
+// DeleteAgent ...
+func DeleteAgent(lgger log.Entry, svc users.Service) http.Handler {
+	const op errors.Op = "api/http/users.UpdateAgentsDetails"
+
+	f := func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+
+		var id = vars["phone"]
+
+		err := svc.DeleteAgent(r.Context(), id)
+		if err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		res := map[string]string{"message": fmt.Sprintf("deleted user with %s", id)}
+
+		if err := encode(w, http.StatusOK, res); err != nil {
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+	}
+
+	return http.HandlerFunc(f)
+}

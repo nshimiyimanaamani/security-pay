@@ -8,7 +8,7 @@ import (
 )
 
 func (repo *userRepository) SaveAdmin(ctx context.Context, user users.Administrator) (users.Administrator, error) {
-	const op errors.Op = "users/Repository.SaveAdmin"
+	const op errors.Op = "app/users/mocks/Repository.SaveAdmin"
 
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
@@ -17,7 +17,7 @@ func (repo *userRepository) SaveAdmin(ctx context.Context, user users.Administra
 }
 
 func (repo *userRepository) RetrieveAdmin(ctx context.Context, id string) (users.Administrator, error) {
-	const op errors.Op = "users/Repository.RetrieveAdmin"
+	const op errors.Op = "app/users/mocks/Repository.RetrieveAdmin"
 
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
@@ -26,7 +26,7 @@ func (repo *userRepository) RetrieveAdmin(ctx context.Context, id string) (users
 }
 
 func (repo *userRepository) ListAdmins(ctx context.Context, offset, limit uint64) (users.AdministratorPage, error) {
-	const op errors.Op = "users/Repository.ListAdmins"
+	const op errors.Op = "app/users/mocks/Repository.ListAdmins"
 
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
@@ -35,7 +35,7 @@ func (repo *userRepository) ListAdmins(ctx context.Context, offset, limit uint64
 }
 
 func (repo *userRepository) UpdateAdminCreds(ctx context.Context, user users.Administrator) error {
-	const op errors.Op = "users/Repository.UpdateAdminCreds"
+	const op errors.Op = "app/users/mocks/Repository.UpdateAdminCreds"
 
 	repo.mu.Lock()
 	defer repo.mu.Unlock()

@@ -78,5 +78,9 @@ func (svc *service) UpdateDeveloperCreds(ctx context.Context, user Developer) er
 func (svc *service) DeleteDeveloper(ctx context.Context, id string) error {
 	const op errors.Op = "app/users/service.DeleteDeveloper"
 
-	return errors.E(op, errors.KindNotImplemented)
+	err := svc.repo.DeleteDeveloper(ctx, id)
+	if err != nil {
+		errors.E(op, err)
+	}
+	return nil
 }
