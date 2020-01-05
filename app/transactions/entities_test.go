@@ -29,7 +29,7 @@ func TestTransactionValidate(t *testing.T) {
 		{
 			desc: "validate user with valid data",
 			tx: transactions.Transaction{
-				ID: id, Amount: amount, Method: method, MadeBy: owner, MadeFor: property,
+				ID: id, Amount: amount, Method: method, OwnerID: owner, MadeFor: property,
 			},
 			err: nil,
 		},

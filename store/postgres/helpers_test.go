@@ -42,7 +42,7 @@ func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) (transactions
 
 	var empty = transactions.Transaction{}
 
-	err := db.QueryRow(q, tx.ID, tx.MadeFor, tx.MadeBy, tx.Amount, tx.Method, tx.Invoice).Scan(&tx.DateRecorded)
+	err := db.QueryRow(q, tx.ID, tx.MadeFor, tx.OwnerID, tx.Amount, tx.Method, tx.Invoice).Scan(&tx.DateRecorded)
 	if err != nil {
 		return empty, err
 	}

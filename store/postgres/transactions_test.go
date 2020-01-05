@@ -75,7 +75,7 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 
 	transaction := transactions.Transaction{
 		ID:           uuid.New().ID(),
-		MadeBy:       owner.ID,
+		OwnerID:      owner.ID,
 		MadeFor:      property.ID,
 		Amount:       invoice.Amount,
 		Method:       method,
@@ -176,7 +176,7 @@ func TestRetrieveAll(t *testing.T) {
 
 		tx := transactions.Transaction{
 			ID:           idp.ID(),
-			MadeBy:       owner.ID,
+			OwnerID:      owner.ID,
 			MadeFor:      property.ID,
 			Amount:       invoice.Amount,
 			Method:       method,
@@ -270,7 +270,7 @@ func TestRetrieveByProperty(t *testing.T) {
 
 		tx := transactions.Transaction{
 			ID:           idp.ID(),
-			MadeBy:       owner.ID,
+			OwnerID:      owner.ID,
 			MadeFor:      property.ID,
 			Amount:       invoice.Amount,
 			Invoice:      invoice.ID,
@@ -371,7 +371,7 @@ func TestRetrieveByMethod(t *testing.T) {
 
 		tx := transactions.Transaction{
 			ID:           idp.ID(),
-			MadeBy:       owner.ID,
+			OwnerID:      owner.ID,
 			MadeFor:      property.ID,
 			Amount:       invoice.Amount,
 			Invoice:      invoice.ID,
