@@ -233,6 +233,8 @@ func TestListTransactionsByProperty(t *testing.T) {
 func TestListTransactionsByPropertyR(t *testing.T) {
 	svc := newService()
 
+	t.Skip()
+
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
 		//change transaction property for half the transactiona
