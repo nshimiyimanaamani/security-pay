@@ -57,7 +57,7 @@ func (repo *txRepository) RetrieveByID(ctx context.Context, id string) (transact
 	q := `
 		SELECT 
 			transactions.id, transactions.amount, transactions.method, transactions.madefor,
-			transactions.created_at, properties.sector, properties.cell, 
+			transactions.invoice, transactions.created_at, properties.sector, properties.cell, 
 			properties.village, owners.id, owners.fname, owners.lname
 		FROM 
 			transactions
@@ -71,7 +71,7 @@ func (repo *txRepository) RetrieveByID(ctx context.Context, id string) (transact
 	var tx = transactions.Transaction{}
 
 	err := repo.QueryRow(q, id).Scan(
-		&tx.ID, &tx.Amount, &tx.Method, &tx.MadeFor, &tx.DateRecorded,
+		&tx.ID, &tx.Amount, &tx.Method, &tx.MadeFor, &tx.Invoice, &tx.DateRecorded,
 		&tx.Sector, &tx.Cell, &tx.Village, &tx.OwnerID, &tx.OwneFname, &tx.OwnerLname,
 	)
 	if err != nil {
@@ -93,7 +93,7 @@ func (repo *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit 
 	q := `
 	SELECT 
 		transactions.id, transactions.amount, transactions.method, transactions.madefor,
-		transactions.created_at, properties.sector, properties.cell, 
+		transactions.invoice, transactions.created_at, properties.sector, properties.cell, 
 		properties.village, owners.id, owners.fname, owners.lname
 	FROM 
 		transactions
@@ -117,7 +117,7 @@ func (repo *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit 
 		c := transactions.Transaction{}
 
 		if err := rows.Scan(
-			&c.ID, &c.Amount, &c.Method, &c.MadeFor, &c.DateRecorded,
+			&c.ID, &c.Amount, &c.Method, &c.MadeFor, &c.Invoice, &c.DateRecorded,
 			&c.Sector, &c.Cell, &c.Village, &c.OwnerID, &c.OwneFname, &c.OwnerLname,
 		); err != nil {
 			return empty, errors.E(op, err, errors.KindUnexpected)
