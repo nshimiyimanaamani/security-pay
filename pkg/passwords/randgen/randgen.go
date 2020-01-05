@@ -1,8 +1,15 @@
 package randgen
 
-import "github.com/rugwirobaker/paypack-backend/pkg/passwords"
+import (
+	"context"
+	"math/rand"
 
-import "context"
+	"github.com/rugwirobaker/paypack-backend/pkg/passwords"
+)
+
+const length int = 8
+
+var dict = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
 var _ (passwords.Generator) = (*randomGenerator)(nil)
 
@@ -14,5 +21,10 @@ func New() passwords.Generator {
 }
 
 func (gen *randomGenerator) Generate(ctx context.Context) string {
-	return "password"
+
+	b := make([]rune, length)
+	for i := range b {
+		b[i] = dict[rand.Intn(len(dict))]
+	}
+	return string(b)
 }

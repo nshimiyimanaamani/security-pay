@@ -150,7 +150,7 @@ func (repo *txRepository) RetrieveByProperty(ctx context.Context, property strin
 	q := `
 	SELECT 
 		transactions.id, transactions.amount, transactions.method, transactions.madefor, 
-		transactions.created_at, properties.sector, properties.cell, 
+		transactions.invoice, transactions.created_at, properties.sector, properties.cell, 
 		properties.village, owners.id, owners.fname, owners.lname
 	FROM 
 		transactions
@@ -177,7 +177,7 @@ func (repo *txRepository) RetrieveByProperty(ctx context.Context, property strin
 		c := transactions.Transaction{}
 
 		if err := rows.Scan(
-			&c.ID, &c.Amount, &c.Method, &c.MadeFor, &c.DateRecorded,
+			&c.ID, &c.Amount, &c.Method, &c.MadeFor, &c.Invoice, &c.DateRecorded,
 			&c.Sector, &c.Cell, &c.Village, &c.OwnerID, &c.OwneFname, &c.OwnerLname,
 		); err != nil {
 			return empty, errors.E(op, err, errors.KindUnexpected)
