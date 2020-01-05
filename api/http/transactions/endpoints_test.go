@@ -407,7 +407,6 @@ func TestListMethod(t *testing.T) {
 }
 
 func TestMListByProperty(t *testing.T) {
-	t.Skip()
 	svc := newService(map[string]string{token: email})
 	ts := newServer(svc)
 
