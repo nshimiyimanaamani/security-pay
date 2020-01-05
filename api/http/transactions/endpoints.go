@@ -201,7 +201,7 @@ func ListByMethod(lgger log.Entry, svc transactions.Service) http.Handler {
 
 // MListByProperty ...
 func MListByProperty(lgger log.Entry, svc transactions.Service) http.Handler {
-	const op errors.Op = "api/http/transactions.OnMobileListByProperty"
+	const op errors.Op = "api/http/transactions.MListByProperty"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
