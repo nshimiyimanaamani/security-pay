@@ -186,3 +186,42 @@ func TestListDevelopers(t *testing.T) {
 		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got '%v'\n", desc, err))
 	}
 }
+
+func TestDeleteDeveloper(t *testing.T) {
+	repo := postgres.NewUserRepository(db)
+
+	defer CleanDB(t)
+
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+
+	account, err := saveAccount(t, db, account)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	user := users.Administrator{Account: account.ID, Email: "email@example.com", Role: users.Admin}
+	saved, err := repo.SaveAdmin(context.Background(), user)
+
+	const op errors.Op = "store/postgres/userRepository.DeleteDeveloper"
+
+	cases := []struct {
+		desc string
+		id   string
+		err  error
+	}{
+		{
+			desc: "retrieve existing developer(user)",
+			id:   saved.Email,
+			err:  nil,
+		},
+		{
+			desc: "retrieve non existing developer(user)",
+			id:   "invalid",
+			err:  errors.E(op, "user not found", errors.KindNotFound),
+		},
+	}
+
+	for _, tc := range cases {
+		ctx := context.Background()
+		err := repo.DeleteDeveloper(ctx, tc.id)
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
+	}
+}

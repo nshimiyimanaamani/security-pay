@@ -186,3 +186,44 @@ func TestListManagers(t *testing.T) {
 		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got '%v'\n", desc, err))
 	}
 }
+
+func TestDeleteManager(t *testing.T) {
+	repo := postgres.NewUserRepository(db)
+
+	defer CleanDB(t)
+
+	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
+
+	account, err := saveAccount(t, db, account)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	user := users.Manager{Account: account.ID, Email: "email@example.com", Role: users.Basic}
+	saved, err := repo.SaveManager(context.Background(), user)
+
+	const op errors.Op = "store/postgres/userRepository.DeleteManager"
+
+	cases := []struct {
+		desc string
+		id   string
+		err  error
+	}{
+
+		{
+			desc: "retrieve existing manager(user)",
+			id:   saved.Email,
+			err:  nil,
+		},
+		{
+			desc: "retrieve non existing manager(user)",
+			id:   "invalid",
+			err:  errors.E(op, "user not found", errors.KindNotFound),
+		},
+	}
+
+	for _, tc := range cases {
+		ctx := context.Background()
+		err := repo.DeleteManager(ctx, tc.id)
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
+	}
+
+}

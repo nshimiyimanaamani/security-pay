@@ -77,5 +77,10 @@ func (svc *service) UpdateManagerCreds(ctx context.Context, user Manager) error 
 func (svc *service) DeleteManager(ctx context.Context, id string) error {
 	const op errors.Op = "app/users/service.DeleteManager"
 
+	err := svc.repo.DeleteManager(ctx, id)
+	if err != nil {
+		errors.E(op, err)
+	}
+
 	return errors.E(op, errors.KindNotImplemented)
 }

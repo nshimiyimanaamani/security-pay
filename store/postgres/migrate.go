@@ -72,33 +72,33 @@ func migrateDB(db *sql.DB) error {
 					);`,
 
 					`CREATE TABLE IF NOT EXISTS developers (
-						email 	VARCHAR(254) PRIMARY KEY REFERENCES users(username),
+						email 	VARCHAR(254) PRIMARY KEY,
 						role	VARCHAR(5)  NOT NULL DEFAULT('dev') check (role = 'dev'),
-						FOREIGN KEY(email, role) REFERENCES users(username, role)
+						FOREIGN KEY(email, role) REFERENCES users(username, role) ON DELETE CASCADE ON UPDATE CASCADE
 					);`,
 
 					`CREATE TABLE IF NOT EXISTS admins (
-						email 		VARCHAR(254) PRIMARY KEY REFERENCES users(username),
+						email 		VARCHAR(254) PRIMARY KEY,
 						role	 	VARCHAR(5) NOT NULL DEFAULT('admin') check (role = 'admin'),
-						FOREIGN KEY(email, role) REFERENCES users(username, role)
+						FOREIGN KEY(email, role) REFERENCES users(username, role) ON DELETE CASCADE ON UPDATE CASCADE
 					);`,
 
 					`CREATE TABLE IF NOT EXISTS managers (
-						email 		VARCHAR(254) PRIMARY KEY REFERENCES users(username),
+						email 		VARCHAR(254) PRIMARY KEY,
 						cell 		TEXT NOT NULL DEFAULT 'not set',
 						role	 	VARCHAR(5) NOT NULL DEFAULT('basic') check (role = 'basic'),
-						FOREIGN KEY(email, role) REFERENCES users(username, role)
+						FOREIGN KEY(email, role) REFERENCES users(username, role) ON DELETE CASCADE ON UPDATE CASCADE
 					);`,
 
 					`CREATE table IF NOT EXISTS agents (
-						telephone 	VARCHAR(254) PRIMARY KEY REFERENCES users(username),
+						telephone 	VARCHAR(254) PRIMARY KEY,
 						first_name 	TEXT NOT NULL DEFAULT 'not set', 
 						last_name 	TEXT NOT NULL DEFAULT 'not set',
 						cell 		VARCHAR(254) NOT NULL DEFAULT 'not set',
 						sector 		VARCHAR(254) NOT NULL DEFAULT 'not set',
 						village 	VARCHAR(254) NOT NULL DEFAULT 'not set',
 						role	 	VARCHAR(5) NOT NULL DEFAULT('agent') check (role = 'min'),
-						FOREIGN KEY(telephone, role) REFERENCES users(username, role)
+						FOREIGN KEY(telephone, role) REFERENCES users(username, role) ON DELETE CASCADE ON UPDATE CASCADE
 					);`,
 
 					`CREATE TABLE IF NOT EXISTS owners (

@@ -161,3 +161,23 @@ func (repo *userRepository) UpdateDeveloperCreds(ctx context.Context, user users
 	}
 	return nil
 }
+
+func (repo *userRepository) DeleteDeveloper(ctx context.Context, id string) error {
+	const op errors.Op = "store/postgres/userRepository.DeleteDeveloper"
+
+	q := `DELETE FROM users WHERE username=$1`
+
+	res, err := repo.Exec(q, id)
+	if err != nil {
+		return errors.E(op, err, errors.KindUnexpected)
+	}
+	cnt, err := res.RowsAffected()
+	if err != nil {
+		return errors.E(op, err, errors.KindUnexpected)
+	}
+	if cnt == 0 {
+		return errors.E(op, "user not found", errors.KindNotFound)
+	}
+
+	return nil
+}

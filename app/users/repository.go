@@ -25,6 +25,7 @@ type AgentsRepository interface {
 	ListAgents(ctx context.Context, offset, limit uint64) (AgentPage, error)
 	UpdateAgentDetails(ctx context.Context, user Agent) error
 	UpdateAgentCreds(ctx context.Context, user Agent) error
+	DeleteAgent(ctx context.Context, id string) error
 }
 
 // DevelopersRepository ...
@@ -33,6 +34,7 @@ type DevelopersRepository interface {
 	RetrieveDeveloper(ctx context.Context, id string) (Developer, error)
 	ListDevelopers(ctx context.Context, offset, limit uint64) (DeveloperPage, error)
 	UpdateDeveloperCreds(ctx context.Context, user Developer) error
+	DeleteDeveloper(ctx context.Context, id string) error
 }
 
 // ManagersRepository ...
@@ -41,4 +43,5 @@ type ManagersRepository interface {
 	RetrieveManager(ctx context.Context, id string) (Manager, error)
 	ListManagers(ctx context.Context, offset, limit uint64) (ManagerPage, error)
 	UpdateManagerCreds(ctx context.Context, user Manager) error
+	DeleteManager(ctx context.Context, id string) error
 }
