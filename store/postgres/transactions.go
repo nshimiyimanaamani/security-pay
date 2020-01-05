@@ -200,7 +200,7 @@ func (repo *txRepository) RetrieveByProperty(ctx context.Context, property strin
 			Limit:  limit,
 		},
 	}
-	return page, err
+	return page, nil
 }
 
 func (repo *txRepository) RetrieveByMethod(ctx context.Context, method string, offset, limit uint64) (transactions.TransactionPage, error) {
@@ -256,6 +256,63 @@ func (repo *txRepository) RetrieveByMethod(ctx context.Context, method string, o
 			Total:  total,
 			Offset: offset,
 			Limit:  limit,
+		},
+	}
+	return page, nil
+}
+
+func (repo *txRepository) RetrieveByPropertyR(ctx context.Context, property string) (transactions.TransactionPage, error) {
+	const op errors.Op = "store/postgres/transactionsRepository.RetrieveByProperty"
+
+	q := `
+	SELECT 
+		transactions.id, transactions.amount, transactions.method, transactions.madefor, 
+		transactions.invoice, transactions.created_at, properties.sector, properties.cell, 
+		properties.village, owners.id, owners.fname, owners.lname
+	FROM 
+		transactions
+	INNER JOIN 
+		properties ON transactions.madefor=properties.id
+	INNER JOIN 
+		owners ON transactions.madeby=owners.id 
+	WHERE 
+		transactions.madefor = $1 
+	ORDER BY transactions.id
+`
+
+	empty := transactions.TransactionPage{}
+
+	var items = []transactions.Transaction{}
+
+	rows, err := repo.Query(q, property)
+	if err != nil {
+		return empty, errors.E(op, err, errors.KindUnexpected)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		c := transactions.Transaction{}
+
+		if err := rows.Scan(
+			&c.ID, &c.Amount, &c.Method, &c.MadeFor, &c.Invoice, &c.DateRecorded,
+			&c.Sector, &c.Cell, &c.Village, &c.OwnerID, &c.OwneFname, &c.OwnerLname,
+		); err != nil {
+			return empty, errors.E(op, err, errors.KindUnexpected)
+		}
+		items = append(items, c)
+	}
+
+	q = `SELECT COUNT(*) FROM transactions WHERE madefor = $1`
+
+	var total uint64
+	if err := repo.QueryRow(q, property).Scan(&total); err != nil {
+		return empty, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	page := transactions.TransactionPage{
+		Transactions: items,
+		PageMetadata: transactions.PageMetadata{
+			Total: total,
 		},
 	}
 	return page, nil

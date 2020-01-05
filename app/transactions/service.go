@@ -41,6 +41,11 @@ type Service interface {
 	// a property identified by the given id. i.e filer by property
 	ListByProperty(ctx context.Context, p string, offset, limit uint64) (TransactionPage, error)
 
+	// ListByProperty retrieves data about a subset of transactions that belong to
+	// a property identified by the given id. i.e filer by property(Forgive for this if u are maintaing)
+	//this my standards where higher but I had to lower them to fit in
+	ListByPropertyR(ctx context.Context, p string) (TransactionPage, error)
+
 	// ListTransactionByDate retrieves data about a subset of transactions that were made using
 	// a given method.
 	ListByMethod(ctx context.Context, m string, offset, limit uint64) (TransactionPage, error)
@@ -111,6 +116,17 @@ func (svc *service) ListByProperty(ctx context.Context, p string, offset, limit 
 	const op errors.Op = "app/transactions/service.ListByProperty"
 
 	page, err := svc.repo.RetrieveByProperty(ctx, p, offset, limit)
+	if err != nil {
+		return TransactionPage{}, errors.E(op, err)
+	}
+
+	return page, nil
+}
+
+func (svc *service) ListByPropertyR(ctx context.Context, p string) (TransactionPage, error) {
+	const op errors.Op = "app/transactions/service.ListByProperty"
+
+	page, err := svc.repo.RetrieveByPropertyR(ctx, p)
 	if err != nil {
 		return TransactionPage{}, errors.E(op, err)
 	}

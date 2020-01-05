@@ -415,7 +415,7 @@ func TestMListByProperty(t *testing.T) {
 
 	data := []transactions.Transaction{}
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 10; i++ {
 		ctx := context.Background()
 		saved, err := svc.Record(ctx, transaction)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -436,22 +436,8 @@ func TestMListByProperty(t *testing.T) {
 			desc:   "get a list of transactions",
 			token:  token,
 			status: http.StatusOK,
-			url:    fmt.Sprintf("%s?property=%s&offset=%d&limit=%d", transactionURL, transaction.MadeFor, 0, 5),
-			res:    data[0:5],
-		},
-		{
-			desc:   "get a list of transactions with negative offset",
-			token:  token,
-			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s?property=%s&offset=%d&limit=%d", transactionURL, transaction.MadeFor, -1, 5),
-			res:    nil,
-		},
-		{
-			desc:   "get a list of transactions with negative limit",
-			token:  token,
-			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s?property=%s&offset=%d&limit=%d", transactionURL, transaction.MadeFor, 1, -5),
-			res:    nil,
+			url:    fmt.Sprintf("%s?property=%s", transactionURL, transaction.MadeFor),
+			res:    data[0:10],
 		},
 	}
 

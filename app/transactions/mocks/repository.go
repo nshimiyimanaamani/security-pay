@@ -120,6 +120,32 @@ func (str *transactionRepoMock) RetrieveByProperty(ctx context.Context, p string
 	return page, nil
 }
 
+func (str *transactionRepoMock) RetrieveByPropertyR(ctx context.Context, p string) (transactions.TransactionPage, error) {
+	const op errors.Op = "app/transactions/mocks/repository.RetrieveByProperty"
+
+	str.mu.Lock()
+	defer str.mu.Unlock()
+
+	items := make([]transactions.Transaction, 0)
+
+	//check whether the tranaction belongs to a given property
+	for _, v := range str.transactions {
+		if v.MadeFor == p {
+			items = append(items, v)
+		}
+	}
+
+	sort.SliceStable(items, func(i, j int) bool {
+		return items[i].ID < items[j].ID
+	})
+
+	page := transactions.TransactionPage{
+		Transactions: items,
+	}
+
+	return page, nil
+}
+
 func (str *transactionRepoMock) RetrieveByMethod(ctx context.Context, m string, offset, limit uint64) (transactions.TransactionPage, error) {
 	const op errors.Op = "app/transactions/mocks/repository.RetrieveByMethod"
 

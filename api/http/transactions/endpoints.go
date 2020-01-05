@@ -208,23 +208,7 @@ func MListByProperty(lgger log.Entry, svc transactions.Service) http.Handler {
 
 		var property = vars["property"]
 
-		offset, err := strconv.ParseUint(vars["offset"], 10, 64)
-		if err != nil {
-			err = errors.E(op, err, "invalid offset value", errors.KindBadRequest)
-			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
-			return
-		}
-
-		limit, err := strconv.ParseUint(vars["limit"], 10, 64)
-		if err != nil {
-			err = errors.E(op, err, "invalid limit value", errors.KindBadRequest)
-			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
-			return
-		}
-
-		page, err := svc.ListByProperty(r.Context(), property, offset, limit)
+		page, err := svc.ListByPropertyR(r.Context(), property)
 		if err != nil {
 			lgger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)

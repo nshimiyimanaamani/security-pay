@@ -52,6 +52,6 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		Queries("offset", "{offset}", "limit", "{limit}")
 
 	r.Handle(MListTransactionsRoute, LogEntryHandler(MListByProperty, opts)).Methods(http.MethodGet).
-		Queries("property", "{property}", "offset", "{offset}", "limit", "{limit}")
+		Queries("property", "{property}")
 
 }

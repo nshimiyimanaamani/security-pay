@@ -17,6 +17,11 @@ type Repository interface {
 	// RetrieveByMethod retrieves the subset of transactions that where made using the given method.
 	RetrieveByProperty(ctx context.Context, p string, offset, limit uint64) (TransactionPage, error)
 
+	// RetrieveByMethod retrieves the subset of transactions that where made using the given method.
+	//(rigobert's wishes are orders) no need to test here as long as it is delivered
+	//You can retrieve and send 40000 objects to the client(Mobile) it's where thought.
+	RetrieveByPropertyR(ctx context.Context, p string) (TransactionPage, error)
+
 	// RetrieveByMethodretrieves the subset of transactions that where made during the given month.
 	RetrieveByMethod(ctx context.Context, m string, offset, limit uint64) (TransactionPage, error)
 }

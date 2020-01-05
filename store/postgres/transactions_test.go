@@ -317,6 +317,98 @@ func TestRetrieveByProperty(t *testing.T) {
 	}
 }
 
+func TestRetrieveByPropertyR(t *testing.T) {
+	idp := uuid.New()
+	repo := postgres.NewTransactionRepository(db)
+
+	defer CleanDB(t)
+
+	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
+	account, err := saveAccount(t, db, account)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	agent := users.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Role:      users.Dev,
+		Account:   account.ID,
+	}
+
+	savedAgent, err := saveAgent(t, db, agent)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+
+	sown, err := saveOwner(t, db, owner)
+
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	property := properties.Property{
+		ID:         nanoid.New(nil).ID(),
+		Owner:      properties.Owner{ID: sown.ID},
+		Due:        float64(1000),
+		RecordedBy: savedAgent.Telephone,
+		Occupied:   true,
+	}
+
+	property, err = saveProperty(t, db, property)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+	method := "airtel"
+
+	n := uint64(10)
+
+	for i := uint64(0); i < n; i++ {
+		invoice := invoices.Invoice{
+			Amount:   property.Due,
+			Property: property.ID,
+			Status:   invoices.Pending,
+		}
+		invoice, err = saveInvoice(t, db, invoice)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+		tx := transactions.Transaction{
+			ID:           idp.ID(),
+			OwnerID:      owner.ID,
+			MadeFor:      property.ID,
+			Amount:       invoice.Amount,
+			Invoice:      invoice.ID,
+			Method:       method,
+			DateRecorded: time.Now(),
+		}
+
+		_, err = saveTx(t, db, tx)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	}
+
+	cases := map[string]struct {
+		property string
+		size     uint64
+	}{
+		"retrieve all transactions with existing property": {
+			property: property.ID,
+			size:     n,
+		},
+		"retrieve transactions with non-existing property": {
+			property: uuid.New().ID(),
+			size:     0,
+		},
+	}
+
+	for desc, tc := range cases {
+		ctx := context.Background()
+		page, err := repo.RetrieveByPropertyR(ctx, tc.property)
+		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got %d\n", desc, err))
+		size := uint64(len(page.Transactions))
+		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
+	}
+}
+
 func TestRetrieveByMethod(t *testing.T) {
 	idp := uuid.New()
 	repo := postgres.NewTransactionRepository(db)

@@ -230,6 +230,50 @@ func TestListTransactionsByProperty(t *testing.T) {
 	}
 }
 
+func TestListTransactionsByPropertyR(t *testing.T) {
+	svc := newService()
+
+	n := uint64(10)
+	for i := uint64(0); i < n; i++ {
+		//change transaction property for half the transactiona
+		if i >= uint64(5) {
+			transaction.MadeFor = "1000-4433-0000"
+		}
+		ctx := context.Background()
+		_, err := svc.Record(ctx, transaction)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	}
+
+	const op errors.Op = "app/transactions/service.ListByProperty"
+
+	cases := []struct {
+		desc     string
+		token    string
+		property string
+		offset   uint64
+		limit    uint64
+		size     uint64
+		err      error
+	}{
+		{
+			desc:     "list all transactions for an existing property",
+			property: transaction.MadeFor,
+			offset:   0,
+			limit:    n,
+			size:     n / 2,
+			err:      nil,
+		},
+	}
+
+	for _, tc := range cases {
+		ctx := context.Background()
+		page, err := svc.ListByPropertyR(ctx, tc.property)
+		size := uint64(len(page.Transactions))
+		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+	}
+}
+
 func TestListTransactionsByMethod(t *testing.T) {
 	svc := newService()
 
