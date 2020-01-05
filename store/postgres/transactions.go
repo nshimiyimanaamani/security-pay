@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/lib/pq"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
@@ -35,7 +34,7 @@ func (repo *txRepository) Save(ctx context.Context, tx transactions.Transaction)
 		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING created_at
 	`
 
-	err := repo.QueryRow(q, tx.ID, tx.MadeFor, tx.MadeBy, tx.Amount, tx.Method).Scan(&tx.DateRecorded)
+	err := repo.QueryRow(q, tx.ID, tx.MadeFor, tx.OwnerID, tx.Amount, tx.Method).Scan(&tx.DateRecorded)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -59,7 +58,7 @@ func (repo *txRepository) RetrieveByID(ctx context.Context, id string) (transact
 		SELECT 
 			transactions.id, transactions.amount, transactions.method, transactions.madefor,
 			transactions.created_at, properties.sector, properties.cell, 
-			properties.village, owners.fname, owners.lname
+			properties.village, owners.id, owners.fname, owners.lname
 		FROM 
 			transactions
 		INNER JOIN 
@@ -69,17 +68,11 @@ func (repo *txRepository) RetrieveByID(ctx context.Context, id string) (transact
 		WHERE transactions.id = $1
 	`
 
-	var tx = transactions.Transaction{
-		Address: make(map[string]string),
-	}
-
-	var sector, cell, village string
-
-	var fname, lname string
+	var tx = transactions.Transaction{}
 
 	err := repo.QueryRow(q, id).Scan(
 		&tx.ID, &tx.Amount, &tx.Method, &tx.MadeFor, &tx.DateRecorded,
-		&sector, &cell, &village, &fname, &lname,
+		&tx.Sector, &tx.Cell, &tx.Village, &tx.OwnerID, &tx.OwneFname, &tx.OwnerLname,
 	)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
@@ -91,14 +84,6 @@ func (repo *txRepository) RetrieveByID(ctx context.Context, id string) (transact
 		}
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
-	if sector != "" && cell != "" && village != "" {
-		tx.Address["sector"] = sector
-		tx.Address["cell"] = cell
-		tx.Address["village"] = village
-	}
-	if fname != "" && lname != "" {
-		tx.MadeBy = fmt.Sprintf("%s %s", fname, lname)
-	}
 	return tx, nil
 }
 
@@ -109,7 +94,7 @@ func (repo *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit 
 	SELECT 
 		transactions.id, transactions.amount, transactions.method, transactions.madefor,
 		transactions.created_at, properties.sector, properties.cell, 
-		properties.village, owners.fname, owners.lname
+		properties.village, owners.id, owners.fname, owners.lname
 	FROM 
 		transactions
 	INNER JOIN 
@@ -129,28 +114,15 @@ func (repo *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit 
 	defer rows.Close()
 
 	for rows.Next() {
-		c := transactions.Transaction{
-			Address: make(map[string]string),
-		}
-
-		var sector, cell, village string
-
-		var fname, lname string
+		c := transactions.Transaction{}
 
 		if err := rows.Scan(
 			&c.ID, &c.Amount, &c.Method, &c.MadeFor, &c.DateRecorded,
-			&sector, &cell, &village, &fname, &lname,
+			&c.Sector, &c.Cell, &c.Village, &c.OwnerID, &c.OwneFname, &c.OwnerLname,
 		); err != nil {
 			return empty, errors.E(op, err, errors.KindUnexpected)
 		}
-		if sector != "" && cell != "" && village != "" {
-			c.Address["sector"] = sector
-			c.Address["cell"] = cell
-			c.Address["village"] = village
-		}
-		if fname != "" && lname != "" {
-			c.MadeBy = fmt.Sprintf("%s %s", fname, lname)
-		}
+
 		items = append(items, c)
 	}
 
@@ -179,7 +151,7 @@ func (repo *txRepository) RetrieveByProperty(ctx context.Context, property strin
 	SELECT 
 		transactions.id, transactions.amount, transactions.method, transactions.madefor, 
 		transactions.created_at, properties.sector, properties.cell, 
-		properties.village, owners.fname, owners.lname
+		properties.village, owners.id, owners.fname, owners.lname
 	FROM 
 		transactions
 	INNER JOIN 
@@ -202,26 +174,13 @@ func (repo *txRepository) RetrieveByProperty(ctx context.Context, property strin
 	defer rows.Close()
 
 	for rows.Next() {
-		c := transactions.Transaction{
-			Address: make(map[string]string),
-		}
-		var sector, cell, village string
-
-		var fname, lname string
+		c := transactions.Transaction{}
 
 		if err := rows.Scan(
 			&c.ID, &c.Amount, &c.Method, &c.MadeFor, &c.DateRecorded,
-			&sector, &cell, &village, &fname, &lname,
+			&c.Sector, &c.Cell, &c.Village, &c.OwnerID, &c.OwneFname, &c.OwnerLname,
 		); err != nil {
 			return empty, errors.E(op, err, errors.KindUnexpected)
-		}
-		if sector != "" && cell != "" && village != "" {
-			c.Address["sector"] = sector
-			c.Address["cell"] = cell
-			c.Address["village"] = village
-		}
-		if fname != "" && lname != "" {
-			c.MadeBy = fmt.Sprintf("%s %s", fname, lname)
 		}
 		items = append(items, c)
 	}
@@ -251,7 +210,7 @@ func (repo *txRepository) RetrieveByMethod(ctx context.Context, method string, o
 		SELECT 
 			transactions.id,transactions.amount, transactions.method, transactions.madefor,
 			transactions.created_at, properties.sector, properties.cell, 
-			properties.village, owners.fname, owners.lname
+			properties.village, owners.id, owners.fname, owners.lname
 		FROM 
 			transactions
 		INNER JOIN 
@@ -273,26 +232,13 @@ func (repo *txRepository) RetrieveByMethod(ctx context.Context, method string, o
 	defer rows.Close()
 
 	for rows.Next() {
-		c := transactions.Transaction{
-			Address: make(map[string]string),
-		}
-		var sector, cell, village string
-
-		var fname, lname string
+		c := transactions.Transaction{}
 
 		if err := rows.Scan(
 			&c.ID, &c.Amount, &c.Method, &c.MadeFor, &c.DateRecorded,
-			&sector, &cell, &village, &fname, &lname,
+			&c.Sector, &c.Cell, &c.Village, &c.OwnerID, &c.OwneFname, &c.OwnerLname,
 		); err != nil {
 			return empty, errors.E(op, err, errors.KindUnexpected)
-		}
-		if sector != "" && cell != "" && village != "" {
-			c.Address["sector"] = sector
-			c.Address["cell"] = cell
-			c.Address["village"] = village
-		}
-		if fname != "" && lname != "" {
-			c.MadeBy = fmt.Sprintf("%s %s", fname, lname)
 		}
 		items = append(items, c)
 	}

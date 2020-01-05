@@ -30,7 +30,7 @@ const (
 
 var (
 	contentType = "application/json"
-	transaction = transactions.Transaction{Amount: 1000.00, Method: "BK", MadeFor: "1000-4433-3343", MadeBy: "1000-4433-3343"}
+	transaction = transactions.Transaction{Amount: 1000.00, Method: "BK", MadeFor: "1000-4433-3343", OwnerID: "1000-4433-3343"}
 )
 
 type testRequest struct {
@@ -99,7 +99,7 @@ func TestRecord(t *testing.T) {
 	}{
 		{
 			desc:        "record a valid transaction",
-			req:         toJSON(transactions.Transaction{ID: id, Amount: 100, Method: "bk", MadeFor: "1000", MadeBy: "1000"}),
+			req:         toJSON(transactions.Transaction{ID: id, Amount: 100, Method: "bk", MadeFor: "1000", OwnerID: "1000"}),
 			contentType: contentType,
 			token:       token,
 			status:      http.StatusCreated,
@@ -133,7 +133,7 @@ func TestRecord(t *testing.T) {
 		},
 		{
 			desc:        "record transaction with missing content type",
-			req:         toJSON(transactions.Transaction{ID: id, Amount: 100, Method: "bk", MadeFor: "1000", MadeBy: "1000"}),
+			req:         toJSON(transactions.Transaction{ID: id, Amount: 100, Method: "bk", MadeFor: "1000", OwnerID: "1000"}),
 			contentType: "",
 			token:       token,
 			status:      http.StatusUnsupportedMediaType,
@@ -336,7 +336,7 @@ func TestListByProperty(t *testing.T) {
 		var data transactions.TransactionPage
 		json.NewDecoder(res.Body).Decode(&data)
 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code '%d' got '%d'", tc.desc, tc.status, res.StatusCode))
-		assert.ElementsMatch(t, tc.res, data.Transactions, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Transactions))
+		assert.ElementsMatch(t, tc.res, data.Transactions, fmt.Sprintf("%s: expected body '%v' got '%v'", tc.desc, tc.res, data.Transactions))
 	}
 }
 
@@ -403,5 +403,72 @@ func TestListMethod(t *testing.T) {
 		json.NewDecoder(res.Body).Decode(&data)
 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
 		assert.ElementsMatch(t, tc.res, data.Transactions, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Transactions))
+	}
+}
+
+func TestMListByProperty(t *testing.T) {
+	t.Skip()
+	svc := newService(map[string]string{token: email})
+	ts := newServer(svc)
+
+	defer ts.Close()
+	client := ts.Client()
+
+	data := []transactions.Transaction{}
+
+	for i := 0; i < 100; i++ {
+		ctx := context.Background()
+		saved, err := svc.Record(ctx, transaction)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+
+		data = append(data, saved)
+	}
+
+	transactionURL := fmt.Sprintf("%s/mobile/transactions", ts.URL)
+
+	cases := []struct {
+		desc   string
+		token  string
+		status int
+		url    string
+		res    []transactions.Transaction
+	}{
+		{
+			desc:   "get a list of transactions",
+			token:  token,
+			status: http.StatusOK,
+			url:    fmt.Sprintf("%s?property=%s&offset=%d&limit=%d", transactionURL, transaction.MadeFor, 0, 5),
+			res:    data[0:5],
+		},
+		{
+			desc:   "get a list of transactions with negative offset",
+			token:  token,
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s?property=%s&offset=%d&limit=%d", transactionURL, transaction.MadeFor, -1, 5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of transactions with negative limit",
+			token:  token,
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s?property=%s&offset=%d&limit=%d", transactionURL, transaction.MadeFor, 1, -5),
+			res:    nil,
+		},
+	}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client: client,
+			method: http.MethodGet,
+			token:  tc.token,
+			url:    tc.url,
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		var data []transactions.Transaction
+		json.NewDecoder(res.Body).Decode(&data)
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.ElementsMatch(t, tc.res, data, fmt.Sprintf("%s: expected body '%v' got '%v'", tc.desc, tc.res, data))
 	}
 }

@@ -17,7 +17,7 @@ var transaction = transactions.Transaction{
 	Amount:  1000.00,
 	Method:  "bk",
 	MadeFor: "1000-4433-3343",
-	MadeBy:  "1000-4433-3343",
+	OwnerID: "1000-4433-3343",
 }
 
 func newService() transactions.Service {
