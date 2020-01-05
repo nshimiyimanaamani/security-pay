@@ -41,7 +41,13 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 	r.Handle(RetrieveInvoicesRoute, LogEntryHandler(Retrieve, opts)).Methods(http.MethodGet).
 		Queries("property", "{property}", "months", "{months}")
 
-	r.Handle(RetrieveInvoiceOnMobileRoute, LogEntryHandler(OnMobileRetrieve, opts)).Methods(http.MethodGet).
+	r.Handle(MRetrieveAllInvoiceRoute, LogEntryHandler(MRetrieveAll, opts)).Methods(http.MethodGet).
+		Queries("property", "{property}", "months", "{months}")
+
+	r.Handle(MRetrievePendingInvoiceRoute, LogEntryHandler(MRetrievePending, opts)).Methods(http.MethodGet).
+		Queries("property", "{property}", "months", "{months}")
+
+	r.Handle(MRetrievePayedInvoiceRoute, LogEntryHandler(MRetrievePayed, opts)).Methods(http.MethodGet).
 		Queries("property", "{property}", "months", "{months}")
 
 }
