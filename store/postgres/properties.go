@@ -13,7 +13,7 @@ import (
 var _ (properties.Repository) = (*propertiesStore)(nil)
 
 type propertiesStore struct {
-	db *sql.DB
+	*sql.DB
 }
 
 // NewPropertyStore instanctiates a new transactiob store interface
@@ -21,14 +21,25 @@ func NewPropertyStore(db *sql.DB) properties.Repository {
 	return &propertiesStore{db}
 }
 
-func (str *propertiesStore) Save(ctx context.Context, pro properties.Property) (properties.Property, error) {
+func (repo *propertiesStore) Save(ctx context.Context, pro properties.Property) (properties.Property, error) {
 	const op errors.Op = "store/postgres/propertiesStore.Save"
 
-	q := `INSERT INTO properties (id, owner, due, sector, cell, village, recorded_by, occupied) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+	q := `
+		INSERT INTO properties (
+			id, 
+			owner, 
+			due, 
+			sector, 
+			cell, 
+			village, 
+			recorded_by, 
+			occupied
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING created_at, updated_at`
 
 	empty := properties.Property{}
 
-	_, err := str.db.Exec(q, pro.ID, pro.Owner.ID, pro.Due, pro.Address.Sector, pro.Address.Cell, pro.Address.Village, pro.RecordedBy, pro.Occupied)
+	err := repo.QueryRow(q, pro.ID, pro.Owner.ID, pro.Due, pro.Address.Sector,
+		pro.Address.Cell, pro.Address.Village, pro.RecordedBy, pro.Occupied).Scan(&pro.CreatedAt, &pro.UpdatedAt)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -45,12 +56,12 @@ func (str *propertiesStore) Save(ctx context.Context, pro properties.Property) (
 	return pro, nil
 }
 
-func (str *propertiesStore) UpdateProperty(ctx context.Context, pro properties.Property) error {
+func (repo *propertiesStore) UpdateProperty(ctx context.Context, pro properties.Property) error {
 	const op errors.Op = "store/postgres/propertiesStore.UpdateProperty"
 
 	q := `UPDATE properties SET owner=$1, due=$2, occupied=$3, for_rent=$4 WHERE id=$5;`
 
-	res, err := str.db.Exec(q, pro.Owner.ID, pro.Due, pro.ForRent, pro.Occupied, pro.ID)
+	res, err := repo.Exec(q, pro.Owner.ID, pro.Due, pro.ForRent, pro.Occupied, pro.ID)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -72,15 +83,15 @@ func (str *propertiesStore) UpdateProperty(ctx context.Context, pro properties.P
 	return nil
 }
 
-func (str *propertiesStore) RetrieveByID(ctx context.Context, id string) (properties.Property, error) {
+func (repo *propertiesStore) RetrieveByID(ctx context.Context, id string) (properties.Property, error) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveByID"
 
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell,  
 			properties.village, properties.due, properties.recorded_by,
-			properties.occupied, properties.for_rent,
-			owners.id, owners.fname, owners.lname, owners.phone
+			properties.occupied, properties.for_rent, properties.created_at, 
+			properties.updated_at, owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
 		INNER JOIN 
@@ -90,10 +101,10 @@ func (str *propertiesStore) RetrieveByID(ctx context.Context, id string) (proper
 
 	var prt = properties.Property{}
 
-	if err := str.db.QueryRow(q, id).Scan(
+	if err := repo.QueryRow(q, id).Scan(
 		&prt.ID, &prt.Address.Sector, &prt.Address.Cell, &prt.Address.Village,
-		&prt.Due, &prt.RecordedBy, &prt.Occupied, &prt.ForRent, &prt.Owner.ID,
-		&prt.Owner.Fname, &prt.Owner.Lname, &prt.Owner.Phone,
+		&prt.Due, &prt.RecordedBy, &prt.Occupied, &prt.ForRent, &prt.CreatedAt, &prt.UpdatedAt,
+		&prt.Owner.ID, &prt.Owner.Fname, &prt.Owner.Lname, &prt.Owner.Phone,
 	); err != nil {
 		empty := properties.Property{}
 
@@ -107,14 +118,14 @@ func (str *propertiesStore) RetrieveByID(ctx context.Context, id string) (proper
 	return prt, nil
 }
 
-func (str *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, offset, limit uint64) (properties.PropertyPage, error) {
+func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, offset, limit uint64) (properties.PropertyPage, error) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveByOwner"
 
 	q := `SELECT 
 			properties.id, properties.sector, properties.cell, 
 			properties.village, properties.due, properties.recorded_by,
-			properties.occupied, properties.for_rent,
-			owners.id, owners.fname, owners.lname, owners.phone
+			properties.occupied, properties.for_rent, properties.created_at,
+			properties.updated_at, owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
 		INNER JOIN
@@ -125,7 +136,7 @@ func (str *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, o
 
 	var items = []properties.Property{}
 
-	rows, err := str.db.Query(q, owner, limit, offset)
+	rows, err := repo.Query(q, owner, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -136,7 +147,7 @@ func (str *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, o
 
 		if err := rows.Scan(
 			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
-			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent,
+			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent, &c.CreatedAt, &c.UpdatedAt,
 			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
@@ -148,7 +159,7 @@ func (str *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, o
 	q = `SELECT COUNT(*) FROM properties WHERE owner = $1`
 
 	var total uint64
-	if err := str.db.QueryRow(q, owner).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, owner).Scan(&total); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -163,15 +174,15 @@ func (str *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, o
 	return page, nil
 }
 
-func (str *propertiesStore) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64) (properties.PropertyPage, error) {
+func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64) (properties.PropertyPage, error) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveBySector"
 
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
 			properties.village, properties.due, properties.recorded_by, 
-			properties.occupied, properties.for_rent,
-			owners.id, owners.fname, owners.lname, owners.phone
+			properties.occupied, properties.for_rent, properties.created_at,
+			properties.updated_at, owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
 		INNER JOIN
@@ -182,7 +193,7 @@ func (str *propertiesStore) RetrieveBySector(ctx context.Context, sector string,
 
 	var items = []properties.Property{}
 
-	rows, err := str.db.Query(q, sector, limit, offset)
+	rows, err := repo.Query(q, sector, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -193,7 +204,7 @@ func (str *propertiesStore) RetrieveBySector(ctx context.Context, sector string,
 
 		if err := rows.Scan(
 			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
-			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent,
+			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent, &c.CreatedAt, &c.UpdatedAt,
 			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
@@ -205,7 +216,7 @@ func (str *propertiesStore) RetrieveBySector(ctx context.Context, sector string,
 	q = `SELECT COUNT(*) FROM properties WHERE sector = $1`
 
 	var total uint64
-	if err := str.db.QueryRow(q, sector).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, sector).Scan(&total); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -220,15 +231,15 @@ func (str *propertiesStore) RetrieveBySector(ctx context.Context, sector string,
 	return page, nil
 }
 
-func (str *propertiesStore) RetrieveByCell(ctx context.Context, cell string, offset, limit uint64) (properties.PropertyPage, error) {
+func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, offset, limit uint64) (properties.PropertyPage, error) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveByCell"
 
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
 			properties.village, properties.due, properties.recorded_by, 
-			properties.occupied, properties.for_rent,
-			owners.id, owners.fname, owners.lname, owners.phone
+			properties.occupied, properties.for_rent, properties.created_at,
+			properties.updated_at, owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
 		INNER JOIN
@@ -238,7 +249,7 @@ func (str *propertiesStore) RetrieveByCell(ctx context.Context, cell string, off
 
 	var items = []properties.Property{}
 
-	rows, err := str.db.Query(q, cell, limit, offset)
+	rows, err := repo.Query(q, cell, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -249,7 +260,7 @@ func (str *propertiesStore) RetrieveByCell(ctx context.Context, cell string, off
 
 		if err := rows.Scan(
 			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
-			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent,
+			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent, &c.CreatedAt, &c.UpdatedAt,
 			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
@@ -261,7 +272,7 @@ func (str *propertiesStore) RetrieveByCell(ctx context.Context, cell string, off
 	q = `SELECT COUNT(*) FROM properties WHERE cell = $1`
 
 	var total uint64
-	if err := str.db.QueryRow(q, cell).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, cell).Scan(&total); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -276,15 +287,15 @@ func (str *propertiesStore) RetrieveByCell(ctx context.Context, cell string, off
 	return page, nil
 }
 
-func (str *propertiesStore) RetrieveByVillage(ctx context.Context, village string, offset, limit uint64) (properties.PropertyPage, error) {
+func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village string, offset, limit uint64) (properties.PropertyPage, error) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveByVillage"
 
 	q := `
 		SELECT 
 			properties.id, properties.sector, properties.cell, 
 			properties.village, properties.due, properties.recorded_by, 
-			properties.occupied, properties.for_rent,
-			owners.id, owners.fname, owners.lname, owners.phone
+			properties.occupied, properties.for_rent, properties.created_at,
+			properties.updated_at, owners.id, owners.fname, owners.lname, owners.phone
 		FROM 
 			properties
 		INNER JOIN
@@ -294,7 +305,7 @@ func (str *propertiesStore) RetrieveByVillage(ctx context.Context, village strin
 
 	var items = []properties.Property{}
 
-	rows, err := str.db.Query(q, village, limit, offset)
+	rows, err := repo.Query(q, village, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -305,7 +316,7 @@ func (str *propertiesStore) RetrieveByVillage(ctx context.Context, village strin
 
 		if err := rows.Scan(
 			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
-			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent,
+			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent, &c.CreatedAt, &c.UpdatedAt,
 			&c.Owner.ID, &c.Owner.Lname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
@@ -317,7 +328,7 @@ func (str *propertiesStore) RetrieveByVillage(ctx context.Context, village strin
 	q = `SELECT COUNT(*) FROM properties WHERE village = $1`
 
 	var total uint64
-	if err := str.db.QueryRow(q, village).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, village).Scan(&total); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 

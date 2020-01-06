@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gorilla/mux"
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
@@ -199,7 +200,7 @@ func TestUpdateProperty(t *testing.T) {
 
 	ctx := context.Background()
 	saved, err := svc.RegisterProperty(ctx, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	res := Property{
 		ID:    saved.ID,
@@ -302,6 +303,8 @@ func TestRetrieveProperty(t *testing.T) {
 	defer ts.Close()
 	client := ts.Client()
 
+	now := time.Now()
+
 	property := properties.Property{
 		Owner: owner,
 		Address: properties.Address{
@@ -312,11 +315,13 @@ func TestRetrieveProperty(t *testing.T) {
 		Due:        float64(1000),
 		RecordedBy: uuid.New().ID(),
 		Occupied:   true,
+		CreatedAt:  now,
+		UpdatedAt:  now,
 	}
 
 	ctx := context.Background()
 	saved, err := svc.RegisterProperty(ctx, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	res := Property{
 		ID:    saved.ID,
@@ -329,6 +334,8 @@ func TestRetrieveProperty(t *testing.T) {
 		},
 		RecordedBy: saved.RecordedBy,
 		Occupied:   saved.Occupied,
+		CreatedAt:  saved.CreatedAt,
+		UpdatedAt:  saved.UpdatedAt,
 	}
 
 	cases := []struct {
@@ -404,7 +411,7 @@ func TestListPropertiesByOwner(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
 		saved, err := svc.RegisterProperty(ctx, property)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		res := Property{
 			ID:    saved.ID,
@@ -497,7 +504,7 @@ func TestListPropertiesByCell(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
 		saved, err := svc.RegisterProperty(ctx, property)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		res := Property{
 			ID:    saved.ID,
@@ -589,7 +596,7 @@ func TestListPropertiesBySector(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
 		saved, err := svc.RegisterProperty(ctx, property)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		res := Property{
 			ID:    saved.ID,
@@ -682,7 +689,7 @@ func TestListPropertiesByVillage(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
 		saved, err := svc.RegisterProperty(ctx, property)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		res := Property{
 			ID:    saved.ID,
@@ -745,12 +752,14 @@ func TestListPropertiesByVillage(t *testing.T) {
 }
 
 type Property struct {
-	ID         string  `json:"id,omitempty"`
-	Due        float64 `json:"due,string,omitempty"`
-	Owner      Owner   `json:"owner,omitempty"`
-	Address    Address `json:"address,omitempty"`
-	Occupied   bool    `json:"occupied,omitempty"`
-	RecordedBy string  `json:"recorded_by,omitempty"`
+	ID         string    `json:"id,omitempty"`
+	Due        float64   `json:"due,string,omitempty"`
+	Owner      Owner     `json:"owner,omitempty"`
+	Address    Address   `json:"address,omitempty"`
+	Occupied   bool      `json:"occupied,omitempty"`
+	RecordedBy string    `json:"recorded_by,omitempty"`
+	CreatedAt  time.Time `json:"created_at,omitempty"`
+	UpdatedAt  time.Time `json:"updated_at,omitempty"`
 }
 
 type Address struct {

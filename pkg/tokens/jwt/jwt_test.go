@@ -29,7 +29,7 @@ func TestIdentity(t *testing.T) {
 	creds := auth.Credentials{Username: id, Role: role, Account: account}
 
 	token, err := idp.TemporaryKey(context.Background(), creds)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "pkg/tokens/jwt.Identidy"
 
@@ -44,6 +44,6 @@ func TestIdentity(t *testing.T) {
 
 	for _, tc := range cases {
 		_, err := idp.Identity(context.Background(), tc.key)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }

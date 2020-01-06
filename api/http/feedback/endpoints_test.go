@@ -176,7 +176,7 @@ func TestRetrieve(t *testing.T) {
 	msg := feedback.Message{Title: "title", Body: "body", Creator: "0784677882"}
 
 	saved, err := svc.Record(ctx, &msg)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	expected := msgRes{
 		ID:        saved.ID,
@@ -247,7 +247,7 @@ func TestDelete(t *testing.T) {
 	msg := feedback.Message{Title: "title", Body: "body", Creator: "0784677882"}
 
 	saved, err := svc.Record(ctx, &msg)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 	notFoundRes := toJSON(errRes{"message entity not found"})
 
 	expected := toJSON(map[string]string{"message": "message deleted"})
@@ -308,7 +308,7 @@ func TestUpdate(t *testing.T) {
 	msg := feedback.Message{Title: "title", Body: "body", Creator: "0784677882"}
 
 	saved, err := svc.Record(ctx, &msg)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	res := msgRes{
 		ID:        saved.ID,

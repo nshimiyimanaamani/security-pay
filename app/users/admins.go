@@ -2,7 +2,6 @@ package users
 
 import (
 	"context"
-	"time"
 
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
@@ -23,9 +22,6 @@ func (svc *service) RegisterAdmin(ctx context.Context, user Administrator) (Admi
 	user.Password = password
 
 	user.Role = Admin
-
-	now := time.Now()
-	user.CreatedAt, user.UpdatedAt = now, now
 
 	user, err = svc.repo.SaveAdmin(ctx, user)
 	if err != nil {
@@ -58,8 +54,6 @@ func (svc *service) UpdateAdminCreds(ctx context.Context, user Administrator) er
 	if user.Password == "" {
 		return errors.E(op, "invalid user: missing password", errors.KindBadRequest)
 	}
-
-	user.UpdatedAt = time.Now()
 
 	password, err := svc.hasher.Hash(user.Password)
 	if err != nil {

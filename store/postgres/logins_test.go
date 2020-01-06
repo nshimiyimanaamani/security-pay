@@ -21,7 +21,7 @@ func TestLoginRetrieve(t *testing.T) {
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	user := users.Agent{Telephone: "0780456000", Password: "password", Role: users.Min, Account: account.ID}
 	saved, err := saveAgent(t, db, user)

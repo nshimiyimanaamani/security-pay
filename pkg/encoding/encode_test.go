@@ -22,7 +22,7 @@ func TestEncode(t *testing.T) {
 
 	ctx := context.Background()
 	b, err := encoding.Encode(ctx, ts)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 	assert.NotNil(t, b, fmt.Sprintf("response bytes should not be nil"))
 
 }
@@ -35,5 +35,5 @@ func TestDecode(t *testing.T) {
 
 	var v testStruct
 	err := encoding.Decode(ctx, b, &v)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 }

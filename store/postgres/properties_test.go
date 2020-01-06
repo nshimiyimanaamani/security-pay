@@ -24,7 +24,7 @@ func TestSaveProperty(t *testing.T) {
 	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -39,12 +39,12 @@ func TestSaveProperty(t *testing.T) {
 	}
 
 	savedAgent, err := saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	owner, err = saveOwner(t, db, owner)
 
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	new := properties.Property{
 		ID:         nanoid.New(nil).ID(),
@@ -104,7 +104,7 @@ func TestUpdateProperty(t *testing.T) {
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -119,12 +119,12 @@ func TestUpdateProperty(t *testing.T) {
 	}
 
 	savedAgent, err := saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 
 	owner, err = saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
@@ -142,7 +142,7 @@ func TestUpdateProperty(t *testing.T) {
 
 	ctx := context.Background()
 	sp, err := props.Save(ctx, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres/propertiesStore.UpdateProperty"
 
@@ -189,7 +189,7 @@ func TestUpdateProperty(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		err := props.UpdateProperty(ctx, tc.property)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got '%v'\n", tc.desc, tc.err, err))
 	}
 
 }
@@ -202,7 +202,7 @@ func TestRetrieveByID(t *testing.T) {
 	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
 
 	savedAccount, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -217,11 +217,11 @@ func TestRetrieveByID(t *testing.T) {
 	}
 
 	savedAgent, err := saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	sown, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
@@ -266,7 +266,7 @@ func TestRetrieveByID(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := props.RetrieveByID(ctx, tc.id)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %v got '%v'\n", tc.desc, tc.err, err))
 	}
 
 }
@@ -279,7 +279,7 @@ func TestRetrieveByOwner(t *testing.T) {
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	savedAccount, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -294,11 +294,11 @@ func TestRetrieveByOwner(t *testing.T) {
 	}
 
 	savedAgent, err := saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	saved, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	sector := "Nyarugenge"
 	cell := "Kacyiru"
@@ -322,7 +322,7 @@ func TestRetrieveByOwner(t *testing.T) {
 
 		ctx := context.Background()
 		_, err := props.Save(ctx, p)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 	}
 
 	cases := map[string]struct {
@@ -361,7 +361,7 @@ func TestRetrieveByOwner(t *testing.T) {
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
-		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got %d\n", desc, err))
+		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got '%v'\n", desc, err))
 	}
 }
 
@@ -373,7 +373,7 @@ func TestRetrieveBySector(t *testing.T) {
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	savedAccount, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -388,11 +388,11 @@ func TestRetrieveBySector(t *testing.T) {
 	}
 
 	savedAgent, err := saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	saved, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	sector := "Gasabo"
 	cell := "Kacyiru"
@@ -416,7 +416,7 @@ func TestRetrieveBySector(t *testing.T) {
 
 		ctx := context.Background()
 		_, err := props.Save(ctx, p)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 	}
 	cases := map[string]struct {
 		sector string
@@ -454,7 +454,7 @@ func TestRetrieveBySector(t *testing.T) {
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
-		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got %d\n", desc, err))
+		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got '%v'\n", desc, err))
 	}
 }
 
@@ -466,7 +466,7 @@ func TestRetrieveByCell(t *testing.T) {
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	savedAccount, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -481,11 +481,11 @@ func TestRetrieveByCell(t *testing.T) {
 	}
 
 	savedAgent, err := saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	saved, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	sector := "Gasate"
 	cell := "Gasaka"
@@ -509,7 +509,7 @@ func TestRetrieveByCell(t *testing.T) {
 
 		ctx := context.Background()
 		_, err := props.Save(ctx, p)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	}
 	cases := map[string]struct {
@@ -548,7 +548,7 @@ func TestRetrieveByCell(t *testing.T) {
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
-		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got %d\n", desc, err))
+		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got '%v'\n", desc, err))
 	}
 }
 
@@ -560,7 +560,7 @@ func TestRetrieveByVillage(t *testing.T) {
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	savedAccount, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -575,11 +575,11 @@ func TestRetrieveByVillage(t *testing.T) {
 	}
 
 	savedAgent, err := saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	saved, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	sector := "Kigomna"
 	cell := "Kigeme"
@@ -603,7 +603,7 @@ func TestRetrieveByVillage(t *testing.T) {
 
 		ctx := context.Background()
 		_, err := props.Save(ctx, p)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	}
 
@@ -643,6 +643,6 @@ func TestRetrieveByVillage(t *testing.T) {
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
-		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got %d\n", desc, err))
+		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got '%v'\n", desc, err))
 	}
 }

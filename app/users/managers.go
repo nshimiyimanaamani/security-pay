@@ -2,7 +2,6 @@ package users
 
 import (
 	"context"
-	"time"
 
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
@@ -15,9 +14,6 @@ func (svc *service) RegisterManager(ctx context.Context, user Manager) (Manager,
 	}
 
 	user.Role = Basic
-
-	now := time.Now()
-	user.CreatedAt, user.UpdatedAt = now, now
 
 	plain := svc.pgen.Generate(ctx)
 
@@ -65,8 +61,6 @@ func (svc *service) UpdateManagerCreds(ctx context.Context, user Manager) error 
 		return errors.E(op, err)
 	}
 	user.Password = password
-
-	user.UpdatedAt = time.Now()
 
 	if err := svc.repo.UpdateManagerCreds(ctx, user); err != nil {
 		return errors.E(op, err)

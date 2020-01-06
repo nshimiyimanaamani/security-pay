@@ -21,11 +21,17 @@ func NewAccountRepository(db *sql.DB) accounts.Repository {
 func (repo *accountRepository) Save(ctx context.Context, acc accounts.Account) (accounts.Account, error) {
 	const op errors.Op = "store/postgres.accountRepository.Save"
 
-	q := `INSERT INTO accounts (id, name, type, seats, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;`
+	q := `
+		INSERT INTO accounts (
+			id, 
+			name, 
+			type, 
+			seats
+		) VALUES ($1, $2, $3, $4) RETURNING created_at, updated_at;`
 
 	empty := accounts.Account{}
 
-	_, err := repo.Exec(q, acc.ID, acc.Name, acc.Type, acc.NumberOfSeats, acc.CreatedAt, acc.UpdatedAt)
+	err := repo.QueryRow(q, acc.ID, acc.Name, acc.Type, acc.NumberOfSeats).Scan(&acc.CreatedAt, &acc.UpdatedAt)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {

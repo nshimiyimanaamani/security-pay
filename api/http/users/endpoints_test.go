@@ -149,7 +149,7 @@ package users_test
 // 	unsupportedContentRes := toJSON(errRes{"unsupported content type"})
 
 // 	_, err := svc.Register(user)
-// 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+// 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 // 	cases := []struct {
 // 		desc        string

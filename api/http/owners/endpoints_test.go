@@ -172,7 +172,7 @@ func TestRetrieve(t *testing.T) {
 	ctx := context.Background()
 
 	saved, err := svc.Register(ctx, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	data := toJSON(Owner{
 		Fname: saved.Fname,
@@ -248,7 +248,7 @@ func TestUpdate(t *testing.T) {
 	ctx := context.Background()
 
 	saved, err := svc.Register(ctx, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	data := toJSON(Owner{
 		Fname: saved.Fname,
@@ -353,7 +353,7 @@ func TestList(t *testing.T) {
 		ctx := context.Background()
 
 		saved, err := svc.Register(ctx, owner)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		ow := Owner{
 			ID:    saved.ID,
@@ -409,7 +409,7 @@ func TestSearch(t *testing.T) {
 
 	ctx := context.Background()
 	saved, err := svc.Register(ctx, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	res := Owner{
 		ID:    saved.ID,
@@ -483,7 +483,7 @@ func TestRetrieveByPhone(t *testing.T) {
 
 	ctx := context.Background()
 	saved, err := svc.Register(ctx, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	res := Owner{
 		ID:    saved.ID,

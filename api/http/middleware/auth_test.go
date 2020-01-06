@@ -29,7 +29,7 @@ func TestAuthenticate(t *testing.T) {
 	svc := newService()
 
 	token, err := svc.Login(context.Background(), user)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	h := func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

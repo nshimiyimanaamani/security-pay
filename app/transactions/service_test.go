@@ -65,7 +65,7 @@ func TestRetrieveTransaction(t *testing.T) {
 
 	ctx := context.Background()
 	transaction, err := svc.Record(ctx, transaction)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "app/transactions/service.Retrieve"
 
@@ -101,7 +101,7 @@ func TestListTransactions(t *testing.T) {
 	for i := uint64(0); i < n; i++ {
 		ctx := context.Background()
 		_, err := svc.Record(ctx, transaction)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	}
 
@@ -157,7 +157,7 @@ func TestListTransactions(t *testing.T) {
 		page, err := svc.List(ctx, tc.offset, tc.limit)
 		size := uint64(len(page.Transactions))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }
 
@@ -172,7 +172,7 @@ func TestListTransactionsByProperty(t *testing.T) {
 		}
 		ctx := context.Background()
 		_, err := svc.Record(ctx, transaction)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 	}
 
 	const op errors.Op = "app/transactions/service.ListByProperty"
@@ -226,7 +226,7 @@ func TestListTransactionsByProperty(t *testing.T) {
 		page, err := svc.ListByProperty(ctx, tc.property, tc.offset, tc.limit)
 		size := uint64(len(page.Transactions))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }
 
@@ -243,7 +243,7 @@ func TestListTransactionsByPropertyR(t *testing.T) {
 		}
 		ctx := context.Background()
 		_, err := svc.Record(ctx, transaction)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 	}
 
 	const op errors.Op = "app/transactions/service.ListByProperty"
@@ -272,7 +272,7 @@ func TestListTransactionsByPropertyR(t *testing.T) {
 		page, err := svc.ListByPropertyR(ctx, tc.property)
 		size := uint64(len(page.Transactions))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }
 
@@ -287,7 +287,7 @@ func TestListTransactionsByMethod(t *testing.T) {
 		}
 		ctx := context.Background()
 		_, err := svc.Record(ctx, transaction)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 	}
 
 	const op errors.Op = "app/transactions/service.ListByMethod"
@@ -341,6 +341,6 @@ func TestListTransactionsByMethod(t *testing.T) {
 		page, err := svc.ListByMethod(ctx, tc.method, tc.offset, tc.limit)
 		size := uint64(len(page.Transactions))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }

@@ -24,7 +24,7 @@ func TestListAll(t *testing.T) {
 	// save account
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	// save agent
 	agent := users.Agent{
@@ -39,12 +39,12 @@ func TestListAll(t *testing.T) {
 		Account:   account.ID,
 	}
 	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	//save owner
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	sown, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	//save property
 	property := properties.Property{
@@ -60,7 +60,7 @@ func TestListAll(t *testing.T) {
 		Occupied:   true,
 	}
 	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc     string
@@ -106,7 +106,7 @@ func TestListPending(t *testing.T) {
 	// save account
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	// save agent
 	agent := users.Agent{
@@ -121,12 +121,12 @@ func TestListPending(t *testing.T) {
 		Account:   account.ID,
 	}
 	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	//save owner
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	sown, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	//save property
 	property := properties.Property{
@@ -142,7 +142,7 @@ func TestListPending(t *testing.T) {
 		Occupied:   true,
 	}
 	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc     string
@@ -188,7 +188,7 @@ func TestListPayed(t *testing.T) {
 	// save account
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	// save agent
 	agent := users.Agent{
@@ -203,12 +203,12 @@ func TestListPayed(t *testing.T) {
 		Account:   account.ID,
 	}
 	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	//save owner
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	sown, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	//save property
 	property := properties.Property{
@@ -224,7 +224,7 @@ func TestListPayed(t *testing.T) {
 		Occupied:   true,
 	}
 	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc     string

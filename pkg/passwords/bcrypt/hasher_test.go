@@ -43,6 +43,6 @@ func TestHasher(t *testing.T) {
 
 	for _, tc := range cases {
 		err := hasher.Compare(tc.password, hash)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }

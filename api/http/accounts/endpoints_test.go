@@ -159,7 +159,7 @@ func TestUpdate(t *testing.T) {
 	ctx := context.Background()
 
 	saved, err := svc.Create(ctx, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc        string
@@ -261,7 +261,7 @@ func TestRetrieve(t *testing.T) {
 	ctx := context.Background()
 
 	saved, err := svc.Create(ctx, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc   string
@@ -328,7 +328,7 @@ func TestList(t *testing.T) {
 		ctx := context.Background()
 		account.ID = fmt.Sprintf("paypack.%d", i)
 		saved, err := svc.Create(ctx, account)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 		data = append(data, saved)
 	}
 

@@ -42,10 +42,16 @@ func migrateDB(db *sql.DB) error {
 
 					`CREATE table IF NOT EXISTS sectors(
 						sector			VARCHAR(256),
-						created_at 		TIMESTAMP,
-						updated_at  	TIMESTAMP,
+						created_at 		TIMESTAMP NOT NULL DEFAULT NOW(),
+						updated_at 		TIMESTAMP NOT NULL DEFAULT NOW(),
 						PRIMARY KEY(sector)
-					);`,
+					);
+					
+					CREATE TRIGGER set_timestamp
+					BEFORE UPDATE ON sectors
+					FOR EACH ROW
+					EXECUTE PROCEDURE trigger_set_timestamp();
+					`,
 
 					`CREATE table IF NOT EXISTS accounts (
 						id 				VARCHAR(256),
@@ -53,23 +59,35 @@ func migrateDB(db *sql.DB) error {
 						type 			VARCHAR(3) NOT NULL CHECK(type in ('dev', 'ben')),
 						active			BOOLEAN DEFAULT true,
 						seats 			INTEGER,
-						created_at 		TIMESTAMP,
-						updated_at  	TIMESTAMP,
+						created_at 		TIMESTAMP NOT NULL DEFAULT NOW(),
+						updated_at 		TIMESTAMP NOT NULL DEFAULT NOW(),
 						FOREIGN KEY(id) references sectors(sector) ON DELETE CASCADE ON UPDATE CASCADE,
 						PRIMARY KEY(id)
-					);`,
+					);
+
+					CREATE TRIGGER set_timestamp
+					BEFORE UPDATE ON accounts
+					FOR EACH ROW
+					EXECUTE PROCEDURE trigger_set_timestamp();
+					`,
 
 					`CREATE TABLE IF NOT EXISTS users (
 						username    VARCHAR(254),
 						password 	CHAR(60)	 NOT NULL,
 						role	 	VARCHAR(5) NOT NULL DEFAULT 'dev' CHECK(role in ('dev', 'admin', 'basic', 'min')),
 						account		VARCHAR(256) NOT NULL,
-						created_at 	TIMESTAMP,
-						updated_at  TIMESTAMP,
+						created_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
+						updated_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
 						FOREIGN KEY(account) references accounts(id) ON DELETE CASCADE ON UPDATE CASCADE,
 						UNIQUE(username, role),
 						PRIMARY KEY (username)
-					);`,
+					);
+					
+					CREATE TRIGGER set_timestamp
+					BEFORE UPDATE ON users
+					FOR EACH ROW
+					EXECUTE PROCEDURE trigger_set_timestamp();
+					`,
 
 					`CREATE TABLE IF NOT EXISTS developers (
 						email 	VARCHAR(254) PRIMARY KEY,
@@ -98,8 +116,16 @@ func migrateDB(db *sql.DB) error {
 						sector 		VARCHAR(254) NOT NULL DEFAULT 'not set',
 						village 	VARCHAR(254) NOT NULL DEFAULT 'not set',
 						role	 	VARCHAR(5) NOT NULL DEFAULT('agent') check (role = 'min'),
+						created_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
+						updated_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
 						FOREIGN KEY(telephone, role) REFERENCES users(username, role) ON DELETE CASCADE ON UPDATE CASCADE
-					);`,
+					);
+					
+					CREATE TRIGGER set_timestamp
+					BEFORE UPDATE ON agents
+					FOR EACH ROW
+					EXECUTE PROCEDURE trigger_set_timestamp();
+					`,
 
 					`CREATE TABLE IF NOT EXISTS owners (
 						id	   		UUID,
@@ -119,10 +145,17 @@ func migrateDB(db *sql.DB) error {
 						for_rent 	BOOLEAN DEFAULT FALSE,
 						occupied 	BOOLEAN DEFAULT TRUE,
 						recorded_by VARCHAR(254) NOT NULL,
+						created_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
+						updated_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
 						FOREIGN KEY(recorded_by) references users(username) ON DELETE CASCADE ON UPDATE CASCADE,
 						FOREIGN KEY(owner) references owners(id) ON DELETE CASCADE ON UPDATE CASCADE,
 						PRIMARY 	KEY(id)
 					);
+					
+					CREATE TRIGGER set_timestamp
+					BEFORE UPDATE ON properties
+					FOR EACH ROW
+					EXECUTE PROCEDURE trigger_set_timestamp();
 
 					CREATE TRIGGER create_initial_invoice
 					AFTER INSERT ON properties
@@ -175,10 +208,16 @@ func migrateDB(db *sql.DB) error {
 						body  		TEXT,
 						hidden 		BOOLEAN DEFAULT false,
 						creator		VARCHAR(15) NOT NULL,
-						created_at 	TIMESTAMP,
-						updated_at  TIMESTAMP,
+						created_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
+						updated_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
 						PRIMARY KEY(id)
-					);`,
+					);
+					
+					CREATE TRIGGER set_timestamp
+					BEFORE UPDATE ON messages
+					FOR EACH ROW
+					EXECUTE PROCEDURE trigger_set_timestamp();
+					`,
 				},
 
 				Down: []string{

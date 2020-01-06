@@ -150,5 +150,5 @@ func CleanDB(t *testing.T) {
 	`
 
 	_, err := db.Exec(q)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 }
