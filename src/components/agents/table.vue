@@ -1,37 +1,93 @@
 <template>
-  <b-table small striped bordered hover :items="table.items" :fields="table.fields">
+  <b-table
+    small
+    striped
+    bordered
+    hover
+    show-empty
+    :busy="state.loading"
+    :items="table.items"
+    :fields="table.fields"
+  >
     <template v-slot:cell(due)="data">{{Number(data.item.due).toLocaleString()}} Rwf</template>
+    <template v-slot:cell(owner)="data">{{data.item.owner.fname +" "+ data.item.owner.lname}}</template>
+    <template v-slot:table-busy>
+      <div class="text-center my-2">
+        <b-spinner class="align-middle"></b-spinner>
+        <strong>Loading...</strong>
+      </div>
+    </template>
   </b-table>
 </template>
 
 <script>
 export default {
   name: "userTable",
+  props: {
+    user: Object
+  },
   data() {
     return {
+      state: {
+        loading: false,
+        info: false
+      },
+      agent: null,
       table: {
         fields: [
-          { key: "name", label: "Names", sortable: true },
+          { key: "owner", label: "Names", sortable: true },
           { key: "id", label: "House Code", sortable: false },
-          { key: "phone", label: "Phone Number", sortable: false },
-          { key: "sector", label: "Sector", sortable: true },
-          { key: "cell", label: "Cell", sortable: true },
-          { key: "village", label: "Village", sortable: true },
+          { key: "owner.phone", label: "Phone Number", sortable: false },
+          { key: "address.sector", label: "Sector", sortable: true },
+          { key: "address.cell", label: "Cell", sortable: true },
+          { key: "address.village", label: "Village", sortable: true },
           { key: "due", label: "Amount", sortable: false }
         ],
-        items: [
-          {
-            name: "shami martin",
-            id: "5FDDFE3",
-            phone: "123456",
-            sector: "remera",
-            cell: "nyabisindu",
-            village: "nyabisindu",
-            due: "1000"
-          }
-        ]
+        items: null
       }
     };
+  },
+  computed: {
+    endpoint() {
+      return this.$store.getters.getEndpoint;
+    },
+    userDetails() {
+      return this.$store.getters.userDetails;
+    }
+  },
+  mounted() {
+    this.loadData();
+  },
+  methods: {
+    loadData() {
+      const agent = this.user;
+      if (!agent) {
+        this.$emit("getInfo");
+      } else {
+        this.state.loading = true;
+        this.axios
+          .get(
+            this.endpoint + `/properties?cell=${agent.cell}&offset=0&limit=10`
+          )
+          .then(res => {
+            this.table.items = [];
+            this.table.items = res.data.Properties.filter(this.isForAgent);
+            this.state.loading = false;
+            console.log(this.table.items);
+          })
+          .catch(err => {
+            this.state.loading = false;
+            const error = navigator.onLine
+              ? err.response.data.error
+              : "Please connect to the internet";
+            console.log(err.response);
+            this.$snotify.error(error);
+          });
+      }
+    },
+    isForAgent(value) {
+      return value.recorded_by == this.userDetails.username;
+    }
   }
 };
 </script>

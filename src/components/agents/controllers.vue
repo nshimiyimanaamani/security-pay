@@ -5,18 +5,18 @@
         <b-button v-b-modal.register-property class="py-1" variant="info">Register</b-button>
       </b-col>
       <b-col class="pl-1">
-        <b-button class="py-1" variant="info">Refresh</b-button>
+        <b-button class="py-1" variant="info" @click.prevent="refresh">Refresh</b-button>
       </b-col>
     </b-row>
     <b-modal id="register-property" ref="register-modal" scrollable hide-footer>
-      <template v-slot:modal-title>{{modal.title}}</template>
-      <b-form @reset="resetModal">
+      <template v-slot:modal-title>Register Property</template>
+      <b-form @reset="resetModal" @submit.prevent="addProperty">
         <b-row>
           <b-col lg="6" md="6" sm="auto">
             <b-form-group id="input-group-1" label="First Name:" label-for="input-1">
               <b-form-input
                 id="input-1"
-                v-model="modal.form.fname"
+                v-model="form.fname"
                 required
                 placeholder="Enter first name..."
                 style="font-size: 15px"
@@ -27,7 +27,7 @@
             <b-form-group id="input-group-2" label="Last Names:" label-for="input-2">
               <b-form-input
                 id="input-2"
-                v-model="modal.form.lname"
+                v-model="form.lname"
                 required
                 placeholder="Enter last name..."
                 style="font-size: 15px"
@@ -39,7 +39,7 @@
         <b-form-group id="input-group-3" label="Phone Number:" label-for="input-3">
           <b-form-input
             id="input-3"
-            v-model="modal.form.phone"
+            v-model="form.phone"
             type="number"
             required
             placeholder="Enter phone number..."
@@ -48,56 +48,25 @@
         </b-form-group>
         <b-form-group
           id="input-group-4"
-          :label="'Due: '+Number(modal.form.due).toLocaleString()+' Rwf' "
+          :label="'Due: '+Number(form.due).toLocaleString()+' Rwf' "
           class="m-0"
           label-for="input-4"
         >
           <b-form-input
             id="input-4"
-            v-model="modal.form.due"
+            v-model="form.due"
             type="range"
             min="500"
             max="10000"
             step="500"
           ></b-form-input>
         </b-form-group>
-        <b-form-group id="input-group-5" label="Sector:" label-for="input-5">
-          <b-form-select id="input-5" v-model="modal.form.address.sector" style="font-size: 15px">
-            <template v-slot:first>
-              <option :value="null" disabled>-- Please select sector --</option>
-            </template>
-            <option value="Remera">Remera</option>
-          </b-form-select>
-        </b-form-group>
-
-        <b-form-group id="input-group-6" label="Cell:" label-for="input-6">
-          <b-form-select
-            id="input-6"
-            v-model="modal.form.address.cell"
-            :options="cell_options"
-            style="font-size: 15px"
-          >
-            <template v-slot:first>
-              <option :value="null" disabled>-- Please select cell --</option>
-            </template>
-          </b-form-select>
-        </b-form-group>
-
-        <b-form-group id="input-group-7" label="Village:" label-for="input-7">
-          <b-form-select
-            id="input-7"
-            v-model="modal.form.address.village"
-            :options="village_options"
-            style="font-size: 15px"
-          >
-            <template v-slot:first>
-              <option :value="null" disabled>-- Please select village --</option>
-            </template>
-          </b-form-select>
-        </b-form-group>
         <b-form-group id="input-group-8" class="float-right m-0 mt-3">
+          <b-button type="submit" variant="primary" class="ml-2 px-3 py-1">
+            {{state.loading ? 'Registering' : 'Register'}}
+            <b-spinner v-show="state.loading" small type="grow"></b-spinner>
+          </b-button>
           <b-button type="reset" variant="danger" class="px-3 py-1">Cancel</b-button>
-          <b-button type="submit" variant="primary" class="ml-2 px-3 py-1">{{modal.buttonTitle}}</b-button>
         </b-form-group>
       </b-form>
     </b-modal>
@@ -105,74 +74,146 @@
 </template>
 
 <script>
-const { District, Sector, Cell, Village } = require("rwanda");
 export default {
   name: "controllers",
+  props: {
+    user: Object
+  },
   data() {
     return {
-      modal: {
-        title: "Search Owner",
-        loading: true,
-        buttonTitle: "Search",
-        form: {
-          fname: null,
-          lname: null,
-          phone: null,
-          ownerId: null,
-          houseId: null,
-          due: "500",
-          address: {
-            sector: null,
-            cell: null,
-            village: null
-          }
-        }
-      }
+      form: {
+        fname: null,
+        lname: null,
+        phone: null,
+        due: "500"
+      },
+      state: {
+        loading: false
+      },
+      owner: null
     };
   },
   computed: {
-    cell_options() {
-      const sector = this.modal.form.address.sector;
-      if (sector) {
-        return Cell("Kigali", "Gasabo", sector);
-      } else {
-        return [];
-      }
+    endpoint() {
+      return this.$store.getters.getEndpoint;
     },
-    village_options() {
-      const sector = this.modal.form.address.sector;
-      const cell = this.modal.form.address.cell;
-      if (sector && cell) {
-        return Village("Kigali", "Gasabo", sector, cell);
-      } else {
-        return [];
-      }
+    userDetails() {
+      return this.$store.getters.userDetails;
     }
   },
   mounted() {
     console.log();
   },
   methods: {
+    addProperty() {
+      if (!this.owner) {
+        this.search();
+      } else {
+        this.state.loading = true;
+        this.axios
+          .post(this.endpoint + "/properties", {
+            owner: {
+              id: this.owner.id
+            },
+            address: {
+              cell: this.user.cell,
+              village: this.user.village,
+              sector: this.user.sector
+            },
+            due: this.form.due.toString(),
+            occupied: true,
+            recorded_by: this.userDetails.username
+          })
+          .then(res => {
+            this.state.loading = false;
+            this.resetModal();
+            this.refresh();
+            this.$snotify.info(`Property Registered successfully!`);
+          })
+          .catch(err => {
+            this.state.loading = false;
+            const error = navigator.onLine
+              ? err.response.data.error || err.response.data
+              : "Please connect to the internet";
+            this.$snotify.error(error);
+          });
+      }
+    },
+    search() {
+      const fname = this.capitalize(this.form.fname.trim());
+      const lname = this.capitalize(this.form.lname.trim());
+      const phone = this.form.phone.trim();
+      this.state.loading = true;
+      this.axios
+        .get(
+          this.endpoint +
+            `/owners/search?fname=${fname}&lname=${lname}&phone=${phone}`
+        )
+        .then(res => {
+          console.log(res.data);
+          this.owner = { ...res.data };
+          this.addProperty();
+        })
+        .catch(err => {
+          if (!navigator.onLine) {
+            this.state.loading = false;
+            this.$snotify.error("Please connect to the internet");
+          } else {
+            this.state.loading = false;
+            const message = `${fname} ${lname} is not a registered owner! Do you want to register this owner?"`;
+            this.confirm(message).then(state => {
+              if (state === true) {
+                this.state.loading = true;
+                this.axios
+                  .post(this.endpoint + "/owners", {
+                    fname: fname,
+                    lname: lname,
+                    phone: phone
+                  })
+                  .then(res => {
+                    console.log(res.data);
+                    this.owner = { ...res.data };
+                    this.addProperty();
+                  })
+                  .catch(err => {
+                    this.state.loading = false;
+                    const error = navigator.onLine
+                      ? err.response.data.error
+                      : "Please connect to the internet";
+                    this.$snotify.error(error);
+                  });
+              }
+            });
+          }
+        });
+    },
     resetModal() {
       this.$refs["register-modal"].hide();
-      this.modal = {
-        title: "Search Owner",
-        loading: true,
-        buttonTitle: "Search",
-        form: {
-          fname: null,
-          lname: null,
-          phone: null,
-          ownerId: null,
-          houseId: null,
-          due: "500",
-          address: {
-            sector: null,
-            cell: null,
-            village: null
-          }
-        }
+      this.form = {
+        fname: null,
+        lname: null,
+        phone: null,
+        due: "500"
       };
+    },
+    refresh() {
+      this.$emit("refresh");
+    },
+    capitalize(string) {
+      string.toLowerCase();
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    },
+    confirm(message) {
+      return this.$bvModal.msgBoxConfirm(message, {
+        title: "Please Confirm",
+        buttonSize: "sm",
+        okVariant: "danger",
+        okTitle: "YES",
+        cancelTitle: "NO",
+        footerClass: "p-3",
+        hideHeaderClose: false,
+        centered: true
+      });
     }
   }
 };
@@ -184,6 +225,9 @@ form {
     label,
     button {
       font-size: 15px;
+    }
+    .custom-range {
+      border: none !important;
     }
   }
 }
