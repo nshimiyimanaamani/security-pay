@@ -17,10 +17,8 @@ func (repo *userRepository) SaveAgent(ctx context.Context, user users.Agent) (us
 			username, 
 			password, 
 			role, 
-			account, 
-			created_at, 
-			updated_at
-		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING username;
+			account
+		) VALUES ($1, $2, $3, $4) RETURNING created_at, updated_at;
 	`
 
 	empty := users.Agent{}
@@ -33,7 +31,7 @@ func (repo *userRepository) SaveAgent(ctx context.Context, user users.Agent) (us
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
-	_, err = tx.Exec(q, user.Telephone, user.Password, user.Role, user.Account, user.CreatedAt, user.UpdatedAt)
+	err = tx.QueryRow(q, user.Telephone, user.Password, user.Role, user.Account).Scan(&user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)

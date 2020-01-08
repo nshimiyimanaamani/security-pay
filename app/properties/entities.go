@@ -1,16 +1,22 @@
 package properties
 
-import "github.com/rugwirobaker/paypack-backend/pkg/errors"
+import (
+	"time"
+
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+)
 
 // Property defines a property(house) data model
 type Property struct {
-	ID         string  `json:"id,omitempty"`
-	Due        float64 `json:"due,string,omitempty"`
-	Owner      Owner   `json:"owner,omitempty"`
-	Address    Address `json:"address,omitempty"`
-	Occupied   bool    `json:"occupied,omitempty"`
-	ForRent    bool    `json:"for_rent,omitempty"`
-	RecordedBy string  `json:"recorded_by,omitempty"`
+	ID         string    `json:"id,omitempty"`
+	Due        float64   `json:"due,string,omitempty"`
+	Owner      Owner     `json:"owner,omitempty"`
+	Address    Address   `json:"address,omitempty"`
+	Occupied   bool      `json:"occupied,omitempty"`
+	ForRent    bool      `json:"for_rent,omitempty"`
+	RecordedBy string    `json:"recorded_by,omitempty"`
+	CreatedAt  time.Time `json:"created_at,omitempty"`
+	UpdatedAt  time.Time `json:"updated_at,omitempty"`
 }
 
 // PropertyPage represents a list of transaction.

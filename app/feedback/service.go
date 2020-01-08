@@ -3,7 +3,6 @@ package feedback
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/rugwirobaker/paypack-backend/app/identity"
 )
@@ -52,7 +51,6 @@ func (svc *service) Record(ctx context.Context, msg *Message) (*Message, error) 
 	if err := msg.Validate(); err != nil {
 		return nil, err
 	}
-
 	msg = svc.newMsg(msg)
 
 	return svc.repo.Save(ctx, msg)
@@ -68,12 +66,6 @@ func (svc *service) Delete(ctx context.Context, id string) error {
 }
 
 func (svc *service) newMsg(msg *Message) *Message {
-	var timestamp = time.Now()
-
 	msg.ID = svc.idp.ID()
-
-	msg.CreatedAt = timestamp
-	msg.UpdatedAt = timestamp
-
 	return msg
 }

@@ -17,10 +17,8 @@ func (repo *userRepository) SaveDeveloper(ctx context.Context, user users.Develo
 			username, 
 			password, 
 			role, 
-			account, 
-			created_at, 
-			updated_at
-		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING username
+			account
+		) VALUES ($1, $2, $3, $4) RETURNING created_at, updated_at;
 	`
 
 	empty := users.Developer{}
@@ -33,7 +31,7 @@ func (repo *userRepository) SaveDeveloper(ctx context.Context, user users.Develo
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
-	_, err = tx.Exec(q, user.Email, user.Password, user.Role, user.Account, user.CreatedAt, user.UpdatedAt)
+	err = tx.QueryRow(q, user.Email, user.Password, user.Role, user.Account).Scan(&user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/rugwirobaker/paypack-backend/app/accounts"
 	"github.com/rugwirobaker/paypack-backend/app/users"
@@ -24,7 +23,7 @@ func TestSaveAgent(t *testing.T) {
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres/userRepository.SaveAgent"
 
@@ -66,7 +65,7 @@ func TestRetrieveAgent(t *testing.T) {
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	user := users.Agent{Telephone: "0780456000", Password: "password", Role: users.Min, Account: account.ID}
 	saved, err := repo.SaveAgent(context.Background(), user)
@@ -105,7 +104,7 @@ func TestUpdateAgentDetails(t *testing.T) {
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	user := users.Agent{Telephone: "0780456000", Password: "password", Role: users.Min, Account: account.ID}
 	saved, err := repo.SaveAgent(context.Background(), user)
@@ -119,12 +118,12 @@ func TestUpdateAgentDetails(t *testing.T) {
 	}{
 		{
 			desc: "update existing agent's credentials",
-			user: users.Agent{Telephone: saved.Telephone, FirstName: "fname", LastName: "lname", UpdatedAt: time.Now()},
+			user: users.Agent{Telephone: saved.Telephone, FirstName: "fname", LastName: "lname"},
 			err:  nil,
 		},
 		{
 			desc: "update non existing agent's credentials",
-			user: users.Agent{Telephone: "0781406751", UpdatedAt: time.Now()},
+			user: users.Agent{Telephone: "0781406751"},
 			err:  errors.E(op, "user not found", errors.KindNotFound),
 		},
 	}
@@ -144,7 +143,7 @@ func TestUpdateAgentCreds(t *testing.T) {
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	user := users.Agent{Telephone: "0780456000", Password: "password", Role: users.Min, Account: account.ID}
 	saved, err := repo.SaveAgent(context.Background(), user)
@@ -158,12 +157,12 @@ func TestUpdateAgentCreds(t *testing.T) {
 	}{
 		{
 			desc: "update existing agent's credentials",
-			user: users.Agent{Telephone: saved.Telephone, Password: "password", UpdatedAt: time.Now()},
+			user: users.Agent{Telephone: saved.Telephone, Password: "password"},
 			err:  nil,
 		},
 		{
 			desc: "update non existing agent's credentials",
-			user: users.Agent{Telephone: "0781406751", Password: "password", UpdatedAt: time.Now()},
+			user: users.Agent{Telephone: "0781406751", Password: "password"},
 			err:  errors.E(op, "user not found", errors.KindNotFound),
 		},
 	}
@@ -183,7 +182,7 @@ func TestListAgents(t *testing.T) {
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	user := users.Agent{Account: account.ID, Role: users.Min}
 
@@ -192,7 +191,7 @@ func TestListAgents(t *testing.T) {
 		ctx := context.Background()
 		user.Telephone = fmt.Sprintf("email%d@gmail.com", i)
 		_, err := repo.SaveAgent(ctx, user)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 	}
 
 	const op errors.Op = "store/postgres/userRepository.ListAgents"
@@ -236,7 +235,7 @@ func TestDeleteAgent(t *testing.T) {
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	user := users.Agent{Telephone: "0780456000", Password: "password", Role: users.Min, Account: account.ID}
 	saved, err := repo.SaveAgent(context.Background(), user)

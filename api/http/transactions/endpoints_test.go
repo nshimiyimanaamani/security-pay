@@ -165,7 +165,7 @@ func TestRetrieve(t *testing.T) {
 
 	ctx := context.Background()
 	saved, err := svc.Record(ctx, transaction)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc   string
@@ -220,7 +220,7 @@ func TestList(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
 		saved, err := svc.Record(ctx, transaction)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		data = append(data, saved)
 	}
@@ -286,7 +286,7 @@ func TestListByProperty(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
 		saved, err := svc.Record(ctx, transaction)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		data = append(data, saved)
 	}
@@ -352,7 +352,7 @@ func TestListMethod(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
 		saved, err := svc.Record(ctx, transaction)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		data = append(data, saved)
 	}
@@ -418,7 +418,7 @@ func TestMListByProperty(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		ctx := context.Background()
 		saved, err := svc.Record(ctx, transaction)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		data = append(data, saved)
 	}

@@ -58,7 +58,7 @@ func TestSaveOwner(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := repo.Save(ctx, tc.owner)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }
 
@@ -72,7 +72,7 @@ func TestUpdateOwner(t *testing.T) {
 	ctx := context.Background()
 	saved, err := repo.Save(ctx, owner)
 
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc  string
@@ -99,7 +99,7 @@ func TestUpdateOwner(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		err := repo.Update(ctx, tc.owner)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }
 
@@ -113,7 +113,7 @@ func TestRetrieveOwner(t *testing.T) {
 	ctx := context.Background()
 
 	saved, err := repo.Save(ctx, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc string
@@ -128,7 +128,7 @@ func TestRetrieveOwner(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := repo.Retrieve(ctx, tc.id)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }
 
@@ -142,9 +142,9 @@ func TestSearch(t *testing.T) {
 	ctx := context.Background()
 
 	saved, err := repo.Save(ctx, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc  string
@@ -176,7 +176,7 @@ func TestSearch(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := repo.Search(ctx, tc.owner)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 
 }
@@ -197,7 +197,7 @@ func TestRetrieveAllOwners(t *testing.T) {
 		}
 		ctx := context.Background()
 		_, err := repo.Save(ctx, p)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 	}
 
 	cases := map[string]struct {
@@ -240,7 +240,7 @@ func TestRetrieveOwnerByPhone(t *testing.T) {
 	ctx := context.Background()
 	_, err := repo.Save(ctx, new)
 
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc  string
@@ -255,7 +255,7 @@ func TestRetrieveOwnerByPhone(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := repo.RetrieveByPhone(ctx, tc.phone)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }
 

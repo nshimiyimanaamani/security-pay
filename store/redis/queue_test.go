@@ -50,7 +50,7 @@ func TestQueuePop(t *testing.T) {
 
 	tsTx := payment.Transaction{ID: key}
 	err := queue.Set(context.Background(), tsTx)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc string
@@ -71,7 +71,7 @@ func TestQueuePop(t *testing.T) {
 
 	for _, tc := range cases {
 		_, err := queue.Get(context.Background(), tc.key)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }
 
@@ -84,7 +84,7 @@ func TestRemove(t *testing.T) {
 
 	tsTx := payment.Transaction{ID: key}
 	err := queue.Set(context.Background(), tsTx)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc string

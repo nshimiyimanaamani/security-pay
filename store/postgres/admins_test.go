@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/rugwirobaker/paypack-backend/app/accounts"
 	"github.com/rugwirobaker/paypack-backend/app/users"
@@ -26,7 +25,7 @@ func TestSaveAdmin(t *testing.T) {
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
 
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc string
@@ -67,7 +66,7 @@ func TestRetrieveAdmin(t *testing.T) {
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	user := users.Administrator{Account: account.ID, Email: "email@example.com", Role: users.Admin}
 	saved, err := repo.SaveAdmin(context.Background(), user)
@@ -107,7 +106,7 @@ func TestUpdateAdminCreds(t *testing.T) {
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	user := users.Administrator{Account: account.ID, Email: "email@example.com", Role: users.Admin}
 	saved, err := repo.SaveAdmin(context.Background(), user)
@@ -121,12 +120,12 @@ func TestUpdateAdminCreds(t *testing.T) {
 	}{
 		{
 			desc: "update existing admin's credentials",
-			user: users.Administrator{Email: saved.Email, Password: "password", UpdatedAt: time.Now()},
+			user: users.Administrator{Email: saved.Email, Password: "password"},
 			err:  nil,
 		},
 		{
 			desc: "update non existing admin's credentials",
-			user: users.Administrator{Email: "email2@gmail.com", Password: "password", UpdatedAt: time.Now()},
+			user: users.Administrator{Email: "email2@gmail.com", Password: "password"},
 			err:  errors.E(op, "user not found", errors.KindNotFound),
 		},
 	}
@@ -146,7 +145,7 @@ func TestListAdmins(t *testing.T) {
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	user := users.Administrator{Account: account.ID, Role: users.Admin}
 
@@ -155,7 +154,7 @@ func TestListAdmins(t *testing.T) {
 		ctx := context.Background()
 		user.Email = fmt.Sprintf("email%d@gmail.com", i)
 		_, err := repo.SaveAdmin(ctx, user)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 	}
 
 	const op errors.Op = "store/postgres.userRepository.ListAdmins"

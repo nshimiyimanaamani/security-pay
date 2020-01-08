@@ -87,8 +87,6 @@ func (svc *service) Record(ctx context.Context, tx Transaction) (Transaction, er
 	}
 	tx.ID = id
 
-	// tx.DateRecorded = time.Now()
-
 	return tx, nil
 }
 

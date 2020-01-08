@@ -125,7 +125,7 @@ func TestUpdate(t *testing.T) {
 
 	ctx := context.Background()
 	saved, err := svc.RegisterProperty(ctx, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "app/properties/service.UpdateProperty"
 
@@ -176,7 +176,7 @@ func TestRetrieveProperty(t *testing.T) {
 
 	ctx := context.Background()
 	saved, err := svc.RegisterProperty(ctx, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "app/properties/service.RetrieveProperty"
 
@@ -219,7 +219,7 @@ func TestListPropertiesByOwner(t *testing.T) {
 
 		ctx := context.Background()
 		_, err := svc.RegisterProperty(ctx, property)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 	}
 
 	cases := []struct {
@@ -270,7 +270,7 @@ func TestListPropertiesByOwner(t *testing.T) {
 		page, err := svc.ListPropertiesByOwner(ctx, tc.owner, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }
 
@@ -289,7 +289,7 @@ func TestListPropertiesBySector(t *testing.T) {
 	for i := uint64(0); i < n; i++ {
 		ctx := context.Background()
 		_, err := svc.RegisterProperty(ctx, property)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 	}
 
 	cases := []struct {
@@ -339,7 +339,7 @@ func TestListPropertiesBySector(t *testing.T) {
 		page, err := svc.ListPropertiesBySector(ctx, tc.sector, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }
 
@@ -358,7 +358,7 @@ func TestListPropertiesByCell(t *testing.T) {
 	for i := uint64(0); i < n; i++ {
 		ctx := context.Background()
 		_, err := svc.RegisterProperty(ctx, property)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	}
 
@@ -409,7 +409,7 @@ func TestListPropertiesByCell(t *testing.T) {
 		page, err := svc.ListPropertiesByCell(ctx, tc.cell, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 
 }
@@ -429,7 +429,7 @@ func TestListPropertiesByVillage(t *testing.T) {
 	for i := uint64(0); i < n; i++ {
 		ctx := context.Background()
 		_, err := svc.RegisterProperty(ctx, property)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 	}
 
 	cases := []struct {
@@ -479,7 +479,7 @@ func TestListPropertiesByVillage(t *testing.T) {
 		page, err := svc.ListPropertiesByVillage(ctx, tc.village, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 
 }

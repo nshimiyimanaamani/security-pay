@@ -27,7 +27,7 @@ func TestSaveTransaction(t *testing.T) {
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -41,11 +41,11 @@ func TestSaveTransaction(t *testing.T) {
 		Account:   account.ID,
 	}
 	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	owner, err = saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
@@ -60,11 +60,11 @@ func TestSaveTransaction(t *testing.T) {
 		Occupied:   true,
 	}
 	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %v", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	invoice := invoices.Invoice{Amount: property.Due, Property: property.ID, Status: invoices.Pending}
 	invoice, err = saveInvoice(t, db, invoice)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %v", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	id := uuid.New().ID()
 	method := "bk"
@@ -107,7 +107,7 @@ func TestRetrieveProperty(t *testing.T) {
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -121,11 +121,11 @@ func TestRetrieveProperty(t *testing.T) {
 		Account:   account.ID,
 	}
 	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	sown, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
@@ -141,7 +141,7 @@ func TestRetrieveProperty(t *testing.T) {
 	}
 
 	saved, err := saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc string
@@ -179,7 +179,7 @@ func TestOldestInvoice(t *testing.T) {
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -193,11 +193,11 @@ func TestOldestInvoice(t *testing.T) {
 		Account:   account.ID,
 	}
 	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
 	owner, err = saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
@@ -212,11 +212,11 @@ func TestOldestInvoice(t *testing.T) {
 		Occupied:   true,
 	}
 	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	invoice := invoices.Invoice{Amount: property.Due, Property: property.ID, Status: invoices.Pending}
 	invoice, err = saveInvoice(t, db, invoice)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres/paymentRepo.OldestInvoice"
 

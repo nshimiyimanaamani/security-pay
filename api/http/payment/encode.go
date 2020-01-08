@@ -33,13 +33,9 @@ func encodeRes(w io.Writer, i interface{}) error {
 	return nil
 }
 
-func encodeErr(w io.Writer, err error) {
-	if headered, ok := w.(http.ResponseWriter); ok {
-		headered.Header().Set("Cache-Control", "no-cache")
-		headered.Header().Set("Content-Type", "application/json")
+func encodeErr(w http.ResponseWriter, code int, err error) {
+	w.Header().Set("Content-Type", "application/json")
 
-		data, _ := json.Marshal(map[string]string{"error": errors.KindText(err)})
-		headered.Write(data)
-
-	}
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 }

@@ -71,7 +71,7 @@ func TestUpdateAccount(t *testing.T) {
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	saved, err := repo.Save(context.Background(), account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc    string
@@ -108,7 +108,7 @@ func TestRetrieveAccount(t *testing.T) {
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
 	saved, err := repo.Save(context.Background(), account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc string
@@ -162,7 +162,7 @@ func TestListAccounts(t *testing.T) {
 		account := accounts.Account{ID: data[i].id, Name: data[i].name, NumberOfSeats: 10, Type: data[i].accountType}
 
 		_, err := repo.Save(ctx, account)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 	}
 
 	cases := map[string]struct {

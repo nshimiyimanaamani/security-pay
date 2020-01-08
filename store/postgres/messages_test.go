@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/rugwirobaker/paypack-backend/app/feedback"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
@@ -20,9 +19,7 @@ func TestSaveMessage(t *testing.T) {
 
 	message := feedback.Message{
 		ID: uuid.New().ID(), Title: "title",
-		Body:      "body",
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Body: "body",
 	}
 
 	cases := []struct {
@@ -45,7 +42,7 @@ func TestSaveMessage(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := repo.Save(ctx, &tc.msg)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 
 }
@@ -57,15 +54,13 @@ func TestUpdateMessage(t *testing.T) {
 
 	message := feedback.Message{
 		ID: uuid.New().ID(), Title: "title",
-		Body:      "body",
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Body: "body",
 	}
 
 	ctx := context.Background()
 
 	saved, err := repo.Save(ctx, &message)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc string
@@ -79,7 +74,7 @@ func TestUpdateMessage(t *testing.T) {
 		},
 		{
 			desc: "update non-existant message",
-			msg:  feedback.Message{ID: uuid.New().ID(), Title: "title", Body: "body", UpdatedAt: time.Now()},
+			msg:  feedback.Message{ID: uuid.New().ID(), Title: "title", Body: "body"},
 			err:  feedback.ErrNotFound,
 		},
 	}
@@ -87,7 +82,7 @@ func TestUpdateMessage(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		err := repo.Update(ctx, tc.msg)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }
 
@@ -98,15 +93,13 @@ func TestRetrieveMessage(t *testing.T) {
 
 	message := feedback.Message{
 		ID: uuid.New().ID(), Title: "title",
-		Body:      "body",
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Body: "body",
 	}
 
 	ctx := context.Background()
 
 	saved, err := repo.Save(ctx, &message)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc string
@@ -121,7 +114,7 @@ func TestRetrieveMessage(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := repo.Retrieve(ctx, tc.id)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }
 
@@ -132,15 +125,13 @@ func TestDeleteMessage(t *testing.T) {
 
 	message := feedback.Message{
 		ID: uuid.New().ID(), Title: "title",
-		Body:      "body",
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Body: "body",
 	}
 
 	ctx := context.Background()
 
 	saved, err := repo.Save(ctx, &message)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	cases := []struct {
 		desc string
@@ -155,7 +146,7 @@ func TestDeleteMessage(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		err := repo.Delete(ctx, tc.id)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 
 }

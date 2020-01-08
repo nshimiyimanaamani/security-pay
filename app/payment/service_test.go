@@ -92,7 +92,7 @@ func TestConfirm(t *testing.T) {
 	}
 
 	res, err := svc.Initilize(context.Background(), tx)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "payment.Confirm"
 
