@@ -73,6 +73,7 @@
         striped
         hover
         small
+        show-empty
         :items="loadData"
         :fields="table.fields"
         :busy.sync="state.tableLoad"
@@ -158,6 +159,10 @@ export default {
           this.$snotify.info("Agent successfully created...");
         })
         .catch(err => {
+          const error = navigator.onLine
+            ? err.response.data.error
+            : "Please connect to the internet";
+          this.$snotify.error(error);
           console.log(err.response);
           this.state.creating = false;
         });

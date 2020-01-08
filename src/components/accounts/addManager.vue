@@ -39,6 +39,7 @@
         striped
         hover
         small
+        show-empty
         :items="loadData"
         :fields="table.fields"
         :busy.sync="state.tableLoad"
@@ -66,10 +67,9 @@ export default {
       },
       table: {
         fields: [
-          { key: "telephone", label: "Phone Number" },
-          { key: "sector", label: "sector" },
+          { key: "email", label: "Email" },
           { key: "cell", label: "cell" },
-          { key: "village", label: "village" }
+          { key: "role", label: "Role" }
         ]
       },
       state: {
@@ -91,7 +91,7 @@ export default {
       this.state.creating = true;
       const account = jwt.decode(sessionStorage.token).account;
       this.axios
-        .post(this.endpoint + "/api/accounts/managers", {
+        .post(this.endpoint + "/accounts/managers", {
           account: account,
           email: this.form.email,
           cell: this.form.cell
@@ -99,24 +99,24 @@ export default {
         .then(res => {
           this.state.creating = false;
           this.form = { email: null, password: null };
-          this.$snotify.info("Developer successfully created...");
+          this.$snotify.info("Manager successfully created...");
         })
         .catch(err => {
           this.state.creating = false;
           const error = navigator.onLine
-            ? err.response.data.error
+            ? err.response.data.error||err.response.data
             : "Please connect to the internet...";
           this.$snotify.error(error);
         });
     },
     loadData() {
       const promise = this.axios.get(
-        this.endpoint + "/accounts/agents?offset=0&limit=10"
+        this.endpoint + "/accounts/managers?offset=0&limit=10"
       );
       return promise
         .then(res => {
           this.state.tableLoad = false;
-          return res.data.Agents;
+          return res.data.Managers;
         })
         .catch(err => {
           this.state.tableLoad = false;

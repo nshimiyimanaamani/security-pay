@@ -3,7 +3,7 @@
     <vue-title title="Paypack | Properties" />
     <h4 class="title text-center">
       {{title}}
-      <b-button class="add-property mb-1" variant="info" @click="modal.show = ! modal.show">
+      <b-button class="add-property mb-1" variant="info" @click="addProperty.show = true">
         <i class="fas fa-plus-circle"></i> Property
       </b-button>
     </h4>
@@ -141,98 +141,11 @@
       class="my-0"
       v-if="!loading.request"
     />
-    <div class="add-property-modal" v-show="modal.show">
-      <!-- Modal content -->
-      <b-card class="mb-2 modal-body">
-        <h5 class="text-center mb-1">{{modal.title}}</h5>
-        <hr />
-        <b-form @submit.prevent="search_user" @reset="resetModal">
-          <b-form-group
-            id="input-group-1"
-            class="mb-2"
-            label="First Name:"
-            label-for="input-1"
-            description="Amazina ya nyiri inzu (*Ntabwo ari ukodesheje)"
-          >
-            <b-form-input
-              id="input-1"
-              v-model="modal.form.fname"
-              required
-              placeholder="First name"
-              :disabled="modal.switch"
-            ></b-form-input>
-          </b-form-group>
-          <b-form-group id="input-group-2" class="mb-2" label="Last Name:" label-for="input-2">
-            <b-form-input
-              id="input-2"
-              v-model="modal.form.lname"
-              :disabled="modal.switch"
-              required
-              placeholder="Last name"
-            ></b-form-input>
-          </b-form-group>
-          <b-form-group id="input-group-3" class="mb-2" label="Phone Number:" label-for="input-3">
-            <b-form-input
-              id="input-3"
-              v-model="modal.form.phone"
-              :state="checkNumber"
-              :disabled="modal.switch"
-              required
-              type="number"
-              placeholder="Phone number"
-            ></b-form-input>
-            <b-form-invalid-feedback :state="checkNumber">Please use a valid Phone number!</b-form-invalid-feedback>
-          </b-form-group>
-          <b-form-group
-            id="input-group-4"
-            :label="'Due: '+ modal.form.due +' Rwf'"
-            label-for="range-1"
-            v-show="modal.switch"
-            class="mb-2"
-          >
-            <b-form-input
-              id="range-1"
-              v-model="modal.form.due"
-              type="range"
-              min="500"
-              max="10000"
-              step="500"
-            ></b-form-input>
-          </b-form-group>
-          <b-form-group
-            id="input-group-5"
-            class="mb-2"
-            label="Cell:"
-            label-for="input-4"
-            v-show="modal.switch"
-          >
-            <b-form-select v-model="select.cell" :options="cellOptions" class="mb-0">
-              <template v-slot:first>
-                <option :value="null" disabled>select a cell</option>
-              </template>
-            </b-form-select>
-          </b-form-group>
-          <b-form-group
-            id="input-group-6"
-            label="Village:"
-            label-for="input-5"
-            v-show="modal.switch"
-            class="mb-3"
-          >
-            <b-form-select v-model="select.village" :options="villageOptions" class="mb-0">
-              <template v-slot:first>
-                <option :value="null" disabled>select a village</option>
-              </template>
-            </b-form-select>
-          </b-form-group>
-          <b-button type="submit" variant="primary">
-            {{modal.loading ? modal.btnContent+'ing' : modal.btnContent}}
-            <b-spinner v-show="modal.loading" small type="grow"></b-spinner>
-          </b-button>
-          <b-button type="reset" variant="danger">cancel</b-button>
-        </b-form>
-      </b-card>
-    </div>
+    <add-property
+      :show="addProperty.show"
+      v-on:closeModal="addProperty.show =false"
+      v-on:refresh="loadData()"
+    />
     <b-modal id="updateModal" v-model="updateModal.show" hide-footer>
       <template v-slot:modal-title>Modify House</template>
       <update-house
@@ -252,6 +165,7 @@
 </template>
 <script>
 import updateHouse from "../components/updateHouse.vue";
+import addPropertyModal from "../components/modals/addPropertyModal.vue";
 import jsPDF from "jspdf";
 const { Village } = require("rwanda");
 const { isPhoneNumber } = require("rwa-validator");
@@ -259,10 +173,14 @@ import "jspdf-autotable";
 export default {
   name: "reports",
   components: {
-    "update-house": updateHouse
+    "update-house": updateHouse,
+    "add-property": addPropertyModal
   },
   data() {
     return {
+      addProperty: {
+        show: false
+      },
       selected: null,
       title: null,
       width: 0,
@@ -421,7 +339,7 @@ export default {
     loadData() {
       this.loading.request = true;
       this.axios
-        .get(this.endpoint + "/properties?sector=remera&offset=0&limit=10")
+        .get(this.endpoint + "/properties?sector=Remera&offset=0&limit=10")
         .then(res => {
           this.items = new Array();
           this.items = res.data.Properties;
@@ -453,103 +371,6 @@ export default {
     closeUpdateModal() {
       this.loadData();
       this.updateModal.show = false;
-    },
-    search_user() {
-      if (!this.modal.switch) {
-        const fname = this.capitalize(this.modal.form.fname.trim());
-        const lname = this.capitalize(this.modal.form.lname.trim());
-        const phone = this.modal.form.phone.trim();
-        this.modal.loading = true;
-        this.axios
-          .get(
-            this.endpoint +
-              "/owners/search?fname=" +
-              fname +
-              "&lname=" +
-              lname +
-              "&phone=" +
-              phone
-          )
-          .then(res => {
-            this.modal.loading = false;
-            this.modal.switch = true;
-            this.modal.title = "Register Property";
-            this.modal.btnContent = "Register";
-            this.modal.form.id = res.data.id;
-          })
-          .catch(err => {
-            this.modal.loading = false;
-            if (navigator.onLine && err.response.status == "404") {
-              const message =
-                fname +
-                " " +
-                lname +
-                " is not registered! Do you want to register this user?";
-              this.confirm(message).then(state => {
-                if (state === true) {
-                  this.modal.loading = true;
-                  this.axios
-                    .post(`${this.endpoint}/owners`, {
-                      fname: fname,
-                      lname: lname,
-                      phone: phone
-                    })
-                    .then(res => {
-                      this.modal.loading = false;
-                      this.modal.switch = true;
-                      this.modal.title = "Register Property";
-                      this.modal.btnContent = "Register";
-                      this.modal.form.id = res.data.id;
-                      this.$snotify.info(
-                        `User created. proceeding to registration...`
-                      );
-                    });
-                }
-              });
-            } else if (!navigator.onLine) {
-              this.$snotify.info(`Please connect to the internet...`);
-            }
-          });
-      } else if (this.modal.switch) {
-        this.modal.loading = true;
-        this.axios
-          .post(this.endpoint + "/properties", {
-            owner: {
-              id: this.modal.form.id
-            },
-            address: {
-              cell: this.select.cell,
-              village: this.select.village,
-              sector: "remera"
-            },
-            due: this.modal.form.due.toString(),
-            occupied: true,
-            recorded_by: this.user.username
-          })
-          .then(res => {
-            this.resetModal();
-            this.loadData();
-            this.$snotify.info(`Property Registered successfully!`);
-          })
-          .catch(err => {
-            this.modal.loading = false;
-            this.$snotify.info(`Property Registration Failed!`);
-          });
-      }
-    },
-    resetModal() {
-      this.modal.show = false;
-      this.modal.switch = false;
-      this.modal.loading = false;
-      this.modal.title = "Search House Owner";
-      this.modal.btnContent = "Search";
-      this.modal.form.fname = null;
-      this.modal.form.lname = null;
-      this.modal.form.phone = null;
-      this.modal.form.id = null;
-      this.modal.form.due = null;
-      this.modal.select.cell = null;
-      this.modal.select.village = null;
     },
     totals(data) {
       if (data) {
@@ -833,7 +654,6 @@ table thead th {
 }
 
 table td {
-  text-transform: capitalize;
   font-size: 14px;
 }
 </style>

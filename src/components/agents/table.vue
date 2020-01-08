@@ -67,7 +67,8 @@ export default {
         this.state.loading = true;
         this.axios
           .get(
-            this.endpoint + `/properties?cell=${agent.cell}&offset=0&limit=10`
+            this.endpoint +
+              `/properties?sector=${agent.sector}&offset=0&limit=10`
           )
           .then(res => {
             this.table.items = [];

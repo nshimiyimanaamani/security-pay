@@ -36,6 +36,7 @@
         striped
         hover
         small
+        show-empty
         :items="loadData"
         :fields="table.fields"
         :busy.sync="state.tableLoad"
@@ -63,10 +64,8 @@ export default {
       },
       table: {
         fields: [
-          { key: "telephone", label: "Phone Number" },
-          { key: "sector", label: "sector" },
-          { key: "cell", label: "cell" },
-          { key: "village", label: "village" }
+          { key: "email", label: "Email" },
+          { key: "role", label: "Role" }
         ]
       },
       state: {
@@ -105,12 +104,12 @@ export default {
     },
     loadData() {
       const promise = this.axios.get(
-        this.endpoint + "/accounts/agents?offset=0&limit=10"
+        this.endpoint + "/accounts/developers?offset=0&limit=10"
       );
       return promise
         .then(res => {
           this.state.tableLoad = false;
-          return res.data.Agents;
+          return res.data.Developers;
         })
         .catch(err => {
           this.state.tableLoad = false;
