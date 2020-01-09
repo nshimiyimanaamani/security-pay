@@ -60,9 +60,7 @@ func (repo *messageRepo) Retrieve(ctx context.Context, id string) (feedback.Mess
 
 	var msg = feedback.Message{}
 
-	row := repo.QueryRow(q, id)
-
-	err := row.Scan(&msg.ID, &msg.Title, &msg.Body, &msg.Creator, &msg.CreatedAt, &msg.UpdatedAt, &msg.DisplayName)
+	err := repo.QueryRow(q, id).Scan(&msg.ID, &msg.Title, &msg.Body, &msg.Creator, &msg.CreatedAt, &msg.UpdatedAt, &msg.DisplayName)
 
 	if err != nil {
 		empty := feedback.Message{}
