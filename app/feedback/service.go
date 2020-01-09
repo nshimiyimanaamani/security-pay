@@ -85,7 +85,7 @@ func (svc *service) newMsg(msg *Message) *Message {
 func (svc *service) List(ctx context.Context, offset, limit uint64) (MessagePage, error) {
 	const op errors.Op = "app/feedback/service.List"
 
-	page, err := svc.List(ctx, offset, limit)
+	page, err := svc.repo.RetrieveAll(ctx, offset, limit)
 	if err != nil {
 		return MessagePage{}, errors.E(op, err)
 	}
