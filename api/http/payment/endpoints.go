@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net/http"
+	lg "log"
 
 	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
@@ -54,7 +55,7 @@ func Validate(logger log.Entry, svc payment.Service) http.Handler {
 		buf, _ := ioutil.ReadAll(r.Body)
 
 		rdr1 := ioutil.NopCloser(bytes.NewBuffer(buf))
-		logger.Debugf("body: %q", rdr1)
+		lg.Printf("body: %q", rdr1)
 
 		if err := decode(r.Body, &callback); err != nil {
 			err = errors.E(op, err)
