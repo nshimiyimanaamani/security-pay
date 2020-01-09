@@ -83,9 +83,9 @@ func (repo *userRepository) RetrieveAgent(ctx context.Context, id string) (users
 
 	var user = users.Agent{}
 
-	q := `SELECT username, account, role, created_at, updated_at FROM users WHERE username=$1`
+	q := `SELECT username, account, role, password, created_at, updated_at FROM users WHERE username=$1`
 
-	if err := repo.QueryRow(q, id).Scan(&user.Telephone, &user.Account, &user.Role, &user.CreatedAt, &user.UpdatedAt); err != nil {
+	if err := repo.QueryRow(q, id).Scan(&user.Telephone, &user.Account, &user.Role, &user.Password, &user.CreatedAt, &user.UpdatedAt); err != nil {
 		empty := users.Agent{}
 
 		pqErr, ok := err.(*pq.Error)
