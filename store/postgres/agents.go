@@ -83,9 +83,9 @@ func (repo *userRepository) RetrieveAgent(ctx context.Context, id string) (users
 
 	var user = users.Agent{}
 
-	q := `SELECT username, account, role, created_at, updated_at FROM users WHERE username=$1`
+	q := `SELECT username, account, role, password, created_at, updated_at FROM users WHERE username=$1`
 
-	if err := repo.QueryRow(q, id).Scan(&user.Telephone, &user.Account, &user.Role, &user.CreatedAt, &user.UpdatedAt); err != nil {
+	if err := repo.QueryRow(q, id).Scan(&user.Telephone, &user.Account, &user.Role, &user.Password, &user.CreatedAt, &user.UpdatedAt); err != nil {
 		empty := users.Agent{}
 
 		pqErr, ok := err.(*pq.Error)
@@ -117,6 +117,7 @@ func (repo *userRepository) ListAgents(ctx context.Context, offset, limit uint64
 			users.username, 
 			users.account, 
 			users.role,  
+			users.password,
 			users.created_at, 
 			users.updated_at,
 			agents.cell,
@@ -143,7 +144,8 @@ func (repo *userRepository) ListAgents(ctx context.Context, offset, limit uint64
 	for rows.Next() {
 		c := users.Agent{}
 
-		if err := rows.Scan(&c.Telephone, &c.Account, &c.Role, &c.CreatedAt, &c.UpdatedAt, &c.Cell, &c.Sector, &c.Village); err != nil {
+		err := rows.Scan(&c.Telephone, &c.Account, &c.Role, &c.Password, &c.CreatedAt, &c.UpdatedAt, &c.Cell, &c.Sector, &c.Village)
+		if err != nil {
 			return users.AgentPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
 		items = append(items, c)
