@@ -2,7 +2,9 @@ package feedback
 
 import (
 	"net/http"
+	"strconv"
 
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 
 	"github.com/gorilla/mux"
@@ -21,27 +23,28 @@ type HandlerOpts struct {
 
 // Recode handlers new feedback message submission
 func Recode(lgger log.Entry, svc feedback.Service) http.Handler {
+	const op errors.Op = "api/http/feedback/Record"
+
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		if err := CheckContentType(r); err != nil {
-			encodeError(w, err)
-			return
-		}
-
 		var req feedback.Message
 
-		err := decode(r.Body, &req)
+		err := decode(r, &req)
 		if err != nil {
-			encodeError(w, err)
+			err = errors.E(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 		res, err := svc.Record(ctx, &req)
 		if err != nil {
-			encodeError(w, err)
+			err = errors.E(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
-		encode(w, http.StatusCreated, feedback.Message{ID: res.ID})
+		encode(w, http.StatusCreated, res)
 	}
 
 	return http.HandlerFunc(f)
@@ -49,19 +52,17 @@ func Recode(lgger log.Entry, svc feedback.Service) http.Handler {
 
 // Update handles feedback updates
 func Update(lgger log.Entry, svc feedback.Service) http.Handler {
-	f := func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
+	const op errors.Op = "api/http/feedback/Update"
 
-		if err := CheckContentType(r); err != nil {
-			encodeError(w, err)
-			return
-		}
+	f := func(w http.ResponseWriter, r *http.Request) {
 
 		var req feedback.Message
 
-		err := decode(r.Body, &req)
+		err := decode(r, &req)
 		if err != nil {
-			encodeError(w, err)
+			err = errors.E(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 
@@ -69,8 +70,10 @@ func Update(lgger log.Entry, svc feedback.Service) http.Handler {
 
 		req.ID = vars["id"]
 
-		if err := svc.Update(ctx, req); err != nil {
-			encodeError(w, err)
+		if err := svc.Update(r.Context(), req); err != nil {
+			err = errors.E(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 		encode(w, http.StatusOK, map[string]string{"message": "message updated"})
@@ -81,6 +84,8 @@ func Update(lgger log.Entry, svc feedback.Service) http.Handler {
 
 // Retrieve handles feedback entry retrieval
 func Retrieve(lgger log.Entry, svc feedback.Service) http.Handler {
+	const op errors.Op = "api/http/feedback/Retrieve"
+
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -89,7 +94,9 @@ func Retrieve(lgger log.Entry, svc feedback.Service) http.Handler {
 
 		res, err := svc.Retrieve(ctx, id)
 		if err != nil {
-			encodeError(w, err)
+			err = errors.E(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 		encode(w, http.StatusOK, res)
@@ -100,6 +107,8 @@ func Retrieve(lgger log.Entry, svc feedback.Service) http.Handler {
 
 // Delete handles feedback entry delete
 func Delete(lgger log.Entry, svc feedback.Service) http.Handler {
+	const op errors.Op = "api/http/feedback/Delete"
+
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -108,10 +117,54 @@ func Delete(lgger log.Entry, svc feedback.Service) http.Handler {
 
 		err := svc.Delete(ctx, id)
 		if err != nil {
-			encodeError(w, err)
+			err = errors.E(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
 			return
 		}
 		encode(w, http.StatusOK, map[string]string{"message": "message deleted"})
+	}
+
+	return http.HandlerFunc(f)
+}
+
+// List handles multiple message retrieval
+func List(lgger log.Entry, svc feedback.Service) http.Handler {
+	const op errors.Op = "api/http/feedback/List"
+
+	f := func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+
+		offset, err := strconv.ParseUint(vars["offset"], 10, 64)
+		if err != nil {
+			err = errors.E(op, err, "invalid offset value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		limit, err := strconv.ParseUint(vars["limit"], 10, 64)
+		if err != nil {
+			err = errors.E(op, err, "invalid limit value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		res, err := svc.List(r.Context(), offset, limit)
+		if err != nil {
+			err = errors.E(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		if err := encode(w, http.StatusOK, res); err != nil {
+			err = errors.E(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
 	}
 
 	return http.HandlerFunc(f)

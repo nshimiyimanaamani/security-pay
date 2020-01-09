@@ -94,7 +94,7 @@ func bootTransactionsService(db *sql.DB) transactions.Service {
 
 // bootFeedbackService configures the feedback service
 func bootFeedbackService(db *sql.DB) feedback.Service {
-	repo := postgres.NewMessageStore(db)
+	repo := postgres.NewMessageRepo(db)
 	idp := uuid.New()
 	opts := &feedback.Options{Repo: repo, Idp: idp}
 	return feedback.New(opts)

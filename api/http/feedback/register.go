@@ -1,8 +1,24 @@
 package feedback
 
-import "github.com/gorilla/mux"
+import (
+	"net/http"
 
-import "net/http"
+	"github.com/gorilla/mux"
+	"github.com/rugwirobaker/paypack-backend/pkg/log"
+)
+
+// LogEntryHandler pulls a log entry from the request context. Thanks to the
+// LogEntryMiddleware, we should have a log entry stored in the context for each
+// request with request-specific fields. This will grab the entry and pass it to
+// the protocol handlers
+func LogEntryHandler(ph ProtocolHandler, opts *HandlerOpts) http.Handler {
+	f := func(w http.ResponseWriter, r *http.Request) {
+		ent := log.EntryFromContext(r.Context())
+		handler := ph(ent, opts.Service)
+		handler.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(f)
+}
 
 // RegisterHandlers ...
 func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
@@ -11,8 +27,10 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		panic("absolutely unacceptable handler opts")
 	}
 
-	r.Handle(RecodeRoute, Recode(opts.Logger, opts.Service)).Methods(http.MethodPost)
-	r.Handle(RetrieveRoute, Retrieve(opts.Logger, opts.Service)).Methods(http.MethodGet)
-	r.Handle(DeleteRoute, Delete(opts.Logger, opts.Service)).Methods(http.MethodDelete)
-	r.Handle(UpdateRoute, Update(opts.Logger, opts.Service)).Methods(http.MethodPut)
+	r.Handle(RecodeRoute, LogEntryHandler(Recode, opts)).Methods(http.MethodPost)
+	r.Handle(RetrieveRoute, LogEntryHandler(Retrieve, opts)).Methods(http.MethodGet)
+	r.Handle(DeleteRoute, LogEntryHandler(Delete, opts)).Methods(http.MethodDelete)
+	r.Handle(UpdateRoute, LogEntryHandler(Update, opts)).Methods(http.MethodPut)
+	r.Handle(ListRoute, LogEntryHandler(List, opts)).Methods(http.MethodGet).
+		Queries("offset", "{offset}", "limit", "{limit}")
 }
