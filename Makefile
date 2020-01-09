@@ -40,7 +40,7 @@ release:	## build the paypack server with version number
 
 test:		## run unit tests
 	@echo "> running unit tests..."
-	@go test $(GOFILES)
+	@go test -race $(GOFILES)
 
 tidy:		## install dependencies
 	@echo "> downloading dependincies..."
