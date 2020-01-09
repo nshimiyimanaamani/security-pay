@@ -120,6 +120,8 @@ func (repo *userRepository) ListAgents(ctx context.Context, offset, limit uint64
 			users.password,
 			users.created_at, 
 			users.updated_at,
+			agents.first_name,
+			agents.last_name,
 			agents.cell,
 			agents.sector,
 			agents.village
@@ -144,7 +146,7 @@ func (repo *userRepository) ListAgents(ctx context.Context, offset, limit uint64
 	for rows.Next() {
 		c := users.Agent{}
 
-		err := rows.Scan(&c.Telephone, &c.Account, &c.Role, &c.Password, &c.CreatedAt, &c.UpdatedAt, &c.Cell, &c.Sector, &c.Village)
+		err := rows.Scan(&c.Telephone, &c.Account, &c.Role, &c.Password, &c.CreatedAt, &c.UpdatedAt, &c.FirstName, &c.LastName, &c.Cell, &c.Sector, &c.Village)
 		if err != nil {
 			return users.AgentPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
