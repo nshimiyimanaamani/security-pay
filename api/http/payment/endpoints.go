@@ -6,6 +6,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/sirupsen/logrus"
 )
 
 // Initialize handles payment initialization
@@ -48,12 +49,16 @@ func Validate(logger log.Entry, svc payment.Service) http.Handler {
 
 		callback := payment.Callback{}
 
+		logrus.Debug(r.Body)
+
 		if err := decode(r.Body, &callback); err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)
 			return
 		}
+
+		defer r.Body.Close()
 
 		err := svc.Confirm(r.Context(), callback)
 		if err != nil {
