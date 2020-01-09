@@ -166,3 +166,63 @@ func TestDelete(t *testing.T) {
 		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }
+
+func TestList(t *testing.T) {
+	svc := newService()
+
+	const op errors.Op = "app/accounts/service.List"
+
+	msg := feedback.Message{Title: "title", Body: "body", Creator: "0784677882"}
+
+	n := uint64(10)
+	for i := uint64(0); i < n; i++ {
+		ctx := context.Background()
+		_, err := svc.Record(ctx, &msg)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	}
+
+	cases := []struct {
+		desc   string
+		offset uint64
+		limit  uint64
+		size   uint64
+		err    error
+	}{
+		{
+			desc:   "list all accounts",
+			offset: 0,
+			limit:  n,
+			size:   n,
+			err:    nil,
+		},
+		{
+			desc:   "list half of the accounts",
+			offset: n / 2,
+			limit:  n,
+			size:   n / 2,
+			err:    nil,
+		},
+		{
+			desc: "	list empty set",
+			offset: n + 1,
+			limit:  n,
+			size:   0,
+			err:    nil,
+		},
+		{
+			desc:   "list with zero limit",
+			offset: 1,
+			limit:  0,
+			size:   0,
+			err:    nil,
+		},
+	}
+
+	for _, tc := range cases {
+		ctx := context.Background()
+		page, err := svc.List(ctx, tc.offset, tc.limit)
+		size := uint64(len(page.Messages))
+		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
+	}
+}

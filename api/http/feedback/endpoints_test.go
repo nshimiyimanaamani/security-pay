@@ -14,7 +14,6 @@ import (
 
 	"github.com/gorilla/mux"
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/feedback"
-	"github.com/rugwirobaker/paypack-backend/app/accounts"
 	"github.com/rugwirobaker/paypack-backend/app/feedback"
 	"github.com/rugwirobaker/paypack-backend/app/feedback/mocks"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
@@ -376,8 +375,6 @@ func TestList(t *testing.T) {
 	svc := newService()
 	srv := newServer(svc)
 
-	t.Skip()
-
 	defer srv.Close()
 	client := srv.Client()
 
@@ -393,7 +390,7 @@ func TestList(t *testing.T) {
 		data = append(data, *saved)
 	}
 
-	accountsURL := fmt.Sprintf("%s/feedback", srv.URL)
+	messagesURL := fmt.Sprintf("%s/feedback", srv.URL)
 
 	cases := []struct {
 		desc   string
@@ -402,21 +399,21 @@ func TestList(t *testing.T) {
 		res    []feedback.Message
 	}{
 		{
-			desc:   "get a list of accounts",
+			desc:   "get a list of messages",
 			status: http.StatusOK,
-			url:    fmt.Sprintf("%s?offset=%d&limit=%d", accountsURL, 0, 5),
+			url:    fmt.Sprintf("%s?offset=%d&limit=%d", messagesURL, 0, 5),
 			res:    data[0:5],
 		},
 		{
-			desc:   "get a list of accounts with negative offset",
+			desc:   "get a list of messages with negative offset",
 			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s?offset=%d&limit=%d", accountsURL, -1, 5),
+			url:    fmt.Sprintf("%s?offset=%d&limit=%d", messagesURL, -1, 5),
 			res:    nil,
 		},
 		{
-			desc:   "get a list of accounts with negative limit",
+			desc:   "get a list of messages with negative limit",
 			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s?offset=%d&limit=%d", accountsURL, 1, -5),
+			url:    fmt.Sprintf("%s?offset=%d&limit=%d", messagesURL, 1, -5),
 			res:    nil,
 		},
 	}
@@ -430,10 +427,10 @@ func TestList(t *testing.T) {
 
 		res, err := req.make()
 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
-		var data accounts.AccountPage
+		var data feedback.MessagePage
 		json.NewDecoder(res.Body).Decode(&data)
 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
-		assert.ElementsMatch(t, tc.res, data.Accounts, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Accounts))
+		assert.ElementsMatch(t, tc.res, data.Messages, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Messages))
 	}
 
 }
