@@ -59,9 +59,12 @@ func (repo *propertiesStore) Save(ctx context.Context, pro properties.Property) 
 func (repo *propertiesStore) UpdateProperty(ctx context.Context, pro properties.Property) error {
 	const op errors.Op = "store/postgres/propertiesStore.UpdateProperty"
 
-	q := `UPDATE properties SET owner=$1, due=$2, occupied=$3, for_rent=$4 WHERE id=$5;`
+	q := `UPDATE properties SET owner=$1, due=$2, sector=$3, cell=$4, village=$5, occupied=$6, for_rent=$7 WHERE id=$8;`
 
-	res, err := repo.Exec(q, pro.Owner.ID, pro.Due, pro.ForRent, pro.Occupied, pro.ID)
+	res, err := repo.Exec(q, pro.Owner.ID, pro.Due,
+		pro.Address.Sector, pro.Address.Cell, pro.Address.Village, pro.ForRent, pro.Occupied, pro.ID,
+	)
+
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
