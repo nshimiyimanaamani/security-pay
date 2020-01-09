@@ -12,21 +12,20 @@ func (svc *service) RegisterAgent(ctx context.Context, user Agent) (Agent, error
 		return Agent{}, errors.E(op, err)
 	}
 
-	plain := svc.pgen.Generate(ctx)
+	// pasword := svc.pgen.Generate(ctx)
 
-	password, err := svc.hasher.Hash(plain)
-	if err != nil {
-		return Agent{}, errors.E(op, err)
-	}
-	user.Password = password
+	// password, err := svc.hasher.Hash(plain)
+	// if err != nil {
+	// 	return Agent{}, errors.E(op, err)
+	// }
+	user.Password = svc.pgen.Generate(ctx)
 
 	user.Role = Min
 
-	user, err = svc.repo.SaveAgent(ctx, user)
+	user, err := svc.repo.SaveAgent(ctx, user)
 	if err != nil {
 		return Agent{}, errors.E(op, err)
 	}
-	user.Password = plain
 	return user, nil
 }
 func (svc *service) RetrieveAgent(ctx context.Context, id string) (Agent, error) {

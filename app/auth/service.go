@@ -5,6 +5,7 @@ import (
 
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/passwords"
+	"github.com/rugwirobaker/paypack-backend/pkg/passwords/plain"
 )
 
 var _ (Service) = (*service)(nil)
@@ -52,6 +53,18 @@ func (svc *service) Login(ctx context.Context, user Credentials) (string, error)
 	if err != nil {
 		return "", errors.E(op, err)
 	}
+
+	switch creds.Role {
+	case Dev, Admin, Basic:
+		if err := svc.hasher.Compare(user.Password, creds.Password); err != nil {
+			return "", errors.E(op, err)
+		}
+	case Min:
+		if err := svc.comparePass(user, creds); err != nil {
+			return "", errors.E(op, err)
+		}
+	}
+
 	if err := svc.hasher.Compare(user.Password, creds.Password); err != nil {
 		return "", errors.E(op, err)
 	}
@@ -72,4 +85,14 @@ func (svc *service) Identify(ctx context.Context, token string) (Credentials, er
 		return Credentials{}, errors.E(op, err)
 	}
 	return creds, nil
+}
+
+func (svc *service) comparePass(creds, user Credentials) error {
+	switch creds.Role {
+	case Dev, Admin, Basic:
+		return svc.hasher.Compare(user.Password, creds.Password)
+	case Min:
+		return plain.Compare(user.Password, creds.Password)
+	}
+	return nil
 }
