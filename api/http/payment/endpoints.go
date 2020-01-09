@@ -1,6 +1,8 @@
 package payment
 
 import (
+	"bytes"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/rugwirobaker/paypack-backend/app/payment"
@@ -49,7 +51,10 @@ func Validate(logger log.Entry, svc payment.Service) http.Handler {
 
 		callback := payment.Callback{}
 
-		logrus.Debug(r.Body)
+		buf, _ := ioutil.ReadAll(r.Body)
+
+		rdr1 := ioutil.NopCloser(bytes.NewBuffer(buf))
+		logrus.Debug(rdr1)
 
 		if err := decode(r.Body, &callback); err != nil {
 			err = errors.E(op, err)
