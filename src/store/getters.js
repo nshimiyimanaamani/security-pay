@@ -7,7 +7,8 @@ const getters = {
   getVillageArray: state => state.village_array,
   getActiveSector: state => state.active_sector,
   villageByCell: state => state.villageByCell,
-  userDetails: state => state.user
+  userDetails: state => state.user,
+  getMonths: state => state.months
 }
 
 export default getters

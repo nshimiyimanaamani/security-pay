@@ -40,6 +40,7 @@
         :items="loadData"
         :fields="table.fields"
         :busy.sync="state.tableLoad"
+        @row-contextmenu="menu"
       >
         <template v-slot:table-busy>
           <div class="text-center my-2">
@@ -49,18 +50,38 @@
         </template>
       </b-table>
     </b-tab>
+    <vue-simple-context-menu
+      :elementId="'dev-rightmenu'"
+      :options="rightMenu.options"
+      :ref="'dev_rightMenu'"
+      @option-clicked="optionClicked"
+    ></vue-simple-context-menu>
+    <b-modal v-model="change_pswd_modal.show" title="Change Password" hide-footer>
+      <b-form @submit.prevent="changePassword">
+        <b-form-group id="input-group-1" label="New Password:" label-for="input-1">
+          <b-form-input id="input-1" required v-model="form.newPwd" placeholder="New Password..."></b-form-input>
+        </b-form-group>
+        <b-form-group class="m-0">
+          <b-button variant="info" class="float-right" type="submit">
+            {{state.changing ? 'Changing' : "Change"}}
+            <b-spinner v-show="state.changing" small type="grow"></b-spinner>
+          </b-button>
+        </b-form-group>
+      </b-form>
+    </b-modal>
   </b-tabs>
 </template>
 
 <script>
 const jwt = require("jsonwebtoken");
 export default {
-  name: "add-agent",
+  name: "add-dev",
   data() {
     return {
       form: {
         email: null,
-        password: null
+        password: null,
+        newPwd: null
       },
       table: {
         fields: [
@@ -70,7 +91,20 @@ export default {
       },
       state: {
         creating: false,
-        tableLoad: false
+        tableLoad: false,
+        changing: false
+      },
+      change_pswd_modal: {
+        show: false,
+        data: null
+      },
+      rightMenu: {
+        options: [
+          { name: "Edit", slug: "edit" },
+          { name: "Change Password", slug: "changePwd" },
+          { name: "Update", slug: "update" },
+          { name: "Delete", slug: "delete" }
+        ]
       }
     };
   },
@@ -93,6 +127,18 @@ export default {
           this.state.creating = false;
           this.form = { email: null, password: null };
           this.$snotify.info("Developer successfully created...");
+          const message = `Password For ${res.data.email} is: ${res.data.password}`;
+          this.$bvModal
+            .msgBoxOk(message, {
+              title: "Developer Details",
+              size: "sm",
+              buttonSize: "md",
+              okVariant: "info",
+              headerClass: "p-2 border-bottom-0",
+              footerClass: "p-2 border-top-0",
+              centered: true
+            })
+            .then(res => console.log(""));
         })
         .catch(err => {
           this.state.creating = false;
@@ -103,6 +149,7 @@ export default {
         });
     },
     loadData() {
+      this.state.tableLoad = true;
       const promise = this.axios.get(
         this.endpoint + "/accounts/developers?offset=0&limit=10"
       );
@@ -114,6 +161,62 @@ export default {
         .catch(err => {
           this.state.tableLoad = false;
           return [];
+        });
+    },
+    menu(house, index, evt) {
+      evt.preventDefault();
+      Object.defineProperty(event, "pageX", {
+        value: event.pageX - 410,
+        writable: true
+      });
+      Object.defineProperty(event, "pageY", {
+        value: event.pageY - 110,
+        writable: true
+      });
+      this.$refs.admin_rightMenu.showMenu(evt, house);
+    },
+    optionClicked(data) {
+      if (data.option.slug == "delete") {
+        this.state.tableLoad = true;
+        this.axios
+          .delete(this.endpoint + `/accounts/${data.email}`)
+          .then(res => {
+            this.loadData();
+            this.state.tableLoad = false;
+            this.$snotify.info("Developer deleted Succesfully");
+            console.log(res.data);
+          })
+          .catch(err => {
+            this.state.tableLoad = false;
+            const error = navigator.onLine
+              ? err.response.data.error || err.response.data
+              : "Please connect to the internet";
+            this.$snotify.error(error);
+          });
+      } else if (data.option.slug == "changePwd") {
+        this.change_pswd_modal.show = true;
+        this.change_pswd_modal.data = { ...data.item };
+      }
+    },
+    changePassword() {
+      this.state.changing = true;
+      const data = this.change_pswd_modal.data;
+      this.axios
+        .put(this.endpoint + "/accounts/developers/creds/" + data.email, {
+          password: this.form.newPwd
+        })
+        .then(res => {
+          this.$snotify.info(res.data.message);
+          this.state.changing = false;
+          this.change_pswd_modal.show = false;
+        })
+        .catch(err => {
+          const error = navigator.onLine
+            ? err.response.data.error || err.response.data
+            : "Please connect to the internet";
+          this.$snotify.error(error);
+          this.state.changing = false;
+          this.change_pswd_modal.show = false;
         });
     },
     toCapital(string) {
