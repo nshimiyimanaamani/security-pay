@@ -7,6 +7,7 @@ import (
 
 	"github.com/rugwirobaker/paypack-backend/app/feedback"
 	"github.com/rugwirobaker/paypack-backend/app/feedback/mocks"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -24,6 +25,8 @@ func newService() feedback.Service {
 func TestRecord(t *testing.T) {
 	svc := newService()
 
+	const op errors.Op = "app/feedback/service.Record"
+
 	cases := []struct {
 		desc string
 		msg  feedback.Message
@@ -35,26 +38,26 @@ func TestRecord(t *testing.T) {
 			err:  nil,
 		},
 		{
-			desc: "record message without title",
+			desc: "record message without body",
 			msg:  feedback.Message{Title: "title"},
-			err:  feedback.ErrInvalidEntity,
+			err:  errors.E(op, "invalid message: missing body"),
 		},
 		{
-			desc: "record message without body",
+			desc: "record message without title",
 			msg:  feedback.Message{Body: "body"},
-			err:  feedback.ErrInvalidEntity,
+			err:  errors.E(op, "invalid message: missing title"),
 		},
 		{
 			desc: "record message without creator",
 			msg:  feedback.Message{Body: "body", Title: "title"},
-			err:  feedback.ErrInvalidEntity,
+			err:  errors.E(op, "invalid message: missing creator"),
 		},
 	}
 
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := svc.Record(ctx, &tc.msg)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }
 
@@ -66,6 +69,8 @@ func TestRetrieve(t *testing.T) {
 
 	saved, err := svc.Record(ctx, &msg)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+	const op errors.Op = "app/feedback/service.Retrieve"
 
 	cases := []struct {
 		desc string
@@ -80,14 +85,14 @@ func TestRetrieve(t *testing.T) {
 		{
 			desc: "retrieve non-existant message",
 			id:   wrong,
-			err:  feedback.ErrNotFound,
+			err:  errors.E(op, "message not found"),
 		},
 	}
 
 	for _, tc := range cases {
 		ctx := context.Background()
 		_, err := svc.Retrieve(ctx, tc.id)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 
 }
@@ -100,6 +105,8 @@ func TestUpdate(t *testing.T) {
 
 	saved, err := svc.Record(ctx, &msg)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+	const op errors.Op = "app/feedback/service.Update"
 
 	cases := []struct {
 		desc string
@@ -114,15 +121,15 @@ func TestUpdate(t *testing.T) {
 
 		{
 			desc: "update non existant message",
-			msg:  feedback.Message{Title: "title", Body: "body"},
-			err:  feedback.ErrNotFound,
+			msg:  feedback.Message{Title: "title", Body: "body", Creator: "0784677882"},
+			err:  errors.E(op, "message not found"),
 		},
 	}
 
 	for _, tc := range cases {
 		ctx := context.Background()
 		err := svc.Update(ctx, tc.msg)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }
 
@@ -133,6 +140,8 @@ func TestDelete(t *testing.T) {
 	msg := feedback.Message{Title: "title", Body: "body", Creator: "0784677882"}
 	saved, err := svc.Record(ctx, &msg)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+	const op errors.Op = "app/feedback/service.Delete"
 
 	cases := []struct {
 		desc string
@@ -147,13 +156,13 @@ func TestDelete(t *testing.T) {
 		{
 			desc: "delete non-existant message",
 			id:   wrong,
-			err:  feedback.ErrNotFound,
+			err:  errors.E(op, "message not found"),
 		},
 	}
 
 	for _, tc := range cases {
 		ctx := context.Background()
 		err := svc.Delete(ctx, tc.id)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }

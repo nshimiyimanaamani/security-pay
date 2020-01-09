@@ -11,10 +11,10 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/gorilla/mux"
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/feedback"
+	"github.com/rugwirobaker/paypack-backend/app/accounts"
 	"github.com/rugwirobaker/paypack-backend/app/feedback"
 	"github.com/rugwirobaker/paypack-backend/app/feedback/mocks"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
@@ -81,14 +81,11 @@ func TestRecord(t *testing.T) {
 	defer srv.Close()
 	client := srv.Client()
 
-	msg := feedback.Message{Title: "title", Body: "body", Creator: "0784677882"}
+	msg := feedback.Message{ID: "1", Title: "title", Body: "body", Creator: "0784677882"}
 
 	validData := toJSON(msg)
-	invalidData := toJSON(feedback.Message{Title: "title"})
 
-	res := toJSON(msgRes{ID: "1"})
-	invalidEntityRes := toJSON(errRes{"invalid message entity"})
-	unsupportedContentRes := toJSON(errRes{"unsupported content type"})
+	res := toJSON(feedback.Message{ID: "1", Title: "title", Body: "body", Creator: "0784677882"})
 
 	cases := []struct {
 		desc        string
@@ -107,38 +104,38 @@ func TestRecord(t *testing.T) {
 		},
 		{
 			desc:        "record message with invalid data",
-			req:         invalidData,
+			req:         toJSON(feedback.Message{Title: "title"}),
 			contentType: contentType,
 			status:      http.StatusBadRequest,
-			res:         invalidEntityRes,
+			res:         toJSON(map[string]string{"error": "invalid message: missing body"}),
 		},
 		{
 			desc:        "record message with invalid request format",
 			req:         "{",
 			contentType: contentType,
 			status:      http.StatusBadRequest,
-			res:         invalidEntityRes,
+			res:         toJSON(map[string]string{"error": "invalid message: missing title"}),
 		},
 		{
 			desc:        "record message with empty JSON request",
 			req:         "{}",
 			contentType: contentType,
 			status:      http.StatusBadRequest,
-			res:         invalidEntityRes,
+			res:         toJSON(map[string]string{"error": "invalid message: missing title"}),
 		},
 		{
 			desc:        "record message with empty request",
 			req:         "",
 			contentType: contentType,
 			status:      http.StatusBadRequest,
-			res:         invalidEntityRes,
+			res:         toJSON(map[string]string{"error": "invalid request: wrong data format"}),
 		},
 		{
-			desc:        "add property with missing content type",
+			desc:        "add message with missing content type",
 			req:         validData,
 			contentType: "",
 			status:      http.StatusUnsupportedMediaType,
-			res:         unsupportedContentRes,
+			res:         toJSON(map[string]string{"error": "invalid request: invalid content type"}),
 		},
 	}
 
@@ -178,18 +175,6 @@ func TestRetrieve(t *testing.T) {
 	saved, err := svc.Record(ctx, &msg)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
-	expected := msgRes{
-		ID:        saved.ID,
-		Title:     saved.Title,
-		Body:      saved.Body,
-		Creator:   saved.Creator,
-		CreatedAt: saved.CreatedAt,
-		UpdatedAt: saved.UpdatedAt,
-	}
-
-	data := toJSON(expected)
-	notFoundRes := toJSON(errRes{"message entity not found"})
-
 	cases := []struct {
 		desc        string
 		id          string
@@ -201,19 +186,19 @@ func TestRetrieve(t *testing.T) {
 			desc:   "retrieve existing message",
 			id:     saved.ID,
 			status: http.StatusOK,
-			res:    data,
+			res:    toJSON(saved),
 		},
 		{
 			desc:   "retrieve non-existent message",
 			id:     strconv.FormatUint(wrongID, 10),
 			status: http.StatusNotFound,
-			res:    notFoundRes,
+			res:    toJSON(map[string]string{"error": "message not found"}),
 		},
 		{
 			desc:   "retrieve message by passing invalid id",
 			id:     "invalid",
 			status: http.StatusNotFound,
-			res:    notFoundRes,
+			res:    toJSON(map[string]string{"error": "message not found"}),
 		},
 	}
 
@@ -248,9 +233,6 @@ func TestDelete(t *testing.T) {
 
 	saved, err := svc.Record(ctx, &msg)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
-	notFoundRes := toJSON(errRes{"message entity not found"})
-
-	expected := toJSON(map[string]string{"message": "message deleted"})
 
 	cases := []struct {
 		desc        string
@@ -263,19 +245,19 @@ func TestDelete(t *testing.T) {
 			desc:   "delete existing message",
 			id:     saved.ID,
 			status: http.StatusOK,
-			res:    expected,
+			res:    toJSON(map[string]string{"message": "message deleted"}),
 		},
 		{
 			desc:   "delete non-existent message",
 			id:     strconv.FormatUint(wrongID, 10),
 			status: http.StatusNotFound,
-			res:    notFoundRes,
+			res:    toJSON(map[string]string{"error": "message not found"}),
 		},
 		{
 			desc:   "delete message by passing invalid id",
 			id:     "invalid",
 			status: http.StatusNotFound,
-			res:    notFoundRes,
+			res:    toJSON(map[string]string{"error": "message not found"}),
 		},
 	}
 
@@ -310,21 +292,6 @@ func TestUpdate(t *testing.T) {
 	saved, err := svc.Record(ctx, &msg)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
-	res := msgRes{
-		ID:        saved.ID,
-		Title:     saved.Title,
-		Body:      saved.Body,
-		Creator:   saved.Creator,
-		CreatedAt: saved.CreatedAt,
-		UpdatedAt: saved.UpdatedAt,
-	}
-
-	data := toJSON(res)
-
-	notFoundMessage := toJSON(errRes{"message entity not found"})
-	invalidEntityMessage := toJSON(errRes{"invalid message entity"})
-	unsupportedContentMessage := toJSON(errRes{"unsupported content type"})
-
 	expected := toJSON(map[string]string{"message": "message updated"})
 
 	cases := []struct {
@@ -337,7 +304,7 @@ func TestUpdate(t *testing.T) {
 	}{
 		{
 			desc:        "update existing message",
-			req:         data,
+			req:         toJSON(saved),
 			id:          saved.ID,
 			contentType: contentType,
 			status:      http.StatusOK,
@@ -345,43 +312,43 @@ func TestUpdate(t *testing.T) {
 		},
 		{
 			desc:        "update non-existent message",
-			req:         data,
+			req:         toJSON(saved),
 			id:          strconv.FormatUint(wrongID, 10),
 			contentType: contentType,
 			status:      http.StatusNotFound,
-			res:         notFoundMessage,
+			res:         toJSON(map[string]string{"error": "message not found"}),
 		},
 		{
-			desc:        "update property with invalid id",
-			req:         data,
+			desc:        "update message with invalid id",
+			req:         toJSON(saved),
 			id:          "invalid",
 			contentType: contentType,
 			status:      http.StatusNotFound,
-			res:         notFoundMessage,
+			res:         toJSON(map[string]string{"error": "message not found"}),
 		},
 		{
-			desc:        "update property with invalid data format",
+			desc:        "update message with invalid data format",
 			req:         "{",
 			id:          saved.ID,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
-			res:         invalidEntityMessage,
+			res:         toJSON(map[string]string{"error": "invalid message: missing title"}),
 		},
 		{
-			desc:        "update property with empty request",
+			desc:        "update message with empty request",
 			req:         "",
 			id:          saved.ID,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
-			res:         invalidEntityMessage,
+			res:         toJSON(map[string]string{"error": "invalid request: wrong data format"}),
 		},
 		{
 			desc:        "update thing without content type",
-			req:         data,
+			req:         toJSON(saved),
 			id:          saved.ID,
 			contentType: "",
 			status:      http.StatusUnsupportedMediaType,
-			res:         unsupportedContentMessage,
+			res:         toJSON(map[string]string{"error": "invalid request: invalid content type"}),
 		},
 	}
 
@@ -405,15 +372,68 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
-type msgRes struct {
-	ID        string    `json:"id"`
-	Title     string    `json:"title,omitempty"`
-	Body      string    `json:"body,omitempty"`
-	Creator   string    `json:"creator,omitempty"`
-	CreatedAt time.Time `json:"created_at,omitempty"`
-	UpdatedAt time.Time `json:"update_at,omitempty"`
-}
+func TestList(t *testing.T) {
+	svc := newService()
+	srv := newServer(svc)
 
-type errRes struct {
-	Message string `json:"message"`
+	t.Skip()
+
+	defer srv.Close()
+	client := srv.Client()
+
+	msg := feedback.Message{Title: "title", Body: "body", Creator: "0784677882"}
+
+	data := []feedback.Message{}
+
+	n := uint64(10)
+	for i := uint64(0); i < n; i++ {
+		ctx := context.Background()
+		saved, err := svc.Record(ctx, &msg)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+		data = append(data, *saved)
+	}
+
+	accountsURL := fmt.Sprintf("%s/feedback", srv.URL)
+
+	cases := []struct {
+		desc   string
+		status int
+		url    string
+		res    []feedback.Message
+	}{
+		{
+			desc:   "get a list of accounts",
+			status: http.StatusOK,
+			url:    fmt.Sprintf("%s?offset=%d&limit=%d", accountsURL, 0, 5),
+			res:    data[0:5],
+		},
+		{
+			desc:   "get a list of accounts with negative offset",
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s?offset=%d&limit=%d", accountsURL, -1, 5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of accounts with negative limit",
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s?offset=%d&limit=%d", accountsURL, 1, -5),
+			res:    nil,
+		},
+	}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client: client,
+			method: http.MethodGet,
+			url:    tc.url,
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		var data accounts.AccountPage
+		json.NewDecoder(res.Body).Decode(&data)
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.ElementsMatch(t, tc.res, data.Accounts, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Accounts))
+	}
+
 }

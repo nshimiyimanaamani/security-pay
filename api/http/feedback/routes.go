@@ -6,4 +6,5 @@ const (
 	RetrieveRoute = "/feedback/{id}"
 	DeleteRoute   = "/feedback/{id}"
 	UpdateRoute   = "/feedback/{id}"
+	ListRoute     = "/feedback"
 )
