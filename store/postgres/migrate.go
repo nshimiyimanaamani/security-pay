@@ -53,6 +53,38 @@ func migrateDB(db *sql.DB) error {
 					EXECUTE PROCEDURE trigger_set_timestamp();
 					`,
 
+					`CREATE table IF NOT EXISTS cells(
+						cell			VARCHAR(256),
+						sector			VARCHAR(256),
+						created_at 		TIMESTAMP NOT NULL DEFAULT NOW(),
+						updated_at 		TIMESTAMP NOT NULL DEFAULT NOW(),
+						FOREIGN KEY (sector) references sectors(sector) ON DELETE CASCADE ON UPDATE CASCADE,
+						UNIQUE(cell,sector),
+						PRIMARY KEY(cell)
+					);
+					
+					CREATE TRIGGER set_timestamp
+					BEFORE UPDATE ON cells
+					FOR EACH ROW
+					EXECUTE PROCEDURE trigger_set_timestamp();
+					`,
+
+					`CREATE table IF NOT EXISTS villages(
+						village 		VARCHAR(256),
+						cell			VARCHAR(256),
+						sector			VARCHAR(256),
+						created_at 		TIMESTAMP NOT NULL DEFAULT NOW(),
+						updated_at 		TIMESTAMP NOT NULL DEFAULT NOW(),
+						FOREIGN KEY (cell, sector) references cells(cell, sector) ON DELETE CASCADE ON UPDATE CASCADE,
+						PRIMARY KEY(village)
+					);
+					
+					CREATE TRIGGER set_timestamp
+					BEFORE UPDATE ON villages
+					FOR EACH ROW
+					EXECUTE PROCEDURE trigger_set_timestamp();
+					`,
+
 					`CREATE table IF NOT EXISTS accounts (
 						id 				VARCHAR(256),
 						name 			TEXT NOT NULL,
