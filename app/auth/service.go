@@ -54,18 +54,7 @@ func (svc *service) Login(ctx context.Context, user Credentials) (string, error)
 		return "", errors.E(op, err)
 	}
 
-	switch creds.Role {
-	case Dev, Admin, Basic:
-		if err := svc.hasher.Compare(user.Password, creds.Password); err != nil {
-			return "", errors.E(op, err)
-		}
-	case Min:
-		if err := svc.comparePass(user, creds); err != nil {
-			return "", errors.E(op, err)
-		}
-	}
-
-	if err := svc.hasher.Compare(user.Password, creds.Password); err != nil {
+	if err := svc.comparePass(creds, user); err != nil {
 		return "", errors.E(op, err)
 	}
 
