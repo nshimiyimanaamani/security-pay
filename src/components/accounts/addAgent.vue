@@ -79,6 +79,7 @@
         :busy.sync="state.tableLoad"
         @row-contextmenu="menu"
       >
+        <template v-slot:cell(first_name)="data">{{data.item.first_name+" "+data.item.last_name}}</template>
         <template v-slot:table-busy>
           <div class="text-center my-2">
             <b-spinner class="align-middle"></b-spinner>
@@ -95,8 +96,11 @@
     ></vue-simple-context-menu>
     <b-modal v-model="change_pswd_modal.show" title="Change Password" hide-footer>
       <b-form @submit.prevent="changePassword">
-        <b-form-group id="input-group-1" label="New Password:" label-for="input-1">
-          <b-form-input id="input-1" required v-model="form.newPwd" placeholder="New Password..."></b-form-input>
+        <b-form-group id="input-group-1" label="Current Password:" label-for="input-1">
+          <b-form-input id="input-1" disabled v-model="currentPwd"></b-form-input>
+        </b-form-group>
+        <b-form-group id="input-group-2" label="New Password:" label-for="input-2">
+          <b-form-input id="input-2" required v-model="form.newPwd" placeholder="New Password..."></b-form-input>
         </b-form-group>
         <b-form-group class="m-0">
           <b-button variant="info" class="float-right" type="submit">
@@ -129,6 +133,7 @@ export default {
       },
       table: {
         fields: [
+          { key: "first_name", label: "Names" },
           { key: "telephone", label: "Phone Number" },
           { key: "sector", label: "sector" },
           { key: "cell", label: "cell" },
@@ -171,6 +176,13 @@ export default {
         return Village("Kigali", "Gasabo", sector, cell).sort();
       } else {
         return [];
+      }
+    },
+    currentPwd() {
+      if (this.change_pswd_modal.data) {
+        return this.change_pswd_modal.data.password;
+      } else {
+        return null;
       }
     }
   },
