@@ -242,6 +242,7 @@ func migrateDB(db *sql.DB) error {
 						creator		VARCHAR(15) NOT NULL,
 						created_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
 						updated_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
+						FOREIGN KEY(creator) REFERENCES owners(phone) ON UPDATE CASCADE ON DELETE CASCADE,
 						PRIMARY KEY(id)
 					);
 					
