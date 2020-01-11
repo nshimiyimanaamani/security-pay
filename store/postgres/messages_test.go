@@ -19,9 +19,15 @@ func TestSaveMessage(t *testing.T) {
 
 	defer CleanDB(t)
 
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner, err := saveOwner(t, db, owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
 	message := feedback.Message{
-		ID: uuid.New().ID(), Title: "title",
-		Body: "body",
+		ID:      uuid.New().ID(),
+		Title:   "title",
+		Body:    "body",
+		Creator: owner.Phone,
 	}
 
 	const op errors.Op = "store/postgres/messageRepo.Save"
@@ -56,9 +62,14 @@ func TestUpdateMessage(t *testing.T) {
 
 	defer CleanDB(t)
 
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner, err := saveOwner(t, db, owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
 	message := feedback.Message{
 		ID: uuid.New().ID(), Title: "title",
-		Body: "body",
+		Body:    "body",
+		Creator: owner.Phone,
 	}
 
 	ctx := context.Background()
@@ -149,9 +160,14 @@ func TestDeleteMessage(t *testing.T) {
 
 	defer CleanDB(t)
 
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner, err := saveOwner(t, db, owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
 	message := feedback.Message{
 		ID: uuid.New().ID(), Title: "title",
-		Body: "body",
+		Body:    "body",
+		Creator: owner.Phone,
 	}
 
 	ctx := context.Background()
