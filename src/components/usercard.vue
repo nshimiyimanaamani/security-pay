@@ -40,7 +40,7 @@
               :busy="state.loading"
               show-empty
             >
-              <template v-slot:cell(id)="data">{{months[data.item.id-1]}}</template>
+              <template v-slot:cell(id)="data">{{months[data.index]}}</template>
               <template v-slot:table-busy>
                 <div class="text-center my-2">
                   <b-spinner class="align-middle"></b-spinner>

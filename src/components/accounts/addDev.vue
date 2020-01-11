@@ -173,7 +173,7 @@ export default {
         value: event.pageY - 110,
         writable: true
       });
-      this.$refs.admin_rightMenu.showMenu(evt, house);
+      this.$refs.dev_rightMenu.showMenu(evt, house);
     },
     optionClicked(data) {
       if (data.option.slug == "delete") {

@@ -37,8 +37,8 @@
         <router-link to="/reports">
           <li>Properties</li>
         </router-link>
-        <router-link to="#">
-          <li>Penalties</li>
+        <router-link to="/feedbacks">
+          <li>Feedbacks</li>
         </router-link>
         <router-link to="/create" v-if="user.role == 'dev'">
           <li>Create Accounts</li>

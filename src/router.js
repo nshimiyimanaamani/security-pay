@@ -17,6 +17,7 @@ import village from "./pages/village.vue";
 import cells from "./pages/cells.vue";
 import reports from './pages/reports.vue'
 import agentView from './Layouts/agentView.vue'
+import feedbacks from './pages/feedbacks.vue'
 
 Vue.use(Router);
 var jwt = require("jsonwebtoken");
@@ -96,6 +97,14 @@ let router = new Router({
           meta: {
             requireAuth: true,
             forDev: true
+          }
+        },
+        {
+          path: "/feedbacks",
+          name: "feedbacks",
+          component: feedbacks,
+          meta: {
+            requireAuth: true
           }
         }
       ]
