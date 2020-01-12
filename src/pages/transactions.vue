@@ -123,12 +123,16 @@ export default {
           this.loading = false;
         })
         .catch(err => {
-          this.loading = false;
           this.table.items = [];
-          const error = navigator.onLine
-            ? err.response.data.error
-            : "Please connect to the internet...";
-          this.$snotify.error(error);
+          if (navigator.onLine) {
+            const error = isNullOrUndefined(err.response)
+              ? "an error occured"
+              : err.response.data.error || err.response.data;
+            this.$snotify.error(error);
+          } else {
+            this.$snotify.error("Please connect to the internet");
+          }
+          this.loading = false;
         });
     },
     total() {

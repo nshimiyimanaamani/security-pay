@@ -223,7 +223,14 @@ export default {
           })
           .catch(err => {
             this.state.adding = false;
-            this.$snotify.info(`Property Registration Failed!`);
+            if (navigator.onLine) {
+              const error = isNullOrUndefined(err.response)
+                ? "an error occured"
+                : err.response.data.error || err.response.data;
+              this.$snotify.error(error);
+            } else {
+              this.$snotify.error("Please connect to the internet");
+            }
           });
       }
     },

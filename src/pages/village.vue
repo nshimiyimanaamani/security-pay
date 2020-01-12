@@ -85,12 +85,14 @@ export default {
         })
         .catch(err => {
           if (navigator.onLine) {
-            this.$snotify.info(err.response.data.error || err.response.data);
-          } else if (!navigator.onLine) {
-            this.$snotify.info(`Please connect to the internet...`);
+            const error = isNullOrUndefined(err.response)
+              ? "an error occured"
+              : err.response.data.error || err.response.data;
+            this.$snotify.error(error);
+          } else {
+            this.$snotify.error("Please connect to the internet");
           }
           this.state.loading = false;
-          console.log(err);
           return [];
         });
     },
@@ -103,7 +105,7 @@ export default {
           );
         });
       });
-    },
+    }
   }
 };
 </script>

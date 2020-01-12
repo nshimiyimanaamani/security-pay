@@ -43,11 +43,14 @@ export default {
           this.key++;
         })
         .catch(err => {
-          const error = navigator.onLine
-            ? err.response.data.error || err.response.data
-            : "Please connect to the internet";
-          console.log(err);
-          this.$snotify.error(error);
+          if (navigator.onLine) {
+            const error = isNullOrUndefined(err.response)
+              ? "an error occured"
+              : err.response.data.error || err.response.data;
+            this.$snotify.error(error);
+          } else {
+            this.$snotify.error("Please connect to the internet");
+          }
         });
     }
   }

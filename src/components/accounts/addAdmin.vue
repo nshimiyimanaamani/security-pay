@@ -91,9 +91,7 @@ export default {
       },
       rightMenu: {
         options: [
-          { name: "Edit", slug: "edit" },
           { name: "Change Password", slug: "changePwd" },
-          { name: "Update", slug: "update" },
           { name: "Delete", slug: "delete" }
         ]
       }
@@ -134,11 +132,15 @@ export default {
             .then(res => console.log(""));
         })
         .catch(err => {
+          if (navigator.onLine) {
+            const error = isNullOrUndefined(err.response)
+              ? "an error occured"
+              : err.response.data.error || err.response.data;
+            this.$snotify.error(error);
+          } else {
+            this.$snotify.error("Please connect to the internet");
+          }
           this.state.creating = false;
-          const error = navigator.onLine
-            ? err.response.data.error
-            : "Please connect to the internet...";
-          this.$snotify.error(error);
         });
     },
     loadData() {
@@ -169,7 +171,6 @@ export default {
       this.$refs.admin_rightMenu.showMenu(evt, house);
     },
     optionClicked(data) {
-      console.log(data);
       if (data.option.slug == "delete") {
         this.state.tableLoad = true;
         this.axios
@@ -184,11 +185,15 @@ export default {
             console.log(res.data);
           })
           .catch(err => {
+            if (navigator.onLine) {
+              const error = isNullOrUndefined(err.response)
+                ? "an error occured"
+                : err.response.data.error || err.response.data;
+              this.$snotify.error(error);
+            } else {
+              this.$snotify.error("Please connect to the internet");
+            }
             this.state.tableLoad = false;
-            const error = navigator.onLine
-              ? err.response.data.error || err.response.data
-              : "Please connect to the internet";
-            this.$snotify.error(error);
           });
       } else if (data.option.slug == "changePwd") {
         this.change_pswd_modal.show = true;
@@ -206,12 +211,17 @@ export default {
           this.$snotify.info(res.data.message);
           this.state.changing = false;
           this.change_pswd_modal.show = false;
+          this.loadData();
         })
         .catch(err => {
-          const error = navigator.onLine
-            ? err.response.data.error || err.response.data
-            : "Please connect to the internet";
-          this.$snotify.error(error);
+          if (navigator.onLine) {
+            const error = isNullOrUndefined(err.response)
+              ? "an error occured"
+              : err.response.data.error || err.response.data;
+            this.$snotify.error(error);
+          } else {
+            this.$snotify.error("Please connect to the internet");
+          }
           this.state.changing = false;
           this.change_pswd_modal.show = false;
         });

@@ -14,19 +14,19 @@
         </b-tab>
         <!-- <b-tab title="Send FeedBack">
           <add-feedback />
-        </b-tab> -->
+        </b-tab>-->
       </b-tabs>
     </b-card>
   </b-container>
 </template>
 
 <script>
-import addFeedback from "../components/feedbacks/addFeedback.vue";
+// import addFeedback from "../components/feedbacks/addFeedback.vue";
 import feedbackCard from "../components/feedbacks/feedbackCard.vue";
 export default {
   name: "feedbacks",
   components: {
-    "add-feedback": addFeedback,
+    // "add-feedback": addFeedback,
     feedback: feedbackCard
   },
   data() {
@@ -51,8 +51,10 @@ export default {
       this.axios
         .get(this.endpoint + "/feedback?offset=0&limit=10")
         .then(res => {
+          this.feedbacks = res.data.Messages.sort((a, b) => {
+            return new Date(b.update_at) - new Date(a.update_at);
+          });
           this.state.loading = false;
-          this.feedbacks = res.data.Messages;
         })
         .catch(err => {
           if (navigator.onLine) {

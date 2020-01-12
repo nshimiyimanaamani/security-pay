@@ -77,12 +77,15 @@ export default {
             console.log(this.table.items);
           })
           .catch(err => {
+            if (navigator.onLine) {
+              const error = isNullOrUndefined(err.response)
+                ? "an error occured"
+                : err.response.data.error || err.response.data;
+              this.$snotify.error(error);
+            } else {
+              this.$snotify.error("Please connect to the internet");
+            }
             this.state.loading = false;
-            const error = navigator.onLine
-              ? err.response.data.error
-              : "Please connect to the internet";
-            console.log(err.response);
-            this.$snotify.error(error);
           });
       }
     },

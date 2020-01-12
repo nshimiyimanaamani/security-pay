@@ -131,11 +131,15 @@ export default {
             this.$snotify.info(`Property Registered successfully!`);
           })
           .catch(err => {
+            if (navigator.onLine) {
+              const error = isNullOrUndefined(err.response)
+                ? "an error occured"
+                : err.response.data.error || err.response.data;
+              this.$snotify.error(error);
+            } else {
+              this.$snotify.error("Please connect to the internet");
+            }
             this.state.loading = false;
-            const error = navigator.onLine
-              ? err.response.data.error || err.response.data
-              : "Please connect to the internet";
-            this.$snotify.error(error);
           });
       }
     },
@@ -176,11 +180,15 @@ export default {
                     this.addProperty();
                   })
                   .catch(err => {
+                    if (navigator.onLine) {
+                      const error = isNullOrUndefined(err.response)
+                        ? "an error occured"
+                        : err.response.data.error || err.response.data;
+                      this.$snotify.error(error);
+                    } else {
+                      this.$snotify.error("Please connect to the internet");
+                    }
                     this.state.loading = false;
-                    const error = navigator.onLine
-                      ? err.response.data.error
-                      : "Please connect to the internet";
-                    this.$snotify.error(error);
                   });
               }
             });

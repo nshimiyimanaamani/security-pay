@@ -77,13 +77,16 @@ export default {
             this.loading = false;
           })
           .catch(err => {
-            const message = navigator.onLine
-              ? err.response.data.error
-              : "Connect to the internet to log in";
-            this.$snotify.error(message);
             delete sessionStorage.token;
             this.loading = false;
-            console.log(err.response)
+            if (navigator.onLine) {
+              const error = isNullOrUndefined(err.response)
+                ? "an error occured"
+                : err.response.data.error || err.response.data;
+              this.$snotify.error(error);
+            } else {
+              this.$snotify.error("Please connect to the internet");
+            }
           });
       }
     }

@@ -38,9 +38,14 @@
               :items="invoices"
               :fields="fields"
               :busy="state.loading"
+              :tbody-tr-class="rowClass"
               show-empty
             >
               <template v-slot:cell(id)="data">{{months[data.index]}}</template>
+              <template v-slot:cell(amount)="data">
+                {{data.item.status=="pending"?'-':''}}
+                {{Number(data.item.amount).toLocaleString()}} Rwf
+              </template>
               <template v-slot:table-busy>
                 <div class="text-center my-2">
                   <b-spinner class="align-middle"></b-spinner>
@@ -103,6 +108,10 @@ export default {
     showCollapse() {
       this.state.show = !this.state.show;
     },
+    rowClass(item, type) {
+      if (!item || type !== "row") return;
+      if (item.status === "pending") return "table-danger";
+    },
     loadData() {
       if (this.state.show) {
         this.state.loading = true;
@@ -117,12 +126,15 @@ export default {
             this.state.loading = false;
           })
           .catch(err => {
-            this.state.loading = false;
             if (navigator.onLine) {
-              this.$snotify.error(err.response.data.error || err.response.data);
+              const error = isNullOrUndefined(err.response)
+                ? "an error occured"
+                : err.response.data.error || err.response.data;
+              this.$snotify.error(error);
             } else {
-              this.$snotify.error("Please connect to the internet...");
+              this.$snotify.error("Please connect to the internet");
             }
+            this.state.loading = false;
           });
       }
     }

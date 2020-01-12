@@ -88,11 +88,15 @@ export default {
             this.loading = false;
           })
           .catch(err => {
-            console.log(err);
             this.loading = false;
-            this.$snotify.error(
-              `user registration Failed! please try again Later `
-            );
+            if (navigator.onLine) {
+              const error = isNullOrUndefined(err.response)
+                ? "an error occured"
+                : err.response.data.error || err.response.data;
+              this.$snotify.error(error);
+            } else {
+              this.$snotify.error("Please connect to the internet");
+            }
           });
       }
     }

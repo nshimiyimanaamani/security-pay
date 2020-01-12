@@ -346,7 +346,15 @@ export default {
           this.loading.request = false;
         })
         .catch(err => {
-          console.log(err.response.data.error);
+          if (navigator.onLine) {
+            const error = isNullOrUndefined(err.response)
+              ? "an error occured"
+              : err.response.data.error || err.response.data;
+            this.$snotify.error(error);
+          } else {
+            this.$snotify.error("Please connect to the internet");
+          }
+          this.loading.request = false;
         });
     },
     editHouse(house, index, evt) {

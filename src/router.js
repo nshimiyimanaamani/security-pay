@@ -104,7 +104,7 @@ let router = new Router({
           name: "feedbacks",
           component: feedbacks,
           meta: {
-            requireAuth: true
+            requireAuth: true,
           }
         }
       ]

@@ -174,11 +174,15 @@ export default {
           this.$emit("closeModal");
         })
         .catch(err => {
+          if (navigator.onLine) {
+            const error = isNullOrUndefined(err.response)
+              ? "an error occured"
+              : err.response.data.error || err.response.data;
+            this.$snotify.error(error);
+          } else {
+            this.$snotify.error("Please connect to the internet");
+          }
           this.state.updating = false;
-          const error = navigator.onLine
-            ? "Please connect to the internet"
-            : err.response.data.error;
-          this.$snotify.info(error);
           this.$emit("closeModal");
         });
     },
