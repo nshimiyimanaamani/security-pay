@@ -17,6 +17,9 @@ type Repository interface {
 	// RetrieveByOwner retrieves the subset of properties that where made using the given owner.
 	RetrieveByOwner(ctx context.Context, owner string, offset, limit uint64) (PropertyPage, error)
 
+	// RetrieveByOwner retrieves the subset of properties that where made using the given a user.
+	RetrieveByRecorder(ctx context.Context, user string, offset, limit uint64) (PropertyPage, error)
+
 	// RetrieveBySector retrieves the subset of properties within a given Sector.
 	RetrieveBySector(ctx context.Context, sector string, offset, limit uint64) (PropertyPage, error)
 
