@@ -483,3 +483,73 @@ func TestListPropertiesByVillage(t *testing.T) {
 	}
 
 }
+
+func TestListPropertiesByRecorder(t *testing.T) {
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
+
+	property := properties.Property{
+		Owner:      owner,
+		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
+	}
+
+	n := uint64(10)
+	for i := uint64(0); i < n; i++ {
+		ctx := context.Background()
+		_, err := svc.RegisterProperty(ctx, property)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	}
+
+	cases := []struct {
+		desc   string
+		user   string
+		offset uint64
+		limit  uint64
+		size   uint64
+		err    error
+	}{
+		{
+			desc:   "list all properties",
+			user:   property.RecordedBy,
+			offset: 0,
+			limit:  n,
+			size:   n,
+			err:    nil,
+		},
+		{
+			desc:   "list half of the properties",
+			user:   property.RecordedBy,
+			offset: n / 2,
+			limit:  n,
+			size:   n / 2,
+			err:    nil,
+		},
+		{
+			desc: "	list empty set",
+			user:   property.RecordedBy,
+			offset: n + 1,
+			limit:  n,
+			size:   0,
+			err:    nil,
+		},
+		{
+			desc:   "list with zero limit",
+			user:   property.RecordedBy,
+			offset: 1,
+			limit:  0,
+			size:   0,
+			err:    nil,
+		},
+	}
+
+	for _, tc := range cases {
+		ctx := context.Background()
+		page, err := svc.ListPropertiesByRecorder(ctx, tc.user, tc.offset, tc.limit)
+		size := uint64(len(page.Properties))
+		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
+	}
+
+}

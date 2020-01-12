@@ -646,3 +646,98 @@ func TestRetrieveByVillage(t *testing.T) {
 		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got '%v'\n", desc, err))
 	}
 }
+
+func TestRetrieveByRecorder(t *testing.T) {
+	props := postgres.NewPropertyStore(db)
+
+	defer CleanDB(t)
+
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+
+	savedAccount, err := saveAccount(t, db, account)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+	agent := users.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Role:      users.Dev,
+		Account:   savedAccount.ID,
+	}
+
+	agent, err = saveAgent(t, db, agent)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	saved, err := saveOwner(t, db, owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+	sector := "Kigomna"
+	cell := "Kigeme"
+	village := "Tetero"
+
+	n := uint64(10)
+
+	for i := uint64(0); i < n; i++ {
+		p := properties.Property{
+			ID:    nanoid.New(nil).ID(),
+			Owner: properties.Owner{ID: saved.ID},
+			Address: properties.Address{
+				Sector:  sector,
+				Cell:    cell,
+				Village: village,
+			},
+			Due:        float64(1000),
+			RecordedBy: agent.Telephone,
+			Occupied:   true,
+		}
+
+		ctx := context.Background()
+		_, err := props.Save(ctx, p)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+	}
+
+	cases := map[string]struct {
+		user   string
+		offset uint64
+		limit  uint64
+		size   uint64
+		total  uint64
+	}{
+		"retrieve all properties with existing village": {
+			user:   agent.Telephone,
+			offset: 0,
+			limit:  n,
+			size:   n,
+			total:  n,
+		},
+		"retrieve subset of properties with existing village": {
+			user:   agent.Telephone,
+			offset: n / 2,
+			limit:  n,
+			size:   n / 2,
+			total:  n,
+		},
+		"retrieve properties with non-existing village": {
+			user:   wrongValue,
+			offset: 0,
+			limit:  n,
+			size:   0,
+			total:  0,
+		},
+	}
+
+	for desc, tc := range cases {
+		ctx := context.Background()
+		page, err := props.RetrieveByRecorder(ctx, tc.user, tc.offset, tc.limit)
+		size := uint64(len(page.Properties))
+		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
+		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
+		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got '%v'\n", desc, err))
+	}
+}

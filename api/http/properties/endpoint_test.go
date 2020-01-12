@@ -751,6 +751,95 @@ func TestListPropertiesByVillage(t *testing.T) {
 	}
 }
 
+func TestListPropertiesByRecorder(t *testing.T) {
+	owner := properties.Owner{ID: uuid.New().ID()}
+
+	svc := newService(makeOwners(owner))
+	ts := newServer(svc)
+	defer ts.Close()
+	client := ts.Client()
+
+	user := uuid.New().ID()
+
+	property := properties.Property{
+		Owner: owner,
+		Address: properties.Address{
+			Sector:  "remera",
+			Cell:    "cell",
+			Village: "village",
+		},
+		Due:        float64(1000),
+		RecordedBy: user,
+		Occupied:   true,
+	}
+
+	data := []Property{}
+
+	for i := 0; i < 100; i++ {
+		ctx := context.Background()
+		saved, err := svc.RegisterProperty(ctx, property)
+		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+		res := Property{
+			ID:    saved.ID,
+			Owner: Owner{ID: saved.Owner.ID},
+			Due:   saved.Due,
+			Address: Address{
+				Sector:  saved.Address.Sector,
+				Cell:    saved.Address.Cell,
+				Village: saved.Address.Village,
+			},
+			RecordedBy: saved.RecordedBy,
+			Occupied:   saved.Occupied,
+		}
+
+		data = append(data, res)
+	}
+
+	transactionURL := fmt.Sprintf("%s/properties", ts.URL)
+
+	cases := []struct {
+		desc   string
+		status int
+		url    string
+		res    []Property
+	}{
+		{
+			desc:   "get a list of properties",
+			status: http.StatusOK,
+			url:    fmt.Sprintf("%s?user=%s&offset=%d&limit=%d", transactionURL, user, 0, 5),
+			res:    data[0:5],
+		},
+		{
+			desc:   "get a list of properties with negative offset",
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s?user=%s&offset=%d&limit=%d", transactionURL, user, -1, 5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of properties with negative limit",
+			status: http.StatusBadRequest,
+			url:    fmt.Sprintf("%s?user=%s&offset=%d&limit=%d", transactionURL, user, 1, -5),
+			res:    nil,
+		},
+	}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client: client,
+			method: http.MethodGet,
+			url:    tc.url,
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		var data Properties
+		json.NewDecoder(res.Body).Decode(&data)
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.ElementsMatch(t, tc.res, data.Properties, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Properties))
+	}
+}
+
 type Property struct {
 	ID         string    `json:"id,omitempty"`
 	Due        float64   `json:"due,string,omitempty"`
