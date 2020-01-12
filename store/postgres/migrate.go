@@ -250,6 +250,14 @@ func migrateDB(db *sql.DB) error {
 					FOR EACH ROW
 					EXECUTE PROCEDURE trigger_set_timestamp();
 					`,
+
+					`
+					CREATE VIEW sectors_payment_view AS
+					SELECT 
+						SUM(invoices.amount) AS payed
+					FROM invoices
+						WHERE invoices.status='payed'
+					`,
 				},
 
 				Down: []string{
