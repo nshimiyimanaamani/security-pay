@@ -54,11 +54,11 @@ func (svc *service) UpdateAgentCreds(ctx context.Context, user Agent) error {
 		return errors.E(op, "invalid user: missing password", errors.KindBadRequest)
 	}
 
-	password, err := svc.hasher.Hash(user.Password)
-	if err != nil {
-		return errors.E(op, err)
-	}
-	user.Password = password
+	// password, err := svc.hasher.Hash(user.Password)
+	// if err != nil {
+	// 	return errors.E(op, err)
+	// }
+	// user.Password = password
 
 	if err := svc.repo.UpdateAgentCreds(ctx, user); err != nil {
 		return errors.E(op, err)
