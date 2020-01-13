@@ -197,7 +197,7 @@ export default {
                     .catch(err => {
                       if (navigator.onLine) {
                         const error = err.response
-                          ? err.response.data.error.message || err.response.data
+                          ? err.response.data.message || err.response.data
                           : "an error occured";
                         this.$snotify.error(error);
                       } else {

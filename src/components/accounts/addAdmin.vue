@@ -90,10 +90,7 @@ export default {
         data: null
       },
       rightMenu: {
-        options: [
-          { name: "Change Password", slug: "changePwd" },
-          { name: "Delete", slug: "delete" }
-        ]
+        options: [{ name: "Change Password", slug: "changePwd" }]
       }
     };
   },

@@ -151,8 +151,7 @@ export default {
       },
       rightMenu: {
         options: [
-          { name: "Change Password", slug: "changePwd" },
-          { name: "Delete", slug: "delete" }
+          { name: "Change Password", slug: "changePwd" }
         ]
       }
     };
