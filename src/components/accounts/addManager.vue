@@ -61,18 +61,24 @@
     ></vue-simple-context-menu>
     <b-modal v-model="change_pswd_modal.show" title="Change Password" hide-footer>
       <b-form @submit.prevent="changePassword">
-        <b-form-group id="input-group-1" label="New Email:" label-for="input-1">
+        <b-form-group id="input-group-3" label="Current Email:" label-for="input-3">
+          <b-form-input id="input-3" type="email" v-model="currentData.email" disabled />
+        </b-form-group>
+        <b-form-group id="input-group-4" label="Current Cell:" label-for="input-4">
+          <b-form-input id="input-4" v-model="currentData.cell" disabled />
+        </b-form-group>
+        <b-form-group id="input-group-5" label="New Email:" label-for="input-5">
           <b-form-input
-            id="input-1"
+            id="input-5"
             type="email"
             v-model="form.newEmail"
             required
             placeholder="New Email address..."
           />
         </b-form-group>
-        <b-form-group id="input-group-2" label="New Cell:" label-for="input-2">
+        <b-form-group id="input-group-6" label="New Cell:" label-for="input-6">
           <b-form-select
-            id="input-2"
+            id="input-6"
             v-model="form.newCell"
             :options="cellOptions"
             style="font-size: 15px"
@@ -132,6 +138,19 @@ export default {
     },
     cellOptions() {
       return this.$store.getters.getCellsArray;
+    },
+    currentData() {
+      if (this.change_pswd_modal.data) {
+        return {
+          email: this.change_pswd_modal.data.email,
+          cell: this.change_pswd_modal.data.cell
+        };
+      } else {
+        return {
+          email: null,
+          cell: null
+        };
+      }
     }
   },
   methods: {
@@ -203,7 +222,7 @@ export default {
     optionClicked(data) {
       if (data.option.slug == "delete") {
         this.deleteUser(data);
-      } else if (data.option.slug == "update") {
+      } else if (data.option.slug == "changePwd") {
         this.change_pswd_modal.show = true;
         this.change_pswd_modal.data = { ...data.item };
       }

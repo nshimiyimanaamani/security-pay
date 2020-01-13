@@ -48,7 +48,7 @@
 
         <b-form-group id="input-group-5" label="Village:" label-for="input-5">
           <b-form-select
-            id="input-5"
+            id="input-6"
             v-model="form.select.village"
             :options="villageOptions"
             style="font-size: 15px"
