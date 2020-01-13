@@ -24,13 +24,14 @@ func (repo *paymentRepo) Save(ctx context.Context, tx payment.Transaction) error
 	q := `
 		INSERT INTO transactions (
 			id, 
-			madefor, 
+			madefor,
 			amount, 
 			method, 
-			invoice
-		) VALUES ($1, $2, $3, $4, $5) RETURNING created_at`
+			invoice,
+			madeby
+		) VALUES ($1, $2, $3, $4, $5, (select owner from properties where id=$6)) RETURNING created_at`
 
-	err := repo.QueryRow(q, tx.ID, tx.Code, tx.Amount, tx.Method, tx.Invoice).Scan(&tx.RecordedAt)
+	err := repo.QueryRow(q, tx.ID, tx.Code, tx.Amount, tx.Method, tx.Invoice, tx.Code).Scan(&tx.RecordedAt)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
