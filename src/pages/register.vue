@@ -88,15 +88,15 @@ export default {
             this.loading = false;
           })
           .catch(err => {
-            this.loading = false;
             if (navigator.onLine) {
-              const error = isNullOrUndefined(err.response)
-                ? "an error occured"
-                : err.response.data.error || err.response.data;
+              const error = err.response
+                ? err.response.data.error || err.response.data
+                : "an error occured";
               this.$snotify.error(error);
             } else {
               this.$snotify.error("Please connect to the internet");
             }
+            this.loading = false;
           });
       }
     }

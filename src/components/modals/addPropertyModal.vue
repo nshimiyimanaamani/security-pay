@@ -168,7 +168,7 @@ export default {
           )
           .then(res => {
             this.state.adding = false;
-            this.modal.switch = true;
+            this.state.switch = true;
             this.btnContent = "Register";
             this.form.id = res.data.id;
           })
@@ -193,6 +193,17 @@ export default {
                       this.$snotify.info(
                         `User created. proceeding to registration...`
                       );
+                    })
+                    .catch(err => {
+                      if (navigator.onLine) {
+                        const error = err.response
+                          ? err.response.data.error.message || err.response.data
+                          : "an error occured";
+                        this.$snotify.error(error);
+                      } else {
+                        this.$snotify.error("Please connect to the internet");
+                      }
+                      this.state.adding = false;
                     });
                 }
               });
@@ -222,15 +233,15 @@ export default {
             this.$snotify.info(`Property Registered successfully!`);
           })
           .catch(err => {
-            this.state.adding = false;
             if (navigator.onLine) {
-              const error = isNullOrUndefined(err.response)
-                ? "an error occured"
-                : err.response.data.error || err.response.data;
+              const error = err.response
+                ? err.response.data.error || err.response.data
+                : "an error occured";
               this.$snotify.error(error);
             } else {
               this.$snotify.error("Please connect to the internet");
             }
+            this.state.adding = false;
           });
       }
     },

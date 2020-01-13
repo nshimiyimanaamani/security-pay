@@ -116,7 +116,7 @@ export default {
     requestItems() {
       this.loading = true;
       this.axios
-        .get(this.endpoint + "/transactions?offset=0&limit=5")
+        .get(this.endpoint + "/transactions?offset=0&limit=1000")
         .then(res => {
           this.table.items = res.data.Transactions;
           console.log(this.table.items);
@@ -125,9 +125,9 @@ export default {
         .catch(err => {
           this.table.items = [];
           if (navigator.onLine) {
-            const error = isNullOrUndefined(err.response)
-              ? "an error occured"
-              : err.response.data.error || err.response.data;
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : "an error occured";
             this.$snotify.error(error);
           } else {
             this.$snotify.error("Please connect to the internet");

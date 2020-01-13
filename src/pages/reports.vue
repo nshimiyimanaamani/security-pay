@@ -339,7 +339,7 @@ export default {
     loadData() {
       this.loading.request = true;
       this.axios
-        .get(this.endpoint + "/properties?sector=Remera&offset=0&limit=10")
+        .get(this.endpoint + "/properties?sector=Remera&offset=0&limit=1000")
         .then(res => {
           this.items = new Array();
           this.items = res.data.Properties;
@@ -347,9 +347,9 @@ export default {
         })
         .catch(err => {
           if (navigator.onLine) {
-            const error = isNullOrUndefined(err.response)
-              ? "an error occured"
-              : err.response.data.error || err.response.data;
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : "an error occured";
             this.$snotify.error(error);
           } else {
             this.$snotify.error("Please connect to the internet");

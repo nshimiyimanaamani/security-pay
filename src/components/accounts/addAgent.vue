@@ -216,9 +216,9 @@ export default {
         })
         .catch(err => {
           if (navigator.onLine) {
-            const error = isNullOrUndefined(err.response)
-              ? "an error occured"
-              : err.response.data.error || err.response.data;
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : "an error occured";
             this.$snotify.error(error);
           } else {
             this.$snotify.error("Please connect to the internet");
@@ -229,7 +229,7 @@ export default {
     loadData() {
       this.state.tableLoad = true;
       const promise = this.axios.get(
-        this.endpoint + "/accounts/agents?offset=0&limit=10"
+        this.endpoint + "/accounts/agents?offset=0&limit=1000"
       );
       return promise
         .then(res => {
@@ -266,9 +266,9 @@ export default {
           })
           .catch(err => {
             if (navigator.onLine) {
-              const error = isNullOrUndefined(err.response)
-                ? "an error occured"
-                : err.response.data.error || err.response.data;
+              const error = err.response
+                ? err.response.data.error || err.response.data
+                : "an error occured";
               this.$snotify.error(error);
             } else {
               this.$snotify.error("Please connect to the internet");
@@ -295,9 +295,9 @@ export default {
         })
         .catch(err => {
           if (navigator.onLine) {
-            const error = isNullOrUndefined(err.response)
-              ? "an error occured"
-              : err.response.data.error || err.response.data;
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : "an error occured";
             this.$snotify.error(error);
           } else {
             this.$snotify.error("Please connect to the internet");

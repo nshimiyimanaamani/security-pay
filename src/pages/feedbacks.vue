@@ -49,7 +49,7 @@ export default {
     loadData() {
       this.state.loading = true;
       this.axios
-        .get(this.endpoint + "/feedback?offset=0&limit=10")
+        .get(this.endpoint + "/feedback?offset=0&limit=1000")
         .then(res => {
           this.feedbacks = res.data.Messages.sort((a, b) => {
             return new Date(b.update_at) - new Date(a.update_at);
@@ -58,9 +58,9 @@ export default {
         })
         .catch(err => {
           if (navigator.onLine) {
-            const error = isNullOrUndefined(err.response)
-              ? "an error occured"
-              : err.response.data.error || err.response.data;
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : "an error occured";
             this.$snotify.error(error);
           } else {
             this.$snotify.error("Please connect to the internet");
