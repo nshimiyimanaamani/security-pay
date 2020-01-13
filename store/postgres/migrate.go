@@ -252,11 +252,14 @@ func migrateDB(db *sql.DB) error {
 					`,
 
 					`
-					CREATE VIEW sectors_payment_view AS
-					SELECT 
-						SUM(invoices.amount) AS payed
-					FROM invoices
-						WHERE invoices.status='payed'
+					create materialized view sectors_payment_view as
+						select 
+							properties.sector,
+							count(*) filter (where status='pending') as pending,
+							count(*) filter (where status='payed') as payed
+						from invoices
+							join properties on invoices.property=properties.id
+						group by properties.sector; 
 					`,
 				},
 
