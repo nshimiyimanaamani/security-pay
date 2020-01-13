@@ -41,9 +41,9 @@ type CallBackData struct {
 // Validate validats a callback
 func (cb *Callback) Validate() error {
 	const op errors.Op = "payment.Callback.Validate"
-	// if cb.Status == "" {
-	// 	return errors.E(op, "status field must not be empty", errors.KindBadRequest)
-	// }
+	if cb.Status == "" {
+		return errors.E(op, "status field must not be empty", errors.KindBadRequest)
+	}
 
 	if cb.Data.TrxRef == "" {
 		return errors.E(op, "trxRef field must not be empty", errors.KindBadRequest)
