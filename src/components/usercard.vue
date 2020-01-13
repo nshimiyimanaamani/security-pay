@@ -23,12 +23,12 @@
         <b-card no-body class="border-0 rounded-0 border-bottom-1 p-0 m-0">
           <b-button
             block
-            v-b-toggle="'accordion-'+i"
+            v-b-toggle="'accordion-'+i+house.id"
             variant="light"
             style="font-size: 15px"
           >Year - {{currentYear-i}}</b-button>
         </b-card>
-        <b-collapse :id="'accordion-'+i" accordion="my-accordion" role="tabpanel">
+        <b-collapse :id="'accordion-'+i+house.id" accordion="my-accordion" role="tabpanel">
           <b-card-body>
             <b-table
               id="user-table"
