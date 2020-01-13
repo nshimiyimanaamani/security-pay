@@ -75,17 +75,17 @@ func TestValidateCallback(t *testing.T) {
 			},
 			err: nil,
 		},
-		// {
-		// 	desc: "validate callback without status",
-		// 	callback: payment.Callback{
-		// 		Data: payment.CallBackData{
-		// 			GwRef:  uuid.New().ID(),
-		// 			TrxRef: uuid.New().ID(),
-		// 			State:  payment.Failed,
-		// 		},
-		// 	},
-		// 	err: errors.E(op, "status field must not be empty", errors.KindBadRequest),
-		// },
+		{
+			desc: "validate callback without status",
+			callback: payment.Callback{
+				Data: payment.CallBackData{
+					GwRef:  uuid.New().ID(),
+					TrxRef: uuid.New().ID(),
+					State:  payment.Failed,
+				},
+			},
+			err: errors.E(op, "status field must not be empty", errors.KindBadRequest),
+		},
 		{
 			desc: "validate without gwRef",
 			callback: payment.Callback{

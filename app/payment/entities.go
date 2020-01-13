@@ -27,15 +27,17 @@ type Status struct {
 
 // Callback defines the response got from the callback
 type Callback struct {
-	Status string       `json:"status"`
-	Data   CallBackData `json:"data"`
+	Status string       `json:"status,omitempty"`
+	Data   CallBackData `json:"data,omitempty"`
 }
 
 // CallBackData ...
 type CallBackData struct {
-	GwRef  string `json:"gwRef"`
-	TrxRef string `json:"trxRef"`
-	State  State  `json:"state"`
+	Message    string `json:"message,omitempty"`
+	GwRef      string `json:"gwRef,omitempty"`
+	TrxRef     string `json:"trxRef,omitempty"`
+	ChannelRef string `json:"channelRef,omitempty"`
+	State      State  `json:"state,omitempty"`
 }
 
 // Validate validats a callback
