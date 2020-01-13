@@ -94,9 +94,9 @@
       :busy="loading.request"
       :sort-by.sync="sortBy"
       :sort-desc.sync="sortDesc"
-      show-empty
+      :show-empty="!loading.request"
       :current-page="pagination.currentPage"
-      :per-page="pagination.perPage"
+      :per-page="0"
       @row-contextmenu="editHouse"
     >
       <template v-slot:cell(due)="data">{{Number(data.item.due).toLocaleString()}} Rwf</template>
@@ -107,7 +107,7 @@
       </template>
       <template v-slot:table-busy>
         <div class="text-center my-2">
-          <b-spinner class="align-middle"></b-spinner>
+          <b-spinner small class="align-middle"></b-spinner>
           <strong>Loading...</strong>
         </div>
       </template>
@@ -134,13 +134,14 @@
     </b-table>
     <b-pagination
       size="sm"
+      align="center"
       v-model="pagination.currentPage"
       :total-rows="pagination.totalRows"
       :per-page="pagination.perPage"
-      align="fill"
       class="my-0"
+      pills
       v-if="!loading.request"
-    />
+    ></b-pagination>
     <add-property
       :show="addProperty.show"
       v-on:closeModal="addProperty.show =false"
@@ -249,7 +250,8 @@ export default {
       pagination: {
         perPage: 15,
         currentPage: 1,
-        totalRows: 1
+        totalRows: 1,
+        show: false
       }
     };
   },
@@ -318,15 +320,14 @@ export default {
             );
           }
         });
-        console.log(this.tableItems);
         while (this.search.datalist.length > 5) {
           this.search.datalist.pop();
         }
       }
     },
-    tableItems() {
+    "pagination.currentPage"() {
       handler: {
-        this.pagination.totalRows = this.tableItems.length;
+        this.loadData();
       }
     }
   },
@@ -338,12 +339,18 @@ export default {
   methods: {
     loadData() {
       this.loading.request = true;
+      const limit = this.pagination.currentPage * this.pagination.perPage;
+      const promise =
+        this.endpoint +
+        `/properties?sector=Remera&offset=${limit -
+          this.pagination.perPage}&limit=${limit}`;
       this.axios
-        .get(this.endpoint + "/properties?sector=Remera&offset=0&limit=1000")
+        .get(promise)
         .then(res => {
-          this.items = new Array();
-          this.items = res.data.Properties;
+          this.tableItems = [...res.data.Properties];
+          this.pagination.totalRows = res.data.Total;
           this.loading.request = false;
+          this.pagination.key++;
         })
         .catch(err => {
           if (navigator.onLine) {

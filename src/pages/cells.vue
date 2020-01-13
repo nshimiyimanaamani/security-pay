@@ -121,8 +121,6 @@ export default {
           ],
           xAxes: [
             {
-              barPercentage: 0.95,
-              categoryPercentage: 1,
               gridLines: { display: false }
             }
           ]
@@ -179,8 +177,6 @@ export default {
           ],
           xAxes: [
             {
-              barPercentage: 0.95,
-              categoryPercentage: 1,
               gridLines: { display: false }
             }
           ]
@@ -246,6 +242,8 @@ export default {
         datasets: [
           {
             label: "Data",
+            barPercentage: 0.95,
+            categoryPercentage: 1,
             backgroundColor: "#008b8bb3",
             data: this.getData(labels)
           }

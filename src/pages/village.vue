@@ -65,7 +65,7 @@ export default {
   watch: {
     activeVillage() {
       handler: {
-        this.filterBy_village();
+        this.loadData();
       }
     }
   },
@@ -75,12 +75,15 @@ export default {
   methods: {
     loadData() {
       this.state.loading = true;
+      this.houses = new Array();
       this.axios
-        .get(this.endpoint + `/properties?sector=Remera&offset=1&limit=1000`)
+        .get(
+          this.endpoint +
+            `/properties?village=${this.activeVillage}&offset=0&limit=1000`
+        )
         .then(res => {
           this.state.loading = false;
-          this.responseData = res.data.Properties;
-          this.filterBy_village();
+          this.houses = res.data.Properties;
           console.log(res.data.Properties);
         })
         .catch(err => {

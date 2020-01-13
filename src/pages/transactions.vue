@@ -30,22 +30,22 @@
         small
       >
         <template v-slot:cell(method)="data">
-          <div :class="data.value">
-            <span>{{data.value}}</span>
+          <div :class="data.value=='momo-mtn-rw'? 'mtn' : data.value">
+            <span>{{data.value=='momo-mtn-rw'? 'mtn' : data.value}}</span>
           </div>
         </template>
-        <template v-slot:cell(recorded)="data">
-          <article class="text-center">{{data.value.slice(0,10)}}</article>
-        </template>
+        <template
+          v-slot:cell(owner_firstname)="data"
+        >{{data.item.owner_firstname +" "+data.item.owner_lastname}}</template>
         <template v-slot:cell(amount)="data">
-          <article class="text-center">{{Number(data.value).toLocaleString()}} Frw</article>
+          <article>{{Number(data.value).toLocaleString()}} Frw</article>
         </template>
         <template v-slot:cell(date_recorded)="data">
-          <article class="text-center">{{datify(data.value)}}</article>
+          <article>{{datify(data.value)}}</article>
         </template>
         <template v-slot:table-busy>
           <div class="text-center my-2">
-            <b-spinner class="align-middle"></b-spinner>
+            <b-spinner small class="align-middle"></b-spinner>
             <strong>Loading...</strong>
           </div>
         </template>
@@ -71,8 +71,8 @@ export default {
       table: {
         fields: [
           {
-            key: "madeby",
-            label: "Payee",
+            key: "owner_firstname",
+            label: "Names",
             sortable: true,
             tdClass: "table-name"
           },
@@ -85,19 +85,22 @@ export default {
             key: "method",
             label: "Payed With",
             sortable: true,
-            thClass: "text-center"
+            thClass: "text-center",
+            tdClass: "text-center"
           },
           {
             key: "amount",
             label: "Amount",
             sortable: false,
-            thClass: "text-center"
+            thClass: "text-center",
+            tdClass: "text-right"
           },
           {
             key: "date_recorded",
             label: "Date",
             sortable: true,
-            thClass: "text-center"
+            thClass: "text-center",
+            tdClass: "text-right"
           }
         ],
         items: []
