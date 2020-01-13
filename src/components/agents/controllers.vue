@@ -178,9 +178,11 @@ export default {
                     console.log(res.data);
                     this.owner = { ...res.data };
                     this.addProperty();
+                    this.resetModal();
                   })
                   .catch(err => {
                     if (navigator.onLine) {
+                      this.resetModal();
                       const error = err.response
                         ? err.response.data.error.message || err.response.data
                         : "an error occured";
@@ -203,6 +205,7 @@ export default {
         phone: null,
         due: "500"
       };
+      this.owner = null;
     },
     refresh() {
       this.$emit("refresh");
