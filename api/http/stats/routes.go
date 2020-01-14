@@ -2,8 +2,9 @@ package stats
 
 // stats routes
 const (
-	NumOfPayedInSectorRoute = "/stats/sectors/{sector}"
-	NumOfPayedInCellRoute   = "/stats/cells/{cell}"
+	SectorRatioRoute  = "/stats/sectors/{sector}"
+	CellRatioRoute    = "/stats/cells/{cell}"
+	VillageRatioRoute = "/stats/villges/{village}"
 
 	CellsAccountBalance    = "/stats/balance/sectors{sector}"
 	VillagesAccountBalance = "/stats/balance/cells{cell}"

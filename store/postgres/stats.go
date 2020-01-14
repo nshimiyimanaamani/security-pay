@@ -15,17 +15,20 @@ type statsRepository struct {
 
 // NewStatsRepository ...
 func NewStatsRepository(db *sql.DB) stats.Repository {
-	return nil
+	return &statsRepository{db}
 }
 
 func (repo *statsRepository) RetrieveSectorPayRatio(ctx context.Context, sector string) (stats.Chart, error) {
 	const op errors.Op = "store/postgres/statsRepository.RetrieveSectorPayRatio"
 
 	q := `
-		SELECT sector, payed, pending FROM sectors_payment_view
+		select sector, pending, payed from sector_payment_count where sector=$1;
 	`
-	var chart stats.Chart
-	err := repo.QueryRowContext(ctx, q, sector).Scan(&chart.Label)
+	var label string
+
+	var payed, pending uint64
+
+	err := repo.QueryRowContext(ctx, q, sector).Scan(&label, &pending, &payed)
 	if err != nil {
 		empty := stats.Chart{}
 
@@ -35,16 +38,25 @@ func (repo *statsRepository) RetrieveSectorPayRatio(ctx context.Context, sector 
 		}
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
+
+	chart := stats.Chart{
+		Label: label,
+		Data:  map[string]uint64{"payed": payed, "pending": pending},
+	}
+
 	return chart, nil
 }
 func (repo *statsRepository) RetrieveCellPayRatio(ctx context.Context, cell string) (stats.Chart, error) {
 	const op errors.Op = "store/postgres/statsRepository.RetrieveCellPayRatio"
 
+	var label string
+
+	var payed, pending uint64
+
 	q := `
-		SELECT cell, payed, pending FROM cells_payment_view;
+		select cell, pending, payed from cell_payment_count where cell=$1;
 	`
-	var chart stats.Chart
-	err := repo.QueryRowContext(ctx, q, cell).Scan(&chart.Label)
+	err := repo.QueryRowContext(ctx, q, cell).Scan(&label, &pending, &payed)
 	if err != nil {
 		empty := stats.Chart{}
 
@@ -54,6 +66,12 @@ func (repo *statsRepository) RetrieveCellPayRatio(ctx context.Context, cell stri
 		}
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
+
+	chart := stats.Chart{
+		Label: label,
+		Data:  map[string]uint64{"payed": payed, "pending": pending},
+	}
+
 	return chart, nil
 }
 
@@ -61,10 +79,13 @@ func (repo *statsRepository) RetrieveVillagePayRatio(ctx context.Context, villag
 	const op errors.Op = "store/postgres/statsRepository.RetrieveVillagePayRatio"
 
 	q := `
-		SELECT village, payed, pending FROM villages_payment_view
+		select village, pending, payed from village_payment_count where village=$1;
 	`
-	var chart stats.Chart
-	err := repo.QueryRowContext(ctx, q, village).Scan(&chart.Label)
+	var label string
+
+	var payed, pending uint64
+
+	err := repo.QueryRowContext(ctx, q, village).Scan(&label, &pending, &payed)
 	if err != nil {
 		empty := stats.Chart{}
 
@@ -73,6 +94,10 @@ func (repo *statsRepository) RetrieveVillagePayRatio(ctx context.Context, villag
 			return empty, errors.E(op, "village not found", errors.KindNotFound)
 		}
 		return empty, errors.E(op, err, errors.KindUnexpected)
+	}
+	chart := stats.Chart{
+		Label: label,
+		Data:  map[string]uint64{"payed": payed, "pending": pending},
 	}
 	return chart, nil
 }

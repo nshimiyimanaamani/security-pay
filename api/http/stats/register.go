@@ -37,4 +37,9 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 	if opts == nil || opts.Logger == nil {
 		panic("absolutely unacceptable handler opts")
 	}
+
+	r.Handle(SectorRatioRoute, LogEntryHandler(SectorPayRatio, opts)).Methods(http.MethodGet)
+	r.Handle(CellRatioRoute, LogEntryHandler(CellPayRatio, opts)).Methods(http.MethodGet)
+	r.Handle(VillageRatioRoute, LogEntryHandler(VillagePayRatio, opts)).Methods(http.MethodGet)
+
 }
