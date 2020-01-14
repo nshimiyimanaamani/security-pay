@@ -320,7 +320,7 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 		if err := rows.Scan(
 			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
 			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent, &c.CreatedAt, &c.UpdatedAt,
-			&c.Owner.ID, &c.Owner.Lname, &c.Owner.Lname, &c.Owner.Phone,
+			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
