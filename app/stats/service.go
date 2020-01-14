@@ -11,8 +11,18 @@ type Service interface {
 	VillagePayRatio(ctx context.Context, village string) (Chart, error)
 }
 
+// Options ...
+type Options struct {
+	Repo Repository
+}
+
 type service struct {
 	repo Repository
+}
+
+// New stats service
+func New(opts *Options) Service {
+	return &service{opts.Repo}
 }
 
 func (svc *service) SectorPayRatio(ctx context.Context, sector string) (Chart, error) {

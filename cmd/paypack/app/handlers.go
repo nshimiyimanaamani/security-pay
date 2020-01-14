@@ -12,6 +12,7 @@ import (
 	ownersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/owners"
 	paymentEndpoints "github.com/rugwirobaker/paypack-backend/api/http/payment"
 	propertiesEndpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
+	statsEndpoints "github.com/rugwirobaker/paypack-backend/api/http/stats"
 	transactionsEndpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	usersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/users"
 	"github.com/rugwirobaker/paypack-backend/api/http/version"
@@ -29,6 +30,7 @@ type HandlerOptions struct {
 	TransOptions    *transactionsEndpoints.HandlerOpts
 	UsersOptions    *usersEndpoints.HandlerOpts
 	InvoiceOptions  *invoiceEndpoints.HandlerOpts
+	StatsOptions    *statsEndpoints.HandlerOpts
 }
 
 // NewHandlerOptions ...
@@ -74,6 +76,10 @@ func NewHandlerOptions(s *Services, lggr *log.Logger) *HandlerOptions {
 		Service: s.Invoices,
 		Logger:  lggr,
 	}
+	statsOpts := &statsEndpoints.HandlerOpts{
+		Service: s.Stats,
+		Logger:  lggr,
+	}
 
 	opts := &HandlerOptions{
 		AuthOptions:     authOpts,
@@ -85,6 +91,7 @@ func NewHandlerOptions(s *Services, lggr *log.Logger) *HandlerOptions {
 		TransOptions:    transOpts,
 		UsersOptions:    usersOpts,
 		InvoiceOptions:  invOpts,
+		StatsOptions:    statsOpts,
 	}
 	return opts
 }
@@ -115,4 +122,6 @@ func Register(mux *mux.Router, opts *HandlerOptions) {
 	authEndpoints.RegisterHandlers(mux, opts.AuthOptions)
 
 	invoiceEndpoints.RegisterHandlers(mux, opts.InvoiceOptions)
+
+	statsEndpoints.RegisterHandlers(mux, opts.StatsOptions)
 }
