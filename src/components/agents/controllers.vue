@@ -101,9 +101,6 @@ export default {
       return this.$store.getters.userDetails;
     }
   },
-  mounted() {
-    console.log();
-  },
   methods: {
     addProperty() {
       if (!this.owner) {
@@ -154,7 +151,6 @@ export default {
             `/owners/search?fname=${fname}&lname=${lname}&phone=${phone}`
         )
         .then(res => {
-          console.log(res.data);
           this.owner = { ...res.data };
           this.addProperty();
         })
@@ -175,7 +171,6 @@ export default {
                     phone: phone
                   })
                   .then(res => {
-                    console.log(res.data);
                     this.owner = { ...res.data };
                     this.addProperty();
                     this.resetModal();

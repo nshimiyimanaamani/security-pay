@@ -74,7 +74,6 @@ export default {
             this.table.items = [];
             this.table.items = res.data.Properties.filter(this.isForAgent);
             this.state.loading = false;
-            console.log(this.table.items);
           })
           .catch(err => {
             if (navigator.onLine) {
