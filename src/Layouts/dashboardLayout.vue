@@ -3,7 +3,7 @@
     <div class="dashboardSidebar">
       <h1>P A Y P A C K</h1>
       <hr />
-      <ul class="sidebarLinks">
+      <ul v-if="user.role.toLowerCase() !='basic'" class="sidebarLinks">
         <router-link to="/dashboard">
           <li>Overview</li>
         </router-link>

@@ -1,22 +1,14 @@
 <template>
   <b-container>
     <vue-title title="Paypack | Feedbacks" />
-    <b-card no-body class="nav-controls">
-      <b-tabs pills card vertical lazy>
-        <b-tab title="FeedBacks" active @click="loadData">
-          <div v-for="(feedback,index) in feedbacks" :key="index">
-            <feedback :feedback="feedback" v-if="!state.loading" />
-          </div>
-          <div v-if="state.loading" class="text-center m-5">
-            <b-spinner small></b-spinner>
-            <strong>Loading...</strong>
-          </div>
-        </b-tab>
-        <!-- <b-tab title="Send FeedBack">
-          <add-feedback />
-        </b-tab>-->
-      </b-tabs>
-    </b-card>
+    <div class="d-flex">
+      <h4>FEEDBACKS</h4>&nbsp;
+      <b-spinner class="align-self-center" v-if="state.loading" small></b-spinner>
+    </div>
+
+    <div v-for="(feedback,index) in feedbacks" :key="index">
+      <feedback :feedback="feedback" v-if="!state.loading" />
+    </div>
   </b-container>
 </template>
 

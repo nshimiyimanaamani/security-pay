@@ -7,10 +7,12 @@
         <h1>{{activeVillage}}</h1>
         <span class="fa fa-cog"></span>
       </div>
-      <b-card v-show="houses.length">
-        <section v-for="(house,index) in houses" :key="index">
-          <user-card :house="house" :index="index" />
-        </section>
+      <b-card body-bg-variant="white" v-show="houses.length" class="border-top-0 rounded-0">
+        <b-card-group columns>
+          <b-card body-bg-variant="white" no-body v-for="(house,index) in houses" :key="index">
+            <user-card :house="house" :index="index" />
+          </b-card>
+        </b-card-group>
       </b-card>
       <section class="error" v-show="!houses.length">
         <article>
@@ -19,10 +21,7 @@
               <i class="fa fa-exclamation-triangle"></i>
               <label for="error">No House found in {{activeVillage}}</label>
             </div>
-            <div v-else-if="state.loading">
-              <b-spinner variant="primary" small type="grow" label="Spinning"></b-spinner>
-              <label>Loading...</label>
-            </div>
+            <loader :loading="state.loading" />
           </center>
         </article>
       </section>
@@ -32,10 +31,12 @@
 
 <script>
 import userCard from "../components/usercard.vue";
+import loader from "../components/loader.vue";
 export default {
   name: "village",
   components: {
-    "user-card": userCard
+    "user-card": userCard,
+    loader
   },
   data() {
     return {

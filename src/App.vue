@@ -69,4 +69,13 @@ p {
   background-color: #3a82a1 !important;
   border-color: #3a82a1 !important;
 }
+.font-15 {
+  font-size: 15px;
+}
+.font-13 {
+  font-size: 13px;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
 </style>

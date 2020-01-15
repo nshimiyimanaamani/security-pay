@@ -49,7 +49,7 @@
             <strong>Loading...</strong>
           </div>
         </template>
-        <template v-slot:empty="scope">
+        <template v-slot:empty>
           <label
             class="container"
             style="width: 100%;font-size: 17px;text-align: center;padding: 40px;"

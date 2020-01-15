@@ -182,5 +182,6 @@
 .dashboardWrapper .dashboardBody {
   background: ghostwhite;
   height: 100%;
+  overflow-x: hidden;
 }
 /*# sourceMappingURL=dashboardLayout.css.map */

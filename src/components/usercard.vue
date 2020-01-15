@@ -1,31 +1,31 @@
 <template>
   <div>
-    <b-card-header>
+    <b-card-header class="d-flex bg-white justify-content-between py-1">
       <p>{{house.owner.fname +' '+ house.owner.lname}}</p>
-      <p>{{house.id}}</p>
+      <p class="d-block text-truncate">{{house.id}}</p>
     </b-card-header>
-    <b-card-footer>
-      <article>
-        <span v-show="house.percentage" class="completed">completed</span>
-        <span class="details">{{house.due}} /12 last months</span>
-        <b-progress :value="60" :max="100"></b-progress>
+    <b-card-footer class="d-flex justify-content-between py-2 align-items-end bg-white">
+      <article class="d-flex flex-column w-100 pr-1">
+        <span v-show="house.percentage" class="completed font-13">completed</span>
+        <span class="details font-13">{{house.due}} /12 last months</span>
+        <b-progress class="w-100" :value="60" :max="100"></b-progress>
       </article>
       <i
-        class="fa fa-ellipsis-v"
+        class="fa fa-ellipsis-v cursor-pointer"
         :class="state.show ? null : 'collapsed'"
         :aria-expanded="state.show ? 'true' : 'false'"
         :aria-controls="''+index"
         @click="showCollapse()"
       ></i>
     </b-card-footer>
-    <b-collapse :id="''+index" v-model="state.show" class="mt-3">
+    <b-collapse :id="''+index" v-model="state.show" class="my-2 px-2">
       <b-card no-body class="mb-1 border" v-for="(item,i) in availableMonths/12" :key="i">
-        <b-card no-body class="border-0 rounded-0 border-bottom-1 p-0 m-0">
+        <b-card no-body class="bg-white border-0 rounded-0 border-bottom-1 p-0 m-0">
           <b-button
             block
             v-b-toggle="'accordion-'+i+house.id"
             variant="light"
-            style="font-size: 15px"
+            class="font-13"
           >Year - {{currentYear-i}}</b-button>
         </b-card>
         <b-collapse :id="'accordion-'+i+house.id" accordion="my-accordion" role="tabpanel">
@@ -48,8 +48,7 @@
               </template>
               <template v-slot:table-busy>
                 <div class="text-center my-2">
-                  <b-spinner class="align-middle"></b-spinner>
-                  <strong>Loading...</strong>
+                  <loader />
                 </div>
               </template>
             </b-table>
@@ -61,6 +60,7 @@
 </template>
 
 <script>
+import loader from "../components/loader.vue";
 export default {
   name: "usercard",
   props: {

@@ -1,3 +1,13 @@
+.village-wrapper .card-columns {
+  -webkit-column-count: 2 !important;
+          column-count: 2 !important;
+}
+
+.village-wrapper .progress {
+  width: 100%;
+  height: 5px;
+}
+
 .village-wrapper .container {
   width: 80vw;
   padding: 15px 15px 0;
@@ -5,12 +15,9 @@
 
 .village-wrapper .container .card {
   border: 1px solid lightgray;
-  border-top: none;
-  margin-bottom: 20px;
-  background: transparent;
 }
 
-.village-wrapper .container .card .card-body > section {
+.village-wrapper .container .card .card-group {
   border: 1px solid #cec4c4;
   padding: 5px 10px;
   width: 49%;
@@ -22,15 +29,7 @@
           break-inside: avoid;
 }
 
-.village-wrapper .container .card .card-body > section:nth-child(even) {
-  float: right;
-}
-
-.village-wrapper .container .card .card-body > section:nth-child(odd) {
-  float: left;
-}
-
-.village-wrapper .container .card .card-body > section .card-header {
+.village-wrapper .container .card .card-group .card-header {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -39,7 +38,7 @@
   background: inherit;
 }
 
-.village-wrapper .container .card .card-body > section .card-header p:last-child {
+.village-wrapper .container .card .card-group .card-header p:last-child {
   width: 20%;
   white-space: nowrap;
   overflow: hidden;
@@ -47,7 +46,7 @@
   margin-left: auto;
 }
 
-.village-wrapper .container .card .card-body > section .card-footer {
+.village-wrapper .container .card .card-group .card-footer {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -55,19 +54,19 @@
   background: inherit;
 }
 
-.village-wrapper .container .card .card-body > section .card-footer article {
+.village-wrapper .container .card .card-group .card-footer article {
   width: 100%;
   padding-right: 10px;
   display: block;
   font-size: 14px;
 }
 
-.village-wrapper .container .card .card-body > section .card-footer article .progress {
+.village-wrapper .container .card .card-group .card-footer article .progress {
   width: 100%;
   height: 7px;
 }
 
-.village-wrapper .container .card .card-body > section .card-footer i {
+.village-wrapper .container .card .card-group .card-footer i {
   margin-left: auto;
   cursor: pointer;
   display: -webkit-box;
@@ -78,7 +77,7 @@
           align-items: flex-end;
 }
 
-.village-wrapper .container .card .card-body > section .more-data {
+.village-wrapper .container .card .card-group .more-data {
   position: absolute;
   background: white;
   z-index: 100;
@@ -90,7 +89,7 @@
   padding: 10px 10px 0;
 }
 
-.village-wrapper .container .card .card-body > section .more-data article {
+.village-wrapper .container .card .card-group .more-data article {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -98,7 +97,7 @@
   font-size: 14px;
 }
 
-.village-wrapper .container .card .card-body > section .more-data article p {
+.village-wrapper .container .card .card-group .more-data article p {
   position: absolute;
   margin-left: 35%;
   text-transform: capitalize;

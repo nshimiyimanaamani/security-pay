@@ -111,7 +111,7 @@
           <strong>Loading...</strong>
         </div>
       </template>
-      <template v-slot:empty="scope">
+      <template v-slot:empty>
         <h5
           class="text-center my-4"
         >{{search.name ? search.name+' "is not availble in the list"':'No user Found!'}}</h5>
