@@ -34,8 +34,11 @@
         <router-link to="/transactions">
           <li>Bank Accounts</li>
         </router-link>
-        <router-link to="/reports">
+        <router-link to="/properties">
           <li>Properties</li>
+        </router-link>
+        <router-link to="/reports">
+          <li>REPORTS</li>
         </router-link>
         <router-link to="/feedbacks">
           <li>Feedbacks</li>

@@ -78,4 +78,8 @@ p {
 .cursor-pointer {
   cursor: pointer;
 }
+.app-color {
+  background: #3a82a1 !important;
+  background-image: none;
+}
 </style>
