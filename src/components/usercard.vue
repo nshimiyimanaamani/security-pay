@@ -67,6 +67,9 @@ export default {
     house: Object,
     index: Number
   },
+  components: {
+    loader
+  },
   data() {
     return {
       state: {
