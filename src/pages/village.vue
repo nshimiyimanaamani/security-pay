@@ -42,8 +42,7 @@ export default {
     return {
       state: {
         loading: true,
-        showCollapse: false,
-        elId: null
+        showCollapse: false
       },
       houses: [],
       responseData: [],
@@ -85,7 +84,6 @@ export default {
         .then(res => {
           this.state.loading = false;
           this.houses = res.data.Properties;
-          console.log(res.data.Properties);
         })
         .catch(err => {
           if (navigator.onLine) {
@@ -99,16 +97,6 @@ export default {
           this.state.loading = false;
           return [];
         });
-    },
-    filterBy_village() {
-      this.$nextTick(() => {
-        this.houses = this.responseData.filter(data => {
-          return (
-            data.address.village.toLowerCase() ==
-            this.activeVillage.toLowerCase()
-          );
-        });
-      });
     }
   }
 };
