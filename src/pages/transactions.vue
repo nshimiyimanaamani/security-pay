@@ -147,7 +147,9 @@ export default {
     },
     mtnTotal() {
       let total = 0;
-      const filtered = this.table.items.filter(data => data.method == "mtn");
+      const filtered = this.table.items.filter(data =>
+        data.method.includes("mtn")
+      );
       filtered.forEach(element => {
         total += element.amount;
       });
