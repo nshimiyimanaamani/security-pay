@@ -30,7 +30,7 @@
                 v-model="form.lname"
                 required
                 placeholder="Enter last name..."
-                style="font-size: 15px"
+                class="font-15"
               ></b-form-input>
             </b-form-group>
           </b-col>
@@ -43,8 +43,18 @@
             type="number"
             required
             placeholder="Enter phone number..."
-            style="font-size: 15px"
+            class="font-15"
           ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Inzu ituwemo?">
+          <b-form-radio-group
+            v-model="form.occupied"
+            :options="occupiedOptions"
+            name="radios-stacked"
+            :state="occupied ? null : false"
+          >
+            <b-form-invalid-feedback :state="occupied">Hitamo Kimwe!</b-form-invalid-feedback>
+          </b-form-radio-group>
         </b-form-group>
         <b-form-group
           id="input-group-4"
@@ -62,11 +72,11 @@
           ></b-form-input>
         </b-form-group>
         <b-form-group id="input-group-8" class="float-right m-0 mt-3">
-          <b-button type="submit" variant="primary" class="ml-2 px-3 py-1">
+          <b-button type="submit" variant="primary" class="ml-2 px-3 py-1 app-color font-15">
             {{state.loading ? 'Registering' : 'Register'}}
             <b-spinner v-show="state.loading" small type="grow"></b-spinner>
           </b-button>
-          <b-button type="reset" variant="danger" class="px-3 py-1">Cancel</b-button>
+          <b-button type="reset" variant="danger" class="px-3 py-1 font-15">Cancel</b-button>
         </b-form-group>
       </b-form>
     </b-modal>
@@ -81,11 +91,16 @@ export default {
   },
   data() {
     return {
+      occupiedOptions: [
+        { text: "oya", value: false },
+        { text: "yego", value: true }
+      ],
       form: {
         fname: null,
         lname: null,
         phone: null,
-        due: "500"
+        due: "500",
+        occupied: null
       },
       state: {
         loading: false
@@ -99,6 +114,9 @@ export default {
     },
     userDetails() {
       return this.$store.getters.userDetails;
+    },
+    occupied() {
+      return Boolean(this.form.occupied !== null);
     }
   },
   methods: {
@@ -118,7 +136,7 @@ export default {
               sector: this.user.sector
             },
             due: this.form.due.toString(),
-            occupied: true,
+            occupied: this.form.occupied,
             recorded_by: this.userDetails.username
           })
           .then(res => {

@@ -17,18 +17,6 @@ export default {
   beforeMount() {
     this.$store.dispatch("startup_function");
   },
-  computed: {
-    token() {
-      return this.$store.getters.token;
-    }
-  },
-  watch: {
-    token() {
-      if (!this.token) {
-        this.$router.push("/");
-      }
-    }
-  },
   mounted() {
     setInterval(() => {
       navigator.onLine ? (this.offline = false) : (this.offline = true);
@@ -70,10 +58,10 @@ p {
   border-color: #3a82a1 !important;
 }
 .font-15 {
-  font-size: 15px;
+  font-size: 15px !important;
 }
 .font-13 {
-  font-size: 13px;
+  font-size: 13px !important;
 }
 .cursor-pointer {
   cursor: pointer;

@@ -13,16 +13,19 @@
     <template v-slot:cell(owner)="data">{{data.item.owner.fname +" "+ data.item.owner.lname}}</template>
     <template v-slot:table-busy>
       <div class="text-center my-2">
-        <b-spinner class="align-middle"></b-spinner>
-        <strong>Loading...</strong>
+        <loader />
       </div>
     </template>
   </b-table>
 </template>
 
 <script>
+import loader from "../loader.vue";
 export default {
   name: "userTable",
+  components: {
+    loader
+  },
   props: {
     user: Object
   },
@@ -55,7 +58,7 @@ export default {
       return this.$store.getters.userDetails;
     }
   },
-  mounted() {
+  created() {
     this.loadData();
   },
   methods: {

@@ -57,6 +57,15 @@
             step="500"
           ></b-form-input>
         </b-form-group>
+        <b-form-group label="Inzu ituwemo?" v-if="state.switch">
+          <b-form-radio-group
+            v-model="form.occupied"
+            :options="occupiedOptions"
+            name="radios-stacked"
+          >
+            <b-form-invalid-feedback :state="occupied">Hitamo Kimwe!</b-form-invalid-feedback>
+          </b-form-radio-group>
+        </b-form-group>
         <b-form-group
           id="input-group-5"
           class="mb-2"
@@ -83,11 +92,11 @@
             </template>
           </b-form-select>
         </b-form-group>
-        <b-button type="submit" variant="primary">
+        <b-button type="submit" variant="primary" class="font-15 app-color">
           {{state.adding ? btnContent+'ing' : btnContent}}
           <b-spinner v-show="state.adding" small type="grow"></b-spinner>
         </b-button>
-        <b-button type="reset" variant="danger">cancel</b-button>
+        <b-button type="reset" class="font-15" variant="danger">cancel</b-button>
       </b-form>
     </b-card>
   </div>
@@ -105,12 +114,17 @@ export default {
     return {
       title: "Search House Owner",
       btnContent: "Search",
+      occupiedOptions: [
+        { text: "oya", value: false },
+        { text: "yego", value: true }
+      ],
       form: {
         fname: null,
         lname: null,
         phone: null,
         id: null,
-        due: "500"
+        due: "500",
+        occupied: null
       },
       address: {
         sector: null,
@@ -147,6 +161,9 @@ export default {
     },
     userDetails() {
       return this.$store.getters.userDetails;
+    },
+    occupied() {
+      return Boolean(this.form.occupied !== null);
     }
   },
   methods: {
@@ -221,10 +238,10 @@ export default {
             address: {
               cell: this.address.cell,
               village: this.address.village,
-              sector: "Remera"
+              sector: this.activeSector
             },
             due: this.form.due.toString(),
-            occupied: true,
+            occupied: this.form.occupied,
             recorded_by: this.userDetails.username
           })
           .then(res => {
@@ -257,6 +274,7 @@ export default {
       this.form.due = null;
       this.address.cell = null;
       this.address.village = null;
+      this.form.occupied = null;
     },
     capitalize(string) {
       string.toLowerCase();

@@ -34,6 +34,9 @@ export default {
       return this.$store.getters.userDetails;
     }
   },
+  created() {
+    this.getInfo();
+  },
   methods: {
     getInfo() {
       this.axios
