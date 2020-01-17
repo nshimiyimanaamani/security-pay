@@ -82,7 +82,6 @@ export default {
             `/properties?village=${this.activeVillage}&offset=0&limit=1000`
         )
         .then(res => {
-          this.state.loading = false;
           this.houses = res.data.Properties;
         })
         .catch(err => {
@@ -94,8 +93,10 @@ export default {
           } else {
             this.$snotify.error("Please connect to the internet");
           }
-          this.state.loading = false;
           return [];
+        })
+        .finally(() => {
+          this.state.loading = false;
         });
     }
   }

@@ -164,8 +164,6 @@ export default {
           cell: this.form.cell
         })
         .then(res => {
-          this.state.creating = false;
-          this.form = { email: null, password: null };
           this.$snotify.info("Manager successfully created...");
           const message = `Password For ${res.data.email} is: ${res.data.password}`;
           this.$bvModal
@@ -189,11 +187,13 @@ export default {
           } else {
             this.$snotify.error("Please connect to the internet");
           }
+        })
+        .finally(() => {
           this.state.creating = false;
+          this.form = { email: null, password: null };
         });
     },
     loadData() {
-      this.state.tableLoad = true;
       const promise = this.axios.get(
         this.endpoint + "/accounts/managers?offset=0&limit=1000"
       );
@@ -203,8 +203,10 @@ export default {
           return res.data.Managers;
         })
         .catch(err => {
-          this.state.tableLoad = false;
           return [];
+        })
+        .finally(() => {
+          this.state.tableLoad = false;
         });
     },
     menu(house, index, evt) {
@@ -237,8 +239,6 @@ export default {
         })
         .then(res => {
           this.$snotify.info(res.data.message);
-          this.state.changing = false;
-          this.change_pswd_modal.show = false;
           this.loadData();
         })
         .catch(err => {
@@ -250,6 +250,8 @@ export default {
           } else {
             this.$snotify.error("Please connect to the internet");
           }
+        })
+        .finally(() => {
           this.state.changing = false;
           this.change_pswd_modal.show = false;
         });
@@ -260,7 +262,6 @@ export default {
         .delete(this.endpoint + `/accounts/${data.email}`)
         .then(res => {
           this.loadData();
-          this.state.tableLoad = false;
           this.$snotify.info("Manager deleted Succesfully");
           console.log(res.data);
         })
@@ -273,6 +274,8 @@ export default {
           } else {
             this.$snotify.error("Please connect to the internet");
           }
+        })
+        .finally(() => {
           this.state.tableLoad = false;
         });
     },

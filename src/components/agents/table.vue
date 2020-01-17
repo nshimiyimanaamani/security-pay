@@ -76,7 +76,6 @@ export default {
           .then(res => {
             this.table.items = [];
             this.table.items = res.data.Properties.filter(this.isForAgent);
-            this.state.loading = false;
           })
           .catch(err => {
             if (navigator.onLine) {
@@ -87,6 +86,8 @@ export default {
             } else {
               this.$snotify.error("Please connect to the internet");
             }
+          })
+          .finally(() => {
             this.state.loading = false;
           });
       }

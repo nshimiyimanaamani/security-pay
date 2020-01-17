@@ -5,32 +5,37 @@
       <hr />
       <ul v-if="user.role.toLowerCase() !='basic'" class="sidebarLinks">
         <router-link to="/dashboard">
-          <li>Overview</li>
+          <li>SECTOR</li>
         </router-link>
-        <router-link to="/cells">
-          <li>
-            Cells
-            <b-dropdown>
-              <b-dropdown-item
+        <li v-b-toggle.changecells class="cursor-pointer">Cells</li>
+        <b-collapse
+          id="changecells"
+          accordion="changecells"
+          role="tabpanel"
+          v-if="user.role.toLowerCase() != 'basic'"
+        >
+          <b-card no-body class="border-0" style="background: transparent">
+            <router-link to="/cells" v-for="cell in cellsOptions" :key="cell">
+              <ul
                 @click="update({toUpdate: 'cell', changed: cell})"
-                v-for="cell in cellsOptions"
-                :key="cell"
-              >{{cell}}</b-dropdown-item>
-            </b-dropdown>
-          </li>
-        </router-link>
-        <router-link to="/village">
-          <li>
-            Village
-            <b-dropdown>
-              <b-dropdown-item
+                class="text-white py-1 px-3 font-13 hover-color cursor-pointer"
+              >{{cell}}</ul>
+              <hr class="m-0" />
+            </router-link>
+          </b-card>
+        </b-collapse>
+        <li v-b-toggle.changevillage class="cursor-pointer">Village</li>
+        <b-collapse id="changevillage" accordion="changecells" role="tabpanel">
+          <b-card no-body class="border-0" style="background: transparent">
+            <router-link to="/village" v-for="village in villageOptions" :key="village">
+              <ul
                 @click="update({toUpdate: 'village', changed: village})"
-                v-for="village in villageOptions"
-                :key="village"
-              >{{village}}</b-dropdown-item>
-            </b-dropdown>
-          </li>
-        </router-link>
+                class="text-white py-1 px-3 font-13 hover-color cursor-pointer"
+              >{{village}}</ul>
+              <hr class="m-0" />
+            </router-link>
+          </b-card>
+        </b-collapse>
         <router-link to="/transactions">
           <li>Bank Accounts</li>
         </router-link>
@@ -85,6 +90,7 @@ export default {
   methods: {
     update(res) {
       this.$store.dispatch("updatePlace", res);
+      console.log("updated");
     },
     logout() {
       this.$store.dispatch("logout");

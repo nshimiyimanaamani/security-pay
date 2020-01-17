@@ -19,21 +19,14 @@
         <template slot="button-content">Filter By</template>
         <b-dropdown-form>
           <b-card-body class="p-2">
-            <b-form-group label="sector">
-              <b-form-select v-model="select.sector" :options="sectorOptions">
-                <template v-slot:first>
-                  <option :value="null" disabled>Select sector</option>
-                </template>
-              </b-form-select>
-            </b-form-group>
-            <b-form-group label="cell" v-show="select.sector">
+            <b-form-group label="cell">
               <b-form-select v-model="select.cell" :options="cellOptions">
                 <template v-slot:first>
                   <option :value="null" disabled>Select cell</option>
                 </template>
               </b-form-select>
             </b-form-group>
-            <b-form-group label="village" v-show="select.sector && select.cell">
+            <b-form-group label="village" v-if="select.cell">
               <b-form-select v-model="select.village" :options="villageOptions">
                 <template v-slot:first>
                   <option :value="null" disabled>Select village</option>
@@ -276,6 +269,9 @@ export default {
     activeSector() {
       return this.capitalize(this.$store.getters.getActiveSector);
     },
+    activeCell() {
+      return this.capitalize(this.$store.getters.getActiveCell);
+    },
     columns() {
       let array = [];
       this.fields.forEach(i => array.push(i.label));
@@ -290,9 +286,6 @@ export default {
     }
   },
   watch: {
-    items() {
-      this.tableItems = this.items;
-    },
     "select.shownColumn"() {
       handler: {
         this.select.selectAll =
@@ -340,16 +333,25 @@ export default {
     loadData() {
       this.loading.request = true;
       const limit = this.pagination.currentPage * this.pagination.perPage;
-      const promise =
-        this.endpoint +
-        `/properties?sector=Remera&offset=${limit -
-          this.pagination.perPage}&limit=${limit}`;
+      var promise;
+      if (this.user.role.toLowerCase() == "basic") {
+        promise =
+          this.endpoint +
+          `/properties?cell=${this.activeCell}&offset=${limit -
+            this.pagination.perPage}&limit=${limit}`;
+        console.log("hello");
+      } else {
+        promise =
+          this.endpoint +
+          `/properties?sector=${this.activeSector}&offset=${limit -
+            this.pagination.perPage}&limit=${limit}`;
+      }
+
       this.axios
         .get(promise)
         .then(res => {
           this.tableItems = [...res.data.Properties];
           this.pagination.totalRows = res.data.Total;
-          this.loading.request = false;
           this.pagination.key++;
         })
         .catch(err => {
@@ -361,6 +363,8 @@ export default {
           } else {
             this.$snotify.error("Please connect to the internet");
           }
+        })
+        .finally(() => {
           this.loading.request = false;
         });
     },
@@ -408,7 +412,7 @@ export default {
           delete value.thClass;
         }
       });
-      const sector = this.select.sector ? this.select.sector.toLowerCase() : "";
+      const sector = this.activeSector;
       const cell = this.select.cell ? this.select.cell.toLowerCase() : "";
       const village = this.select.village
         ? this.select.village.toLowerCase()
@@ -425,7 +429,6 @@ export default {
       this.select.shownColumn = checked ? this.columns.slice() : [];
     },
     clearFilter() {
-      this.select.sector = null;
       this.select.cell = null;
       this.select.village = null;
       this.tableItems = this.items;

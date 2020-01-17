@@ -116,7 +116,10 @@ export default {
         cell: null,
         village: null
       },
-      query: [{ text: "yego", value: "true" }, { text: "oya", value: "false" }],
+      query: [
+        { text: "yego", value: "true" },
+        { text: "oya", value: "false" }
+      ],
       state: {
         updating: false
       }
@@ -169,9 +172,7 @@ export default {
           occupied: this.rented
         })
         .then(res => {
-          this.state.updating = false;
           this.$snotify.info(res.data.message);
-          this.$emit("closeModal");
         })
         .catch(err => {
           if (navigator.onLine) {
@@ -182,6 +183,8 @@ export default {
           } else {
             this.$snotify.error("Please connect to the internet");
           }
+        })
+        .finally(() => {
           this.state.updating = false;
           this.$emit("closeModal");
         });

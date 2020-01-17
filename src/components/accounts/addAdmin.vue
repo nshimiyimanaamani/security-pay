@@ -137,7 +137,10 @@ export default {
           } else {
             this.$snotify.error("Please connect to the internet");
           }
+        })
+        .finally(() => {
           this.state.creating = false;
+          this.form = { email: null, password: null };
         });
     },
     loadData() {
@@ -147,12 +150,13 @@ export default {
       );
       return promise
         .then(res => {
-          this.state.tableLoad = false;
           return res.data.Managers;
         })
         .catch(err => {
-          this.state.tableLoad = false;
           return [];
+        })
+        .finally(() => {
+          this.state.tableLoad = false;
         });
     },
     menu(house, index, evt) {
@@ -177,7 +181,6 @@ export default {
           )
           .then(res => {
             this.loadData();
-            this.state.tableLoad = false;
             this.$snotify.info("Agent deleted Succesfully");
             console.log(res.data);
           })
@@ -190,6 +193,8 @@ export default {
             } else {
               this.$snotify.error("Please connect to the internet");
             }
+          })
+          .finally(() => {
             this.state.tableLoad = false;
           });
       } else if (data.option.slug == "changePwd") {
@@ -206,8 +211,6 @@ export default {
         })
         .then(res => {
           this.$snotify.info(res.data.message);
-          this.state.changing = false;
-          this.change_pswd_modal.show = false;
           this.loadData();
         })
         .catch(err => {
@@ -219,6 +222,8 @@ export default {
           } else {
             this.$snotify.error("Please connect to the internet");
           }
+        })
+        .finally(() => {
           this.state.changing = false;
           this.change_pswd_modal.show = false;
         });

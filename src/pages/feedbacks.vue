@@ -46,7 +46,6 @@ export default {
           this.feedbacks = res.data.Messages.sort((a, b) => {
             return new Date(b.update_at) - new Date(a.update_at);
           });
-          this.state.loading = false;
         })
         .catch(err => {
           if (navigator.onLine) {
@@ -57,6 +56,8 @@ export default {
           } else {
             this.$snotify.error("Please connect to the internet");
           }
+        })
+        .finally(() => {
           this.state.loading = false;
         });
     }

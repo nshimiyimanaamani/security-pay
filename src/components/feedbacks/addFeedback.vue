@@ -70,11 +70,9 @@ export default {
             creator: creator
           })
           .then(res => {
-            console.log(res.data);
-            this.state.sending = false;
+            this.$snotify.info("FeedBack Added");
           })
           .catch(err => {
-            this.state.sending = false;
             if (navigator.onLine) {
               const error = err.response
                 ? err.response.data.error || err.response.data
@@ -83,6 +81,9 @@ export default {
             } else {
               this.$snotify.error("Please connect to the internet");
             }
+          })
+          .finally(() => {
+            this.state.sending = false;
           });
       }
     }

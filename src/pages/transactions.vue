@@ -110,6 +110,12 @@ export default {
   computed: {
     endpoint() {
       return this.$store.getters.getEndpoint;
+    },
+    activeCell() {
+      return this.$store.getters.getActiveCell;
+    },
+    user() {
+      return this.$store.getters.userDetails;
     }
   },
   mounted() {
@@ -121,9 +127,13 @@ export default {
       this.axios
         .get(this.endpoint + "/transactions?offset=0&limit=1000")
         .then(res => {
-          this.table.items = res.data.Transactions;
-          console.log(this.table.items);
-          this.loading = false;
+          if (this.user.role.toLowerCase() == "dev") {
+            this.table.items = res.data.Transactions.filter(
+              item => item.cell == this.activeCell
+            );
+          } else {
+            this.table.items = res.data.Transactions;
+          }
         })
         .catch(err => {
           this.table.items = [];
@@ -135,6 +145,8 @@ export default {
           } else {
             this.$snotify.error("Please connect to the internet");
           }
+        })
+        .finally(() => {
           this.loading = false;
         });
     },

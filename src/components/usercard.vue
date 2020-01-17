@@ -126,7 +126,6 @@ export default {
           .then(res => {
             this.state.show = true;
             this.invoices = res.data.Invoices;
-            this.state.loading = false;
           })
           .catch(err => {
             if (navigator.onLine) {
@@ -137,6 +136,8 @@ export default {
             } else {
               this.$snotify.error("Please connect to the internet");
             }
+          })
+          .finally(() => {
             this.state.loading = false;
           });
       }

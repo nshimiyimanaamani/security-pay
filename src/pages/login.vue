@@ -74,11 +74,9 @@ export default {
           .then(res => {
             sessionStorage.setItem("token", res.data.token);
             this.$router.push("dashboard");
-            this.loading = false;
           })
           .catch(err => {
             delete sessionStorage.token;
-            this.loading = false;
             if (navigator.onLine) {
               const error = err.response
                 ? err.response.data.error || err.response.data
@@ -87,6 +85,9 @@ export default {
             } else {
               this.$snotify.error("Please connect to the internet");
             }
+          })
+          .finally(() => {
+            this.loading = false;
           });
       }
     }

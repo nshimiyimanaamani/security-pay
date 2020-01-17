@@ -99,9 +99,7 @@ export default {
         data: null
       },
       rightMenu: {
-        options: [
-          { name: "Change Password", slug: "changePwd" }
-        ]
+        options: [{ name: "Change Password", slug: "changePwd" }]
       }
     };
   },
@@ -121,8 +119,6 @@ export default {
           password: this.form.password
         })
         .then(res => {
-          this.state.creating = false;
-          this.form = { email: null, password: null };
           this.$snotify.info("Developer successfully created...");
           const message = `Password For ${res.data.email} is: ${res.data.password}`;
           this.$bvModal
@@ -146,7 +142,10 @@ export default {
           } else {
             this.$snotify.error("Please connect to the internet");
           }
+        })
+        .finally(() => {
           this.state.creating = false;
+          this.form = { email: null, password: null };
         });
     },
     loadData() {
@@ -156,12 +155,13 @@ export default {
       );
       return promise
         .then(res => {
-          this.state.tableLoad = false;
           return res.data.Developers;
         })
         .catch(err => {
-          this.state.tableLoad = false;
           return [];
+        })
+        .finally(() => {
+          this.state.tableLoad = false;
         });
     },
     menu(house, index, evt) {
@@ -183,7 +183,6 @@ export default {
           .delete(this.endpoint + `/accounts/${data.email}`)
           .then(res => {
             this.loadData();
-            this.state.tableLoad = false;
             this.$snotify.info("Developer deleted Succesfully");
             console.log(res.data);
           })
@@ -196,6 +195,8 @@ export default {
             } else {
               this.$snotify.error("Please connect to the internet");
             }
+          })
+          .finally(() => {
             this.state.tableLoad = false;
           });
       } else if (data.option.slug == "changePwd") {
@@ -212,8 +213,6 @@ export default {
         })
         .then(res => {
           this.$snotify.info(res.data.message);
-          this.state.changing = false;
-          this.change_pswd_modal.show = false;
           this.loadData();
         })
         .catch(err => {
@@ -225,6 +224,8 @@ export default {
           } else {
             this.$snotify.error("Please connect to the internet");
           }
+        })
+        .finally(() => {
           this.state.changing = false;
           this.change_pswd_modal.show = false;
         });

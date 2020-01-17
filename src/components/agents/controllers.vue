@@ -140,8 +140,6 @@ export default {
             recorded_by: this.userDetails.username
           })
           .then(res => {
-            this.state.loading = false;
-            this.resetModal();
             this.refresh();
             this.$snotify.info(`Property Registered successfully!`);
           })
@@ -154,7 +152,10 @@ export default {
             } else {
               this.$snotify.error("Please connect to the internet");
             }
+          })
+          .finally(() => {
             this.state.loading = false;
+            this.resetModal();
           });
       }
     },

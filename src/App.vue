@@ -70,4 +70,7 @@ p {
   background: #3a82a1 !important;
   background-image: none;
 }
+.hover-color:hover {
+  background-color: #49bdd6;
+}
 </style>
