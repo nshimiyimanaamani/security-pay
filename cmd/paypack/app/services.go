@@ -12,6 +12,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/owners"
 	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
+	"github.com/rugwirobaker/paypack-backend/app/metrics"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
@@ -33,6 +34,7 @@ type Services struct {
 	Transactions transactions.Service
 	Users        users.Service
 	Invoices     invoices.Service
+	Stats        metrics.Service
 }
 
 // Init initialises all services
@@ -47,6 +49,7 @@ func Init(db *sql.DB, rclient *redis.Client, b payment.Backend, secret string) *
 		Users:        bootUserService(db),
 		Auth:         bootAuthService(db, secret),
 		Invoices:     bootInvoiceService(db),
+		Stats:        bootStatsService(db),
 	}
 	return services
 }
@@ -119,4 +122,10 @@ func bootInvoiceService(db *sql.DB) invoices.Service {
 	repo := postgres.NewInvoiceRepository(db)
 	opts := &invoices.Options{Repo: repo}
 	return invoices.New(opts)
+}
+
+func bootStatsService(db *sql.DB) metrics.Service {
+	repo := postgres.NewStatsRepository(db)
+	opts := &metrics.Options{Repo: repo}
+	return metrics.New(opts)
 }
