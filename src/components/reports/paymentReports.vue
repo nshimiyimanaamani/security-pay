@@ -1,11 +1,17 @@
 <template>
-  <b-row class="align-items-baseline justify-content-start px-4">
-    <b-button variant="info" class="font-13 border-0 my-1 py-2 mr-3">Generate Sector Report</b-button>
-    <b-button variant="info" class="font-13 border-0 my-1 py-2 mr-3">Generate cell Report</b-button>
-    <b-button variant="info" class="font-13 border-0 my-1 mr-3 py-2">Generate village Report</b-button>
-    <b-button variant="info" class="font-13 border-0 my-1 mr-3 py-2">Generate House Report</b-button>
-    <b-button variant="info" class="font-13 border-0 my-1 mr-3 py-2">Generate Payment List</b-button>
-  </b-row>
+  <div class="px-4">
+    <header class="d-flex justify-content-center font-20 text-uppercase">Create Payment Reports</header>
+    <hr class="m-0 mb-3" />
+    <b-row class="px-3">
+      <b-button variant="info" class="font-15 border-0 my-2 py-2 mr-3">Generate All House Report</b-button>
+    </b-row>
+    <b-row class="px-3">
+      <b-button variant="info" class="font-15 border-0 my-2 py-2 mr-3">Generate Payed House Report</b-button>
+    </b-row>
+    <b-row class="px-3">
+      <b-button variant="info" class="font-15 border-0 my-2 mr-3 py-2">Generate Unpayed House Report</b-button>
+    </b-row>
+  </div>
 </template>
 
 <script>

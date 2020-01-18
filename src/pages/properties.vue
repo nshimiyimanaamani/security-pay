@@ -1,20 +1,20 @@
 <template>
-  <div class="table-container">
+  <b-container class="table-container px-5">
     <vue-title title="Paypack | Properties" />
     <h4 class="title text-center">
       {{title}}
-      <b-button class="add-property mb-1" variant="info" @click="addProperty.show = true">
+      <b-button class="add-property mb-1 font-15" variant="info" @click="addProperty.show = true">
         <i class="fas fa-plus-circle"></i> Property
       </b-button>
     </h4>
     <hr />
-    <div class="controllers">
+    <b-row class="my-1 align-items-end px-3">
       <b-dropdown
         id="dropdown-dropright"
         dropright
         variant="info"
         ref="dropdown"
-        class="filter-dropdown"
+        class="filter-dropdown mr-auto"
       >
         <template slot="button-content">Filter By</template>
         <b-dropdown-form>
@@ -60,28 +60,31 @@
         <b-button variant="primary" size="sm" @click.prevent="tableItems = filter()">Ok</b-button>
         <b-button variant="danger" size="sm" @click.prevent="clearFilter">Clear</b-button>
       </b-dropdown>
-      <div class="search">
+
+      <div class="mr-2">
         <b-form-input
           placeholder="search user..."
+          class="rounded-1"
+          type="search"
           size="sm"
           v-model="search.name"
-          list="search-datalist-id"
+          list="search-user-id"
         ></b-form-input>
-        <b-button variant="info" style="height: 100%" @click="search.name = ''">
-          <i class="fa fa-times"></i>
-        </b-button>
-        <datalist id="search-datalist-id">
+        <datalist id="search-user-id">
           <option v-for="name in search.datalist" :key="name">{{ name }}</option>
         </datalist>
       </div>
-      <b-button @click.prevent="download" class="download btn-info">Download</b-button>
-    </div>
+
+      <b-button @click.prevent="download" class="btn-info py-1 font-15">Download</b-button>
+    </b-row>
+
     <b-table
       id="data-table"
       bordered
       striped
       hover
       small
+      responsive
       :items="tableItems"
       :fields="fields"
       :busy="loading.request"
@@ -106,8 +109,8 @@
       </template>
       <template v-slot:empty>
         <h5
-          class="text-center my-4"
-        >{{search.name ? search.name+' "is not availble in the list"':'No user Found!'}}</h5>
+          class="text-center font-15 my-4"
+        >{{search.name ? search.name+' "is not in the list"':'No Property Found!'}}</h5>
       </template>
       <template v-slot:custom-foot="items" v-if="!loading.request">
         <b-tr v-if="select.shownColumn.includes('Amount')">
@@ -133,7 +136,7 @@
       :per-page="pagination.perPage"
       class="my-0"
       pills
-      v-if="!loading.request"
+      v-if="!loading.request && pagination.totalRows/pagination.perPage > 1"
     ></b-pagination>
     <add-property
       :show="addProperty.show"
@@ -155,7 +158,7 @@
       :ref="'rightMenu'"
       @option-clicked="showUpdateModal"
     ></vue-simple-context-menu>
-  </div>
+  </b-container>
 </template>
 <script>
 import updateHouse from "../components/updateHouse.vue";
@@ -286,6 +289,11 @@ export default {
     }
   },
   watch: {
+    items() {
+      handler: {
+        this.tableItems = this.items;
+      }
+    },
     "select.shownColumn"() {
       handler: {
         this.select.selectAll =
@@ -306,7 +314,7 @@ export default {
         this.tableItems = this.filter().filter(obj => {
           const name = this.lc(obj.owner.fname + " " + obj.owner.lname);
           this.search.datalist = [...new Set([...this.search.datalist, name])];
-          if (name.includes(searchedName)) {
+          if (name.search(new RegExp(searchedName, "i")) != -1) {
             return (
               obj.owner.fname.includes(obj.owner.fname) ||
               obj.owner.lname.includes(obj.owner.lname)
@@ -350,7 +358,7 @@ export default {
       this.axios
         .get(promise)
         .then(res => {
-          this.tableItems = [...res.data.Properties];
+          this.items = [...res.data.Properties];
           this.pagination.totalRows = res.data.Total;
           this.pagination.key++;
         })
@@ -417,11 +425,12 @@ export default {
       const village = this.select.village
         ? this.select.village.toLowerCase()
         : "";
-      return this.items.filter(item => {
+      this.tableItems = this.items;
+      return this.tableItems.filter(item => {
         return (
-          item.address.sector.toLowerCase().includes(sector) &&
-          item.address.cell.toLowerCase().includes(cell) &&
-          item.address.village.toLowerCase().includes(village)
+          item.address.sector.search(new RegExp(sector, "i")) != -1 &&
+          item.address.cell.search(new RegExp(cell, "i")) != -1 &&
+          item.address.village.search(new RegExp(village, "i")) != -1
         );
       });
     },
@@ -509,7 +518,6 @@ export default {
 </script>
 <style>
 .table-container {
-  padding: 15px 40px 5px;
   position: relative;
   min-height: 100%;
 }
@@ -532,30 +540,6 @@ hr {
   margin-top: -5px;
 }
 
-.add-property-modal {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  margin: auto;
-  background: #000000cc;
-  z-index: 100;
-}
-
-.add-property-modal .modal-body {
-  position: sticky;
-  -ms-flex: 1 1 auto;
-  -webkit-box-flex: 1;
-  flex: 1 1 auto;
-  padding: 0;
-  width: 40%;
-  top: 5rem;
-  margin: auto;
-}
-
 .modal-body form button {
   float: right;
   margin-left: 10px;
@@ -571,7 +555,7 @@ hr {
 .controllers .download {
   margin-left: 10px;
   outline: none;
-  padding: 2px 10px;
+  padding: 0.25rem 10px;
   height: fit-content;
 }
 
@@ -627,8 +611,8 @@ hr {
 .filter-dropdown button {
   float: right;
   height: fit-content;
-  padding: 2px 10px;
-  font-size: 16px;
+  padding: 0.25rem 10px;
+  font-size: 15px;
 }
 
 .filter-dropdown .dropdown-menu {

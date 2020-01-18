@@ -1,11 +1,14 @@
 <template>
-  <b-card
-    :title="feedback.title"
-    :sub-title="'By '+feedback.display_name+' ['+feedback.creator+']'"
-    class="feedback-card my-2"
-  >
+  <b-card no-body class="feedback-card my-2 p-3">
+    <b-card-title class="text-capitalize">{{feedback.title}}</b-card-title>
+    <b-card-sub-title>
+      <b-row class="px-3 justify-content-between font-13 text-uppercase">
+        By {{feedback.display_name}} [{{feedback.creator}}]
+        <span class="text-capitalize">{{date}}</span>
+      </b-row>
+    </b-card-sub-title>
     <hr />
-    <b-card-text>{{feedback.body}}</b-card-text>
+    <b-card-text class="font-15 text-capitalize">{{feedback.body}}</b-card-text>
   </b-card>
 </template>
 
@@ -21,20 +24,23 @@ export default {
         loading: false
       }
     };
+  },
+  computed: {
+    date() {
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      return new Date(this.feedback.update_at).toLocaleDateString(
+        "en-EN",
+        options
+      );
+    }
   }
 };
 </script>
 
 <style>
-.feedback-card {
-  text-transform: capitalize;
-}
 .feedback-card .card-title {
-  font-size: 20px;
-}
-.feedback-card .card-subtitle {
-  text-transform: uppercase;
-  font-size: 13px;
+  font-size: 17px;
+  font-weight: bold;
 }
 .feedback-card .card-text {
   font-size: 15px;

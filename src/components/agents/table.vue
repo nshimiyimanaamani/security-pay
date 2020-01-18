@@ -4,6 +4,7 @@
     striped
     bordered
     hover
+    responsive
     show-empty
     :busy="state.loading"
     :items="table.items"

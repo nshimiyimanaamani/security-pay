@@ -37,6 +37,7 @@
         hover
         small
         show-empty
+        responsive
         :items="loadData"
         :fields="table.fields"
         :busy.sync="state.tableLoad"

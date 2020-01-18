@@ -2,7 +2,7 @@
   <b-container>
     <vue-title title="Paypack | Feedbacks" />
     <div class="d-flex">
-      <h4>FEEDBACKS</h4>&nbsp;
+      <h4 class="mb-0">FEEDBACKS</h4>&nbsp;&nbsp;
       <b-spinner class="align-self-center" v-if="state.loading" small></b-spinner>
     </div>
 

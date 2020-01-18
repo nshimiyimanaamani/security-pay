@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <vue-snotify></vue-snotify>
+    <vue-snotify class="text-capitalize"></vue-snotify>
     <b-alert :show="offline" variant="danger" class="text-center offline-indicator" dismissible>
       <b>OFFLINE!</b> Please check your internet connection...
     </b-alert>
@@ -62,6 +62,9 @@ p {
 }
 .font-13 {
   font-size: 13px !important;
+}
+.font-20 {
+  font-size: 20px !important;
 }
 .cursor-pointer {
   cursor: pointer;

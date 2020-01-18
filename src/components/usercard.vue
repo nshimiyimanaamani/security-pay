@@ -35,13 +35,16 @@
               striped
               hover
               small
+              responsive
               :items="invoices"
               :fields="fields"
               :busy="state.loading"
               :tbody-tr-class="rowClass"
               show-empty
             >
-              <template v-slot:cell(id)="data">{{months[data.index]}}</template>
+              <template
+                v-slot:cell(created_at)="data"
+              >{{new Date(data.value).toLocaleString('en-EN', {month: 'long'})}}</template>
               <template v-slot:cell(amount)="data">
                 {{data.item.status=="pending"?'-':''}}
                 {{Number(data.item.amount).toLocaleString()}} Rwf
@@ -78,7 +81,7 @@ export default {
       },
       invoices: null,
       fields: [
-        { key: "id", label: "Month" },
+        { key: "created_at", label: "Month" },
         { key: "property", label: "House ID" },
         { key: "status", label: "Status" },
         { key: "amount", label: "Amount" }
@@ -126,6 +129,7 @@ export default {
           .then(res => {
             this.state.show = true;
             this.invoices = res.data.Invoices;
+            console.log(this.invoices);
           })
           .catch(err => {
             if (navigator.onLine) {

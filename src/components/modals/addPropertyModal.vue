@@ -2,7 +2,7 @@
   <div class="add-property-modal" v-show="show">
     <!-- Modal content -->
     <b-card class="mb-2 modal-body">
-      <h5 class="text-center mb-1">Add Property</h5>
+      <h5 class="text-center mb-1">ADD PROPERTY</h5>
       <hr />
       <b-form @submit.prevent="search_user" @reset="resetModal">
         <b-form-group
@@ -271,7 +271,7 @@ export default {
       this.form.lname = null;
       this.form.phone = null;
       this.form.id = null;
-      this.form.due = null;
+      this.form.due = "500";
       this.address.cell = null;
       this.address.village = null;
       this.form.occupied = null;
@@ -298,27 +298,27 @@ export default {
 
 <style>
 .add-property-modal {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
+  position: fixed;
+  top: 55px;
+  width: calc(100% - 210px);
+  height: calc(100% - 55px);
+  left: 210px;
   right: 0;
-  width: 100%;
-  height: fit-content;
-  min-height: 100%;
   margin: auto;
   background: #000000cc;
-  z-index: 100;
+  padding: 1rem;
+  z-index: 10000;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .add-property-modal .modal-body {
-  position: sticky;
-  -ms-flex: 1 1 auto;
-  -webkit-box-flex: 1;
-  flex: 1 1 auto;
+  position: absolute;
   padding: 0;
-  width: 40%;
-  top: 5rem;
+  width: 45%;
+  top: 1rem;
+  left: 0;
+  right: 0;
   margin: auto;
 }
 

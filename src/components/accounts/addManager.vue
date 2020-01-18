@@ -37,6 +37,7 @@
         id="Dev-table"
         bordered
         striped
+        responsive
         hover
         small
         show-empty

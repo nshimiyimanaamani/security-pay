@@ -73,6 +73,7 @@
         striped
         hover
         small
+        responsive
         show-empty
         :items="loadData"
         :fields="table.fields"

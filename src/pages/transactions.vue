@@ -26,6 +26,7 @@
         :fields="table.fields"
         :busy="loading"
         show-empty
+        responsive
         bordered
         small
       >
@@ -127,7 +128,7 @@ export default {
       this.axios
         .get(this.endpoint + "/transactions?offset=0&limit=1000")
         .then(res => {
-          if (this.user.role.toLowerCase() == "dev") {
+          if (this.user.role.toLowerCase() == "basic") {
             this.table.items = res.data.Transactions.filter(
               item => item.cell == this.activeCell
             );
