@@ -44,9 +44,9 @@ func migrateDB(db *sql.DB) error {
 					CREATE OR REPLACE FUNCTION refresh_payment_status()
 					RETURNS TRIGGER AS $$
 					BEGIN
-						refresh materialized view concurrently sector_payment_count;
-						refresh materialized view concurrently cell_payment_count;
-						refresh materialized view concurrently village_payment_count;
+						refresh materialized view concurrently sector_payment_ratio;
+						refresh materialized view concurrently cell_payment_ratio;
+						refresh materialized view concurrently village_payment_ratio;
 						RETURN NULL;
 					END;
 					$$ LANGUAGE plpgsql;`,
@@ -274,45 +274,55 @@ func migrateDB(db *sql.DB) error {
 							properties.sector,
 							properties.cell,
 							properties.village,
+							invoices.created_at,
+							invoices.updated_at,
 							count(*) filter (where status='pending') as pending,
 							count(*) filter (where status='payed') as payed
 						from invoices
 							join properties on invoices.property=properties.id
-						group by property, properties.sector, properties.cell, properties.village; 
-
+						group by 
+							property,
+							invoices.created_at,
+							invoices.updated_at,
+							properties.sector, 
+							properties.cell, 
+							properties.village
+						order by property; 
 					`,
 
 					`
-					create materialized view sector_payment_count as
+					create materialized view sector_payment_ratio as
 						select 
 							sector, 
 							sum(pending) as pending, 
 							sum(payed) as payed 
 						from payment_status group by sector;
 
-					create unique index on  sector_payment_count(sector);
+					create unique index on  sector_payment_ratio(sector);
 					`,
 
 					`
-					create materialized view cell_payment_count as
+					create materialized view cell_payment_ratio as
 						select 
-							cell, 
+							cell,
+							sector, 
 							sum(pending) as pending, 
 							sum(payed) as payed 
-						from payment_status group by cell;
+						from payment_status group by cell, sector;
 						
-					create unique index on  cell_payment_count(cell);
+					create unique index on  cell_payment_ratio(cell);
 					`,
 
 					`
-					create materialized view village_payment_count as
+					create materialized view village_payment_ratio as
 						select 
-							village, 
+							village,
+							cell,
 							sum(pending) as pending, 
 							sum(payed) as payed 
-						from payment_status group by village;
+						from payment_status group by village, cell;
 					
-					create unique index on  village_payment_count(village);
+					create unique index on  village_payment_ratio(village);
 					`,
 				},
 

@@ -1,21 +1,21 @@
-package stats
+package metrics
 
 import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/app/stats"
+	"github.com/rugwirobaker/paypack-backend/app/metrics"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
 // ProtocolHandler adapts the feedback service into an http.handler
-type ProtocolHandler func(logger log.Entry, svc stats.Service) http.Handler
+type ProtocolHandler func(logger log.Entry, svc metrics.Service) http.Handler
 
 // HandlerOpts are the generic options
 // for a ProtocolHandler
 type HandlerOpts struct {
 	Logger  *log.Logger
-	Service stats.Service
+	Service metrics.Service
 }
 
 // LogEntryHandler pulls a log entry from the request context. Thanks to the
@@ -41,5 +41,8 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 	r.Handle(SectorRatioRoute, LogEntryHandler(SectorPayRatio, opts)).Methods(http.MethodGet)
 	r.Handle(CellRatioRoute, LogEntryHandler(CellPayRatio, opts)).Methods(http.MethodGet)
 	r.Handle(VillageRatioRoute, LogEntryHandler(VillagePayRatio, opts)).Methods(http.MethodGet)
+
+	r.Handle(ListAllCellRatiosRoute, LogEntryHandler(ListAllCellRatios, opts)).Methods(http.MethodGet)
+	r.Handle(ListAllSectorRatiosRoute, LogEntryHandler(ListAllSectorRatios, opts)).Methods(http.MethodGet)
 
 }
