@@ -2,8 +2,8 @@
   <b-container>
     <vue-title title="Paypack | create accounts" />
     <h3 class="d-flex justify-content-center mb-3">ACCOUNT REGISTRATION</h3>
-    <b-card no-body class="nav-controls">
-      <b-tabs pills card vertical lazy>
+    <b-card no-body class="nav-controls font-13">
+      <b-tabs pills card vertical lazy class="text-uppercase" content-class="text-capitalize">
         <b-tab title="Add Agent" active>
           <add-agent />
         </b-tab>

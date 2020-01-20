@@ -7,7 +7,6 @@
       height: 100%;
       padding: 1%;
 
-
       .card-body {
         height: 100%;
         background: ghostwhite;
@@ -24,21 +23,15 @@
           background: darkcyan;
 
           h1 {
-            font-size: 15px;
+            font-size: 14px;
             text-transform: uppercase;
             margin: 0;
+            letter-spacing: 1px;
           }
         }
 
         .chart .center-text {
-          position: absolute;
           top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          margin: auto;
-          width: fit-content;
-          height: 40%;
           font-size: 250%;
           font-weight: bold;
           color: #606073;

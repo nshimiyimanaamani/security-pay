@@ -61,9 +61,10 @@
 }
 
 .cells-container .row .card-body .card-header h1 {
-  font-size: 15px;
+  font-size: 14px;
   text-transform: uppercase;
   margin: auto;
+  letter-spacing: 1px;
 }
 
 .cells-container .row .card-body .card-header i {

@@ -34,22 +34,14 @@
 }
 
 .container .row .column .card-body .card-header h1 {
-  font-size: 15px;
+  font-size: 14px;
   text-transform: uppercase;
   margin: 0;
+  letter-spacing: 1px;
 }
 
 .container .row .column .card-body .chart .center-text {
-  position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: auto;
-  width: -webkit-fit-content;
-  width: -moz-fit-content;
-  width: fit-content;
-  height: 40%;
   font-size: 250%;
   font-weight: bold;
   color: #606073;

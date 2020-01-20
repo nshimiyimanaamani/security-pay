@@ -5,12 +5,24 @@
         <b-row>
           <b-col>
             <b-form-group id="input-group-1" label="First name:" label-for="input-1">
-              <b-form-input id="input-1" required v-model="form.fname" placeholder="First name..."></b-form-input>
+              <b-form-input
+                id="input-1"
+                size="sm"
+                required
+                v-model="form.fname"
+                placeholder="First name..."
+              ></b-form-input>
             </b-form-group>
           </b-col>
           <b-col>
             <b-form-group id="input-group-2" label="Last name:" label-for="input-2">
-              <b-form-input id="input-2" required v-model="form.lname" placeholder="Last name..."></b-form-input>
+              <b-form-input
+                id="input-2"
+                size="sm"
+                required
+                v-model="form.lname"
+                placeholder="Last name..."
+              ></b-form-input>
             </b-form-group>
           </b-col>
         </b-row>
@@ -20,12 +32,13 @@
             type="number"
             v-model="form.phone"
             required
+            size="sm"
             placeholder="Enter Phone number..."
           ></b-form-input>
         </b-form-group>
 
         <b-form-group id="input-group-4" label="Sector:" label-for="input-4">
-          <b-form-select id="input-4" v-model="form.select.sector" style="font-size: 15px">
+          <b-form-select size="sm" id="input-4" v-model="form.select.sector">
             <template v-slot:first>
               <option :value="null" disabled>-- Please select sector --</option>
             </template>
@@ -34,12 +47,7 @@
         </b-form-group>
 
         <b-form-group id="input-group-5" label="Cell:" label-for="input-5">
-          <b-form-select
-            id="input-5"
-            v-model="form.select.cell"
-            :options="cellOptions"
-            style="font-size: 15px"
-          >
+          <b-form-select id="input-5" v-model="form.select.cell" :options="cellOptions" size="sm">
             <template v-slot:first>
               <option :value="null" disabled>-- Please select cell --</option>
             </template>
@@ -47,19 +55,14 @@
         </b-form-group>
 
         <b-form-group id="input-group-5" label="Village:" label-for="input-5">
-          <b-form-select
-            id="input-6"
-            v-model="form.select.village"
-            :options="villageOptions"
-            style="font-size: 15px"
-          >
+          <b-select id="input-6" v-model="form.select.village" :options="villageOptions" size="sm">
             <template v-slot:first>
               <option :value="null" disabled>-- Please select village --</option>
             </template>
-          </b-form-select>
+          </b-select>
         </b-form-group>
         <b-form-group class="m-0">
-          <b-button variant="info" class="float-right" type="submit">
+          <b-button variant="info" size="sm" class="float-right" type="submit">
             {{state.creating ? 'Creating' : "Create"}}
             <b-spinner v-show="state.creating" small type="grow"></b-spinner>
           </b-button>

@@ -9,12 +9,14 @@
             <h1 class>{{activeCell}} COLLECTING ACCOUNT</h1>
             <i class="fa fa-cog"></i>
           </b-card-header>
-          <bar-chart
-            v-if="chart1Data"
-            :chart-data="chart1Data"
-            :options="optionsChart1"
-            :style="style"
-          ></bar-chart>
+          <div style="height:85%">
+            <bar-chart
+              v-if="chart1Data"
+              :chart-data="chart1Data"
+              :options="optionsChart1"
+              :style="style"
+            />
+          </div>
         </b-card-body>
         <!-- end of chart 1 -->
       </b-col>
@@ -23,16 +25,38 @@
           <b-card-header>
             <i class="fa fa-th-large"></i>
             <h1 class>{{activeCell}} TOTAL COLLECTED</h1>
-            <i class="fa fa-cog"></i>
+            <i
+              class="fa fa-refresh cursor-pointer"
+              @click="loadData"
+              :class="{'fa-spin':chart2.state.loading}"
+            ></i>
           </b-card-header>
-          <div class="chart" style="height:100%;position:relative">
-            <doughnut-chart
-              v-if="chart2Data"
-              :chart-data="chart2Data"
-              :options="optionsChart2"
-              :style="style"
-            ></doughnut-chart>
-            <div class="center-text">{{percentage}}%</div>
+          <div class="chart position-relative" style="height: 85%">
+            <div v-if="!chart2.state.loading" class="h-100">
+              <doughnut-chart
+                :chart-data="chart2.data"
+                v-if="chart2.data"
+                :options="optionsChart2"
+                :style="style"
+              />
+              <div
+                class="center-text justify-content-center align-items-center w-100 h-100 d-flex position-absolute"
+                v-if="!chart2.state.error"
+              >{{chart2.percentage}}%</div>
+            </div>
+
+            <b-card
+              no-body
+              class="position-absolute bg-transparent border-0 chartLoader align-items-center"
+              v-if="chart2.state.loading"
+            >
+              <loader />
+            </b-card>
+            <b-card
+              no-body
+              class="position-absolute bg-transparent border-0 chartLoader align-items-center text-uppercase"
+              v-if="chart2.state.error"
+            >{{chart2.state.errorMessage}}</b-card>
           </div>
         </b-card-body>
       </b-col>
@@ -45,13 +69,15 @@
             <h1 class>{{activeCell}} CELL</h1>
             <i class="fa fa-cog"></i>
           </b-card-header>
-          <line-chart
-            v-if="chart3Data"
-            :chart-data="chart3Data"
-            :style="style"
-            :tooltipData="chart3AdditionalData"
-            :options="optionsChart3"
-          />
+          <div style="height:85%">
+            <line-chart
+              v-if="chart3Data"
+              :chart-data="chart3Data"
+              :style="style"
+              :tooltipData="chart3AdditionalData"
+              :options="optionsChart3"
+            />
+          </div>
         </b-card-body>
       </b-col>
     </b-row>
@@ -62,15 +88,26 @@
 import BarChart from "../components/BarChart.vue";
 import DoughnutChart from "../components/DaughnutChart.vue";
 import LineChart from "../components/MixedCharts.vue";
+import loader from "../components/loader";
 export default {
   name: "cells",
   components: {
     BarChart,
     DoughnutChart,
-    LineChart
+    LineChart,
+    loader
   },
   data() {
     return {
+      chart2: {
+        data: null,
+        percentage: null,
+        state: {
+          loading: true,
+          error: false,
+          errorMessage: null
+        }
+      },
       chart1Data: null,
       chart2Data: null,
       chart3Data: null,
@@ -81,6 +118,9 @@ export default {
     };
   },
   computed: {
+    endpoint() {
+      return this.$store.getters.getEndpoint;
+    },
     activeCell() {
       return this.$store.getters.getActiveCell;
     },
@@ -89,8 +129,7 @@ export default {
     },
     style() {
       return {
-        height: "85%",
-        "font-size": "15px"
+        height: "100%"
       };
     },
     percentage() {
@@ -214,13 +253,45 @@ export default {
     activeCell() {
       handler: {
         this.fetchData();
+        this.loadData();
       }
     }
   },
   beforeMount() {
     this.fetchData();
+    this.loadData();
   },
   methods: {
+    loadData() {
+      this.chart2.data = null;
+      this.chart2.state.loading = true;
+      this.chart2.state.error = false;
+      this.axios
+        .get(this.endpoint + "/metrics/cells/" + this.activeCell)
+        .then(res => {
+          const data = res.data.data;
+          const percentage = (data.payed * 100) / (data.payed + data.pending);
+          this.chart2.percentage = percentage.toFixed();
+          this.chart2.data = {
+            labels: Object.keys(data),
+            datasets: [
+              {
+                label: res.data.label,
+                backgroundColor: ["#008b8bb3", "#e4e4ec"],
+                borderColor: "white",
+                data: [data.payed, data.pending]
+              }
+            ]
+          };
+        })
+        .catch(err => {
+          this.chart2.state.error = true;
+          this.chart2.state.errorMessage = err.response
+            ? err.response.data.error || err.response.data
+            : "Error";
+        })
+        .finally(() => (this.chart2.state.loading = false));
+    },
     fetchData() {
       window.Chart.defaults.global.defaultFontSize = 13.5;
       this.chart1Data = this.fillData(["BK", "MTN", "AIRTEL"]);
