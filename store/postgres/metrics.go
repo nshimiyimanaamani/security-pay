@@ -18,22 +18,28 @@ func NewStatsRepository(db *sql.DB) metrics.Repository {
 	return &statsRepository{db}
 }
 
-func (repo *statsRepository) FindSectorRatio(ctx context.Context, sector string) (metrics.Chart, error) {
+func (repo *statsRepository) FindSectorRatio(ctx context.Context, sector string, y, m uint) (metrics.Chart, error) {
 	const op errors.Op = "store/postgres/statsRepository.FindSectorRatio"
 
 	q := `
-		select sector, pending, payed from sector_payment_ratio where sector=$1;
+		select 
+			sector, 
+			pending, 
+			payed 
+		from 
+			sector_payment_ratio 
+		where sector=$1 and extract(year from period)=$2 and extract(month from period)=$3;
 	`
 	var label string
 
 	var payed, pending uint64
 
-	err := repo.QueryRowContext(ctx, q, sector).Scan(&label, &pending, &payed)
+	err := repo.QueryRowContext(ctx, q, sector, y, m).Scan(&label, &pending, &payed)
 	if err != nil {
 		empty := metrics.Chart{}
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
-			return empty, errors.E(op, "sector not found", errors.KindNotFound)
+			return empty, errors.E(op, "no data found for this sector", errors.KindNotFound)
 		}
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -45,7 +51,7 @@ func (repo *statsRepository) FindSectorRatio(ctx context.Context, sector string)
 
 	return chart, nil
 }
-func (repo *statsRepository) FindCellRatio(ctx context.Context, cell string) (metrics.Chart, error) {
+func (repo *statsRepository) FindCellRatio(ctx context.Context, cell string, y, m uint) (metrics.Chart, error) {
 	const op errors.Op = "store/postgres/statsRepository.FindCellRatio"
 
 	var label string
@@ -53,16 +59,22 @@ func (repo *statsRepository) FindCellRatio(ctx context.Context, cell string) (me
 	var payed, pending uint64
 
 	q := `
-		select cell, pending, payed from  cell_payment_ratio where cell=$1;
+		select 
+			cell, 
+			pending, 
+			payed 
+		from  
+			cell_payment_ratio 
+		where cell=$1 and extract(year from period)=$2 and extract(month from period)=$3;
 	`
-	err := repo.QueryRowContext(ctx, q, cell).Scan(&label, &pending, &payed)
+	err := repo.QueryRowContext(ctx, q, cell, y, m).Scan(&label, &pending, &payed)
 	if err != nil {
 
 		empty := metrics.Chart{}
 
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
-			return empty, errors.E(op, "cell not found", errors.KindNotFound)
+			return empty, errors.E(op, "no data found for this cell", errors.KindNotFound)
 		}
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -75,23 +87,29 @@ func (repo *statsRepository) FindCellRatio(ctx context.Context, cell string) (me
 	return chart, nil
 }
 
-func (repo *statsRepository) FindVillageRatio(ctx context.Context, village string) (metrics.Chart, error) {
+func (repo *statsRepository) FindVillageRatio(ctx context.Context, village string, y, m uint) (metrics.Chart, error) {
 	const op errors.Op = "store/postgres/statsRepository.FindVillageRatio"
 
 	q := `
-		select village, pending, payed from  village_payment_ratio where village=$1;
+		select 
+			village, 
+			pending, 
+			payed 
+		from  
+			village_payment_ratio 
+		where village=$1 and extract(year from period)=$2 and extract(month from period)=$3;
 	`
 	var label string
 
 	var payed, pending uint64
 
-	err := repo.QueryRowContext(ctx, q, village).Scan(&label, &pending, &payed)
+	err := repo.QueryRowContext(ctx, q, village, y, m).Scan(&label, &pending, &payed)
 	if err != nil {
 		empty := metrics.Chart{}
 
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
-			return empty, errors.E(op, "village not found", errors.KindNotFound)
+			return empty, errors.E(op, "no data found for this village", errors.KindNotFound)
 		}
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -102,16 +120,22 @@ func (repo *statsRepository) FindVillageRatio(ctx context.Context, village strin
 	return chart, nil
 }
 
-func (repo *statsRepository) ListSectorRatios(ctx context.Context, sector string) ([]metrics.Chart, error) {
+func (repo *statsRepository) ListSectorRatios(ctx context.Context, sector string, y, m uint) ([]metrics.Chart, error) {
 	const op errors.Op = "store/postgres/statsRepository.ListSectorRatios"
 
 	q := `
-		select cell, pending, payed from cell_payment_ratio where sector=$1;
+		select 
+			cell, 
+			pending, 
+			payed 
+		from 
+			cell_payment_ratio 
+		where sector=$1 and extract(year from period)=$2 and extract(month from period)=$3;
 	`
 
 	items := []metrics.Chart{}
 
-	rows, err := repo.QueryContext(ctx, q, sector)
+	rows, err := repo.QueryContext(ctx, q, sector, y, m)
 	if err != nil {
 		return nil, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -138,16 +162,22 @@ func (repo *statsRepository) ListSectorRatios(ctx context.Context, sector string
 
 }
 
-func (repo *statsRepository) ListCellRatios(ctx context.Context, cell string) ([]metrics.Chart, error) {
+func (repo *statsRepository) ListCellRatios(ctx context.Context, cell string, y, m uint) ([]metrics.Chart, error) {
 	const op errors.Op = "store/postgres/statsRepository.ListCellRatios"
 
 	q := `
-		select village, pending, payed from village_payment_ratio where cell=$1;
+		select 
+			village, 
+			pending, 
+			payed 
+		from 
+			village_payment_ratio 
+		where cell=$1 and extract(year from period)=$2 and extract(month from period)=$3;
 	`
 
 	items := []metrics.Chart{}
 
-	rows, err := repo.QueryContext(ctx, q, cell)
+	rows, err := repo.QueryContext(ctx, q, cell, y, m)
 	if err != nil {
 		return nil, errors.E(op, err, errors.KindUnexpected)
 	}
