@@ -84,12 +84,18 @@
       </b-collapse>
     </b-row>
     <b-row class="justify-content-end mx-1" v-if="paymentDetails">
-      <b-button size="sm" variant="info" class="font-15 border-0 my-3">Download Report</b-button>
+      <b-button
+        size="sm"
+        variant="info"
+        class="font-15 border-0 my-3"
+        @click="download"
+      >Download Report</b-button>
     </b-row>
   </div>
 </template>
 
 <script>
+import DownloadReport from "./downloadReport";
 export default {
   name: "cellReports",
   data() {
@@ -113,6 +119,7 @@ export default {
       return this.$store.getters.getCellsArray;
     }
   },
+  mounted() {},
   methods: {
     generate() {
       this.state.generating = true;
@@ -165,6 +172,11 @@ export default {
           }
         })
         .finally(() => (this.state.generatingP = false));
+    },
+    download() {
+      if (this.paymentDetails != null && this.userDetails != null) {
+        DownloadReport(this.userDetails, this.paymentDetails);
+      }
     }
   }
 };
