@@ -79,6 +79,6 @@ export default {
   background-color: #3a82a1;
 }
 .nav-controls a {
-  color: #3a82a1 !important;
+  color: #3a82a1;
 }
 </style>

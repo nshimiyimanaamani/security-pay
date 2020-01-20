@@ -144,6 +144,9 @@ export default {
     sectorOptions() {
       return [this.activeSector];
     },
+    activeSector() {
+      return this.$store.getters.getActiveSector;
+    },
     cellOptions() {
       return this.$store.getters.getCellsArray;
     },
@@ -307,7 +310,7 @@ export default {
   margin: auto;
   background: #000000cc;
   padding: 1rem;
-  z-index: 10000;
+  z-index: 1000;
   overflow-x: hidden;
   overflow-y: auto;
 }

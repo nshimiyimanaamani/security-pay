@@ -1,6 +1,6 @@
 <template>
   <div>
-    <header class="d-flex justify-content-center font-20 text-uppercase">Create House Report</header>
+    <header class="d-flex justify-content-center font-20 text-uppercase">House Report</header>
     <hr class="m-0 mb-3" />
     <b-row class="px-3 align-items-center justify-content-between">
       <b-input
@@ -47,24 +47,44 @@
               <b-td>{{Number(userDetails.due).toLocaleString()}} Rwf</b-td>
             </b-tr>
             <b-tr>
-              <b-th>Occupied</b-th>
+              <b-th>For Rent</b-th>
               <b-td>{{userDetails.occupied}}</b-td>
             </b-tr>
             <b-tr>
-              <b-th>For Rent</b-th>
-              <b-td>{{userDetails.for_rent}}</b-td>
+              <b-th>Registered by</b-th>
+              <b-td class="text-undercase">{{userDetails.recorded_by}}</b-td>
             </b-tr>
             <b-tr>
-              <b-th>Recorded by</b-th>
-              <b-td>{{userDetails.recorded_by}}</b-td>
-            </b-tr>
-            <b-tr>
-              <b-th>Created on</b-th>
+              <b-th>Registered on</b-th>
               <b-td>{{new Date(userDetails.created_at).toLocaleString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' })}}</b-td>
             </b-tr>
           </b-tbody>
         </b-table-simple>
       </b-collapse>
+    </b-row>
+    <b-row class="justify-content-center text-capitalize">
+      <div v-show="state.generatingP" class="w-100 px-3">
+        <strong class="font-15">Generating&nbsp;</strong>
+        <b-spinner small />
+      </div>
+      <b-collapse id="PaymentReport-collapse" class="flex-grow-1 mx-3" v-model="state.showPayment">
+        <b-table-simple hover bordered small caption-top responsive v-if="paymentDetails">
+          <caption>Payment History of {{userDetails.owner.fname+' '+userDetails.owner.lname}}:</caption>
+          <b-tbody>
+            <b-tr>
+              <b-th>Month</b-th>
+              <b-td>Status</b-td>
+            </b-tr>
+            <b-tr v-for="(item,index) in paymentDetails" :key="index">
+              <b-th>{{new Date(item.created_at).toLocaleString('en-EN', { month: 'long'})}}</b-th>
+              <b-td>{{item.status=="pending"?'Not Payed':'Payed'}}</b-td>
+            </b-tr>
+          </b-tbody>
+        </b-table-simple>
+      </b-collapse>
+    </b-row>
+    <b-row class="justify-content-end mx-1" v-if="paymentDetails">
+      <b-button size="sm" variant="info" class="font-15 border-0 my-3">Download Report</b-button>
     </b-row>
   </div>
 </template>
@@ -76,8 +96,11 @@ export default {
     return {
       houseId: null,
       userDetails: null,
+      paymentDetails: null,
       state: {
         showReport: false,
+        showPayment: false,
+        generatingP: false,
         generating: false
       }
     };
@@ -99,6 +122,7 @@ export default {
         .then(res => {
           this.state.showReport = true;
           this.userDetails = res.data;
+          this.generatePayment();
         })
         .catch(err => {
           if (navigator.onLine) {
@@ -114,6 +138,33 @@ export default {
         .finally(() => {
           this.state.generating = false;
         });
+    },
+    generatePayment() {
+      this.state.showPayment = false;
+      this.state.generatingP = true;
+      this.axios
+        .get(
+          this.endpoint +
+            "/billing/invoices?property=" +
+            this.houseId +
+            "&months=12"
+        )
+        .then(res => {
+          this.paymentDetails = res.data.Invoices;
+          this.state.showPayment = true;
+        })
+        .catch(err => {
+          if (navigator.onLine) {
+            this.state.showPayment = true;
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : "an error occured";
+            this.$snotify.error(error);
+          } else {
+            this.$snotify.error("Please connect to the internet...");
+          }
+        })
+        .finally(() => (this.state.generatingP = false));
     }
   }
 };

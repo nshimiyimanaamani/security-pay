@@ -1,7 +1,13 @@
 <template>
   <div id="app">
     <vue-snotify class="text-capitalize"></vue-snotify>
-    <b-alert :show="offline" variant="danger" class="text-center offline-indicator" dismissible>
+    <b-alert
+      :show="offline"
+      variant="danger"
+      class="text-center offline-indicator font-15"
+      style="z-index: 10001"
+      dismissible
+    >
       <b>OFFLINE!</b> Please check your internet connection...
     </b-alert>
     <router-view />
@@ -18,9 +24,8 @@ export default {
     this.$store.dispatch("startup_function");
   },
   mounted() {
-    setInterval(() => {
-      navigator.onLine ? (this.offline = false) : (this.offline = true);
-    }, 10000);
+    window.addEventListener("offline", e => (this.offline = true));
+    window.addEventListener("online", e => (this.offline = false));
   }
 };
 </script>

@@ -49,7 +49,7 @@
           <li>Feedbacks</li>
         </router-link>
         <router-link to="/create" v-if="user.role == 'dev'">
-          <li>Create Accounts</li>
+          <li>Accounts</li>
         </router-link>
       </ul>
       <p class="text-center powered" for="powered">
