@@ -1,6 +1,6 @@
 <template>
   <div>
-    <header class="d-flex justify-content-center font-20 text-uppercase">Create village Report</header>
+    <header class="d-flex justify-content-center font-20 text-uppercase">village Report</header>
     <hr class="m-0 mb-3" />
     <b-row class="px-3 align-items-center justify-content-between">
       <b-select

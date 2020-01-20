@@ -9,6 +9,11 @@
     <div v-for="(feedback,index) in feedbacks" :key="index">
       <feedback :feedback="feedback" v-if="!state.loading" />
     </div>
+    <b-row v-if="!state.loading" class="justify-content-start mx-1 my-4">
+      <b-card class="bg-transparent align-items-center w-50">
+        <b-card-text>No feedbacks Available the moment!</b-card-text>
+      </b-card>
+    </b-row>
   </b-container>
 </template>
 

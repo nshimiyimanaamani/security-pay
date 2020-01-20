@@ -1,6 +1,6 @@
 <template>
   <div class="px-4">
-    <header class="d-flex justify-content-center font-20 text-uppercase">Create Sector Report</header>
+    <header class="d-flex justify-content-center font-20 text-uppercase">Sector Report</header>
     <hr class="m-0 mb-3" />
     <b-row>
       <b-button
