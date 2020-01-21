@@ -2,13 +2,14 @@ package metrics
 
 // metrics routes
 const (
-	SectorRatioRoute  = "/metrics/sectors/{sector}"
-	CellRatioRoute    = "/metrics/cells/{cell}"
-	VillageRatioRoute = "/metrics/villages/{village}"
+	SectorRatioRoute  = "/metrics/ratios/sectors/{sector}"
+	CellRatioRoute    = "/metrics/ratios/cells/{cell}"
+	VillageRatioRoute = "/metrics/ratios/villages/{village}"
 
-	ListAllSectorRatiosRoute = "/metrics/sectors/all/{sector}"
-	ListAllCellRatiosRoute   = "/metrics/cells/all/{cell}"
+	ListAllSectorRatiosRoute = "/metrics/ratios/sectors/all/{sector}"
+	ListAllCellRatiosRoute   = "/metrics/ratios/cells/all/{cell}"
 
-	CellsAccountBalance    = "/metrics/balance/sectors/{sector}"
-	VillagesAccountBalance = "/metrics/balance/cells/{cell}"
+	SectorAccountBalance  = "/metrics/balance/sectors/{sector}"
+	CellAccountBalance    = "/metrics/balance/cells/{cell}"
+	VillageAccountBalance = "/metrics/balance/villages/{village}"
 )

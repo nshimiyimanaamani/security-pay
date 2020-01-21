@@ -275,16 +275,14 @@ func migrateDB(db *sql.DB) error {
 							properties.sector,
 							properties.cell,
 							properties.village,
-							invoices.created_at,
-							invoices.updated_at,
+							date_trunc('month', invoices.created_at) as period,
 							count(*) filter (where status='pending') as pending,
 							count(*) filter (where status='payed') as payed
 						from invoices
 							join properties on invoices.property=properties.id
 						group by 
 							property,
-							invoices.created_at,
-							invoices.updated_at,
+							period,
 							properties.sector, 
 							properties.cell, 
 							properties.village
@@ -294,12 +292,13 @@ func migrateDB(db *sql.DB) error {
 					`
 					create materialized view sector_payment_ratio as
 						select 
-							sector, 
+							sector,
+							period,
 							sum(pending) as pending, 
 							sum(payed) as payed 
-						from payment_status group by sector;
+						from payment_status group by sector, period;
 
-					create unique index on  sector_payment_ratio(sector);
+					create unique index on  sector_payment_ratio(sector, period);
 					`,
 
 					`
@@ -307,11 +306,12 @@ func migrateDB(db *sql.DB) error {
 						select 
 							cell,
 							sector, 
+							period,
 							sum(pending) as pending, 
 							sum(payed) as payed 
-						from payment_status group by cell, sector;
+						from payment_status group by cell, sector, period;
 						
-					create unique index on  cell_payment_ratio(cell);
+					create unique index on  cell_payment_ratio(cell, period);
 					`,
 
 					`
@@ -319,11 +319,12 @@ func migrateDB(db *sql.DB) error {
 						select 
 							village,
 							cell,
+							period,
 							sum(pending) as pending, 
 							sum(payed) as payed 
-						from payment_status group by village, cell;
+						from payment_status group by village, cell, period;
 					
-					create unique index on  village_payment_ratio(village);
+					create unique index on  village_payment_ratio(village, period);
 					`,
 				},
 

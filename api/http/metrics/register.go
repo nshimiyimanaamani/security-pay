@@ -38,11 +38,15 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		panic("absolutely unacceptable handler opts")
 	}
 
-	r.Handle(SectorRatioRoute, LogEntryHandler(SectorPayRatio, opts)).Methods(http.MethodGet)
-	r.Handle(CellRatioRoute, LogEntryHandler(CellPayRatio, opts)).Methods(http.MethodGet)
-	r.Handle(VillageRatioRoute, LogEntryHandler(VillagePayRatio, opts)).Methods(http.MethodGet)
-
-	r.Handle(ListAllCellRatiosRoute, LogEntryHandler(ListAllCellRatios, opts)).Methods(http.MethodGet)
-	r.Handle(ListAllSectorRatiosRoute, LogEntryHandler(ListAllSectorRatios, opts)).Methods(http.MethodGet)
+	r.Handle(SectorRatioRoute, LogEntryHandler(SectorPayRatio, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(CellRatioRoute, LogEntryHandler(CellPayRatio, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(VillageRatioRoute, LogEntryHandler(VillagePayRatio, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(ListAllCellRatiosRoute, LogEntryHandler(ListAllCellRatios, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(ListAllSectorRatiosRoute, LogEntryHandler(ListAllSectorRatios, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
 
 }

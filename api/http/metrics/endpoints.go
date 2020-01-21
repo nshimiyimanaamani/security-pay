@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/app/metrics"
@@ -18,7 +19,23 @@ func SectorPayRatio(lgger log.Entry, svc metrics.Service) http.Handler {
 
 		var sector = vars["sector"]
 
-		res, err := svc.FindSectorRatio(r.Context(), sector)
+		year, err := strconv.ParseUint(vars["year"], 10, 8)
+		if err != nil {
+			err = errors.E(op, err, "invalid year value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		month, err := strconv.ParseUint(vars["month"], 10, 8)
+		if err != nil {
+			err = errors.E(op, err, "invalid month value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		res, err := svc.FindSectorRatio(r.Context(), sector, uint(year), uint(month))
 		if err != nil {
 			err = errors.E(op, err)
 			lgger.SystemErr(err)
@@ -46,7 +63,23 @@ func CellPayRatio(lgger log.Entry, svc metrics.Service) http.Handler {
 
 		var cell = vars["cell"]
 
-		res, err := svc.FindCellRatio(r.Context(), cell)
+		year, err := strconv.ParseUint(vars["year"], 10, 8)
+		if err != nil {
+			err = errors.E(op, err, "invalid year value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		month, err := strconv.ParseUint(vars["month"], 10, 8)
+		if err != nil {
+			err = errors.E(op, err, "invalid month value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		res, err := svc.FindCellRatio(r.Context(), cell, uint(year), uint(month))
 		if err != nil {
 			err = errors.E(op, err)
 			lgger.SystemErr(err)
@@ -74,7 +107,23 @@ func VillagePayRatio(lgger log.Entry, svc metrics.Service) http.Handler {
 
 		var cell = vars["village"]
 
-		res, err := svc.FindVillageRatio(r.Context(), cell)
+		year, err := strconv.ParseUint(vars["year"], 10, 8)
+		if err != nil {
+			err = errors.E(op, err, "invalid year value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		month, err := strconv.ParseUint(vars["month"], 10, 8)
+		if err != nil {
+			err = errors.E(op, err, "invalid month value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		res, err := svc.FindVillageRatio(r.Context(), cell, uint(year), uint(month))
 		if err != nil {
 			err = errors.E(op, err)
 			lgger.SystemErr(err)
@@ -102,7 +151,23 @@ func ListAllSectorRatios(lgger log.Entry, svc metrics.Service) http.Handler {
 
 		var sector = vars["sector"]
 
-		res, err := svc.ListAllSectorRatios(r.Context(), sector)
+		year, err := strconv.ParseUint(vars["year"], 10, 8)
+		if err != nil {
+			err = errors.E(op, err, "invalid year value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		month, err := strconv.ParseUint(vars["month"], 10, 8)
+		if err != nil {
+			err = errors.E(op, err, "invalid month value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		res, err := svc.ListAllSectorRatios(r.Context(), sector, uint(year), uint(month))
 		if err != nil {
 			err = errors.E(op, err)
 			lgger.SystemErr(err)
@@ -130,7 +195,23 @@ func ListAllCellRatios(lgger log.Entry, svc metrics.Service) http.Handler {
 
 		var cell = vars["cell"]
 
-		res, err := svc.ListAllCellRatios(r.Context(), cell)
+		year, err := strconv.ParseUint(vars["year"], 10, 8)
+		if err != nil {
+			err = errors.E(op, err, "invalid year value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		month, err := strconv.ParseUint(vars["month"], 10, 8)
+		if err != nil {
+			err = errors.E(op, err, "invalid month value", errors.KindBadRequest)
+			lgger.SystemErr(err)
+			encodeErr(w, errors.Kind(err), err)
+			return
+		}
+
+		res, err := svc.ListAllCellRatios(r.Context(), cell, uint(year), uint(month))
 		if err != nil {
 			err = errors.E(op, err)
 			lgger.SystemErr(err)

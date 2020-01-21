@@ -103,9 +103,10 @@ func saveProperty(t *testing.T, db *sql.DB, pp properties.Property) (properties.
 			village, 
 			recorded_by, 
 			occupied
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING  created_at, updated_at`
 
-	_, err := db.Exec(q, pp.ID, pp.Owner.ID, pp.Due, pp.Address.Sector, pp.Address.Cell, pp.Address.Village, pp.RecordedBy, pp.Occupied)
+	err := db.QueryRow(q, pp.ID, pp.Owner.ID, pp.Due, pp.Address.Sector,
+		pp.Address.Cell, pp.Address.Village, pp.RecordedBy, pp.Occupied).Scan(&pp.CreatedAt, &pp.UpdatedAt)
 
 	if err != nil {
 		return properties.Property{}, err
