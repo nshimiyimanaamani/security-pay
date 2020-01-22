@@ -89,7 +89,6 @@
       :fields="fields"
       :busy="loading.request"
       :sort-by.sync="sortBy"
-      :sort-desc.sync="sortDesc"
       :show-empty="!loading.request"
       :current-page="pagination.currentPage"
       :per-page="0"
@@ -97,7 +96,9 @@
     >
       <template v-slot:cell(due)="data">{{Number(data.item.due).toLocaleString()}} Rwf</template>
       <template v-slot:cell(owner)="data">{{data.item.owner.fname +" "+ data.item.owner.lname}}</template>
-      <template v-slot:cell(occupied)="data">{{data.item.occupied?"OYA":"YEGO"}}</template>
+      <template v-slot:cell(occupied)="data">
+        <b-card-text class="text-right m-0">{{data.item.occupied}}</b-card-text>
+      </template>
       <template v-slot:cell(index)="data">
         <article class="text-center">{{data.index + 1}}</article>
       </template>
@@ -233,13 +234,13 @@ export default {
       fields: [
         { key: "index", label: "NO" },
         { key: "owner", label: "Full name", sortable: true },
-        { key: "id", label: "House Code", sortable: false },
-        { key: "owner.phone", label: "Phone Number", sortable: false },
+        { key: "id", label: "House Code" },
+        { key: "owner.phone", label: "Phone Number" },
         { key: "address.sector", label: "sector", sortable: true },
         { key: "address.cell", label: "Cell", sortable: true },
         { key: "address.village", label: "Village", sortable: true },
         { key: "occupied", label: "Rented", sortable: true },
-        { key: "due", label: "Amount", sortable: false }
+        { key: "due", label: "Amount" }
       ],
       items: [],
       tableItems: [],

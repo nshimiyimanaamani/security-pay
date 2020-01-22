@@ -92,7 +92,7 @@
             </template>
           </b-form-select>
         </b-form-group>
-        <b-button type="submit" variant="primary" class="font-15 app-color">
+        <b-button :disabled="!clickable" type="submit" variant="primary" class="font-15 app-color">
           {{state.adding ? btnContent+'ing' : btnContent}}
           <b-spinner v-show="state.adding" small type="grow"></b-spinner>
         </b-button>
@@ -167,6 +167,28 @@ export default {
     },
     occupied() {
       return Boolean(this.form.occupied !== null);
+    },
+    clickable() {
+      const { fname, lname, phone, id, due, occupied } = this.form;
+      const { sector, cell, village } = this.address;
+      if (this.state.switch) {
+        if (
+          fname &&
+          lname &&
+          phone &&
+          due &&
+          occupied != null &&
+          cell &&
+          village
+        ) {
+          return true;
+        }
+      } else {
+        if (fname && lname && phone) {
+          return true;
+        }
+      }
+      return false;
     }
   },
   methods: {

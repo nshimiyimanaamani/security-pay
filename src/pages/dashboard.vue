@@ -241,6 +241,12 @@ export default {
           }
         }
       };
+    },
+    currentYear() {
+      return new Date().getFullYear();
+    },
+    currentMonth() {
+      return new Date().getMonth() + 1;
     }
   },
   beforeMount() {
@@ -253,7 +259,12 @@ export default {
       this.chart2.state.loading = true;
       this.chart2.state.error = false;
       this.axios
-        .get(this.endpoint + "/metrics/sectors/" + this.activeSector)
+        .get(
+          this.endpoint +
+            "/metrics/sectors/" +
+            this.activeSector +
+            `?year=${this.currentYear}&month=${this.currentMonth}`
+        )
         .then(res => {
           const data = res.data.data;
           const percentage = (data.payed * 100) / (data.payed + data.pending);
@@ -275,6 +286,7 @@ export default {
           this.chart2.state.errorMessage = err.response
             ? err.response.data.error || err.response.data
             : "Error";
+            console.log(err.response)
         })
         .finally(() => (this.chart2.state.loading = false));
     },
