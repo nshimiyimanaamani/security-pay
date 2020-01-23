@@ -38,6 +38,7 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		panic("absolutely unacceptable handler opts")
 	}
 
+	//ratios
 	r.Handle(SectorRatioRoute, LogEntryHandler(SectorPayRatio, opts)).Methods(http.MethodGet).
 		Queries("year", "{year}", "month", "{month}")
 	r.Handle(CellRatioRoute, LogEntryHandler(CellPayRatio, opts)).Methods(http.MethodGet).
@@ -47,6 +48,18 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 	r.Handle(ListAllCellRatiosRoute, LogEntryHandler(ListAllCellRatios, opts)).Methods(http.MethodGet).
 		Queries("year", "{year}", "month", "{month}")
 	r.Handle(ListAllSectorRatiosRoute, LogEntryHandler(ListAllSectorRatios, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+
+	// balance
+	r.Handle(SectorBalanceRoute, LogEntryHandler(SectorBalance, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(CellBalanceRoute, LogEntryHandler(CellBalance, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(VillageBalanceRoute, LogEntryHandler(VillageBalance, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(ListAllSectorBalancesRoute, LogEntryHandler(ListAllSectorBalances, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(ListAllCellBalancesRoute, LogEntryHandler(ListAllCellBalances, opts)).Methods(http.MethodGet).
 		Queries("year", "{year}", "month", "{month}")
 
 }

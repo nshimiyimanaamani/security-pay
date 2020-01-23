@@ -10,7 +10,7 @@ func migrateDB(db *sql.DB) error {
 	migrations := &migrate.MemoryMigrationSource{
 		Migrations: []*migrate.Migration{
 			{
-				Id: "v1.0.0",
+				Id: "001_initial",
 
 				Up: []string{
 					`
@@ -44,9 +44,9 @@ func migrateDB(db *sql.DB) error {
 					CREATE OR REPLACE FUNCTION refresh_payment_status()
 					RETURNS TRIGGER AS $$
 					BEGIN
-						refresh materialized view concurrently sector_payment_ratio;
-						refresh materialized view concurrently cell_payment_ratio;
-						refresh materialized view concurrently village_payment_ratio;
+						refresh materialized view concurrently sector_payment_metrics;
+						refresh materialized view concurrently cell_payment_metrics;
+						refresh materialized view concurrently village_payment_metrics;
 						RETURN NULL;
 					END;
 					$$ LANGUAGE plpgsql;`,
@@ -276,7 +276,9 @@ func migrateDB(db *sql.DB) error {
 							properties.village,
 							date_trunc('month', invoices.created_at) as period,
 							count(*) filter (where status='pending') as pending,
-							count(*) filter (where status='payed') as payed
+							count(*) filter (where status='payed') as payed,
+							coalesce(sum(amount) filter(where status='pending') ,0) as pending_amount,
+							coalesce(sum(amount) filter(where status='payed') ,0) as payed_amount
 						from invoices
 							join properties on invoices.property=properties.id
 						group by 
@@ -289,41 +291,47 @@ func migrateDB(db *sql.DB) error {
 					`,
 
 					`
-					create materialized view sector_payment_ratio as
+					create materialized view sector_payment_metrics as
 						select 
 							sector,
 							period,
-							sum(pending) as pending, 
-							sum(payed) as payed 
+							sum(pending) as pending_count, 
+							sum(payed) as payed_count,
+							coalesce(sum(pending_amount),0) as pending_amount,
+							coalesce(sum(payed_amount),0) as payed_amount
 						from payment_status group by sector, period;
 
-					create unique index on  sector_payment_ratio(sector, period);
+					create unique index on  sector_payment_metrics(sector, period);
 					`,
 
 					`
-					create materialized view cell_payment_ratio as
+					create materialized view cell_payment_metrics as
 						select 
 							cell,
 							sector, 
 							period,
-							sum(pending) as pending, 
-							sum(payed) as payed 
+							sum(pending) as pending_count, 
+							sum(payed) as payed_count,
+							coalesce(sum(pending_amount),0) as pending_amount,
+							coalesce(sum(payed_amount),0) as payed_amount
 						from payment_status group by cell, sector, period;
 						
-					create unique index on  cell_payment_ratio(cell, period);
+					create unique index on  cell_payment_metrics(cell, period);
 					`,
 
 					`
-					create materialized view village_payment_ratio as
+					create materialized view village_payment_metrics as
 						select 
 							village,
 							cell,
 							period,
-							sum(pending) as pending, 
-							sum(payed) as payed 
+							sum(pending) as pending_count, 
+							sum(payed) as payed_count,
+							coalesce(sum(pending_amount),0) as pending_amount,
+							coalesce(sum(payed_amount),0) as payed_amount
 						from payment_status group by village, cell, period;
 					
-					create unique index on  village_payment_ratio(village, period);
+					create unique index on  village_payment_metrics(village, period);
 					`,
 				},
 
