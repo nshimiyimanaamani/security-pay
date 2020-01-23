@@ -41,7 +41,7 @@ func migrateDB(db *sql.DB) error {
 					$$ LANGUAGE plpgsql;`,
 
 					`
-					CREATE OR REPLACE FUNCTION refresh_payment_status()
+					CREATE OR REPLACE FUNCTION refresh_payment_metrics()
 					RETURNS TRIGGER AS $$
 					BEGIN
 						refresh materialized view concurrently sector_payment_metrics;
@@ -226,7 +226,7 @@ func migrateDB(db *sql.DB) error {
 					CREATE TRIGGER refresh_payment_view
 					AFTER INSERT OR UPDATE ON invoices
 					FOR EACH ROW
-					EXECUTE PROCEDURE refresh_payment_status();
+					EXECUTE PROCEDURE refresh_payment_metrics();
 					`,
 
 					`CREATE TABLE IF NOT EXISTS transactions (
@@ -268,7 +268,7 @@ func migrateDB(db *sql.DB) error {
 					`,
 
 					`
-					create view payment_status as
+					create view payment_metrics as
 						select 
 							property,
 							properties.sector,
@@ -299,7 +299,7 @@ func migrateDB(db *sql.DB) error {
 							sum(payed) as payed_count,
 							coalesce(sum(pending_amount),0) as pending_amount,
 							coalesce(sum(payed_amount),0) as payed_amount
-						from payment_status group by sector, period;
+						from payment_metrics group by sector, period;
 
 					create unique index on  sector_payment_metrics(sector, period);
 					`,
@@ -314,7 +314,7 @@ func migrateDB(db *sql.DB) error {
 							sum(payed) as payed_count,
 							coalesce(sum(pending_amount),0) as pending_amount,
 							coalesce(sum(payed_amount),0) as payed_amount
-						from payment_status group by cell, sector, period;
+						from payment_metrics group by cell, sector, period;
 						
 					create unique index on  cell_payment_metrics(cell, period);
 					`,
@@ -329,7 +329,7 @@ func migrateDB(db *sql.DB) error {
 							sum(payed) as payed_count,
 							coalesce(sum(pending_amount),0) as pending_amount,
 							coalesce(sum(payed_amount),0) as payed_amount
-						from payment_status group by village, cell, period;
+						from payment_metrics group by village, cell, period;
 					
 					create unique index on  village_payment_metrics(village, period);
 					`,
