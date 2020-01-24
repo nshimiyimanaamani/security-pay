@@ -82,7 +82,7 @@
         <b-form-group
           id="input-group-6"
           label="Village:"
-          label-for="input-5"
+          label-for="input-6"
           v-show="state.switch"
           class="mb-3"
         >
@@ -266,7 +266,7 @@ export default {
               sector: this.activeSector
             },
             due: this.form.due.toString(),
-            occupied: this.form.occupied,
+            occupied: this.form.occupied.toString(),
             recorded_by: this.userDetails.username
           })
           .then(res => {

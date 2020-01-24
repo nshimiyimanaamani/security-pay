@@ -1,6 +1,6 @@
 <template>
   <b-row class="justify-content-center">
-    <b-form class="px-3">
+    <b-form class="px-3 w-100">
       <b-row>
         <b-col>
           <b-form-group id="input-group-1" label="First name:" label-for="input-1">
@@ -9,6 +9,7 @@
               v-model="house.owner.fname"
               required
               placeholder="First name..."
+              size="sm"
             ></b-form-input>
           </b-form-group>
         </b-col>
@@ -19,12 +20,13 @@
               v-model="house.owner.lname"
               required
               placeholder="Last name..."
+              size="sm"
             ></b-form-input>
           </b-form-group>
         </b-col>
       </b-row>
       <b-form-group label="Irakodeshwa ?">
-        <b-form-radio-group v-model="rented" :options="query" name="radio-stacked"></b-form-radio-group>
+        <b-form-radio-group v-model="rented" :options="query" name="radio-stacked" size="sm"></b-form-radio-group>
       </b-form-group>
       <b-form-group
         id="input-group-4"
@@ -39,34 +41,17 @@
           min="500"
           max="10000"
           step="500"
-          style="border: none !important"
+          size="sm"
+          class="border-0"
         ></b-form-input>
-      </b-form-group>
-
-      <b-form-group
-        id="input-group-4"
-        :label="'Sector: '+house.address.sector.toUpperCase()"
-        label-for="input-4"
-      >
-        <b-form-select id="input-4" v-model="newAddress.sector" style="font-size: 15px">
-          <template v-slot:first>
-            <option :value="null" disabled>--> Select Sector</option>
-          </template>
-          <option value="remera">Remera</option>
-        </b-form-select>
       </b-form-group>
 
       <b-form-group
         id="input-group-5"
         :label="'Cell: '+house.address.cell.toUpperCase()"
-        label-for="input-5"
+        label-for="select-5"
       >
-        <b-form-select
-          id="input-5"
-          :options="cellOptions"
-          v-model="newAddress.cell"
-          style="font-size: 15px"
-        >
+        <b-form-select id="select-5" :options="cellOptions" v-model="newAddress.cell" size="sm">
           <template v-slot:first>
             <option :value="null" disabled>--> Select Sector First</option>
           </template>
@@ -74,15 +59,15 @@
       </b-form-group>
 
       <b-form-group
-        id="input-group-5"
+        id="input-group-7"
         :label="'village: '+house.address.village.toUpperCase()"
-        label-for="input-5"
+        label-for="input-7"
       >
         <b-form-select
-          id="input-5"
+          id="input-7"
           v-model="newAddress.village"
           :options="villageOptions"
-          style="font-size: 15px"
+          size="sm"
         >
           <template v-slot:first>
             <option :value="null" disabled>--> Select Cell First</option>
@@ -141,17 +126,18 @@ export default {
         ? this.newAddress.cell
         : this.house.address.cell;
       if (cell) {
-        return Village("Kigali", "Gasabo", "Remera", cell);
+        return Village("Kigali", "Gasabo", this.activeSector, cell);
       } else {
         return [];
       }
+    },
+    activeSector() {
+      return this.$store.getters.getActiveSector;
     }
   },
   methods: {
     update() {
-      const sector = this.newAddress.sector
-        ? this.newAddress.sector
-        : this.house.address.sector;
+      const sector = this.house.address.sector;
       const cell = this.newAddress.cell
         ? this.newAddress.cell
         : this.house.address.cell;

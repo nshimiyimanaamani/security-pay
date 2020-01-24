@@ -48,11 +48,11 @@
             </b-tr>
             <b-tr>
               <b-th>For Rent</b-th>
-              <b-td>{{userDetails.occupied}}</b-td>
+              <b-td>{{userDetails.occupied?userDetails.occupied?"Yes":"No":'No'}}</b-td>
             </b-tr>
             <b-tr>
               <b-th>Registered by</b-th>
-              <b-td class="text-undercase">{{userDetails.recorded_by}}</b-td>
+              <b-td style="text-transform: none;">{{userDetails.recorded_by}}</b-td>
             </b-tr>
             <b-tr>
               <b-th>Registered on</b-th>
@@ -124,6 +124,9 @@ export default {
     generate() {
       this.state.generating = true;
       this.userDetails = null;
+      this.paymentDetails = null;
+      this.state.showReport = false;
+      this.state.showPayment = false;
       this.axios
         .get(this.endpoint + "/properties/" + this.houseId.toUpperCase())
         .then(res => {

@@ -81,4 +81,7 @@ p {
 .hover-color:hover {
   background-color: #49bdd6;
 }
+.max-width {
+  max-width: 100vw;
+}
 </style>

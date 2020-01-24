@@ -59,8 +59,8 @@
     </div>
     <div class="rightSide">
       <div class="top-nav">
-        <div class="logout">
-          <b-button class="btn-info py-1" @click.prevent="logout">Logout</b-button>
+        <div class="logout d-flex align-items-center">
+          <b-button class="btn-info py-1 font-15" @click.prevent="logout" >Logout</b-button>
         </div>
       </div>
       <div class="dashboardBody">
@@ -90,7 +90,6 @@ export default {
   methods: {
     update(res) {
       this.$store.dispatch("updatePlace", res);
-      console.log("updated");
     },
     logout() {
       this.$store.dispatch("logout");

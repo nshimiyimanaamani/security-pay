@@ -1,7 +1,7 @@
 <template>
-  <b-container>
+  <b-container style="max-width: 100vw">
     <vue-title title="Paypack | Dashboard" />
-    <b-row align-v="start" class="m-auto p-0" style="width: 100%;height: 50%">
+    <b-row align-v="start" class="m-auto p-0 w-100 h-50">
       <b-col xl="6" lg="6" md="6" sm="12" class="column position-relative">
         <b-card-body>
           <b-card-header>
@@ -22,7 +22,7 @@
             <h1 class>{{activeSector}} TOTAL COLLECTED</h1>
             <i
               class="fa fa-refresh cursor-pointer"
-              @click="loadData"
+              @click="loadData2"
               :class="{'fa-spin':chart2.state.loading}"
             ></i>
           </b-card-header>
@@ -62,15 +62,35 @@
           <b-card-header>
             <i class="fa fa-th-large"></i>
             <h1 class>{{activeSector}} SECTOR</h1>
-            <i class="fa fa-cog"></i>
+            <i
+              class="fa fa-refresh cursor-pointer"
+              @click="loadData3"
+              :class="{'fa-spin':chart3.state.loading}"
+            ></i>
           </b-card-header>
-          <div style="height: 85%">
-            <line-chart
-              :chart-data="chart3Data"
-              :options="optionsChart3"
-              :style="style"
-              :tooltipData="chart3AdditionalData"
-            />
+          <div style="height:85%">
+            <div v-if="!chart3.state.loading" class="h-100">
+              <line-chart
+                v-if="chart3.data"
+                :chart-data="chart3.data"
+                :style="style"
+                :tooltipData="chart3AdditionalData"
+                :options="optionsChart3"
+              />
+            </div>
+
+            <b-card
+              no-body
+              class="position-absolute bg-transparent border-0 chartLoader align-items-center"
+              v-if="chart3.state.loading"
+            >
+              <loader />
+            </b-card>
+            <b-card
+              no-body
+              class="position-absolute bg-transparent border-0 chartLoader align-items-center text-uppercase"
+              v-if="chart2.state.error"
+            >{{chart2.state.errorMessage}}</b-card>
           </div>
         </b-card-body>
       </b-col>
@@ -95,6 +115,14 @@ export default {
       chart2: {
         data: null,
         percentage: null,
+        state: {
+          loading: true,
+          error: false,
+          errorMessage: null
+        }
+      },
+      chart3: {
+        data: null,
         state: {
           loading: true,
           error: false,
@@ -202,7 +230,7 @@ export default {
                 callback: (label, index, labels) => {
                   switch (label) {
                     case label:
-                      return label + "M";
+                      return label + "%";
                   }
                 }
               }
@@ -233,8 +261,7 @@ export default {
 
               if (label) {
                 label = new Array();
-                label.push(`Abishyuye: 30`);
-                label.push("Abatarishyura: 40");
+                label.push(`Percentage: ${tooltipItem.value}%`);
               }
               return label;
             }
@@ -250,20 +277,20 @@ export default {
     }
   },
   beforeMount() {
-    this.loadData();
+    this.loadData2();
+    this.loadData3();
     this.fetchData();
   },
   methods: {
-    loadData() {
+    loadData2() {
       this.chart2.data = null;
       this.chart2.state.loading = true;
       this.chart2.state.error = false;
+      this.chart2.state.errorMessage = null;
       this.axios
         .get(
           this.endpoint +
-            "/metrics/sectors/" +
-            this.activeSector +
-            `?year=${this.currentYear}&month=${this.currentMonth}`
+            `/metrics/ratios/sectors/${this.activeSector}?year=${this.currentYear}&month=${this.currentMonth}`
         )
         .then(res => {
           const data = res.data.data;
@@ -286,9 +313,54 @@ export default {
           this.chart2.state.errorMessage = err.response
             ? err.response.data.error || err.response.data
             : "Error";
-            console.log(err.response)
+          console.log(err.response);
         })
         .finally(() => (this.chart2.state.loading = false));
+    },
+    loadData3() {
+      this.chart3.data = null;
+      this.chart3.state.loading = true;
+      this.chart3.state.error = false;
+      this.chart3.state.errorMessage = null;
+      this.axios
+        .get(
+          this.endpoint +
+            `/metrics/ratios/sectors/all/${this.activeSector}?year=${this.currentYear}&month=${this.currentMonth}`
+        )
+        .then(res => {
+          const data = res.data;
+          if (data.length > 0) {
+            let labels = data.map(item => item.label);
+            this.chart3.data = {
+              labels: labels,
+              datasets: [
+                {
+                  label: "Data",
+                  barPercentage: 0.95,
+                  categoryPercentage: 1,
+                  backgroundColor: "#008b8bb3",
+                  data: this.getDataByLabels(data)
+                },
+                {
+                  label: "Data",
+                  type: "line",
+                  backgroundColor: "transparent",
+                  borderColor: "#095252ad",
+                  pointRadius: 5,
+                  borderDash: [10],
+                  data: this.getDataByLabels(data)
+                }
+              ]
+            };
+          }
+        })
+        .catch(err => {
+          this.chart3.state.error = true;
+          this.chart3.state.errorMessage = err.response
+            ? err.response.data.error || err.response.data
+            : "Error";
+        })
+        .finally(() => (this.chart3.state.loading = false));
     },
     fetchData() {
       window.Chart.defaults.global.defaultFontSize = 13.5;
@@ -343,6 +415,15 @@ export default {
         randArray.push(this.rand());
       }
       return randArray;
+    },
+    getDataByLabels(data) {
+      let array = [];
+      data.forEach(item => {
+        const percentage =
+          (item.data.payed * 100) / (item.data.payed + item.data.pending);
+        array.push(percentage);
+      });
+      return array;
     }
   }
 };

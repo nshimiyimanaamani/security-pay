@@ -1,5 +1,5 @@
 <template>
-  <b-container>
+  <b-container class="max-width">
     <vue-title title="Paypack | create accounts" />
     <h3 class="d-flex justify-content-center mb-3">ACCOUNT REGISTRATION</h3>
     <b-card no-body class="nav-controls font-13">

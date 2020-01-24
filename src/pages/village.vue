@@ -1,7 +1,7 @@
 <template>
   <div class="village-wrapper">
     <vue-title title="Paypack | Village" />
-    <div class="container">
+    <div class="container max-width">
       <div class="container-title">
         <i class="fa fa-th-large"></i>
         <h1>{{activeVillage}}</h1>

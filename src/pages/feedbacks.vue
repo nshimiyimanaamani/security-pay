@@ -1,5 +1,5 @@
 <template>
-  <b-container>
+  <b-container class="max-width">
     <vue-title title="Paypack | Feedbacks" />
     <div class="d-flex">
       <h4 class="mb-0">FEEDBACKS</h4>&nbsp;&nbsp;

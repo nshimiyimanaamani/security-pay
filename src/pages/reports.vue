@@ -1,5 +1,5 @@
 <template>
-  <b-container>
+  <b-container class="max-width">
     <b-card no-body>
       <b-tabs pills card vertical lazy class="font-13 text-uppercase">
         <b-tab title="PAYMENT REPORTS" active>

@@ -1,5 +1,5 @@
 <template>
-  <b-container class="table-container px-5">
+  <b-container class="table-container px-5 max-width">
     <vue-title title="Paypack | Properties" />
     <h4 class="title text-center">
       {{title}}
@@ -97,7 +97,9 @@
       <template v-slot:cell(due)="data">{{Number(data.item.due).toLocaleString()}} Rwf</template>
       <template v-slot:cell(owner)="data">{{data.item.owner.fname +" "+ data.item.owner.lname}}</template>
       <template v-slot:cell(occupied)="data">
-        <b-card-text class="text-right m-0">{{data.item.occupied}}</b-card-text>
+        <b-card-text
+          class="text-right m-0"
+        >{{data.item.occupied ? data.item.occupied?'Yes':'No' : "No"}}</b-card-text>
       </template>
       <template v-slot:cell(index)="data">
         <article class="text-center">{{data.index + 1}}</article>
