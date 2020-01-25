@@ -20,7 +20,7 @@
         </b-col>
       </b-row>
     </div>
-    <div class="container">
+    <div class="container max-width">
       <b-table
         :items="table.items"
         :fields="table.fields"
