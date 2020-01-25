@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="px-4">
     <header class="d-flex justify-content-center font-20 text-uppercase">Cell Report</header>
     <hr class="m-0 mb-3" />
     <b-row class="px-3 align-items-center justify-content-between">
@@ -19,7 +19,7 @@
         variant="info"
         class="font-15 border-0 my-2 d-flex align-items-center"
         :disabled="cell?false:true"
-        @click="generate"
+        @click="generateAction"
       >Generate {{cell ? cell : 'Cell'}} Report</b-button>
       <div v-show="state.generating" class="w-100">
         <strong class="font-15">Generating&nbsp;</strong>
@@ -27,35 +27,62 @@
       </div>
     </b-row>
     <b-row>
-      <b-collapse id="sectorreport-collapse" class="w-100" v-model="state.showReport">
-        <b-card class="text-capitalize mx-3" v-if="!state.error">
-          <b-card-title class="font-weight-bold font-20">cell Overall</b-card-title>
-          <b-card-text>{{cell}} cell is having {{population.total}} Houses with {{population.payed}} House{{population.payed>1?'s':''}} that finished paying and {{population.not_payed}} House{{population.not_payed>1?'s':''}} that haven't finished paying</b-card-text>
+      <b-collapse id="sector-report-collapse" class="w-100 m-3" v-model="state.showReport">
+        <b-card class="text-capitalize" v-if="!state.error && state.showReport">
+          <b-card-title class="font-20 text-uppercase">{{cell}} cell</b-card-title>
           <hr />
-          <b-card-title class="font-weight-bold font-20">Respective villages</b-card-title>
-          <b-card-text v-for="(village,i) in villagesInfo" :key="i">
-            <b-card-text>
-              <b>{{village.label}}</b>
-              cell is having {{village.data.payed+village.data.pending}} Houses with {{village.data.payed}} House{{village.data.payed>1?'s':''}} that finished paying and {{village.data.pending}} House{{village.pending>1?'s':''}} that haven't finished paying
-              <hr />
-            </b-card-text>
-          </b-card-text>
+          <b-table
+            id="cell-reports"
+            :items="generate"
+            :fields="table.fields"
+            :busy.sync="state.generating"
+            :key="'cell-'+table.key"
+            small
+            bordered
+            responsive
+            show-empty
+          >
+            <template v-slot:cell(unpayedAmount)="data">
+              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
+            </template>
+            <template v-slot:cell(payedAmount)="data">
+              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
+            </template>
+          </b-table>
+          <b-card-title class="font-20 text-uppercase">villages</b-card-title>
+          <hr />
+          <b-table
+            id="cell-village-reports"
+            :items="generateVillage"
+            :fields="villageTable.fields"
+            :busy.sync="state.generating"
+            :key="'village-'+villageTable.key"
+            small
+            bordered
+            responsive
+            show-empty
+          >
+            <template v-slot:cell(unpayedAmount)="data">
+              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
+            </template>
+            <template v-slot:cell(payedAmount)="data">
+              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
+            </template>
+          </b-table>
         </b-card>
-        <b-card v-if="state.error" class="mx-3">
+        <b-card v-if="state.error">
           <b-card-text>{{state.errorMessage}}</b-card-text>
         </b-card>
       </b-collapse>
     </b-row>
-    <b-row
-      v-if="!state.generating && !state.error && villagesInfo"
-      class="my-3 justify-content-end"
-    >
-      <b-button size="sm" class="app-color mx-3">Download Report</b-button>
+    <b-row v-if="!state.error && villageData && cellData" class="my-3 mr-1 justify-content-end">
+      <b-button @click="downloadReport" size="sm" class="app-color">Download Report</b-button>
     </b-row>
   </div>
 </template>
 
 <script>
+import download from "./downloadCellReport";
 export default {
   name: "cellReports",
   data() {
@@ -67,12 +94,86 @@ export default {
         error: false,
         errorMessage: null
       },
-      population: {
-        total: null,
-        payed: null,
-        not_payed: null
+      cellData: null,
+      villageData: null,
+      table: {
+        fields: [
+          {
+            key: "total",
+            label: "No of Houses",
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase"
+          },
+          {
+            key: "payed",
+            label: "No of Payed Houses",
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase"
+          },
+          {
+            key: "payedAmount",
+            label: "Payed Amount",
+            tdClass: "text-right",
+            thClass: "text-center text-uppercase"
+          },
+          {
+            key: "pending",
+            label: "No of unpayed Houses",
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase"
+          },
+          {
+            key: "unpayedAmount",
+            label: "unPayed Amount",
+            tdClass: "text-right",
+            thClass: "text-center text-uppercase"
+          }
+        ],
+        busy: false,
+        key: 1
       },
-      villagesInfo: null
+      villageTable: {
+        fields: [
+          {
+            key: "name",
+            label: "Village",
+            thClass: " text-uppercase",
+            tdClass: "font-weight-bold text-uppercase"
+          },
+          {
+            key: "total",
+            label: "No of Houses",
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase"
+          },
+          {
+            key: "payed",
+            label: "No of Payed Houses",
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase"
+          },
+          {
+            key: "payedAmount",
+            label: "Payed Amount",
+            tdClass: "text-right",
+            thClass: "text-center text-uppercase"
+          },
+          {
+            key: "pending",
+            label: "No of unpayed Houses",
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase"
+          },
+          {
+            key: "unpayedAmount",
+            label: "unPayed Amount",
+            tdClass: "text-right",
+            thClass: "text-center text-uppercase"
+          }
+        ],
+        busy: false,
+        key: 1
+      }
     };
   },
   computed: {
@@ -89,45 +190,116 @@ export default {
       return new Date().getMonth() + 1;
     }
   },
+  watch: {
+    cell() {
+      handler: {
+        this.state.showReport = false;
+      }
+    }
+  },
   methods: {
-    generate() {
-      this.state.showReport = false;
+    generateAction() {
       this.state.error = false;
       this.state.errorMessage = null;
-      this.state.generating = true;
-      this.villagesInfo = null;
-      let axios = this.axios;
-      const first = axios.get(
+      this.state.showReport = true;
+      this.table.key++;
+      this.villageTable.key++;
+    },
+    generate() {
+      this.cellData = null;
+      const first = this.axios.get(
         this.endpoint +
           `/metrics/ratios/cells/${this.cell}?year=${this.currentYear}&month=${this.currentMonth}`
       );
-      const second = axios.get(
+      const second = this.axios.get(
         this.endpoint +
-          `/metrics/ratios/cells/all/${this.cell}?year=${this.currentYear}&month=${this.currentMonth}`
+          `/metrics/balance/cells/${this.cell}?year=${this.currentYear}&month=${this.currentMonth}`
       );
-      axios
-        .all([first, second])
+      const promise = this.axios.all([first, second]);
+      return promise
         .then(
           this.axios.spread((...res) => {
-            this.population.total =
-              res[0].data.data.payed + res[0].data.data.pending;
-            this.population.payed = res[0].data.data.payed;
-            this.population.not_payed = res[0].data.data.pending;
-            this.villagesInfo = res[1].data;
-            console.log(res);
+            const items = {};
+            items.total = res[0].data.data.payed + res[0].data.data.pending;
+            items.payed = res[0].data.data.payed;
+            items.pending = res[0].data.data.pending;
+            items.payedAmount = res[1].data.data.payed;
+            items.unpayedAmount = res[1].data.data.pending;
+            this.state.showReport = true;
+            this.cellData = items;
+            return [items];
           })
         )
         .catch(err => {
           this.state.error = true;
-          console.log(err);
           this.state.errorMessage = err.response.data.error
             ? err.response.data.error
             : err.response.response;
+          return [];
         })
         .finally(() => {
-          this.state.showReport = true;
           this.state.generating = false;
         });
+    },
+    generateVillage() {
+      this.villageData = null;
+      const first = this.axios.get(
+        this.endpoint +
+          `/metrics/ratios/cells/all/${this.cell}?year=${this.currentYear}&month=${this.currentMonth}`
+      );
+      const second = this.axios.get(
+        this.endpoint +
+          `/metrics/balance/cells/all/${this.cell}?year=${this.currentYear}&month=${this.currentMonth}`
+      );
+      const promise = this.axios.all([first, second]);
+      return promise
+        .then(
+          this.axios.spread((...res) => {
+            var items = [];
+            res[0].data.forEach(item => {
+              res[1].data.forEach(element => {
+                if (element.label == item.label) {
+                  items.push({
+                    name: item.label || element.label,
+                    total: item.data.payed + item.data.pending,
+                    payed: item.data.payed,
+                    pending: item.data.pending,
+                    unpayedAmount: element.data.pending,
+                    payedAmount: element.data.payed
+                  });
+                }
+              });
+            });
+            this.state.showReport = true;
+            this.villageData = items;
+            return items;
+          })
+        )
+        .catch(err => {
+          this.state.error = true;
+          this.state.errorMessage = err.response.data.error
+            ? err.response.data.error
+            : err.response.response;
+          return [];
+        })
+        .finally(() => {
+          this.state.generating = false;
+        });
+    },
+    downloadReport() {
+      if (
+        !this.state.generating &&
+        this.cellData != null &&
+        this.villageData != null
+      ) {
+        download(this.cellData, this.villageData, this.cell);
+      }
+    },
+    clear() {
+      this.state.showReport = false;
+      this.state.generating = true;
+      this.state.error = false;
+      this.state.errorMessage = null;
     }
   }
 };

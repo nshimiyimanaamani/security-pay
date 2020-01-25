@@ -30,7 +30,7 @@
         variant="info"
         class="font-15 border-0 my-3"
         :disabled="village?false:true"
-        @click="generate"
+        @click="generateAction"
       >Generate {{village ? village : 'Village'}} Report</b-button>
       <div v-show="state.generating" class="w-100">
         <strong class="font-15">Generating&nbsp;</strong>
@@ -38,47 +38,92 @@
       </div>
     </b-row>
     <b-row>
-      <b-collapse id="sectorreport-collapse" class="w-100" v-model="state.showReport">
-        <b-card class="text-capitalize mx-3" v-if="!state.error">
-          <b-card-title class="font-weight-bold font-20">village Overall</b-card-title>
-          <b-card-text>
-            <b>{{village}}</b>
-            village is having {{population.total}} Houses with {{population.payed}} House{{population.payed>1?'s':''}} that finished paying and {{population.not_payed}} House{{population.not_payed>1?'s':''}} that haven't finished paying
-          </b-card-text>
+      <b-collapse id="sector-report-collapse" class="w-100 m-3" v-model="state.showReport">
+        <b-card class="text-capitalize" v-if="!state.error && state.showReport">
+          <b-card-title class="font-20 text-uppercase">{{village}} village</b-card-title>
+          <hr />
+          <b-table
+            id="village-reports"
+            :items="generateVillage"
+            :fields="table.fields"
+            :busy.sync="state.generating"
+            :key="'village-'+table.key"
+            small
+            bordered
+            responsive
+            show-empty
+          >
+            <template v-slot:cell(unpayedAmount)="data">
+              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
+            </template>
+            <template v-slot:cell(payedAmount)="data">
+              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
+            </template>
+          </b-table>
         </b-card>
-        <b-card v-if="state.error" class="mx-3">
+        <b-card v-if="state.error">
           <b-card-text>{{state.errorMessage}}</b-card-text>
         </b-card>
       </b-collapse>
     </b-row>
-    <b-row
-      v-if="!state.generating && !state.error && population.total"
-      class="my-3 justify-content-end"
-    >
-      <b-button size="sm" class="app-color mx-3">Download Report</b-button>
+    <b-row v-if="!state.error && downloadData" class="my-3 mr-1 justify-content-end">
+      <b-button size="sm" class="app-color" @click="downloadReport">Download Report</b-button>
     </b-row>
   </div>
 </template>
 
 <script>
 const { Village } = require("rwanda");
+import download from "./downloadVillageReport";
 export default {
-  name: "cellReports",
+  name: "VillageReports",
   data() {
     return {
       cell: null,
       village: null,
       state: {
-        showReport: false,
         generating: false,
+        showReport: false,
         error: false,
         errorMessage: null
       },
-      population: {
-        total: null,
-        payed: null,
-        not_payed: null
-      }
+      table: {
+        fields: [
+          {
+            key: "total",
+            label: "No of Houses",
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase"
+          },
+          {
+            key: "payed",
+            label: "No of Payed Houses",
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase"
+          },
+          {
+            key: "payedAmount",
+            label: "Payed Amount",
+            tdClass: "text-right",
+            thClass: "text-center text-uppercase"
+          },
+          {
+            key: "pending",
+            label: "No of unpayed Houses",
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase"
+          },
+          {
+            key: "unpayedAmount",
+            label: "unPayed Amount",
+            tdClass: "text-right",
+            thClass: "text-center text-uppercase"
+          }
+        ],
+        busy: false,
+        key: 1
+      },
+      downloadData: null
     };
   },
   computed: {
@@ -105,45 +150,66 @@ export default {
       return new Date().getMonth() + 1;
     }
   },
+  watch: {
+    village() {
+      handler: {
+        this.state.showReport = false;
+      }
+    }
+  },
   methods: {
-    generate() {
-      this.clean();
-      this.state.generating = true;
-      let axios = this.axios;
-      axios
-        .get(
-          this.endpoint +
-            `/metrics/ratios/villages/${this.village}?year=${this.currentYear}&month=${this.currentMonth}`
+    generateAction() {
+      this.state.error = false;
+      this.state.errorMessage = null;
+      this.state.showReport = true;
+      this.table.key++;
+    },
+    generateVillage() {
+      this.downloadData = null;
+      const first = this.axios.get(
+        this.endpoint +
+          `/metrics/ratios/villages/${this.village}?year=${this.currentYear}&month=${this.currentMonth}`
+      );
+      const second = this.axios.get(
+        this.endpoint +
+          `/metrics/balance/villages/${this.village}?year=${this.currentYear}&month=${this.currentMonth}`
+      );
+      const promise = this.axios.all([first, second]);
+      return promise
+        .then(
+          this.axios.spread((...res) => {
+            const items = {};
+            items.total = res[0].data.data.payed + res[0].data.data.pending;
+            items.payed = res[0].data.data.payed;
+            items.pending = res[0].data.data.pending;
+            items.payedAmount = res[1].data.data.payed;
+            items.unpayedAmount = res[1].data.data.pending;
+            this.state.showReport = true;
+            this.downloadData = items;
+            return [items];
+          })
         )
-        .then(res => {
-          this.population.total = res.data.data.payed + res.data.data.pending;
-          this.population.payed = res.data.data.payed;
-          this.population.not_payed = res.data.data.pending;
-        })
         .catch(err => {
-          this.clean();
           this.state.error = true;
           this.state.errorMessage = err.response.data.error
             ? err.response.data.error
             : err.response.response;
+          return [];
         })
         .finally(() => {
           this.state.generating = false;
-          this.state.showReport = true;
         });
     },
-    clean() {
-      this.state = {
-        showReport: false,
-        generating: false,
-        error: false,
-        errorMessage: null
-      };
-      this.population = {
-        total: null,
-        payed: null,
-        not_payed: null
-      };
+    downloadReport() {
+      if (!this.state.generating && this.downloadData != null) {
+        download(this.downloadData, this.village);
+      }
+    },
+    clear() {
+      this.state.showReport = false;
+      this.state.generating = true;
+      this.state.error = false;
+      this.state.errorMessage = null;
     }
   }
 };

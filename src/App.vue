@@ -84,4 +84,7 @@ p {
 .max-width {
   max-width: 100vw;
 }
+.text-normal {
+  text-transform: none;
+}
 </style>

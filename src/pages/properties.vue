@@ -91,7 +91,7 @@
       :sort-by.sync="sortBy"
       :show-empty="!loading.request"
       :current-page="pagination.currentPage"
-      :per-page="0"
+      :per-page="pagination.perPage"
       @row-contextmenu="editHouse"
     >
       <template v-slot:cell(due)="data">{{Number(data.item.due).toLocaleString()}} Rwf</template>
@@ -106,7 +106,7 @@
       </template>
       <template v-slot:table-busy>
         <div class="text-center my-2">
-          <b-spinner small class="align-middle"></b-spinner>
+          <b-spinner small class="align-middle" />&nbsp;
           <strong>Loading...</strong>
         </div>
       </template>
@@ -328,11 +328,6 @@ export default {
           this.search.datalist.pop();
         }
       }
-    },
-    "pagination.currentPage"() {
-      handler: {
-        this.loadData();
-      }
     }
   },
   mounted() {
@@ -343,29 +338,42 @@ export default {
   methods: {
     loadData() {
       this.loading.request = true;
-      const limit = this.pagination.currentPage * this.pagination.perPage;
+      const axios = this.axios;
       var promise;
       if (this.user.role.toLowerCase() == "basic") {
         promise =
-          this.endpoint +
-          `/properties?cell=${this.activeCell}&offset=${limit -
-            this.pagination.perPage}&limit=${limit}`;
-        console.log("hello");
+          this.endpoint + `/properties?cell=${this.activeCell}&offset=0&limit=`;
       } else {
         promise =
           this.endpoint +
-          `/properties?sector=${this.activeSector}&offset=${limit -
-            this.pagination.perPage}&limit=${limit}`;
+          `/properties?sector=${this.activeSector}&offset=0&limit=`;
       }
 
-      this.axios
-        .get(promise)
-        .then(res => {
-          this.items = [...res.data.Properties];
-          this.pagination.totalRows = res.data.Total;
-          this.pagination.key++;
+      axios
+        .get(promise + `0`)
+        .then(result => {
+          axios
+            .get(promise + `${result.data.Total}`)
+            .then(res => {
+              this.items = [...res.data.Properties];
+              this.pagination.totalRows = res.data.Total;
+            })
+            .catch(err => {
+              if (navigator.onLine) {
+                const error = err.response
+                  ? err.response.data.error || err.response.data
+                  : "an error occured";
+                this.$snotify.error(error);
+              } else {
+                this.$snotify.error("Please connect to the internet");
+              }
+            })
+            .finally(() => {
+              this.loading.request = false;
+            });
         })
         .catch(err => {
+          this.loading.request = false;
           if (navigator.onLine) {
             const error = err.response
               ? err.response.data.error || err.response.data
@@ -374,9 +382,6 @@ export default {
           } else {
             this.$snotify.error("Please connect to the internet");
           }
-        })
-        .finally(() => {
-          this.loading.request = false;
         });
     },
     editHouse(house, index, evt) {
