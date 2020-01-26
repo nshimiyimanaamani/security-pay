@@ -140,13 +140,13 @@ function getData(items) {
       text: item.payed,
       style: "tableData"
     }, {
-      text: Number(cell.payedAmount).toLocaleString() + ' Rwf',
+      text: Number(item.payedAmount).toLocaleString() + ' Rwf',
       style: "tableData"
     }, {
       text: item.pending,
       style: "tableData"
     }, {
-      text: Number(cell.unpayedAmount).toLocaleString() + ' Rwf',
+      text: Number(item.unpayedAmount).toLocaleString() + ' Rwf',
       style: "tableData"
     }]);
   });
