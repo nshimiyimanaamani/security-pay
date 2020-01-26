@@ -7,8 +7,8 @@
     <b-card-footer class="d-flex justify-content-between py-2 align-items-end bg-white">
       <article class="d-flex flex-column w-100 pr-1">
         <span v-show="house.percentage" class="completed font-13">completed</span>
-        <span class="details font-13">{{house.due}} /12 last months</span>
-        <b-progress class="w-100" :value="60" :max="100"></b-progress>
+        <span class="details font-13">{{house.due}} Rwf per month</span>
+        <b-progress class="w-100" :value="0" :max="100"></b-progress>
       </article>
       <i
         class="fa fa-ellipsis-v cursor-pointer"

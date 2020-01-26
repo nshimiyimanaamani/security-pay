@@ -312,7 +312,6 @@ export default {
     },
     "search.name"() {
       handler: {
-        this.search.datalist = new Array();
         const searchedName = this.search.name;
         this.tableItems = this.filter().filter(obj => {
           const name = this.lc(obj.owner.fname + " " + obj.owner.lname);
@@ -324,7 +323,7 @@ export default {
             );
           }
         });
-        while (this.search.datalist.length > 5) {
+        while (this.search.datalist.length > 7) {
           this.search.datalist.pop();
         }
       }
