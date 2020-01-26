@@ -8,8 +8,12 @@
           box-shadow: 0 2px 7px #00000025;
 }
 
+#chart1container .card-body {
+  padding: 0;
+}
+
 #chart1container .chart1Title {
-  padding: 8px;
+  padding: 10px;
   border-radius: 10px 10px 0 0;
   background: #3db3fa !important;
   display: -webkit-box;

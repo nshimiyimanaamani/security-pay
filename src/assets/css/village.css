@@ -1,3 +1,13 @@
+.village-wrapper .card-columns {
+  -webkit-column-count: 2 !important;
+          column-count: 2 !important;
+}
+
+.village-wrapper .progress {
+  width: 100%;
+  height: 5px;
+}
+
 .village-wrapper .container {
   width: 80vw;
   padding: 15px 15px 0;
@@ -5,78 +15,123 @@
 
 .village-wrapper .container .card {
   border: 1px solid lightgray;
-  border-top: none;
-  margin-bottom: 20px;
 }
 
-.village-wrapper .container .card > .card-body {
-  background: white;
-  -webkit-box-shadow: 0px 5px 10px #e0d5d5;
-          box-shadow: 0px 5px 10px #e0d5d5;
-  padding: 20px;
-  -webkit-columns: 25em;
-          columns: 25em;
-}
-
-.village-wrapper .container .card > .card-body .card-body {
-  margin: 5px;
-  width: 100%;
-  display: inline-block;
-}
-
-.village-wrapper .container .card > .card-body .card-body .card-body {
+.village-wrapper .container .card .card-group {
   border: 1px solid #cec4c4;
-  border-radius: 4px;
   padding: 5px 10px;
-  width: 100%;
-  min-width: 280px;
+  width: 49%;
+  margin: 0;
+  position: relative;
+  margin-bottom: 10px;
+  display: block;
+  -webkit-column-break-inside: avoid;
+          break-inside: avoid;
 }
 
-.village-wrapper .container .card > .card-body .card-body .card-body .card-header {
+.village-wrapper .container .card .card-group .card-header {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   text-transform: capitalize;
+  padding: 0;
+  background: inherit;
 }
 
-.village-wrapper .container .card > .card-body .card-body .card-body .card-header p:last-child {
-  margin-left: auto;
-  width: 60px;
+.village-wrapper .container .card .card-group .card-header p:last-child {
+  width: 20%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-left: auto;
 }
 
-.village-wrapper .container .card > .card-body .card-footer {
-  display: block;
-}
-
-.village-wrapper .container .card > .card-body .card-footer .card-group {
+.village-wrapper .container .card .card-group .card-footer {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  padding-bottom: 3px;
+  padding: 10px 0px 0;
+  background: inherit;
 }
 
-.village-wrapper .container .card > .card-body .card-footer .card-group article {
+.village-wrapper .container .card .card-group .card-footer article {
   width: 100%;
+  padding-right: 10px;
+  display: block;
+  font-size: 14px;
 }
 
-.village-wrapper .container .card > .card-body .card-footer .card-group article .progress {
-  margin-left: 0;
-  margin-bottom: 0;
-  height: 5px;
-  width: 97%;
+.village-wrapper .container .card .card-group .card-footer article .progress {
+  width: 100%;
+  height: 7px;
 }
 
-.village-wrapper .container .card > .card-body .card-footer .card-group .fa-ellipsis-v {
-  margin-top: auto;
+.village-wrapper .container .card .card-group .card-footer i {
+  margin-left: auto;
+  cursor: pointer;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+}
+
+.village-wrapper .container .card .card-group .more-data {
+  position: absolute;
+  background: white;
+  z-index: 100;
+  width: 100.5%;
+  margin: 6px -11px;
+  border: 1px solid;
+  border-top: none;
+  border-color: #cec4c4;
+  padding: 10px 10px 0;
+}
+
+.village-wrapper .container .card .card-group .more-data article {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+  font-size: 14px;
+}
+
+.village-wrapper .container .card .card-group .more-data article p {
+  position: absolute;
+  margin-left: 35%;
+  text-transform: capitalize;
+}
+
+.village-wrapper .container .error {
+  border: 1px solid lightgray;
+  border-top: none;
+  margin-bottom: 20px;
+  background: transparent;
+  padding-top: 1px;
+}
+
+.village-wrapper .container .error article {
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: 30px auto;
+}
+
+.village-wrapper .container .error article i {
+  font-size: 70px;
+  color: #e6d828;
+}
+
+.village-wrapper .container .error article label {
+  margin: 15px;
+  display: block;
 }
 
 .village-wrapper .container-title {
-  padding: 8px;
+  padding: 10px;
   border-radius: 10px 10px 0 0;
-  background-color: #3db3fa;
+  background-color: #3a82a1;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;

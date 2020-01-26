@@ -1,5 +1,6 @@
 <template>
   <div>
+    <vue-title title="Paypack | Register" />
     <div class="registerPage">
       <div class="registerTitle">
         <p>Welcome To</p>
@@ -58,39 +59,44 @@ export default {
       color: "#fff",
       size: "25px",
       form: {
-        email: "",
-        password: "",
+        email: null,
+        password: null,
         cell: "admin"
       }
     };
   },
   computed: {
     endpoint() {
-      return this.$store.getters.getEndpoint
+      return this.$store.getters.getEndpoint;
     }
   },
   methods: {
     register() {
-      if (this.form.email != "" && this.form.password != "") {
+      const email = this.form.email;
+      const key = this.form.password;
+      if (email && key) {
         this.loading = true;
         this.axios
-          .post(`${this.endpoint}/users/`,{
-            email: this.form.email,
-            password: this.form.password,
+          .post(this.endpoint + "/users/", {
+            email: email,
+            password: key,
             cell: this.form.cell
           })
           .then(res => {
-            console.log(res.data);
-            this.$router.push('/')
+            this.$router.push("/");
             this.$snotify.success(`user successfully registered!`);
             this.loading = false;
           })
           .catch(err => {
-            console.log(err);
+            if (navigator.onLine) {
+              const error = err.response
+                ? err.response.data.error || err.response.data
+                : "an error occured";
+              this.$snotify.error(error);
+            } else {
+              this.$snotify.error("Please connect to the internet");
+            }
             this.loading = false;
-            this.$snotify.error(
-              `user registration Failed! please try again Later `
-            );
           });
       }
     }

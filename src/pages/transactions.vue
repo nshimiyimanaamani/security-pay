@@ -1,13 +1,63 @@
 <template>
-  <div class="container">
-    <b-table bordered :items="table.items" :fields="table.fields" small>
-      <template slot="method" slot-scope="data">
-        <div :class="data.value">
-          <span>{{data.value}}</span>
-        </div>
-      </template>
-    </b-table>
-    <pulse-loader class="pulse" :loading="loading" :color="color" :size="size"></pulse-loader>
+  <div style="position: relative">
+    <vue-title title="Paypack | Transactions" />
+    <div class="totals">
+      <b-row>
+        <b-col cols="6" class="text-white ml-auto py-2" style="font-size: 40px">{{'RWF '+total()}}</b-col>
+      </b-row>
+      <b-row class="text-white">
+        <b-col cols="2" class="ml-auto">
+          <p>BK Acc.</p>
+          <p>RWF {{bkTotal()}}</p>
+        </b-col>
+        <b-col cols="2" class="m-0">
+          <p>MTN MoMo</p>
+          <p>RWF {{mtnTotal()}}</p>
+        </b-col>
+        <b-col cols="2" class="m-0">
+          <p>AIRTEL MONEY</p>
+          <p>RWF {{airtelTotal()}}</p>
+        </b-col>
+      </b-row>
+    </div>
+    <div class="container max-width">
+      <b-table
+        :items="table.items"
+        :fields="table.fields"
+        :busy="loading"
+        show-empty
+        responsive
+        bordered
+        small
+      >
+        <template v-slot:cell(method)="data">
+          <div :class="data.value=='momo-mtn-rw'? 'mtn' : data.value">
+            <span>{{data.value=='momo-mtn-rw'? 'mtn' : data.value}}</span>
+          </div>
+        </template>
+        <template
+          v-slot:cell(owner_firstname)="data"
+        >{{data.item.owner_firstname +" "+data.item.owner_lastname}}</template>
+        <template v-slot:cell(amount)="data">
+          <article>{{Number(data.value).toLocaleString()}} Frw</article>
+        </template>
+        <template v-slot:cell(date_recorded)="data">
+          <article>{{datify(data.value)}}</article>
+        </template>
+        <template v-slot:table-busy>
+          <div class="text-center my-2">
+            <b-spinner small class="align-middle"></b-spinner>
+            <strong>Loading...</strong>
+          </div>
+        </template>
+        <template v-slot:empty>
+          <label
+            class="container"
+            style="width: 100%;font-size: 17px;text-align: center;padding: 40px;"
+          >No records of transactions found!</label>
+        </template>
+      </b-table>
+    </div>
   </div>
 </template>
 
@@ -20,12 +70,40 @@ export default {
       size: "12px",
       transactionData: [],
       table: {
-        fields: {
-          id: { label: "id", sortable: false },
-          property: { label: "property ID", sortable: false },
-          method: { label: "Method of payment", sortable: true },
-          amount: { label: "Amount", sortable: true }
-        },
+        fields: [
+          {
+            key: "owner_firstname",
+            label: "Names",
+            sortable: true,
+            tdClass: "table-name"
+          },
+          {
+            key: "madefor",
+            label: "Payed for",
+            sortable: true
+          },
+          {
+            key: "method",
+            label: "Payed With",
+            sortable: true,
+            thClass: "text-center",
+            tdClass: "text-center"
+          },
+          {
+            key: "amount",
+            label: "Amount",
+            sortable: false,
+            thClass: "text-center",
+            tdClass: "text-right"
+          },
+          {
+            key: "date_recorded",
+            label: "Date",
+            sortable: true,
+            thClass: "text-center",
+            tdClass: "text-right"
+          }
+        ],
         items: []
       }
     };
@@ -33,6 +111,12 @@ export default {
   computed: {
     endpoint() {
       return this.$store.getters.getEndpoint;
+    },
+    activeCell() {
+      return this.$store.getters.getActiveCell;
+    },
+    user() {
+      return this.$store.getters.userDetails;
     }
   },
   mounted() {
@@ -41,28 +125,68 @@ export default {
   methods: {
     requestItems() {
       this.loading = true;
-      const promise = new Promise((resolve, reject) => {
-        this.axios
-          .get(this.endpoint + "/transactions/?offset=1&limit=100")
-          .then(res => {
-            if (res.status == 200) {
-              resolve(res.data.transactions);
-            }
-          })
-          .catch(err => {
-            reject(err);
-          });
-      });
-      promise
+      this.axios
+        .get(this.endpoint + "/transactions?offset=0&limit=1000")
         .then(res => {
-          this.table.items = res;
-          this.loading = false;
+          if (this.user.role.toLowerCase() == "basic") {
+            this.table.items = res.data.Transactions.filter(
+              item => item.cell == this.activeCell
+            );
+          } else {
+            this.table.items = res.data.Transactions;
+          }
         })
         .catch(err => {
-          this.loading = false;
           this.table.items = [];
-          console.log(err);
+          if (navigator.onLine) {
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : "an error occured";
+            this.$snotify.error(error);
+          } else {
+            this.$snotify.error("Please connect to the internet");
+          }
+        })
+        .finally(() => {
+          this.loading = false;
         });
+    },
+    total() {
+      let total = 0;
+      this.table.items.forEach(element => {
+        total += element.amount;
+      });
+      return total;
+    },
+    mtnTotal() {
+      let total = 0;
+      const filtered = this.table.items.filter(data =>
+        data.method.includes("mtn")
+      );
+      filtered.forEach(element => {
+        total += element.amount;
+      });
+      return total;
+    },
+    airtelTotal() {
+      let total = 0;
+      const filtered = this.table.items.filter(data => data.method == "airtel");
+      filtered.forEach(element => {
+        total += element.amount;
+      });
+      return total;
+    },
+    bkTotal() {
+      let total = 0;
+      const filtered = this.table.items.filter(data => data.method == "bk");
+      filtered.forEach(element => {
+        total += element.amount;
+      });
+      return total;
+    },
+    datify(date) {
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      return new Date(date).toLocaleDateString("en-EN", options);
     }
   }
 };

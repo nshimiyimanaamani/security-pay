@@ -1,93 +1,93 @@
 <template>
   <div>
-    <div class="loginPage">
-      <div class="loginTitle">
-        <p>Welcome To</p>
-        <br />
-        <span id="paypack">PayPack</span>
-        <br />
-        <span id="easy">
-          Easy way to collect and organise
-          <br />public fees
-        </span>
-      </div>
-      <b-form class="loginForm" @submit.prevent="login()">
-        <b-form-group class="loginUsername">
-          <b-form-input
-            type="email"
-            id="username"
-            v-model="form.email"
-            required
-            placeholder="Email..."
-          ></b-form-input>
-        </b-form-group>
-        <b-form-group class="loginPassword">
-          <b-form-input
-            type="password"
-            id="password"
-            v-model="form.password"
-            required
-            placeholder="password..."
-          ></b-form-input>
-        </b-form-group>
-        <div class="loginBtn">
-          <a>
-            <button type="submit">
-              Log In
-              <div class="loading" v-show="loading">
-                <clip-loader :loading="loading" :color="color" :size="size"></clip-loader>
-              </div>
-            </button>
-          </a>
-
-          <br />
-          <span id="forgot">
-            Forgot Password?
-            <a href="#">Get HELP</a>
-          </span>
-        </div>
-      </b-form>
+    <vue-title title="Paypack | Login" />
+    <div class="loginPage p-3">
+      <b-row
+        class="loginTitle m-auto justify-content-sm-center"
+        style="height: 50%;width: fit-content"
+      >
+        <b-col cols="4" class="align-self-center p-0">
+          <img src="../../public/favicon.png" alt="paypack-logo" style="width:6.5rem;height:6.5rem" />
+        </b-col>
+        <b-col class="align-self-center p-0 ml-2" style="font-size: 15px;height:6.5rem">
+          <b-row id="paypack" class="py-4">PAYPACK</b-row>
+          <b-row class="py-2">Easy way to collect and organise public fees</b-row>
+        </b-col>
+      </b-row>
+      <b-row class="m-2 justify-content-center">
+        <b-col sm="8" md="7" lg="4" xl="3">
+          <b-form class="loginForm" @submit.prevent="login">
+            <b-form-group class="loginUsername mb-4">
+              <b-form-input id="username" v-model="form.email" required placeholder="Username..."></b-form-input>
+            </b-form-group>
+            <b-form-group class="loginPassword mb-4">
+              <b-form-input
+                type="password"
+                id="password"
+                v-model="form.password"
+                required
+                placeholder="Password..."
+              ></b-form-input>
+            </b-form-group>
+            <b-button class="loginBtn" type="submit" :disabled="loading">
+              <span>{{loading ? 'Logging In ':'Login' }}</span>
+              <b-spinner small type="grow" v-show="loading"></b-spinner>
+            </b-button>
+            <br />
+            <span class="float-right mt-1">
+              Forgot Password?
+              <a href="#">Get HELP</a>
+            </span>
+          </b-form>
+        </b-col>
+      </b-row>
     </div>
   </div>
 </template>
-
 <script>
 export default {
   data() {
     return {
       loading: false,
-      color: "#fff",
-      size: "25px",
       form: {
-        email: "",
-        password: ""
+        email: null,
+        password: null
       }
     };
   },
   computed: {
     endpoint() {
       return this.$store.getters.getEndpoint;
-    },
-    token() {
-      return this.$store.getters.token;
     }
   },
   methods: {
     login() {
-      if (this.form.email != "" && this.form.password != "") {
-        const data = {
-          email: this.form.email,
-          password: this.form.password
-        };
+      const email = this.form.email;
+      const key = this.form.password;
+      if (email && key) {
         this.loading = true;
-        this.$store
-          .dispatch("login", data)
+        this.axios
+          .post(this.endpoint + "/accounts/login", {
+            username: email,
+            password: key
+          })
           .then(res => {
-              this.loading = false
+            sessionStorage.setItem("token", res.data.token);
+            this.$router.push("dashboard");
           })
           .catch(err => {
-            console.log(err);
-            this.loading = false
+            delete sessionStorage.token;
+            if (navigator.onLine) {
+              const error = err.response
+                ? err.response.data.error || err.response.data
+                : "an error occured";
+              this.$snotify.error(error);
+            } else {
+              this.$snotify.error("Please connect to the internet");
+            }
+          })
+          .finally(() => {
+            this.loading = false;
           });
       }
     }

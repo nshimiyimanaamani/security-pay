@@ -1,6 +1,20 @@
 .container {
-  padding: 60px 20px 0;
+  padding: 1rem;
   width: auto;
+
+  table tbody {
+    .table-name {
+      text-transform: uppercase;
+    }
+  }
+}
+
+.totals {
+  height: 150px;
+  background: #3a82a1;
+  width: 100%;
+  padding: 15px;
+
 }
 
 .container .pulse {
@@ -8,22 +22,27 @@
 
   &::after {
     display: block;
-    content: "Please wait ...";
+    content: "  Please wait ...";
     font-weight: bold
   }
+}
+
+table thead th {
+  font-size: 14px;
 }
 
 tbody td {
   vertical-align: initial !important;
 }
 
+
 .mtn {
-  width: 30%;
+  width: 50%;
   border-radius: 3px;
   min-width: fit-content;
   background: white;
   padding: 5px 0;
-  box-shadow: 1px 1px 4px #9a9797;
+  box-shadow: 1px 1px 2px #9a9797;
   text-align: center;
   user-select: none;
   margin: auto;
@@ -39,12 +58,12 @@ tbody td {
 }
 
 .airtel {
-  width: 30%;
+  width: 50%;
   margin: auto;
   min-width: fit-content;
   border-radius: 3px;
   background: #f93d3d;
-  box-shadow: 1px 1px 5px #9a9797;
+  box-shadow: 1px 1px 2px #9a9797;
   padding: 5px 0;
   user-select: none;
   cursor: text;
@@ -60,11 +79,11 @@ tbody td {
 }
 
 .bk {
-  width: 30%;
+  width: 50%;
   min-width: fit-content;
   border-radius: 3px;
   background: white;
-  box-shadow: 1px 1px 4px #9a9797;
+  box-shadow: 1px 1px 2px #9a9797;
   height: fit-content;
   text-align: center;
   margin: auto;
