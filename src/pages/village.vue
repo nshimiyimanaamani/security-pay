@@ -18,8 +18,7 @@
         <article>
           <center>
             <div v-if="!state.loading">
-              <i class="fa fa-exclamation-triangle"></i>
-              <label for="error">No House found in {{activeVillage}}</label>
+              <label for="error" class="font-15">No House found in {{activeVillage}} village</label>
             </div>
             <loader :loading="state.loading" />
           </center>

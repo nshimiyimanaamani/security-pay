@@ -7,13 +7,20 @@
             id="input-1"
             type="email"
             v-model="form.email"
+            size="sm"
             required
             placeholder="Enter Email address..."
           />
         </b-form-group>
 
         <b-form-group class="m-0">
-          <b-button variant="info" class="float-right" type="submit">
+          <b-button
+            :disabled="form.email?false: true"
+            variant="info"
+            class="float-right font-15"
+            type="submit"
+            size="sm"
+          >
             {{state.creating ? 'Creating' : "Create"}}
             <b-spinner v-show="state.creating" small type="grow"></b-spinner>
           </b-button>
@@ -36,8 +43,7 @@
       >
         <template v-slot:table-busy>
           <div class="text-center my-2">
-            <b-spinner class="align-middle"></b-spinner>
-            <strong>Loading...</strong>
+            <loader />
           </div>
         </template>
       </b-table>
@@ -51,11 +57,23 @@
     <b-modal v-model="change_pswd_modal.show" title="Change Password" hide-footer>
       <b-form @submit.prevent="changePassword">
         <b-form-group id="input-group-1" label="New Password:" label-for="input-1">
-          <b-form-input id="input-1" required v-model="form.newPwd" placeholder="New Password..."></b-form-input>
+          <b-form-input
+            id="input-1"
+            required
+            v-model="form.newPwd"
+            size="sm"
+            placeholder="New Password..."
+          ></b-form-input>
         </b-form-group>
         <b-form-group class="m-0">
-          <b-button variant="info" class="float-right" type="submit">
-            {{state.changing ? 'Changing' : "Change"}}
+          <b-button
+            variant="info"
+            class="float-right"
+            size="sm"
+            :disabled="form.newPwd?false:true"
+            type="submit"
+          >
+            {{state.changing ? 'changing' : "change"}}
             <b-spinner v-show="state.changing" small type="grow"></b-spinner>
           </b-button>
         </b-form-group>
@@ -66,8 +84,12 @@
 
 <script>
 const jwt = require("jsonwebtoken");
+import loader from "../loader";
 export default {
   name: "add-agent",
+  components: {
+    loader
+  },
   data() {
     return {
       form: {
@@ -162,14 +184,6 @@ export default {
     },
     menu(house, index, evt) {
       evt.preventDefault();
-      Object.defineProperty(event, "pageX", {
-        value: event.pageX - 410,
-        writable: true
-      });
-      Object.defineProperty(event, "pageY", {
-        value: event.pageY - 110,
-        writable: true
-      });
       this.$refs.admin_rightMenu.showMenu(evt, house);
     },
     optionClicked(data) {

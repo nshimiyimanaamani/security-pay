@@ -9,6 +9,7 @@
         v-model="cell"
         :options="cellOptions"
         class="w-auto mr-2 flex-grow-1"
+        v-if="user.role.toLowerCase() !='basic'"
       >
         <template v-slot:first>
           <option :value="null" disabled>Please select cell</option>
@@ -39,7 +40,7 @@
     </b-row>
     <b-row>
       <b-collapse id="sector-report-collapse" class="w-100 m-3" v-model="state.showReport">
-        <b-card class="text-capitalize" v-if="!state.error && state.showReport">
+        <b-card class="text-capitalize" v-if="!state.error">
           <b-card-title class="font-20 text-uppercase">{{village}} village</b-card-title>
           <hr />
           <b-table
@@ -48,6 +49,7 @@
             :fields="table.fields"
             :busy.sync="state.generating"
             :key="'village-'+table.key"
+            v-if="state.generate"
             small
             bordered
             responsive
@@ -84,6 +86,7 @@ export default {
       state: {
         generating: false,
         showReport: false,
+        generate: false,
         error: false,
         errorMessage: null
       },
@@ -148,6 +151,12 @@ export default {
     },
     currentMonth() {
       return new Date().getMonth() + 1;
+    },
+    user() {
+      return this.$store.getters.userDetails;
+    },
+    activeCell() {
+      return this.$store.getters.getActiveCell;
     }
   },
   watch: {
@@ -157,15 +166,20 @@ export default {
       }
     }
   },
+  mounted() {
+    if (this.user.role.toLowerCase() == "basic") {
+      this.cell = this.activeCell;
+    }
+  },
   methods: {
     generateAction() {
-      this.state.error = false;
-      this.state.errorMessage = null;
-      this.state.showReport = true;
+      this.clear();
+      this.state.generate = true;
       this.table.key++;
     },
     generateVillage() {
       this.downloadData = null;
+      this.state.generating = true;
       const first = this.axios.get(
         this.endpoint +
           `/metrics/ratios/villages/${this.village}?year=${this.currentYear}&month=${this.currentMonth}`
@@ -194,6 +208,7 @@ export default {
           this.state.errorMessage = err.response.data.error
             ? err.response.data.error
             : err.response.response;
+          this.downloadData = null;
           return [];
         })
         .finally(() => {
@@ -207,9 +222,11 @@ export default {
     },
     clear() {
       this.state.showReport = false;
-      this.state.generating = true;
+      this.state.generating = false;
+      this.state.generate = false;
       this.state.error = false;
       this.state.errorMessage = null;
+      this.downloadData = null;
     }
   }
 };

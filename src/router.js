@@ -57,7 +57,9 @@ let router = new Router({
           name: "dashboard",
           component: dashboard,
           meta: {
-            requireAuth: true
+            requireAuth: true,
+            forAdmin: true,
+            forDev: true
           }
         },
         {
@@ -65,7 +67,10 @@ let router = new Router({
           name: "transactions",
           component: transactions,
           meta: {
-            requireAuth: true
+            requireAuth: true,
+            forAdmin: true,
+            forDev: true,
+            forManager: true
           }
         },
         {
@@ -73,7 +78,10 @@ let router = new Router({
           name: "village",
           component: village,
           meta: {
-            requireAuth: true
+            requireAuth: true,
+            forAdmin: true,
+            forDev: true,
+            forManager: true
           }
         },
         {
@@ -81,7 +89,10 @@ let router = new Router({
           name: "cells",
           component: cells,
           meta: {
-            requireAuth: true
+            requireAuth: true,
+            forAdmin: true,
+            forDev: true,
+            forManager: true
           }
         },
         {
@@ -89,7 +100,10 @@ let router = new Router({
           name: "properties",
           component: properties,
           meta: {
-            requireAuth: true
+            requireAuth: true,
+            forAdmin: true,
+            forDev: true,
+            forManager: true
           }
         },
         {
@@ -97,7 +111,10 @@ let router = new Router({
           name: "reports",
           component: reports,
           meta: {
-            requireAuth: true
+            requireAuth: true,
+            forAdmin: true,
+            forDev: true,
+            forManager: true
           }
         },
         {
@@ -106,6 +123,8 @@ let router = new Router({
           component: accounts,
           meta: {
             requireAuth: true,
+            forDev: true,
+            forAdmin: true,
             forDev: true
           }
         },
@@ -114,7 +133,10 @@ let router = new Router({
           name: "feedbacks",
           component: feedbacks,
           meta: {
-            requireAuth: true
+            requireAuth: true,
+            forAdmin: true,
+            forDev: true,
+            forManager: true
           }
         }
       ]
@@ -133,6 +155,8 @@ let router = new Router({
 
 router.beforeEach((to, from, next) => {
   const decoded = jwt.decode(sessionStorage.token);
+  console.log(decoded);
+
   if (decoded) {
     axios.defaults.headers.common["Authorization"] = sessionStorage.token;
     store.state.user = decoded;
@@ -144,10 +168,32 @@ router.beforeEach((to, from, next) => {
           name: "agentView"
         });
       }
-    } else if (decoded.role != "dev") {
+    }
+    if (decoded.role == "admin") {
+      if (to.matched.some(record => record.meta.forAdmin)) {
+        next();
+      } else {
+        next({
+          name: "dashboard"
+        });
+      }
+    }
+    if (decoded.role == "dev") {
       if (to.matched.some(record => record.meta.forDev)) {
-        router.back();
-        console.log("back...");
+        next();
+      } else {
+        next({
+          name: "dashboard"
+        });
+      }
+    }
+    if (decoded.role == "basic") {
+      if (to.matched.some(record => record.meta.forManager)) {
+        next();
+      } else {
+        next({
+          name: "cells"
+        });
       }
     } else {
       if (to.matched.some(record => record.meta.requireAuth)) {

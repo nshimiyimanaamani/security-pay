@@ -3,11 +3,18 @@
     <div class="dashboardSidebar">
       <h1>P A Y P A C K</h1>
       <hr />
-      <ul v-if="user.role.toLowerCase() !='basic'" class="sidebarLinks">
-        <router-link to="/dashboard">
+      <ul class="sidebarLinks">
+        <router-link v-if="user.role.toLowerCase() !='basic'" to="/dashboard">
           <li>SECTOR</li>
         </router-link>
-        <li v-b-toggle.changecells class="cursor-pointer">Cells</li>
+        <router-link v-if="user.role.toLowerCase() =='basic'" to="/cells">
+          <li>cells</li>
+        </router-link>
+        <li
+          v-if="user.role.toLowerCase() != 'basic'"
+          v-b-toggle.changecells
+          class="cursor-pointer"
+        >Cells</li>
         <b-collapse
           id="changecells"
           accordion="changecells"
@@ -48,7 +55,10 @@
         <router-link to="/feedbacks">
           <li>Feedbacks</li>
         </router-link>
-        <router-link to="/create" v-if="user.role == 'dev'">
+        <router-link
+          to="/create"
+          v-if="user.role.toLowerCase() =='dev'||user.role.toLowerCase() =='admin'"
+        >
           <li>Accounts</li>
         </router-link>
       </ul>
@@ -59,8 +69,9 @@
     </div>
     <div class="rightSide">
       <div class="top-nav">
+        <!-- <b-card-text class="d-flex align-items-end font-15 ml-2 text-uppercase">{{activeSector}}</b-card-text> -->
         <div class="logout d-flex align-items-center">
-          <b-button class="btn-info py-1 font-15" @click.prevent="logout" >Logout</b-button>
+          <b-button class="btn-info py-1 font-15" @click.prevent="logout">Logout</b-button>
         </div>
       </div>
       <div class="dashboardBody">

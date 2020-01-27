@@ -7,13 +7,13 @@
         <b-tab title="Add Agent" active>
           <add-agent />
         </b-tab>
-        <b-tab title="Add Admin">
+        <b-tab v-if="user.role.toLowerCase() != 'admin'" title="Add Admin">
           <add-admin />
         </b-tab>
         <b-tab title="Add Managers">
           <add-manager />
         </b-tab>
-        <b-tab title="Add Developers">
+        <b-tab v-if="user.role.toLowerCase() == 'dev'" title="Add Developers">
           <add-dev />
         </b-tab>
       </b-tabs>
@@ -62,13 +62,9 @@ export default {
       } else {
         return [];
       }
-    }
-  },
-  watch: {
-    "form.account"() {
-      handler: {
-        console.log(this.form.account);
-      }
+    },
+    user() {
+      return this.$store.getters.userDetails;
     }
   }
 };

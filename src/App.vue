@@ -64,9 +64,11 @@ p {
 }
 .font-15 {
   font-size: 15px !important;
+  letter-spacing: 1px;
 }
 .font-13 {
   font-size: 13px !important;
+  letter-spacing: 1px;
 }
 .font-20 {
   font-size: 20px !important;
@@ -86,5 +88,8 @@ p {
 }
 .text-normal {
   text-transform: none;
+}
+.vue-simple-context-menu {
+  position: fixed !important;
 }
 </style>

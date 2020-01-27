@@ -347,7 +347,7 @@ export default {
           this.endpoint +
           `/properties?sector=${this.activeSector}&offset=0&limit=`;
       }
-
+      console.log(promise);
       axios
         .get(promise + `0`)
         .then(result => {

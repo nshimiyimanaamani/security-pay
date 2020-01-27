@@ -45,15 +45,11 @@
           <article>{{datify(data.value)}}</article>
         </template>
         <template v-slot:table-busy>
-          <div class="text-center my-2">
-            <b-spinner small class="align-middle"></b-spinner>
-            <strong>Loading...</strong>
-          </div>
+          <loader class="d-flex justify-content-center p-5" />
         </template>
         <template v-slot:empty>
           <label
-            class="container"
-            style="width: 100%;font-size: 17px;text-align: center;padding: 40px;"
+            class="container w-100 font-15 text-center p-5 text-capitalize"
           >No records of transactions found!</label>
         </template>
       </b-table>
@@ -62,7 +58,11 @@
 </template>
 
 <script>
+import loader from "../components/loader";
 export default {
+  components: {
+    loader
+  },
   data() {
     return {
       loading: false,

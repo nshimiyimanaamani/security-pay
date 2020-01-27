@@ -7,6 +7,7 @@
             id="input-1"
             type="email"
             v-model="form.email"
+            size="sm"
             required
             placeholder="Enter Email address..."
           />
@@ -15,6 +16,7 @@
           <b-form-input
             id="input-2"
             type="password"
+            size="sm"
             v-model="form.password"
             required
             placeholder="Enter Password..."
@@ -22,8 +24,14 @@
         </b-form-group>
 
         <b-form-group class="m-0">
-          <b-button variant="info" class="float-right" type="submit">
-            {{state.creating ? 'Creating' : "Create"}}
+          <b-button
+            variant="info"
+            class="float-right"
+            :disabled="(form.email && form.password)?false:true"
+            size="sm"
+            type="submit"
+          >
+            {{state.creating ? 'creating' : "create"}}
             <b-spinner v-show="state.creating" small type="grow"></b-spinner>
           </b-button>
         </b-form-group>
@@ -45,8 +53,7 @@
       >
         <template v-slot:table-busy>
           <div class="text-center my-2">
-            <b-spinner class="align-middle"></b-spinner>
-            <strong>Loading...</strong>
+            <loader />
           </div>
         </template>
       </b-table>
@@ -60,10 +67,22 @@
     <b-modal v-model="change_pswd_modal.show" title="Change Password" hide-footer>
       <b-form @submit.prevent="changePassword">
         <b-form-group id="input-group-1" label="New Password:" label-for="input-1">
-          <b-form-input id="input-1" required v-model="form.newPwd" placeholder="New Password..."></b-form-input>
+          <b-form-input
+            id="input-1"
+            size="sm"
+            required
+            v-model="form.newPwd"
+            placeholder="New Password..."
+          ></b-form-input>
         </b-form-group>
         <b-form-group class="m-0">
-          <b-button variant="info" class="float-right" type="submit">
+          <b-button
+            variant="info"
+            :disabled="form.newPwd?false:true"
+            size="sm"
+            class="float-right"
+            type="submit"
+          >
             {{state.changing ? 'Changing' : "Change"}}
             <b-spinner v-show="state.changing" small type="grow"></b-spinner>
           </b-button>
@@ -75,8 +94,12 @@
 
 <script>
 const jwt = require("jsonwebtoken");
+import loader from "../loader";
 export default {
   name: "add-dev",
+  components: {
+    loader
+  },
   data() {
     return {
       form: {
@@ -86,7 +109,7 @@ export default {
       },
       table: {
         fields: [
-          { key: "email", label: "Email" },
+          { key: "email", label: "Email", tdClass: "text-normal" },
           { key: "role", label: "Role" }
         ]
       },
@@ -167,14 +190,6 @@ export default {
     },
     menu(house, index, evt) {
       evt.preventDefault();
-      Object.defineProperty(event, "pageX", {
-        value: event.pageX - 410,
-        writable: true
-      });
-      Object.defineProperty(event, "pageY", {
-        value: event.pageY - 110,
-        writable: true
-      });
       this.$refs.dev_rightMenu.showMenu(evt, house);
     },
     optionClicked(data) {
