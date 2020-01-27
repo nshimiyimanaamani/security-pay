@@ -224,7 +224,7 @@ func migrateDB(db *sql.DB) error {
 					EXECUTE PROCEDURE trigger_set_timestamp();
 
 					CREATE TRIGGER refresh_payment_view
-					AFTER INSERT OR UPDATE ON invoices
+					AFTER INSERT OR UPDATE OR DELETE ON invoices
 					FOR EACH ROW
 					EXECUTE PROCEDURE refresh_payment_metrics();
 					`,
