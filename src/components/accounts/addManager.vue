@@ -121,7 +121,7 @@ export default {
       },
       table: {
         fields: [
-          { key: "email", label: "Email" },
+          { key: "email", label: "Email", tdClass: "text-normal" },
           { key: "cell", label: "cell" },
           { key: "role", label: "Role" }
         ]
@@ -263,7 +263,6 @@ export default {
         .then(res => {
           this.loadData();
           this.$snotify.info("Manager deleted Succesfully");
-          console.log(res.data);
         })
         .catch(err => {
           if (navigator.onLine) {

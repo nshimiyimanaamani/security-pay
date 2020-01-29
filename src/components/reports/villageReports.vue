@@ -205,6 +205,7 @@ export default {
         )
         .catch(err => {
           this.state.error = true;
+          this.state.showReport = true;
           this.state.errorMessage = err.response.data.error
             ? err.response.data.error
             : err.response.response;

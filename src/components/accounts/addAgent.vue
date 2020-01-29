@@ -265,7 +265,6 @@ export default {
           .then(res => {
             this.loadData();
             this.$snotify.info("Agent deleted Succesfully");
-            console.log(res.data);
           })
           .catch(err => {
             if (navigator.onLine) {

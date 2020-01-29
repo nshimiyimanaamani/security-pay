@@ -155,7 +155,6 @@ let router = new Router({
 
 router.beforeEach((to, from, next) => {
   const decoded = jwt.decode(sessionStorage.token);
-  console.log(decoded);
 
   if (decoded) {
     axios.defaults.headers.common["Authorization"] = sessionStorage.token;

@@ -1,15 +1,18 @@
 <template>
   <b-container class="max-width">
     <vue-title title="Paypack | Feedbacks" />
-    <div class="d-flex">
-      <h4 class="mb-0">FEEDBACKS</h4>&nbsp;&nbsp;
-      <b-spinner class="align-self-center" v-if="state.loading" small></b-spinner>
-    </div>
+    <b-row class="justify-content-between mx-1">
+      <div class="d-flex">
+        <h4 class="mb-0">FEEDBACKS</h4>&nbsp;&nbsp;
+        <b-spinner class="align-self-center" v-if="state.loading" small></b-spinner>
+      </div>
+      <b-button @click="loadData" variant="info" class="app-color" size="sm">Refresh</b-button>
+    </b-row>
 
     <div v-for="(feedback,index) in feedbacks" :key="index">
       <feedback :feedback="feedback" v-if="!state.loading" />
     </div>
-    <b-row v-if="!state.loading" class="justify-content-start mx-1 my-4">
+    <b-row v-if="!state.loading && !feedbacks" class="justify-content-start mx-1 my-4">
       <b-card class="bg-transparent align-items-center w-50">
         <b-card-text>No feedbacks Available the moment!</b-card-text>
       </b-card>
@@ -53,6 +56,7 @@ export default {
           });
         })
         .catch(err => {
+          this.feedbacks = null;
           if (navigator.onLine) {
             const error = err.response
               ? err.response.data.error || err.response.data

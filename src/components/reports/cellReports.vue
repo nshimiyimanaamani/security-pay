@@ -251,6 +251,9 @@ export default {
             ? err.response.data.error
             : err.response.response;
           this.cellData = null;
+          if (this.villageData) {
+            this.state.showReport = true;
+          }
           return [];
         })
         .finally(() => {
@@ -298,6 +301,9 @@ export default {
             ? err.response.data.error
             : err.response.response;
           this.villageData = null;
+          if (this.cellData) {
+            this.state.showReport = true;
+          }
           return [];
         })
         .finally(() => {

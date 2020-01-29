@@ -76,7 +76,6 @@ export default {
             this.$router.push("dashboard");
           })
           .catch(err => {
-            console.log(err);
             delete sessionStorage.token;
             if (navigator.onLine) {
               const error = err.response

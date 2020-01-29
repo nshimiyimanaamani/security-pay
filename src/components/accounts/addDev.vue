@@ -200,7 +200,6 @@ export default {
           .then(res => {
             this.loadData();
             this.$snotify.info("Developer deleted Succesfully");
-            console.log(res.data);
           })
           .catch(err => {
             if (navigator.onLine) {

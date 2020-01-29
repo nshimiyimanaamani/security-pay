@@ -129,7 +129,6 @@ export default {
           .then(res => {
             this.state.show = true;
             this.invoices = res.data.Invoices;
-            console.log(this.invoices);
           })
           .catch(err => {
             if (navigator.onLine) {

@@ -2,10 +2,10 @@
   <b-container class="p-0 mr-1">
     <b-row class="py-2">
       <b-col class="px-1">
-        <b-button v-b-modal.register-property class="py-1" variant="info">Register</b-button>
+        <b-button v-b-modal.register-property class="py-1 font-15" size="sm" variant="info">Register</b-button>
       </b-col>
       <b-col class="pl-1">
-        <b-button class="py-1" variant="info" @click.prevent="refresh">Refresh</b-button>
+        <b-button class="py-1 font-15" size="sm" variant="info" @click.prevent="refresh">Refresh</b-button>
       </b-col>
     </b-row>
     <b-modal id="register-property" ref="register-modal" scrollable hide-footer>
@@ -19,7 +19,7 @@
                 v-model="form.fname"
                 required
                 placeholder="Enter first name..."
-                style="font-size: 15px"
+                size="sm"
               ></b-form-input>
             </b-form-group>
           </b-col>
@@ -30,7 +30,7 @@
                 v-model="form.lname"
                 required
                 placeholder="Enter last name..."
-                class="font-15"
+                size="sm"
               ></b-form-input>
             </b-form-group>
           </b-col>
@@ -43,7 +43,7 @@
             type="number"
             required
             placeholder="Enter phone number..."
-            class="font-15"
+            size="sm"
           ></b-form-input>
         </b-form-group>
         <b-form-group label="Inzu ituwemo?">
@@ -51,10 +51,9 @@
             v-model="form.occupied"
             :options="occupiedOptions"
             name="radios-stacked"
+            size="sm"
             :state="occupied ? null : false"
-          >
-            <b-form-invalid-feedback :state="occupied">Hitamo Kimwe!</b-form-invalid-feedback>
-          </b-form-radio-group>
+          />
         </b-form-group>
         <b-form-group
           id="input-group-4"
@@ -69,14 +68,20 @@
             min="500"
             max="10000"
             step="500"
+            size="sm"
           ></b-form-input>
         </b-form-group>
         <b-form-group id="input-group-8" class="float-right m-0 mt-3">
-          <b-button type="submit" variant="primary" class="ml-2 px-3 py-1 app-color font-15">
+          <b-button
+            type="submit"
+            size="sm"
+            variant="primary"
+            class="ml-2 px-3 py-1 app-color font-15"
+          >
             {{state.loading ? 'Registering' : 'Register'}}
             <b-spinner v-show="state.loading" small type="grow"></b-spinner>
           </b-button>
-          <b-button type="reset" variant="danger" class="px-3 py-1 font-15">Cancel</b-button>
+          <b-button type="reset" variant="danger" size="sm" class="px-3 py-1 font-15">cancel</b-button>
         </b-form-group>
       </b-form>
     </b-modal>

@@ -218,6 +218,9 @@ export default {
             ? err.response.data.error
             : err.response.response;
           this.sectorData = null;
+          if (this.cellData) {
+            this.state.showReport = true;
+          }
           return [];
         })
         .finally(() => {
@@ -267,6 +270,9 @@ export default {
             ? err.response.data.error
             : err.response.response;
           this.cellData = null;
+          if (this.sectorData) {
+            this.state.showReport = true;
+          }
           return [];
         })
         .finally(() => {
