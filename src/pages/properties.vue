@@ -75,7 +75,7 @@
         </datalist>
       </div>
 
-      <!-- <b-button @click.prevent="download" class="btn-info py-1 font-15">Download</b-button> -->
+      <b-button @click="loadData" variant="info" size="sm" class="ml-1 font-15">Refresh</b-button>
     </b-row>
 
     <b-table
@@ -191,7 +191,7 @@ export default {
         request: false
       },
       rightMenu: {
-        options: [{ name: "Edit", slug: "edit" }]
+        options: [{ name: "Edit House", slug: "edit" }]
       },
       updateModal: {
         show: false,

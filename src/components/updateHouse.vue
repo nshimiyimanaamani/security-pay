@@ -25,6 +25,15 @@
           </b-form-group>
         </b-col>
       </b-row>
+      <b-form-group id="input-group-3" label="Phone Number" label-for="input-3">
+        <b-form-input
+          size="sm "
+          id="input-3"
+          v-model="house.owner.phone"
+          placeholder="Phone Number..."
+          required
+        />
+      </b-form-group>
       <b-form-group label="Irakodeshwa ?">
         <b-form-radio-group v-model="rented" :options="query" name="radio-stacked" size="sm"></b-form-radio-group>
       </b-form-group>
@@ -146,31 +155,49 @@ export default {
         : this.house.address.village;
       this.state.updating = true;
       this.axios
-        .put(this.endpoint + "/properties/" + this.house.id, {
-          owner: {
-            id: this.house.owner.id,
-            fname: this.toCapital(this.house.owner.fname),
-            lname: this.toCapital(this.house.owner.lname)
-          },
-          address: { cell: cell, village: village, sector: sector },
-          recorded_by: this.house.recorded_by,
-          due: this.house.due,
-          occupied: this.rented
+        .put(this.endpoint + "/owners/" + this.house.owner.id, {
+          fname: this.toCapital(this.house.owner.fname).trim(),
+          lname: this.toCapital(this.house.owner.lname).trim(),
+          phone: this.house.owner.phone.trim()
         })
         .then(res => {
-          this.$snotify.info(res.data.message);
+          this.axios
+            .put(this.endpoint + "/properties/" + this.house.id, {
+              owner: {
+                id: res.data.id
+              },
+              address: { cell: cell, village: village, sector: sector },
+              recorded_by: this.house.recorded_by,
+              due: this.house.due,
+              occupied: this.rented
+            })
+            .then(response => {
+              this.$snotify.info(response.data.message);
+            })
+            .catch(err => {
+              if (navigator.onLine) {
+                const error = err.response
+                  ? err.response.data.message || err.response.data
+                  : "an error occured";
+                this.$snotify.error(error);
+              } else {
+                this.$snotify.error("Please connect to the internet");
+              }
+            })
+            .finally(() => {
+              this.state.updating = false;
+              this.$emit("closeModal");
+            });
         })
         .catch(err => {
           if (navigator.onLine) {
             const error = err.response
-              ? err.response.data.error || err.response.data
+              ? err.response.data.message || err.response.data
               : "an error occured";
             this.$snotify.error(error);
           } else {
             this.$snotify.error("Please connect to the internet");
           }
-        })
-        .finally(() => {
           this.state.updating = false;
           this.$emit("closeModal");
         });

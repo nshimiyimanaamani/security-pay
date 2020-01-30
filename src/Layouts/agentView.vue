@@ -8,7 +8,7 @@
             <h2 class="m-0 text-white">P A Y P A C K</h2>
           </b-col>
           <b-col lg="1" md="1" sm="1" xl="1" class="navs mr-2" style="margin-left:auto">
-            <b-dropdown variant="info">
+            <b-dropdown variant="info" no-caret>
               <template v-slot:button-content>
                 <i class="fa fa-cog" />
               </template>
@@ -88,11 +88,14 @@ export default {
           password: password
         })
         .then(res => {
-          console.log(res.data);
+          this.$snotify.info("Password changed!");
           this.close();
         })
         .catch(err => {
-          console.log(err);
+          const errorMessage = navigator.onLine
+            ? err.response.data.error || err.response.data
+            : "Please connect to the internet...";
+          this.$snotify.error(errorMessage);
           this.close();
         });
     },
