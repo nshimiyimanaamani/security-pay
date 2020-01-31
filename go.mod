@@ -10,7 +10,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
-	github.com/fatih/color v1.8.0
+	github.com/fatih/color v1.9.0
 	github.com/go-redis/redis/v7 v7.0.0-beta.5
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
@@ -27,8 +27,8 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.4.0
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
-	github.com/ttacon/libphonenumber v1.0.1
-	github.com/vmihailenco/msgpack/v4 v4.3.1
+	github.com/ttacon/libphonenumber v1.1.0
+	github.com/vmihailenco/msgpack/v4 v4.3.5
 	golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
 )
