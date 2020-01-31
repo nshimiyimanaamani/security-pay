@@ -85,15 +85,11 @@ func (svc *service) comparePass(creds, user Credentials) error {
 	case Dev, Admin:
 		return svc.hasher.Compare(user.Password, creds.Password)
 	case Min, Basic:
-		pass, err := svc.decrypt(creds.Password)
-		if err != nil {
-			return err
-		}
 		return plain.Compare(user.Password, pass)
 	}
 	return nil
 }
 
-func (svc *service) decrypt(password string) (string, error) {
-	return svc.encrypter.Decrypt([]byte(password))
-}
+// func (svc *service) decrypt(password string) (string, error) {
+// 	return svc.encrypter.Decrypt([]byte(password))
+// }
