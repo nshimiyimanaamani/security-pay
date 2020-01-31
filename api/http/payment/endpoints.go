@@ -1,10 +1,7 @@
 package payment
 
 import (
-	"bytes"
-	"io/ioutil"
 	"net/http"
-	lg "log"
 
 	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
@@ -18,7 +15,7 @@ func Initialize(logger log.Entry, svc payment.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		tx := payment.Transaction{}
 
-		err := decode(r.Body, &tx)
+		err := Decode(r, &tx)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(errors.E(op, err))
@@ -26,14 +23,14 @@ func Initialize(logger log.Entry, svc payment.Service) http.Handler {
 			return
 		}
 
-		status, err := svc.Initilize(r.Context(), tx)
+		res, err := svc.Initilize(r.Context(), tx)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)
 			return
 		}
-		if err := encodeRes(w, status); err != nil {
+		if err := encode(w, http.StatusOK, res); err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(errors.E(op, err))
 			encodeErr(w, errors.Kind(err), err)
@@ -43,28 +40,20 @@ func Initialize(logger log.Entry, svc payment.Service) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-// Validate handles payment validatiob(confirmation)
-func Validate(logger log.Entry, svc payment.Service) http.Handler {
+// Confirm handles payment confirmation callback
+func Confirm(logger log.Entry, svc payment.Service) http.Handler {
 	const op errors.Op = "api/http/payment/Validate"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
 
 		callback := payment.Callback{}
 
-		
-		buf, _ := ioutil.ReadAll(r.Body)
-
-		rdr1 := ioutil.NopCloser(bytes.NewBuffer(buf))
-		lg.Printf("body: %q", rdr1)
-
-		if err := decode(r.Body, &callback); err != nil {
+		if err := Decode(r, &callback); err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
 			encodeErr(w, errors.Kind(err), err)
 			return
 		}
-
-		defer r.Body.Close()
 
 		err := svc.Confirm(r.Context(), callback)
 		if err != nil {

@@ -116,7 +116,7 @@ func migrateDB(db *sql.DB) error {
 
 					`CREATE TABLE IF NOT EXISTS users (
 						username    VARCHAR(254),
-						password 	CHAR(60)	 NOT NULL,
+						password 	VARCHAR(60)	 NOT NULL,
 						role	 	VARCHAR(5) NOT NULL DEFAULT 'dev' CHECK(role in ('dev', 'admin', 'basic', 'min')),
 						account		VARCHAR(256) NOT NULL,
 						created_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -258,6 +258,7 @@ func migrateDB(db *sql.DB) error {
 						creator		VARCHAR(15) NOT NULL,
 						created_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
 						updated_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
+						FOREIGN KEY(creator) REFERENCES owners(phone) ON UPDATE CASCADE ON DELETE CASCADE,
 						PRIMARY KEY(id)
 					);
 					

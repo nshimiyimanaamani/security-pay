@@ -116,9 +116,9 @@ func RetrieveProperty(lgger log.Entry, svc properties.Service) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-// ListPropertyByOwner handles property list by owner
-func ListPropertyByOwner(lgger log.Entry, svc properties.Service) http.Handler {
-	const op errors.Op = "api/http/properties/ListPropertyByOwner"
+// ListPropertiesByOwner handles property list by owner
+func ListPropertiesByOwner(lgger log.Entry, svc properties.Service) http.Handler {
+	const op errors.Op = "api/http/properties/ListPropertiesByOwner"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -160,9 +160,9 @@ func ListPropertyByOwner(lgger log.Entry, svc properties.Service) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-// ListPropertyBySector handles property list by sector
-func ListPropertyBySector(lgger log.Entry, svc properties.Service) http.Handler {
-	const op errors.Op = "api/http/properties/ListPropertyBySector"
+// ListPropertiesBySector handles property list by sector
+func ListPropertiesBySector(lgger log.Entry, svc properties.Service) http.Handler {
+	const op errors.Op = "api/http/properties/ListPropertiesBySector"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -203,9 +203,9 @@ func ListPropertyBySector(lgger log.Entry, svc properties.Service) http.Handler 
 	return http.HandlerFunc(f)
 }
 
-// ListPropertyByCell handles property list by cell
-func ListPropertyByCell(lgger log.Entry, svc properties.Service) http.Handler {
-	const op errors.Op = "api/http/properties/ListPropertyByCell"
+// ListPropertiesByCell handles property list by cell
+func ListPropertiesByCell(lgger log.Entry, svc properties.Service) http.Handler {
+	const op errors.Op = "api/http/properties/ListPropertiesByCell"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -247,9 +247,9 @@ func ListPropertyByCell(lgger log.Entry, svc properties.Service) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-// ListPropertyByVillage handles property list by owner
-func ListPropertyByVillage(lgger log.Entry, svc properties.Service) http.Handler {
-	const op errors.Op = "api/http/properties/ListPropertyByVillage"
+// ListPropertiesByVillage handles property list by owner
+func ListPropertiesByVillage(lgger log.Entry, svc properties.Service) http.Handler {
+	const op errors.Op = "api/http/properties/ListPropertiesByVillage"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -272,6 +272,49 @@ func ListPropertyByVillage(lgger log.Entry, svc properties.Service) http.Handler
 		}
 
 		res, err := svc.ListPropertiesByVillage(ctx, vars["village"], offset, limit)
+		if err != nil {
+			err = parseErr(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, err)
+			return
+		}
+
+		if err := encode(w, http.StatusOK, res); err != nil {
+			err = parseErr(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, err)
+			return
+		}
+	}
+
+	return http.HandlerFunc(f)
+}
+
+// ListPropertiesByRecorder handles property list by recorder
+func ListPropertiesByRecorder(lgger log.Entry, svc properties.Service) http.Handler {
+	const op errors.Op = "api/http/properties/ListPropertiesByRecorder"
+
+	f := func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		vars := mux.Vars(r)
+		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
+		if err != nil {
+			err = parseErr(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, err)
+			return
+		}
+
+		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
+		if err != nil {
+			err = parseErr(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, err)
+			return
+		}
+
+		res, err := svc.ListPropertiesByRecorder(ctx, vars["user"], offset, limit)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)

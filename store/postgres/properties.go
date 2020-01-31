@@ -320,7 +320,7 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 		if err := rows.Scan(
 			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
 			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent, &c.CreatedAt, &c.UpdatedAt,
-			&c.Owner.ID, &c.Owner.Lname, &c.Owner.Lname, &c.Owner.Phone,
+			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
@@ -332,6 +332,62 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 
 	var total uint64
 	if err := repo.QueryRow(q, village).Scan(&total); err != nil {
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	page := properties.PropertyPage{
+		Properties: items,
+		PageMetadata: properties.PageMetadata{
+			Total:  total,
+			Offset: offset,
+			Limit:  limit,
+		},
+	}
+	return page, nil
+}
+
+func (repo *propertiesStore) RetrieveByRecorder(ctx context.Context, user string, offset, limit uint64) (properties.PropertyPage, error) {
+	const op errors.Op = "store/postgres/propertiesStore.RetrieveByVillage"
+
+	q := `
+		SELECT 
+			properties.id, properties.sector, properties.cell, 
+			properties.village, properties.due, properties.recorded_by, 
+			properties.occupied, properties.for_rent, properties.created_at,
+			properties.updated_at, owners.id, owners.fname, owners.lname, owners.phone
+		FROM 
+			properties
+		INNER JOIN
+			owners ON properties.owner=owners.id 
+		WHERE properties.recorded_by = $1 ORDER BY properties.id LIMIT $2 OFFSET $3
+	`
+
+	var items = []properties.Property{}
+
+	rows, err := repo.Query(q, user, limit, offset)
+	if err != nil {
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		c := properties.Property{}
+
+		if err := rows.Scan(
+			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
+			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent, &c.CreatedAt, &c.UpdatedAt,
+			&c.Owner.ID, &c.Owner.Lname, &c.Owner.Lname, &c.Owner.Phone,
+		); err != nil {
+			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
+		}
+
+		items = append(items, c)
+	}
+
+	q = `SELECT COUNT(*) FROM properties WHERE recorded_by = $1`
+
+	var total uint64
+	if err := repo.QueryRow(q, user).Scan(&total); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 

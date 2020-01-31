@@ -45,6 +45,10 @@ type Service interface {
 	// withing a given range(offset, limit).
 	ListPropertiesByOwner(ctx context.Context, owner string, offset, limit uint64) (PropertyPage, error)
 
+	// ListPropertiesByRecorder returns a list of properties as saved by a given user
+	//ListPropertiesByRecorder
+	ListPropertiesByRecorder(ctx context.Context, user string, offset, limit uint64) (PropertyPage, error)
+
 	// ListPropertiesBySector returns a lists of properties in the given sector
 	// withing the given range(offset, limit).
 	ListPropertiesBySector(ctx context.Context, sector string, offset, limit uint64) (PropertyPage, error)
@@ -58,22 +62,22 @@ type Service interface {
 	ListPropertiesByVillage(ctx context.Context, village string, offset, limit uint64) (PropertyPage, error)
 }
 
-var _ Service = (*propertyService)(nil)
+var _ Service = (*service)(nil)
 
-type propertyService struct {
+type service struct {
 	idp  identity.Provider
 	repo Repository
 }
 
 // New instatiates a new property service
 func New(idp identity.Provider, repo Repository) Service {
-	return &propertyService{
+	return &service{
 		idp:  idp,
 		repo: repo,
 	}
 }
 
-func (svc *propertyService) RegisterProperty(ctx context.Context, p Property) (Property, error) {
+func (svc *service) RegisterProperty(ctx context.Context, p Property) (Property, error) {
 	const op errors.Op = "app/properties/service.RegisterProperty"
 
 	if err := p.Validate(); err != nil {
@@ -89,7 +93,7 @@ func (svc *propertyService) RegisterProperty(ctx context.Context, p Property) (P
 	return property, nil
 }
 
-func (svc *propertyService) UpdateProperty(ctx context.Context, prop Property) error {
+func (svc *service) UpdateProperty(ctx context.Context, prop Property) error {
 	const op errors.Op = "app/properties/service.UpdateProperty"
 
 	if err := prop.Validate(); err != nil {
@@ -102,7 +106,7 @@ func (svc *propertyService) UpdateProperty(ctx context.Context, prop Property) e
 	return nil
 }
 
-func (svc *propertyService) RetrieveProperty(ctx context.Context, uid string) (Property, error) {
+func (svc *service) RetrieveProperty(ctx context.Context, uid string) (Property, error) {
 	const op errors.Op = "app/properties/service.RetrieveProperty"
 
 	property, err := svc.repo.RetrieveByID(ctx, uid)
@@ -113,7 +117,7 @@ func (svc *propertyService) RetrieveProperty(ctx context.Context, uid string) (P
 	return property, nil
 }
 
-func (svc *propertyService) ListPropertiesByOwner(ctx context.Context, owner string, offset, limit uint64) (PropertyPage, error) {
+func (svc *service) ListPropertiesByOwner(ctx context.Context, owner string, offset, limit uint64) (PropertyPage, error) {
 	const op errors.Op = "app/properties/service.ListPropertiesByOwner"
 
 	page, err := svc.repo.RetrieveByOwner(ctx, owner, offset, limit)
@@ -123,7 +127,17 @@ func (svc *propertyService) ListPropertiesByOwner(ctx context.Context, owner str
 	return page, nil
 }
 
-func (svc *propertyService) ListPropertiesBySector(ctx context.Context, sector string, offset, limit uint64) (PropertyPage, error) {
+func (svc *service) ListPropertiesByRecorder(ctx context.Context, user string, offset, limit uint64) (PropertyPage, error) {
+	const op errors.Op = "app/properties/service.ListPropertiesByRecorder"
+
+	page, err := svc.repo.RetrieveByRecorder(ctx, user, offset, limit)
+	if err != nil {
+		return PropertyPage{}, errors.E(op, err)
+	}
+	return page, nil
+}
+
+func (svc *service) ListPropertiesBySector(ctx context.Context, sector string, offset, limit uint64) (PropertyPage, error) {
 	const op errors.Op = "app/properties/service.ListPropertiesBySector"
 
 	page, err := svc.repo.RetrieveBySector(ctx, sector, offset, limit)
@@ -133,7 +147,7 @@ func (svc *propertyService) ListPropertiesBySector(ctx context.Context, sector s
 	return page, nil
 }
 
-func (svc *propertyService) ListPropertiesByCell(ctx context.Context, cell string, offset, limit uint64) (PropertyPage, error) {
+func (svc *service) ListPropertiesByCell(ctx context.Context, cell string, offset, limit uint64) (PropertyPage, error) {
 	const op errors.Op = "app/properties/service.ListPropertiesByCell"
 
 	page, err := svc.repo.RetrieveByCell(ctx, cell, offset, limit)
@@ -143,7 +157,7 @@ func (svc *propertyService) ListPropertiesByCell(ctx context.Context, cell strin
 	return page, nil
 }
 
-func (svc *propertyService) ListPropertiesByVillage(ctx context.Context, village string, offset, limit uint64) (PropertyPage, error) {
+func (svc *service) ListPropertiesByVillage(ctx context.Context, village string, offset, limit uint64) (PropertyPage, error) {
 	const op errors.Op = "app/properties/service.ListPropertiesByVillage"
 
 	page, err := svc.repo.RetrieveByVillage(ctx, village, offset, limit)

@@ -38,6 +38,6 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		panic("absolutely unacceptable handler opts")
 	}
 
-	r.Handle(ConfirmPaymentRoute, LogEntryHandler(Validate, opts)).Methods(http.MethodPost)
+	r.Handle(ConfirmPaymentRoute, LogEntryHandler(Confirm, opts)).Methods(http.MethodPost)
 	r.Handle(InitializePaymentRoute, LogEntryHandler(Initialize, opts)).Methods(http.MethodPost)
 }

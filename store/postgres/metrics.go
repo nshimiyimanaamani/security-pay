@@ -189,7 +189,7 @@ func (repo *statsRepository) ListCellRatios(ctx context.Context, cell string, y,
 
 		var payed, pending uint64
 
-		if err := rows.Scan(&label, &payed, &pending); err != nil {
+		if err := rows.Scan(&label, &pending, &payed); err != nil {
 			return nil, errors.E(op, err, errors.KindUnexpected)
 		}
 
