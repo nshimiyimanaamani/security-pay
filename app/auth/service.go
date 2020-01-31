@@ -85,7 +85,7 @@ func (svc *service) comparePass(creds, user Credentials) error {
 	case Dev, Admin:
 		return svc.hasher.Compare(user.Password, creds.Password)
 	case Min, Basic:
-		return plain.Compare(user.Password, pass)
+		return plain.Compare(user.Password, creds.Password)
 	}
 	return nil
 }
