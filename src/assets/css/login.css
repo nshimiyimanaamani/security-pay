@@ -2,31 +2,45 @@
   position: relative;
   height: 100vh;
   color: #0000007a;
+  min-width: 270px;
 }
 
-
+.loginTitle {
+  height: 50%;
+  width: fit-content;
+}
 .loginTitle #paypack {
   font-size: 50px;
   color: #3a82a1;
   line-height: 0%;
   letter-spacing: 5px;
+  width: fit-content;
 }
 
-
+@media (max-width: 370px) {
+  .loginTitle .slogan {
+    text-align: center;
+    width: fit-content;
+    margin: auto;
+  }
+  .loginTitle #paypack {
+    margin: auto;
+  }
+}
 
 form input {
   border: 1px solid #bdbdbd !important;
   background: transparent !important;
-
 }
 
-.loginBtn,.loginBtn:disabled,.loginBtn:hover {
+.loginBtn,
+.loginBtn:disabled,
+.loginBtn:hover {
   width: 100%;
   user-select: none;
   color: white;
   background: #3a82a1;
 }
-
 
 #error-message .modal-title {
   width: 95%;

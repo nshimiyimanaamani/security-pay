@@ -7,7 +7,7 @@
         size="sm"
         v-model="houseId"
         placeholder="Enter House ID..."
-        class="w-auto mr-3 flex-grow-1 text-uppercase"
+        class="w-auto mr-3 flex-grow-1 text-uppercase font-13"
       ></b-input>
       <b-button
         size="sm"

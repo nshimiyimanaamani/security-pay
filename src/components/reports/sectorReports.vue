@@ -5,7 +5,7 @@
     <b-row class="justify-content-between">
       <b-button
         variant="info"
-        class="font-15 border-0 my-2 py-2 mr-3 d-flex align-items-center"
+        class="font-13 border-0 my-2 py-2 mr-3 d-flex align-items-center"
         @click="generateAction"
       >Generate {{activeSector}} Report</b-button>
       <div v-show="state.generating" class="w-auto px-3">
@@ -24,7 +24,7 @@
             :fields="table.fields"
             :busy="table.busy"
             :key="'sector-'+table.key"
-            v-if="state.showReport"
+            v-if="state.generate"
             small
             bordered
             responsive
@@ -45,7 +45,7 @@
             :fields="cellTable.fields"
             :busy="cellTable.busy"
             :key="'cell-'+cellTable.key"
-            v-if="state.showReport"
+            v-if="state.generate"
             small
             bordered
             responsive
@@ -78,6 +78,7 @@ export default {
     return {
       state: {
         generating: false,
+        generate: false,
         showReport: false,
         error: false,
         errorMessage: null
@@ -181,12 +182,13 @@ export default {
   methods: {
     generateAction() {
       this.clear();
-      this.state.showReport = true;
+      this.state.generate = true;
       this.table.key++;
       this.cellTable.key++;
     },
     generate() {
       this.sectorData = null;
+      this.state.generating = true;
       const first = this.axios.get(
         this.endpoint +
           `/metrics/ratios/sectors/${this.activeSector}?year=${this.currentYear}&month=${this.currentMonth}`
@@ -216,14 +218,20 @@ export default {
             ? err.response.data.error
             : err.response.response;
           this.sectorData = null;
+          if (this.cellData) {
+            this.state.showReport = true;
+          }
           return [];
         })
         .finally(() => {
-          this.state.generating = false;
+          if (this.cellData) {
+            this.state.generating = false;
+          }
         });
     },
     generateCell() {
       this.cellData = null;
+      this.state.generating = true;
       const first = this.axios.get(
         this.endpoint +
           `/metrics/ratios/sectors/all/${this.activeSector}?year=${this.currentYear}&month=${this.currentMonth}`
@@ -262,10 +270,15 @@ export default {
             ? err.response.data.error
             : err.response.response;
           this.cellData = null;
+          if (this.sectorData) {
+            this.state.showReport = true;
+          }
           return [];
         })
         .finally(() => {
-          this.state.generating = false;
+          if (this.sectorData) {
+            this.state.generating = false;
+          }
         });
     },
     downloadReport() {
@@ -279,9 +292,12 @@ export default {
     },
     clear() {
       this.state.showReport = false;
-      this.state.generating = true;
+      this.state.generate = false;
+      this.state.generating = false;
       this.state.error = false;
       this.state.errorMessage = null;
+      this.cellData = null;
+      this.cellData = null;
     }
   }
 };

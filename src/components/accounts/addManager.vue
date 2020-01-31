@@ -7,17 +7,13 @@
             id="input-1"
             type="email"
             v-model="form.email"
+            size="sm"
             required
             placeholder="Enter Email address..."
           />
         </b-form-group>
         <b-form-group id="input-group-2" label="Cell:" label-for="input-2">
-          <b-form-select
-            id="input-2"
-            v-model="form.cell"
-            :options="cellOptions"
-            style="font-size: 15px"
-          >
+          <b-form-select id="input-2" v-model="form.cell" :options="cellOptions" size="sm">
             <template v-slot:first>
               <option :value="null" disabled>Please select cell</option>
             </template>
@@ -25,7 +21,13 @@
         </b-form-group>
 
         <b-form-group class="m-0">
-          <b-button variant="info" class="float-right" type="submit">
+          <b-button
+            variant="info"
+            class="float-right font-15"
+            :disabled="(form.cell&&form.email)?false:true"
+            size="sm"
+            type="submit"
+          >
             {{state.creating ? 'Creating' : "Create"}}
             <b-spinner v-show="state.creating" small type="grow"></b-spinner>
           </b-button>
@@ -48,8 +50,7 @@
       >
         <template v-slot:table-busy>
           <div class="text-center my-2">
-            <b-spinner class="align-middle"></b-spinner>
-            <strong>Loading...</strong>
+            <loader />
           </div>
         </template>
       </b-table>
@@ -63,7 +64,7 @@
     <b-modal v-model="change_pswd_modal.show" title="Change Password" hide-footer>
       <b-form @submit.prevent="changePassword">
         <b-form-group id="input-group-3" label="Current Email:" label-for="input-3">
-          <b-form-input id="input-3" type="email" v-model="currentData.email" disabled />
+          <b-form-input id="input-3" type="email" size="sm" v-model="currentData.email" disabled />
         </b-form-group>
         <b-form-group id="input-group-4" label="Current Cell:" label-for="input-4">
           <b-form-input id="input-4" v-model="currentData.cell" disabled />
@@ -73,24 +74,26 @@
             id="input-5"
             type="email"
             v-model="form.newEmail"
+            size="sm"
             required
             placeholder="New Email address..."
           />
         </b-form-group>
         <b-form-group id="input-group-6" label="New Cell:" label-for="input-6">
-          <b-form-select
-            id="input-6"
-            v-model="form.newCell"
-            :options="cellOptions"
-            style="font-size: 15px"
-          >
+          <b-form-select id="input-6" size="sm" v-model="form.newCell" :options="cellOptions">
             <template v-slot:first>
               <option :value="null" disabled>Please select cell</option>
             </template>
           </b-form-select>
         </b-form-group>
         <b-form-group class="m-0">
-          <b-button variant="info" class="float-right" type="submit">
+          <b-button
+            size="sm"
+            variant="info"
+            :disabled="(form.newCell && form.newEmail)?false:true"
+            class="float-right"
+            type="submit"
+          >
             {{state.changing ? 'Updating' : "Update"}}
             <b-spinner v-show="state.changing" small type="grow"></b-spinner>
           </b-button>
@@ -102,8 +105,12 @@
 
 <script>
 const jwt = require("jsonwebtoken");
+import loader from "../loader";
 export default {
   name: "add-agent",
+  components: {
+    loader
+  },
   data() {
     return {
       form: {
@@ -114,7 +121,7 @@ export default {
       },
       table: {
         fields: [
-          { key: "email", label: "Email" },
+          { key: "email", label: "Email", tdClass: "text-normal" },
           { key: "cell", label: "cell" },
           { key: "role", label: "Role" }
         ]
@@ -212,14 +219,6 @@ export default {
     },
     menu(house, index, evt) {
       evt.preventDefault();
-      Object.defineProperty(event, "pageX", {
-        value: event.pageX - 410,
-        writable: true
-      });
-      Object.defineProperty(event, "pageY", {
-        value: event.pageY - 110,
-        writable: true
-      });
       this.$refs.manager_rightMenu.showMenu(evt, house);
     },
     optionClicked(data) {
@@ -264,7 +263,6 @@ export default {
         .then(res => {
           this.loadData();
           this.$snotify.info("Manager deleted Succesfully");
-          console.log(res.data);
         })
         .catch(err => {
           if (navigator.onLine) {

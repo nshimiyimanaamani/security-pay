@@ -9,6 +9,7 @@
         v-model="cell"
         :options="cellOptions"
         class="w-auto mr-3 flex-grow-1"
+        v-if="user.role.toLowerCase() !='basic'"
       >
         <template v-slot:first>
           <option :value="null" disabled>Please select cell</option>
@@ -28,7 +29,7 @@
     </b-row>
     <b-row>
       <b-collapse id="sector-report-collapse" class="w-100 m-3" v-model="state.showReport">
-        <b-card class="text-capitalize" v-if="!state.error && state.showReport">
+        <b-card class="text-capitalize" v-if="!state.error">
           <b-card-title class="font-20 text-uppercase">{{cell}} cell</b-card-title>
           <hr />
           <b-table
@@ -37,6 +38,7 @@
             :fields="table.fields"
             :busy.sync="state.generating"
             :key="'cell-'+table.key"
+            v-if="state.generate"
             small
             bordered
             responsive
@@ -57,6 +59,7 @@
             :fields="villageTable.fields"
             :busy.sync="state.generating"
             :key="'village-'+villageTable.key"
+            v-if="state.generate"
             small
             bordered
             responsive
@@ -90,6 +93,7 @@ export default {
       cell: null,
       state: {
         generating: false,
+        generate: false,
         showReport: false,
         error: false,
         errorMessage: null
@@ -188,25 +192,36 @@ export default {
     },
     currentMonth() {
       return new Date().getMonth() + 1;
+    },
+    user() {
+      return this.$store.getters.userDetails;
+    },
+    activeCell() {
+      return this.$store.getters.getActiveCell;
     }
   },
   watch: {
     cell() {
       handler: {
-        this.state.showReport = false;
+        this.clear();
       }
+    }
+  },
+  mounted() {
+    if (this.user.role.toLowerCase() == "basic") {
+      this.cell = this.activeCell;
     }
   },
   methods: {
     generateAction() {
-      this.state.error = false;
-      this.state.errorMessage = null;
-      this.state.showReport = true;
+      this.clear();
+      this.state.generate = true;
       this.table.key++;
       this.villageTable.key++;
     },
     generate() {
       this.cellData = null;
+      this.state.generating = true;
       const first = this.axios.get(
         this.endpoint +
           `/metrics/ratios/cells/${this.cell}?year=${this.currentYear}&month=${this.currentMonth}`
@@ -235,6 +250,10 @@ export default {
           this.state.errorMessage = err.response.data.error
             ? err.response.data.error
             : err.response.response;
+          this.cellData = null;
+          if (this.villageData) {
+            this.state.showReport = true;
+          }
           return [];
         })
         .finally(() => {
@@ -243,6 +262,7 @@ export default {
     },
     generateVillage() {
       this.villageData = null;
+      this.state.generating = true;
       const first = this.axios.get(
         this.endpoint +
           `/metrics/ratios/cells/all/${this.cell}?year=${this.currentYear}&month=${this.currentMonth}`
@@ -280,6 +300,10 @@ export default {
           this.state.errorMessage = err.response.data.error
             ? err.response.data.error
             : err.response.response;
+          this.villageData = null;
+          if (this.cellData) {
+            this.state.showReport = true;
+          }
           return [];
         })
         .finally(() => {
@@ -297,9 +321,12 @@ export default {
     },
     clear() {
       this.state.showReport = false;
-      this.state.generating = true;
+      this.state.generating = false;
+      this.state.generate = false;
       this.state.error = false;
       this.state.errorMessage = null;
+      this.cellData = null;
+      this.villageData = null;
     }
   }
 };

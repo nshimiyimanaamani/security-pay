@@ -61,10 +61,10 @@
         <b-button variant="danger" size="sm" @click.prevent="clearFilter">Clear</b-button>
       </b-dropdown>
 
-      <div class="mr-2">
+      <div>
         <b-form-input
           placeholder="search user..."
-          class="rounded-1"
+          class="rounded-2 font-15"
           type="search"
           size="sm"
           v-model="search.name"
@@ -75,7 +75,7 @@
         </datalist>
       </div>
 
-      <b-button @click.prevent="download" class="btn-info py-1 font-15">Download</b-button>
+      <b-button @click="loadData" variant="info" size="sm" class="ml-1 font-15">Refresh</b-button>
     </b-row>
 
     <b-table
@@ -115,7 +115,7 @@
           class="text-center font-15 my-4"
         >{{search.name ? search.name+' "is not in the list"':'No Property Found!'}}</h5>
       </template>
-      <template v-slot:custom-foot="items" v-if="!loading.request">
+      <template v-slot:custom-foot v-if="!loading.request">
         <b-tr v-if="select.shownColumn.includes('Amount')">
           <b-td v-for="index in select.shownColumn" :key="index" variant="primary">
             <div
@@ -125,7 +125,7 @@
               <strong>TOTAL:</strong>
             </div>
             <div v-if="index == 'Amount'">
-              <strong>{{totals(items.items)}} Rwf</strong>
+              <strong>{{totals(tableItems)}} Rwf</strong>
             </div>
           </b-td>
         </b-tr>
@@ -191,7 +191,7 @@ export default {
         request: false
       },
       rightMenu: {
-        options: [{ name: "Edit", slug: "edit" }]
+        options: [{ name: "Edit House", slug: "edit" }]
       },
       updateModal: {
         show: false,
@@ -347,7 +347,6 @@ export default {
           this.endpoint +
           `/properties?sector=${this.activeSector}&offset=0&limit=`;
       }
-
       axios
         .get(promise + `0`)
         .then(result => {
@@ -385,14 +384,6 @@ export default {
     },
     editHouse(house, index, evt) {
       evt.preventDefault();
-      Object.defineProperty(event, "pageX", {
-        value: event.pageX - 205,
-        writable: true
-      });
-      Object.defineProperty(event, "pageY", {
-        value: event.pageY - 50,
-        writable: true
-      });
       this.$refs.rightMenu.showMenu(evt, house);
     },
     showUpdateModal(data) {

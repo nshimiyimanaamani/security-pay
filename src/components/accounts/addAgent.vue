@@ -86,8 +86,7 @@
         <template v-slot:cell(first_name)="data">{{data.item.first_name+" "+data.item.last_name}}</template>
         <template v-slot:table-busy>
           <div class="text-center my-2">
-            <b-spinner class="align-middle"></b-spinner>
-            <strong>Loading...</strong>
+            <loader />
           </div>
         </template>
       </b-table>
@@ -107,7 +106,12 @@
           <b-form-input id="input-2" required v-model="form.newPwd" placeholder="New Password..."></b-form-input>
         </b-form-group>
         <b-form-group class="m-0">
-          <b-button variant="info" class="float-right" type="submit">
+          <b-button
+            :disabled="form.newPwd ? false:true "
+            variant="info"
+            class="float-right"
+            type="submit"
+          >
             {{state.changing ? 'Changing' : "Change"}}
             <b-spinner v-show="state.changing" small type="grow"></b-spinner>
           </b-button>
@@ -120,8 +124,12 @@
 <script>
 const { Village } = require("rwanda");
 const jwt = require("jsonwebtoken");
+import loader from "../loader";
 export default {
   name: "add-agent",
+  components: {
+    loader
+  },
   data() {
     return {
       form: {
@@ -246,14 +254,7 @@ export default {
     },
     menu(house, index, evt) {
       evt.preventDefault();
-      Object.defineProperty(event, "pageX", {
-        value: event.pageX - 410,
-        writable: true
-      });
-      Object.defineProperty(event, "pageY", {
-        value: event.pageY - 110,
-        writable: true
-      });
+
       this.$refs.agent_rightMenu.showMenu(evt, house);
     },
     optionClicked(data) {
@@ -264,7 +265,6 @@ export default {
           .then(res => {
             this.loadData();
             this.$snotify.info("Agent deleted Succesfully");
-            console.log(res.data);
           })
           .catch(err => {
             if (navigator.onLine) {

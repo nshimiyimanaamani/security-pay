@@ -313,7 +313,6 @@ export default {
           this.chart2.state.errorMessage = err.response
             ? err.response.data.error || err.response.data
             : "Error";
-          console.log(err.response);
         })
         .finally(() => (this.chart2.state.loading = false));
     },

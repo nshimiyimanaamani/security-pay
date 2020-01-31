@@ -1,11 +1,15 @@
 <template>
   <b-container class="max-width">
+    <vue-title title="Paypack | Reports" />
     <b-card no-body>
       <b-tabs pills card vertical lazy class="font-13 text-uppercase">
         <b-tab title="PAYMENT REPORTS" active>
           <payment-reports />
         </b-tab>
-        <b-tab title="SECTOR REPORTS">
+        <b-tab
+          v-if="user.role.toLowerCase() =='admin' || user.role.toLowerCase() =='dev'"
+          title="SECTOR REPORTS"
+        >
           <sector-reports />
         </b-tab>
         <b-tab title="CELL REPORTS">
@@ -44,6 +48,11 @@ export default {
   },
   data() {
     return {};
+  },
+  computed: {
+    user() {
+      return this.$store.getters.userDetails;
+    }
   }
 };
 </script>
