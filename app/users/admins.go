@@ -13,7 +13,10 @@ func (svc *service) RegisterAdmin(ctx context.Context, user Administrator) (Admi
 		return Administrator{}, errors.E(op, err)
 	}
 
-	plain := svc.pgen.Generate(ctx)
+	plain, err := svc.pgen.Generate(ctx)
+	if err != nil {
+		return Administrator{}, errors.E(op, err)
+	}
 
 	password, err := svc.hasher.Hash(plain)
 	if err != nil {

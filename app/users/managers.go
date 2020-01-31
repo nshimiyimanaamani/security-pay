@@ -15,13 +15,16 @@ func (svc *service) RegisterManager(ctx context.Context, user Manager) (Manager,
 
 	user.Role = Basic
 
-	plain := svc.pgen.Generate(ctx)
-
-	password, err := svc.hasher.Hash(plain)
+	plain, err := svc.pgen.Generate(ctx)
 	if err != nil {
 		return Manager{}, errors.E(op, err)
 	}
-	user.Password = password
+
+	encrypted, err := svc.encrypter.Encrypt(plain)
+	if err != nil {
+		return Manager{}, errors.E(op, err)
+	}
+	user.Password = string(encrypted)
 
 	user, err = svc.repo.SaveManager(ctx, user)
 	if err != nil {

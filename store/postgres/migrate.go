@@ -10,7 +10,7 @@ func migrateDB(db *sql.DB) error {
 	migrations := &migrate.MemoryMigrationSource{
 		Migrations: []*migrate.Migration{
 			{
-				Id: "v1.0.0",
+				Id: "001_initial",
 
 				Up: []string{
 					`
@@ -41,12 +41,12 @@ func migrateDB(db *sql.DB) error {
 					$$ LANGUAGE plpgsql;`,
 
 					`
-					CREATE OR REPLACE FUNCTION refresh_payment_status()
+					CREATE OR REPLACE FUNCTION refresh_payment_metrics()
 					RETURNS TRIGGER AS $$
 					BEGIN
-						refresh materialized view concurrently sector_payment_ratio;
-						refresh materialized view concurrently cell_payment_ratio;
-						refresh materialized view concurrently village_payment_ratio;
+						refresh materialized view concurrently sector_payment_metrics;
+						refresh materialized view concurrently cell_payment_metrics;
+						refresh materialized view concurrently village_payment_metrics;
 						RETURN NULL;
 					END;
 					$$ LANGUAGE plpgsql;`,
@@ -224,9 +224,9 @@ func migrateDB(db *sql.DB) error {
 					EXECUTE PROCEDURE trigger_set_timestamp();
 
 					CREATE TRIGGER refresh_payment_view
-					AFTER INSERT OR UPDATE ON invoices
+					AFTER INSERT OR UPDATE OR DELETE ON invoices
 					FOR EACH ROW
-					EXECUTE PROCEDURE refresh_payment_status();
+					EXECUTE PROCEDURE refresh_payment_metrics();
 					`,
 
 					`CREATE TABLE IF NOT EXISTS transactions (
@@ -269,22 +269,22 @@ func migrateDB(db *sql.DB) error {
 					`,
 
 					`
-					create view payment_status as
+					create view payment_metrics as
 						select 
 							property,
 							properties.sector,
 							properties.cell,
 							properties.village,
-							invoices.created_at,
-							invoices.updated_at,
+							date_trunc('month', invoices.created_at) as period,
 							count(*) filter (where status='pending') as pending,
-							count(*) filter (where status='payed') as payed
+							count(*) filter (where status='payed') as payed,
+							coalesce(sum(amount) filter(where status='pending') ,0) as pending_amount,
+							coalesce(sum(amount) filter(where status='payed') ,0) as payed_amount
 						from invoices
 							join properties on invoices.property=properties.id
 						group by 
 							property,
-							invoices.created_at,
-							invoices.updated_at,
+							period,
 							properties.sector, 
 							properties.cell, 
 							properties.village
@@ -292,38 +292,47 @@ func migrateDB(db *sql.DB) error {
 					`,
 
 					`
-					create materialized view sector_payment_ratio as
+					create materialized view sector_payment_metrics as
 						select 
-							sector, 
-							sum(pending) as pending, 
-							sum(payed) as payed 
-						from payment_status group by sector;
+							sector,
+							period,
+							sum(pending) as pending_count, 
+							sum(payed) as payed_count,
+							coalesce(sum(pending_amount),0) as pending_amount,
+							coalesce(sum(payed_amount),0) as payed_amount
+						from payment_metrics group by sector, period;
 
-					create unique index on  sector_payment_ratio(sector);
+					create unique index on  sector_payment_metrics(sector, period);
 					`,
 
 					`
-					create materialized view cell_payment_ratio as
+					create materialized view cell_payment_metrics as
 						select 
 							cell,
 							sector, 
-							sum(pending) as pending, 
-							sum(payed) as payed 
-						from payment_status group by cell, sector;
+							period,
+							sum(pending) as pending_count, 
+							sum(payed) as payed_count,
+							coalesce(sum(pending_amount),0) as pending_amount,
+							coalesce(sum(payed_amount),0) as payed_amount
+						from payment_metrics group by cell, sector, period;
 						
-					create unique index on  cell_payment_ratio(cell);
+					create unique index on  cell_payment_metrics(cell, period);
 					`,
 
 					`
-					create materialized view village_payment_ratio as
+					create materialized view village_payment_metrics as
 						select 
 							village,
 							cell,
-							sum(pending) as pending, 
-							sum(payed) as payed 
-						from payment_status group by village, cell;
+							period,
+							sum(pending) as pending_count, 
+							sum(payed) as payed_count,
+							coalesce(sum(pending_amount),0) as pending_amount,
+							coalesce(sum(payed_amount),0) as payed_amount
+						from payment_metrics group by village, cell, period;
 					
-					create unique index on  village_payment_ratio(village);
+					create unique index on  village_payment_metrics(village, period);
 					`,
 				},
 

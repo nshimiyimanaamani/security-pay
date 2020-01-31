@@ -8,16 +8,17 @@ import (
 	"github.com/rugwirobaker/paypack-backend/app/auth"
 	"github.com/rugwirobaker/paypack-backend/app/feedback"
 	"github.com/rugwirobaker/paypack-backend/app/invoices"
+	"github.com/rugwirobaker/paypack-backend/app/metrics"
 	"github.com/rugwirobaker/paypack-backend/app/nanoid"
 	"github.com/rugwirobaker/paypack-backend/app/owners"
 	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/app/properties"
-	"github.com/rugwirobaker/paypack-backend/app/metrics"
 	"github.com/rugwirobaker/paypack-backend/app/transactions"
 	"github.com/rugwirobaker/paypack-backend/app/users"
 	"github.com/rugwirobaker/paypack-backend/app/uuid"
+	"github.com/rugwirobaker/paypack-backend/pkg/encrypt"
 	"github.com/rugwirobaker/paypack-backend/pkg/passwords/bcrypt"
-	"github.com/rugwirobaker/paypack-backend/pkg/passwords/randgen"
+	"github.com/rugwirobaker/paypack-backend/pkg/passwords/rand"
 	"github.com/rugwirobaker/paypack-backend/pkg/tokens/jwt"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	rstore "github.com/rugwirobaker/paypack-backend/store/redis"
@@ -46,7 +47,7 @@ func Init(db *sql.DB, rclient *redis.Client, b payment.Backend, secret string) *
 		Payment:      bootPaymentService(db, rclient, b),
 		Properties:   bootPropertiesService(db),
 		Transactions: bootTransactionsService(db),
-		Users:        bootUserService(db),
+		Users:        bootUserService(db, secret),
 		Auth:         bootAuthService(db, secret),
 		Invoices:     bootInvoiceService(db),
 		Stats:        bootStatsService(db),
@@ -58,16 +59,18 @@ func bootAuthService(db *sql.DB, secret string) auth.Service {
 	hasher := bcrypt.New()
 	repo := postgres.NewAuthRepository(db)
 	jwt := jwt.New(secret)
-	opts := &auth.Options{Hasher: hasher, Repo: repo, JWT: jwt}
+	encrypter, _ := encrypt.New(secret)
+	opts := &auth.Options{Hasher: hasher, Repo: repo, JWT: jwt, Encrypter: encrypter}
 	return auth.New(opts)
 }
 
 // bootUserService configures the users service
-func bootUserService(db *sql.DB) users.Service {
+func bootUserService(db *sql.DB, secret string) users.Service {
 	hasher := bcrypt.New()
-	generator := randgen.New()
+	generator := rand.New()
 	repo := postgres.NewUserRepository(db)
-	opts := &users.Options{Repo: repo, Hasher: hasher, PGen: generator}
+	encrypter, _ := encrypt.New(secret)
+	opts := &users.Options{Repo: repo, Hasher: hasher, PGen: generator, Encrypter: encrypter}
 	return users.New(opts)
 }
 

@@ -38,11 +38,28 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		panic("absolutely unacceptable handler opts")
 	}
 
-	r.Handle(SectorRatioRoute, LogEntryHandler(SectorPayRatio, opts)).Methods(http.MethodGet)
-	r.Handle(CellRatioRoute, LogEntryHandler(CellPayRatio, opts)).Methods(http.MethodGet)
-	r.Handle(VillageRatioRoute, LogEntryHandler(VillagePayRatio, opts)).Methods(http.MethodGet)
+	//ratios
+	r.Handle(SectorRatioRoute, LogEntryHandler(SectorPayRatio, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(CellRatioRoute, LogEntryHandler(CellPayRatio, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(VillageRatioRoute, LogEntryHandler(VillagePayRatio, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(ListAllCellRatiosRoute, LogEntryHandler(ListAllCellRatios, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(ListAllSectorRatiosRoute, LogEntryHandler(ListAllSectorRatios, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
 
-	r.Handle(ListAllCellRatiosRoute, LogEntryHandler(ListAllCellRatios, opts)).Methods(http.MethodGet)
-	r.Handle(ListAllSectorRatiosRoute, LogEntryHandler(ListAllSectorRatios, opts)).Methods(http.MethodGet)
+	// balance
+	r.Handle(SectorBalanceRoute, LogEntryHandler(SectorBalance, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(CellBalanceRoute, LogEntryHandler(CellBalance, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(VillageBalanceRoute, LogEntryHandler(VillageBalance, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(ListAllSectorBalancesRoute, LogEntryHandler(ListAllSectorBalances, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
+	r.Handle(ListAllCellBalancesRoute, LogEntryHandler(ListAllCellBalances, opts)).Methods(http.MethodGet).
+		Queries("year", "{year}", "month", "{month}")
 
 }
