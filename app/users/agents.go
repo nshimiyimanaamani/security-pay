@@ -18,12 +18,12 @@ func (svc *service) RegisterAgent(ctx context.Context, user Agent) (Agent, error
 		return Agent{}, errors.E(op, err)
 	}
 
-	encrypted, err := svc.encrypter.Encrypt(plain)
-	if err != nil {
-		return Agent{}, errors.E(op, err)
-	}
+	// encrypted, err := svc.encrypter.Encrypt(plain)
+	// if err != nil {
+	// 	return Agent{}, errors.E(op, err)
+	// }
 
-	user.Password = string(encrypted)
+	user.Password = plain
 	user.Role = Min
 
 	user, err = svc.repo.SaveAgent(ctx, user)
@@ -40,10 +40,10 @@ func (svc *service) RetrieveAgent(ctx context.Context, id string) (Agent, error)
 	if err != nil {
 		return Agent{}, errors.E(op, err)
 	}
-	user.Password, err = svc.encrypter.Decrypt([]byte(user.Password))
-	if err != nil {
-		return Agent{}, errors.E(op, err)
-	}
+	// user.Password, err = svc.encrypter.Decrypt([]byte(user.Password))
+	// if err != nil {
+	// 	return Agent{}, errors.E(op, err)
+	// }
 	return user, nil
 }
 func (svc *service) ListAgents(ctx context.Context, offset, limit uint64) (AgentPage, error) {
@@ -63,11 +63,11 @@ func (svc *service) UpdateAgentCreds(ctx context.Context, user Agent) error {
 		return errors.E(op, "invalid user: missing password", errors.KindBadRequest)
 	}
 
-	b, err := svc.encrypter.Encrypt(user.Password)
-	if err != nil {
-		return errors.E(op, err)
-	}
-	user.Password = string(b)
+	// b, err := svc.encrypter.Encrypt(user.Password)
+	// if err != nil {
+	// 	return errors.E(op, err)
+	// }
+	// user.Password = string(b)
 
 	if err := svc.repo.UpdateAgentCreds(ctx, user); err != nil {
 		return errors.E(op, err)
