@@ -12,26 +12,35 @@ func (svc *service) RegisterAgent(ctx context.Context, user Agent) (Agent, error
 		return Agent{}, errors.E(op, err)
 	}
 
-	// pasword := svc.pgen.Generate(ctx)
+	plain, err := svc.pgen.Generate(ctx)
 
-	// password, err := svc.hasher.Hash(plain)
-	// if err != nil {
-	// 	return Agent{}, errors.E(op, err)
-	// }
-	user.Password = svc.pgen.Generate(ctx)
-
-	user.Role = Min
-
-	user, err := svc.repo.SaveAgent(ctx, user)
 	if err != nil {
 		return Agent{}, errors.E(op, err)
 	}
+
+	encrypted, err := svc.encrypter.Encrypt(plain)
+	if err != nil {
+		return Agent{}, errors.E(op, err)
+	}
+
+	user.Password = string(encrypted)
+	user.Role = Min
+
+	user, err = svc.repo.SaveAgent(ctx, user)
+	if err != nil {
+		return Agent{}, errors.E(op, err)
+	}
+	user.Password = plain
 	return user, nil
 }
 func (svc *service) RetrieveAgent(ctx context.Context, id string) (Agent, error) {
 	const op errors.Op = "app/users/service.RetrieveAgent"
 
 	user, err := svc.repo.RetrieveAgent(ctx, id)
+	if err != nil {
+		return Agent{}, errors.E(op, err)
+	}
+	user.Password, err = svc.encrypter.Decrypt([]byte(user.Password))
 	if err != nil {
 		return Agent{}, errors.E(op, err)
 	}
@@ -54,11 +63,11 @@ func (svc *service) UpdateAgentCreds(ctx context.Context, user Agent) error {
 		return errors.E(op, "invalid user: missing password", errors.KindBadRequest)
 	}
 
-	password, err := svc.hasher.Hash(user.Password)
+	b, err := svc.encrypter.Encrypt(user.Password)
 	if err != nil {
 		return errors.E(op, err)
 	}
-	user.Password = password
+	user.Password = string(b)
 
 	if err := svc.repo.UpdateAgentCreds(ctx, user); err != nil {
 		return errors.E(op, err)

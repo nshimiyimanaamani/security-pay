@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 
+	"github.com/rugwirobaker/paypack-backend/pkg/encrypt"
 	"github.com/rugwirobaker/paypack-backend/pkg/passwords"
 )
 
@@ -52,23 +53,26 @@ type Managers interface {
 }
 
 type service struct {
-	pgen   passwords.Generator
-	hasher passwords.Hasher
-	repo   Repository
+	pgen      passwords.Generator
+	hasher    passwords.Hasher
+	encrypter encrypt.Encrypter
+	repo      Repository
 }
 
 // Options ...
 type Options struct {
-	PGen   passwords.Generator
-	Hasher passwords.Hasher
-	Repo   Repository
+	PGen      passwords.Generator
+	Hasher    passwords.Hasher
+	Encrypter encrypt.Encrypter
+	Repo      Repository
 }
 
 // New creates an instance of users.Service
 func New(opts *Options) Service {
 	return &service{
-		hasher: opts.Hasher,
-		repo:   opts.Repo,
-		pgen:   opts.PGen,
+		hasher:    opts.Hasher,
+		encrypter: opts.Encrypter,
+		repo:      opts.Repo,
+		pgen:      opts.PGen,
 	}
 }

@@ -79,6 +79,7 @@ func (repo *userRepository) RetrieveManager(ctx context.Context, id string) (use
 			users.username, 
 			users.account, 
 			users.role, 
+			users.password,
 			users.created_at, 
 			users.updated_at,
 			managers.cell
@@ -91,7 +92,7 @@ func (repo *userRepository) RetrieveManager(ctx context.Context, id string) (use
 
 	var user = users.Manager{}
 
-	if err := repo.QueryRow(q, id).Scan(&user.Email, &user.Account, &user.Role, &user.CreatedAt, &user.UpdatedAt, &user.Cell); err != nil {
+	if err := repo.QueryRow(q, id).Scan(&user.Email, &user.Account, &user.Role, &user.Password, &user.CreatedAt, &user.UpdatedAt, &user.Cell); err != nil {
 		empty := users.Manager{}
 
 		pqErr, ok := err.(*pq.Error)

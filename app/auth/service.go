@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 
+	"github.com/rugwirobaker/paypack-backend/pkg/encrypt"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/passwords"
 	"github.com/rugwirobaker/paypack-backend/pkg/passwords/plain"
@@ -25,23 +26,26 @@ type Service interface {
 
 // Options minimises New function signature
 type Options struct {
-	Hasher passwords.Hasher
-	Repo   Repository
-	JWT    JWTProvider
+	Hasher    passwords.Hasher
+	Encrypter encrypt.Encrypter
+	Repo      Repository
+	JWT       JWTProvider
 }
 
 type service struct {
-	hasher passwords.Hasher
-	repo   Repository
-	jwt    JWTProvider
+	hasher    passwords.Hasher
+	encrypter encrypt.Encrypter
+	repo      Repository
+	jwt       JWTProvider
 }
 
 // New creates a new auth.Service instance
 func New(opts *Options) Service {
 	return &service{
-		hasher: opts.Hasher,
-		repo:   opts.Repo,
-		jwt:    opts.JWT,
+		encrypter: opts.Encrypter,
+		hasher:    opts.Hasher,
+		repo:      opts.Repo,
+		jwt:       opts.JWT,
 	}
 }
 
@@ -78,10 +82,18 @@ func (svc *service) Identify(ctx context.Context, token string) (Credentials, er
 
 func (svc *service) comparePass(creds, user Credentials) error {
 	switch creds.Role {
-	case Dev, Admin, Basic:
+	case Dev, Admin:
 		return svc.hasher.Compare(user.Password, creds.Password)
-	case Min:
-		return plain.Compare(user.Password, creds.Password)
+	case Min, Basic:
+		pass, err := svc.decrypt(creds.Password)
+		if err != nil {
+			return err
+		}
+		return plain.Compare(user.Password, pass)
 	}
 	return nil
+}
+
+func (svc *service) decrypt(password string) (string, error) {
+	return svc.encrypter.Decrypt([]byte(password))
 }
