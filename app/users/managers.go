@@ -20,11 +20,11 @@ func (svc *service) RegisterManager(ctx context.Context, user Manager) (Manager,
 		return Manager{}, errors.E(op, err)
 	}
 
-	encrypted, err := svc.encrypter.Encrypt(plain)
-	if err != nil {
-		return Manager{}, errors.E(op, err)
-	}
-	user.Password = string(encrypted)
+	// encrypted, err := svc.encrypter.Encrypt(plain)
+	// if err != nil {
+	// 	return Manager{}, errors.E(op, err)
+	// }
+	user.Password = plain
 
 	user, err = svc.repo.SaveManager(ctx, user)
 	if err != nil {
