@@ -18,7 +18,10 @@ import axios from 'axios'
 import VueAxios from 'vue-axios';
 import titleComponent from './components/title.vue';
 import VueSimpleContextMenu from 'vue-simple-context-menu'
+import VueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/default.css'
 
+Vue.component('VueSlider', VueSlider)
 Vue.component('vue-title', titleComponent);
 Vue.component('vue-simple-context-menu', VueSimpleContextMenu);
 

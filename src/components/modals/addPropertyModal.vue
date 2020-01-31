@@ -43,19 +43,28 @@
         </b-form-group>
         <b-form-group
           id="input-group-4"
-          :label="'Due: '+ form.due +' Rwf'"
+          :label="'Due: '+ Number(form.due).toLocaleString() +' Rwf'"
           label-for="range-1"
           v-show="state.switch"
-          class="mb-2"
+          class="mb-4"
         >
-          <b-form-input
-            id="range-1"
-            v-model="form.due"
-            type="range"
-            min="500"
-            max="10000"
-            step="500"
-          ></b-form-input>
+          <div>
+            <vue-slider
+              v-model="form.due"
+              :marks="slider.marks"
+              :interval="500"
+              :process="true"
+              :tooltip="'none'"
+              :min="500"
+              :max="50000"
+            >
+              <template v-slot:label="{ active, value }">
+                <div
+                  :class="['vue-slider-mark-label', 'custom-label', { active }]"
+                >{{ value/1000 }}K</div>
+              </template>
+            </vue-slider>
+          </div>
         </b-form-group>
         <b-form-group label="Inzu ituwemo?" v-if="state.switch">
           <b-form-radio-group
@@ -125,6 +134,9 @@ export default {
         id: null,
         due: "500",
         occupied: null
+      },
+      slider: {
+        marks: val => val % 10000 === 0
       },
       address: {
         sector: null,

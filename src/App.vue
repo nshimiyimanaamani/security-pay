@@ -92,4 +92,34 @@ p {
 .vue-simple-context-menu {
   position: fixed !important;
 }
+.vue-slider-rail {
+  background-color: #ccc;
+  border-radius: 15px;
+}
+.vue-slider-process {
+  background: #3a82a1 !important;
+  border-radius: 15px;
+}
+.vue-slider-dot-handle {
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #fff;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-box-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0.32);
+  box-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0.32);
+}
+.vue-slider-mark-step {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.16);
+}
+.vue-slider-mark-label {
+  font-size: 12px;
+  white-space: nowrap;
+  margin-top: 6px !important;
+}
 </style>
