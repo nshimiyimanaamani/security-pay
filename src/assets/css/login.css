@@ -17,7 +17,7 @@
   width: fit-content;
 }
 
-@media (max-width: 370px) {
+@media (max-width: 389px) {
   .loginTitle .slogan {
     text-align: center;
     width: fit-content;

@@ -58,18 +58,26 @@
         <b-form-group
           id="input-group-4"
           :label="'Due: '+Number(form.due).toLocaleString()+' Rwf' "
-          class="m-0"
+          class="m-2"
           label-for="input-4"
         >
-          <b-form-input
-            id="input-4"
-            v-model="form.due"
-            type="range"
-            min="500"
-            max="10000"
-            step="500"
-            size="sm"
-          ></b-form-input>
+          <div>
+            <vue-slider
+              v-model="form.due"
+              :marks="slider.marks"
+              :interval="500"
+              :process="true"
+              :tooltip="'none'"
+              :min="500"
+              :max="50000"
+            >
+              <template v-slot:label="{ active, value }">
+                <div
+                  :class="['vue-slider-mark-label', 'custom-label', { active }]"
+                >{{ value/1000 }}K</div>
+              </template>
+            </vue-slider>
+          </div>
         </b-form-group>
         <b-form-group id="input-group-8" class="float-right m-0 mt-3">
           <b-button
@@ -106,6 +114,9 @@ export default {
         phone: null,
         due: "500",
         occupied: null
+      },
+      slider: {
+        marks: val => val % 10000 === 0
       },
       state: {
         loading: false
@@ -255,9 +266,6 @@ form {
     label,
     button {
       font-size: 15px;
-    }
-    .custom-range {
-      border: none !important;
     }
   }
 }

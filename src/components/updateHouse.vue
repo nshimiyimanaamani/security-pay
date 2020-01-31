@@ -39,30 +39,42 @@
       </b-form-group>
       <b-form-group
         id="input-group-4"
-        :label="'Due: '+ house.due +' Rwf'"
+        :label="'Due: '+ Number(house.due).toLocaleString() +' Rwf'"
         label-for="range-1"
-        class="mb-2"
+        class="mb-4"
       >
-        <b-form-input
-          id="range-1"
-          v-model="house.due"
-          type="range"
-          min="500"
-          max="10000"
-          step="500"
-          size="sm"
-          class="border-0"
-        ></b-form-input>
+        <div>
+          <vue-slider
+            v-model="house.due"
+            :marks="slider.marks"
+            :interval="500"
+            :process="true"
+            :tooltip="'none'"
+            :min="500"
+            :max="50000"
+          >
+            <template v-slot:label="{ active, value }">
+              <div :class="['vue-slider-mark-label', 'custom-label', { active }]">{{ value/1000 }}K</div>
+            </template>
+          </vue-slider>
+        </div>
       </b-form-group>
 
       <b-form-group
         id="input-group-5"
         :label="'Cell: '+house.address.cell.toUpperCase()"
+        label-class="font-15"
         label-for="select-5"
       >
-        <b-form-select id="select-5" :options="cellOptions" v-model="newAddress.cell" size="sm">
+        <b-form-select
+          id="select-5"
+          class="font-15"
+          :options="cellOptions"
+          v-model="newAddress.cell"
+          size="sm"
+        >
           <template v-slot:first>
-            <option :value="null" disabled>--> Select Sector First</option>
+            <option :value="null" disabled>select new cell</option>
           </template>
         </b-form-select>
       </b-form-group>
@@ -71,15 +83,17 @@
         id="input-group-7"
         :label="'village: '+house.address.village.toUpperCase()"
         label-for="input-7"
+        label-class="font-15"
       >
         <b-form-select
           id="input-7"
           v-model="newAddress.village"
           :options="villageOptions"
           size="sm"
+          class="font-15"
         >
           <template v-slot:first>
-            <option :value="null" disabled>--> Select Cell First</option>
+            <option :value="null" disabled>select new village</option>
           </template>
         </b-form-select>
       </b-form-group>
@@ -109,6 +123,9 @@ export default {
         sector: null,
         cell: null,
         village: null
+      },
+      slider: {
+        marks: val => val % 10000 === 0
       },
       query: [
         { text: "yego", value: "true" },
