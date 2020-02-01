@@ -618,14 +618,14 @@ hr {
   margin: 0 2px 0;
 }
 
-.dropdown-menu > button {
+.filter-dropdown .dropdown-menu > button {
   font-size: 13px !important;
   padding: 5px 20px !important;
   margin: 0 10px 0 0;
   width: fit-content;
 }
 
-.dropdown-menu form {
+.filter-dropdown .dropdown-menu form {
   outline: none !important;
   display: flex !important;
   width: 400px !important;

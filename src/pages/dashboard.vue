@@ -17,14 +17,14 @@
       </b-col>
       <b-col xl="6" lg="6" md="6" sm="12" class="column position-relative">
         <b-card-body class="chart-2">
-          <b-card-header>
-            <i class="fa fa-th-large"></i>
-            <h1 class>{{activeSector}} TOTAL COLLECTED</h1>
+          <b-card-header class="align-items-center p-2 px-3">
             <i
               class="fa fa-refresh cursor-pointer"
               @click="loadData2"
               :class="{'fa-spin':chart2.state.loading}"
-            ></i>
+            />
+            <h1 class>{{activeSector}} TOTAL COLLECTED</h1>
+            <selector :object="chart2.config" v-on:ok="loadData2" />
           </b-card-header>
           <div class="chart position-relative" style="height: 85%">
             <div v-if="!chart2.state.loading" class="h-100">
@@ -51,7 +51,9 @@
               no-body
               class="position-absolute bg-transparent border-0 chartLoader align-items-center text-uppercase"
               v-if="chart2.state.error"
-            >{{chart2.state.errorMessage}}</b-card>
+            >
+              <p>{{chart2.state.errorMessage}}</p>
+            </b-card>
           </div>
         </b-card-body>
       </b-col>
@@ -59,14 +61,14 @@
     <b-row align-v="end" class="m-auto p-0" style="width: 100%;height: 50%">
       <b-col xl="12" lg="12" md="12" sm="12" class="column">
         <b-card-body class="chart-3">
-          <b-card-header>
-            <i class="fa fa-th-large"></i>
-            <h1 class>{{activeSector}} SECTOR</h1>
+          <b-card-header class="align-items-center p-2 px-3">
             <i
               class="fa fa-refresh cursor-pointer"
               @click="loadData3"
               :class="{'fa-spin':chart3.state.loading}"
-            ></i>
+            />
+            <h1 class>{{activeSector}} SECTOR</h1>
+            <selector :object="chart3.config" v-on:ok="loadData3" />
           </b-card-header>
           <div style="height:85%">
             <div v-if="!chart3.state.loading" class="h-100">
@@ -89,8 +91,10 @@
             <b-card
               no-body
               class="position-absolute bg-transparent border-0 chartLoader align-items-center text-uppercase"
-              v-if="chart2.state.error"
-            >{{chart2.state.errorMessage}}</b-card>
+              v-if="chart3.state.error"
+            >
+              <p>{{chart3.state.errorMessage}}</p>
+            </b-card>
           </div>
         </b-card-body>
       </b-col>
@@ -102,13 +106,15 @@ import BarChart from "../components/BarChart.vue";
 import DoughnutChart from "../components/DaughnutChart.vue";
 import LineChart from "../components/MixedCharts.vue";
 import loader from "../components/loader";
+import yearSelectorVue from "../components/yearSelector.vue";
 export default {
   name: "dashboard",
   components: {
     BarChart,
     DoughnutChart,
     LineChart,
-    loader
+    loader,
+    selector: yearSelectorVue
   },
   data() {
     return {
@@ -119,6 +125,11 @@ export default {
           loading: true,
           error: false,
           errorMessage: null
+        },
+        config: {
+          configuring: false,
+          year: new Date().getFullYear(),
+          month: new Date().getMonth() + 1
         }
       },
       chart3: {
@@ -127,6 +138,11 @@ export default {
           loading: true,
           error: false,
           errorMessage: null
+        },
+        config: {
+          configuring: false,
+          year: new Date().getFullYear(),
+          month: new Date().getMonth() + 1
         }
       },
       chart1Data: null,
@@ -287,10 +303,12 @@ export default {
       this.chart2.state.loading = true;
       this.chart2.state.error = false;
       this.chart2.state.errorMessage = null;
+      const year = this.chart2.config.year;
+      const month = this.chart2.config.month;
       this.axios
         .get(
           this.endpoint +
-            `/metrics/ratios/sectors/${this.activeSector}?year=${this.currentYear}&month=${this.currentMonth}`
+            `/metrics/ratios/sectors/${this.activeSector}?year=${year}&month=${month}`
         )
         .then(res => {
           const data = res.data.data;
@@ -321,10 +339,12 @@ export default {
       this.chart3.state.loading = true;
       this.chart3.state.error = false;
       this.chart3.state.errorMessage = null;
+      const year = this.chart3.config.year;
+      const month = this.chart3.config.month;
       this.axios
         .get(
           this.endpoint +
-            `/metrics/ratios/sectors/all/${this.activeSector}?year=${this.currentYear}&month=${this.currentMonth}`
+            `/metrics/ratios/sectors/all/${this.activeSector}?year=${year}&month=${month}`
         )
         .then(res => {
           const data = res.data;
@@ -351,6 +371,9 @@ export default {
                 }
               ]
             };
+          } else {
+            this.chart3.state.error = true;
+            this.chart3.state.errorMessage = "NO DATA FOUND FOR THIS SECTOR";
           }
         })
         .catch(err => {
