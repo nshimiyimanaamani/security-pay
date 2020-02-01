@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/go-redis/redis/v7"
-	"github.com/rugwirobaker/paypack-backend/app/payment"
+	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/pkg/encoding"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )

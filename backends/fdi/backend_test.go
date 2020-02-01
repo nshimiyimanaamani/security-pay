@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rugwirobaker/paypack-backend/app/payment"
-	"github.com/rugwirobaker/paypack-backend/app/uuid"
+	"github.com/rugwirobaker/paypack-backend/core/payment"
+	"github.com/rugwirobaker/paypack-backend/core/uuid"
 	"github.com/rugwirobaker/paypack-backend/backends/fdi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

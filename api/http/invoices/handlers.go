@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/app/invoices"
+	"github.com/rugwirobaker/paypack-backend/core/invoices"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )

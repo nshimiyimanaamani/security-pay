@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/rugwirobaker/paypack-backend/app/invoices"
+	"github.com/rugwirobaker/paypack-backend/core/invoices"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 

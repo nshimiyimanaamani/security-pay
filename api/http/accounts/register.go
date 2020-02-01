@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/app/accounts"
+	"github.com/rugwirobaker/paypack-backend/core/accounts"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 

@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/invoices"
-	"github.com/rugwirobaker/paypack-backend/app/invoices"
-	"github.com/rugwirobaker/paypack-backend/app/invoices/mocks"
+	"github.com/rugwirobaker/paypack-backend/core/invoices"
+	"github.com/rugwirobaker/paypack-backend/core/invoices/mocks"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 

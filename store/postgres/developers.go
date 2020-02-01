@@ -5,7 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/lib/pq"
-	"github.com/rugwirobaker/paypack-backend/app/users"
+	"github.com/rugwirobaker/paypack-backend/core/users"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 

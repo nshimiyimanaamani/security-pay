@@ -14,8 +14,8 @@ import (
 
 	"github.com/gorilla/mux"
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/owners"
-	"github.com/rugwirobaker/paypack-backend/app/owners"
-	"github.com/rugwirobaker/paypack-backend/app/owners/mocks"
+	"github.com/rugwirobaker/paypack-backend/core/owners"
+	"github.com/rugwirobaker/paypack-backend/core/owners/mocks"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

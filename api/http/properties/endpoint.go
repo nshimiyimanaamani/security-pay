@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/app/properties"
+	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
@@ -27,7 +27,7 @@ func RegisterProperty(lgger log.Entry, svc properties.Service) http.Handler {
 			return
 		}
 
-		res, err := svc.RegisterProperty(r.Context(), property)
+		res, err := svc.Register(r.Context(), property)
 		if err != nil {
 			err = errors.E(op, err)
 			lgger.SystemErr(err)
@@ -67,7 +67,7 @@ func UpdateProperty(lgger log.Entry, svc properties.Service) http.Handler {
 		vars := mux.Vars(r)
 		property.ID = vars["id"]
 
-		if err := svc.UpdateProperty(r.Context(), property); err != nil {
+		if err := svc.Update(r.Context(), property); err != nil {
 			err = errors.E(op, err)
 			lgger.SystemErr(err)
 			encodeErr(w, err)
@@ -97,7 +97,7 @@ func RetrieveProperty(lgger log.Entry, svc properties.Service) http.Handler {
 
 		id := vars["id"]
 
-		res, err := svc.RetrieveProperty(r.Context(), id)
+		res, err := svc.Retrieve(r.Context(), id)
 		if err != nil {
 			err = errors.E(op, err)
 			lgger.SystemErr(err)
@@ -141,7 +141,7 @@ func ListPropertiesByOwner(lgger log.Entry, svc properties.Service) http.Handler
 
 		owner := vars["owner"]
 
-		res, err := svc.ListPropertiesByOwner(ctx, owner, offset, limit)
+		res, err := svc.ListByOwner(ctx, owner, offset, limit)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)
@@ -184,7 +184,7 @@ func ListPropertiesBySector(lgger log.Entry, svc properties.Service) http.Handle
 			return
 		}
 
-		res, err := svc.ListPropertiesBySector(ctx, vars["sector"], offset, limit)
+		res, err := svc.ListBySector(ctx, vars["sector"], offset, limit)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)
@@ -228,7 +228,7 @@ func ListPropertiesByCell(lgger log.Entry, svc properties.Service) http.Handler 
 			return
 		}
 
-		res, err := svc.ListPropertiesByCell(ctx, vars["cell"], offset, limit)
+		res, err := svc.ListByCell(ctx, vars["cell"], offset, limit)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)
@@ -271,7 +271,7 @@ func ListPropertiesByVillage(lgger log.Entry, svc properties.Service) http.Handl
 			return
 		}
 
-		res, err := svc.ListPropertiesByVillage(ctx, vars["village"], offset, limit)
+		res, err := svc.ListByVillage(ctx, vars["village"], offset, limit)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)
@@ -314,7 +314,7 @@ func ListPropertiesByRecorder(lgger log.Entry, svc properties.Service) http.Hand
 			return
 		}
 
-		res, err := svc.ListPropertiesByRecorder(ctx, vars["user"], offset, limit)
+		res, err := svc.ListByRecorder(ctx, vars["user"], offset, limit)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)

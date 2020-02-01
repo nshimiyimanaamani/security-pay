@@ -15,9 +15,9 @@ import (
 
 	"github.com/gorilla/mux"
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
-	"github.com/rugwirobaker/paypack-backend/app/identity/uuid"
-	"github.com/rugwirobaker/paypack-backend/app/properties"
-	"github.com/rugwirobaker/paypack-backend/app/properties/mocks"
+	"github.com/rugwirobaker/paypack-backend/core/identity/uuid"
+	"github.com/rugwirobaker/paypack-backend/core/properties"
+	"github.com/rugwirobaker/paypack-backend/core/properties/mocks"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -199,7 +199,7 @@ func TestUpdateProperty(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	saved, err := svc.RegisterProperty(ctx, property)
+	saved, err := svc.Register(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	res := Property{
@@ -320,7 +320,7 @@ func TestRetrieveProperty(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	saved, err := svc.RegisterProperty(ctx, property)
+	saved, err := svc.Register(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	res := Property{
@@ -410,7 +410,7 @@ func TestListPropertiesByOwner(t *testing.T) {
 
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
-		saved, err := svc.RegisterProperty(ctx, property)
+		saved, err := svc.Register(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		res := Property{
@@ -503,7 +503,7 @@ func TestListPropertiesByCell(t *testing.T) {
 
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
-		saved, err := svc.RegisterProperty(ctx, property)
+		saved, err := svc.Register(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		res := Property{
@@ -595,7 +595,7 @@ func TestListPropertiesBySector(t *testing.T) {
 
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
-		saved, err := svc.RegisterProperty(ctx, property)
+		saved, err := svc.Register(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		res := Property{
@@ -688,7 +688,7 @@ func TestListPropertiesByVillage(t *testing.T) {
 
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
-		saved, err := svc.RegisterProperty(ctx, property)
+		saved, err := svc.Register(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		res := Property{
@@ -777,7 +777,7 @@ func TestListPropertiesByRecorder(t *testing.T) {
 
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
-		saved, err := svc.RegisterProperty(ctx, property)
+		saved, err := svc.Register(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		res := Property{

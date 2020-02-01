@@ -16,8 +16,8 @@ package users_test
 
 // 	"github.com/gorilla/mux"
 // 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/users"
-// 	"github.com/rugwirobaker/paypack-backend/app/users"
-// 	"github.com/rugwirobaker/paypack-backend/app/users/mocks"
+// 	"github.com/rugwirobaker/paypack-backend/core/users"
+// 	"github.com/rugwirobaker/paypack-backend/core/users/mocks"
 // 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 // 	"github.com/stretchr/testify/assert"
 // )

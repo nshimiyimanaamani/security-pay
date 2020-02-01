@@ -8,7 +8,7 @@ package nova
 // 	"os"
 // 	"time"
 
-// 	"github.com/rugwirobaker/paypack-backend/app/payment"
+// 	"github.com/rugwirobaker/paypack-backend/core/payment"
 // )
 
 // // Timeout sets the default client timeout

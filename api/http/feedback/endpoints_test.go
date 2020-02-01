@@ -14,8 +14,8 @@ import (
 
 	"github.com/gorilla/mux"
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/feedback"
-	"github.com/rugwirobaker/paypack-backend/app/feedback"
-	"github.com/rugwirobaker/paypack-backend/app/feedback/mocks"
+	"github.com/rugwirobaker/paypack-backend/core/feedback"
+	"github.com/rugwirobaker/paypack-backend/core/feedback/mocks"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

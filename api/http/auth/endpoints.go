@@ -3,7 +3,7 @@ package auth
 import (
 	"net/http"
 
-	"github.com/rugwirobaker/paypack-backend/app/auth"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )

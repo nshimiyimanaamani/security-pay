@@ -8,7 +8,7 @@ package nova_test
 // 	"testing"
 // 	"time"
 
-// 	"github.com/rugwirobaker/paypack-backend/app/payment"
+// 	"github.com/rugwirobaker/paypack-backend/core/payment"
 // 	"github.com/rugwirobaker/paypack-backend/nova"
 // 	"github.com/stretchr/testify/assert"
 // 	"github.com/stretchr/testify/require"

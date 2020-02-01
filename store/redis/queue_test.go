@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rugwirobaker/paypack-backend/app/identity/uuid"
-	"github.com/rugwirobaker/paypack-backend/app/payment"
+	"github.com/rugwirobaker/paypack-backend/core/identity/uuid"
+	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/store/redis"
 	"github.com/stretchr/testify/assert"

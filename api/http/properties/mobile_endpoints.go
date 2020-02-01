@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/app/properties"
+	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
@@ -45,7 +45,7 @@ func MRetrieveProperty(lgger log.Entry, svc properties.Service) http.Handler {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		property, err := svc.RetrieveProperty(ctx, id)
+		property, err := svc.Retrieve(ctx, id)
 		if err != nil {
 			lgger.SystemErr(err)
 			encodeErr(w, err)
@@ -99,7 +99,7 @@ func MListPropertyByOwner(lgger log.Entry, svc properties.Service) http.Handler 
 
 		owner := vars["owner"]
 
-		page, err := svc.ListPropertiesByOwner(ctx, owner, offset, limit)
+		page, err := svc.ListByOwner(ctx, owner, offset, limit)
 		if err != nil {
 			lgger.SystemErr(err)
 			encodeErr(w, err)
@@ -162,7 +162,7 @@ func MListPropertyBySector(lgger log.Entry, svc properties.Service) http.Handler
 			return
 		}
 
-		page, err := svc.ListPropertiesBySector(ctx, vars["sector"], offset, limit)
+		page, err := svc.ListBySector(ctx, vars["sector"], offset, limit)
 
 		if err != nil {
 			lgger.SystemErr(err)
@@ -225,7 +225,7 @@ func MListPropertyByCell(lgger log.Entry, svc properties.Service) http.Handler {
 			return
 		}
 
-		page, err := svc.ListPropertiesByCell(ctx, vars["cell"], offset, limit)
+		page, err := svc.ListByCell(ctx, vars["cell"], offset, limit)
 		if err != nil {
 			lgger.SystemErr(err)
 			encodeErr(w, err)
@@ -288,7 +288,7 @@ func MListPropertyByVillage(lgger log.Entry, svc properties.Service) http.Handle
 			return
 		}
 
-		page, err := svc.ListPropertiesByVillage(ctx, vars["village"], offset, limit)
+		page, err := svc.ListByVillage(ctx, vars["village"], offset, limit)
 		if err != nil {
 			lgger.SystemErr(err)
 			encodeErr(w, err)

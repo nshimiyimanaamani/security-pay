@@ -3,7 +3,7 @@ package payment
 import (
 	"net/http"
 
-	"github.com/rugwirobaker/paypack-backend/app/payment"
+	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )

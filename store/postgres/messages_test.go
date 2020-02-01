@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rugwirobaker/paypack-backend/app/feedback"
-	"github.com/rugwirobaker/paypack-backend/app/properties"
-	"github.com/rugwirobaker/paypack-backend/app/uuid"
+	"github.com/rugwirobaker/paypack-backend/core/feedback"
+	"github.com/rugwirobaker/paypack-backend/core/properties"
+	"github.com/rugwirobaker/paypack-backend/core/uuid"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rugwirobaker/paypack-backend/app/owners"
+	"github.com/rugwirobaker/paypack-backend/core/owners"
 )
 
 var (

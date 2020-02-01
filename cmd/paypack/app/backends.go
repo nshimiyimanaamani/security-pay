@@ -3,8 +3,8 @@ package app
 import (
 	"context"
 
-	"github.com/rugwirobaker/paypack-backend/app/payment"
 	"github.com/rugwirobaker/paypack-backend/backends/fdi"
+	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/pkg/config"
 )
 

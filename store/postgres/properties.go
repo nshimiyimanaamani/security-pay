@@ -6,7 +6,7 @@ import (
 
 	//"github.com/lib/pq"
 	"github.com/lib/pq"
-	"github.com/rugwirobaker/paypack-backend/app/properties"
+	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 

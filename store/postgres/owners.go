@@ -5,7 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/lib/pq"
-	"github.com/rugwirobaker/paypack-backend/app/owners"
+	"github.com/rugwirobaker/paypack-backend/core/owners"
 )
 
 //OwnerStore store is a postgres implementation of the owners.OwnerStore

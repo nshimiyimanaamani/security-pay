@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/app/auth"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 

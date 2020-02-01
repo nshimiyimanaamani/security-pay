@@ -8,7 +8,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/app/feedback"
+	"github.com/rugwirobaker/paypack-backend/core/feedback"
 )
 
 // ProtocolHandler adapts the feedback service into an http.handler
