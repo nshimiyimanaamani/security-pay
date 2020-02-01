@@ -8,8 +8,11 @@ type Repository interface {
 	// if the operation is successful or otherwise an error.
 	Save(ctx context.Context, p Property) (Property, error)
 
-	// UpdateProperty udpates the given property entity's mutable fields.
-	UpdateProperty(ctx context.Context, p Property) error
+	// Update the given property entity's mutable fields.
+	Update(ctx context.Context, p Property) error
+
+	//Delete removes a single entity fron the underlying store.
+	Delete(ctx context.Context, uid string) error
 
 	// RetrieveByID retrieves a property entity  given it's unique id.
 	RetrieveByID(ctx context.Context, uid string) (Property, error)

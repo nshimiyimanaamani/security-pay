@@ -56,8 +56,8 @@ func (repo *propertiesStore) Save(ctx context.Context, pro properties.Property) 
 	return pro, nil
 }
 
-func (repo *propertiesStore) UpdateProperty(ctx context.Context, pro properties.Property) error {
-	const op errors.Op = "store/postgres/propertiesStore.UpdateProperty"
+func (repo *propertiesStore) Update(ctx context.Context, pro properties.Property) error {
+	const op errors.Op = "store/postgres/propertiesStore.Update"
 
 	q := `UPDATE properties SET owner=$1, due=$2, sector=$3, cell=$4, village=$5, occupied=$6, for_rent=$7 WHERE id=$8;`
 
@@ -79,6 +79,25 @@ func (repo *propertiesStore) UpdateProperty(ctx context.Context, pro properties.
 	cnt, err := res.RowsAffected()
 	if err != nil {
 		return err
+	}
+	if cnt == 0 {
+		return errors.E(op, "property not found", errors.KindNotFound)
+	}
+	return nil
+}
+
+func (repo *propertiesStore) Delete(ctx context.Context, uid string) error {
+	const op errors.Op = "store/postgres/propertiesStore.Delete"
+
+	q := `DELETE FROM properties WHERE id=$1`
+
+	res, err := repo.ExecContext(ctx, q, uid)
+	if err != nil {
+		return errors.E(op, err, errors.KindUnexpected)
+	}
+	cnt, err := res.RowsAffected()
+	if err != nil {
+		return errors.E(op, err, errors.KindUnexpected)
 	}
 	if cnt == 0 {
 		return errors.E(op, "property not found", errors.KindNotFound)

@@ -80,7 +80,7 @@ func toJSON(data interface{}) string {
 	return string(jsonData)
 }
 
-func TestRegisterProperty(t *testing.T) {
+func TestRegister(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 	ts := newServer(svc)
@@ -178,7 +178,7 @@ func TestRegisterProperty(t *testing.T) {
 	}
 }
 
-func TestUpdateProperty(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
@@ -295,7 +295,7 @@ func TestUpdateProperty(t *testing.T) {
 	}
 }
 
-func TestRetrieveProperty(t *testing.T) {
+func TestRetrieve(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
@@ -387,7 +387,84 @@ func TestRetrieveProperty(t *testing.T) {
 	}
 }
 
-func TestListPropertiesByOwner(t *testing.T) {
+func TestDelete(t *testing.T) {
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
+
+	ts := newServer(svc)
+	defer ts.Close()
+	client := ts.Client()
+
+	now := time.Now()
+
+	property := properties.Property{
+		Owner: owner,
+		Address: properties.Address{
+			Sector:  "Remera",
+			Cell:    "Gishushu",
+			Village: "Ingabo",
+		},
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
+		Occupied:   true,
+		CreatedAt:  now,
+		UpdatedAt:  now,
+	}
+
+	ctx := context.Background()
+	saved, err := svc.Register(ctx, property)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+	cases := []struct {
+		desc        string
+		id          string
+		token       string
+		contentType string
+		status      int
+		res         string
+	}{
+		{
+			desc: "delete existing property",
+			id:   saved.ID,
+
+			status: http.StatusOK,
+			res:    toJSON(map[string]string{"message": "property deleted"}),
+		},
+		{
+			desc: "delete non-existent property",
+			id:   strconv.FormatUint(wrongID, 10),
+
+			status: http.StatusNotFound,
+			res:    toJSON(map[string]string{"error": "property not found"}),
+		},
+		{
+			desc: "delete property by passing invalid id",
+			id:   "invalid",
+
+			status: http.StatusNotFound,
+			res:    toJSON(map[string]string{"error": "property not found"}),
+		},
+	}
+
+	for _, tc := range cases {
+		req := testRequest{
+			client: client,
+			method: http.MethodDelete,
+			token:  tc.token,
+			url:    fmt.Sprintf("%s/properties/%s", ts.URL, tc.id),
+		}
+
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		body, err := ioutil.ReadAll(res.Body)
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		data := strings.Trim(string(body), "\n")
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.Equal(t, tc.res, data, fmt.Sprintf("%s: expected body %s got %s", tc.desc, tc.res, data))
+	}
+}
+
+func TestListByOwner(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
@@ -478,7 +555,7 @@ func TestListPropertiesByOwner(t *testing.T) {
 	}
 }
 
-func TestListPropertiesByCell(t *testing.T) {
+func TestListByCell(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
@@ -570,7 +647,7 @@ func TestListPropertiesByCell(t *testing.T) {
 	}
 }
 
-func TestListPropertiesBySector(t *testing.T) {
+func TestListBySector(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
@@ -662,7 +739,7 @@ func TestListPropertiesBySector(t *testing.T) {
 	}
 }
 
-func TestListPropertiesByVillage(t *testing.T) {
+func TestListByVillage(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 
 	svc := newService(makeOwners(owner))
@@ -751,7 +828,7 @@ func TestListPropertiesByVillage(t *testing.T) {
 	}
 }
 
-func TestListPropertiesByRecorder(t *testing.T) {
+func TestListByRecorder(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 
 	svc := newService(makeOwners(owner))

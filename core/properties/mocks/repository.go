@@ -50,7 +50,7 @@ func (str *repository) Save(ctx context.Context, property properties.Property) (
 	return property, nil
 }
 
-func (str *repository) UpdateProperty(ctx context.Context, property properties.Property) error {
+func (str *repository) Update(ctx context.Context, property properties.Property) error {
 	const op errors.Op = "app/properties/mocks/repository.UpdateProperty"
 
 	str.mu.Lock()
@@ -61,6 +61,20 @@ func (str *repository) UpdateProperty(ctx context.Context, property properties.P
 	}
 
 	str.properties[property.ID] = property
+
+	return nil
+}
+
+func (str *repository) Delete(ctx context.Context, uid string) error {
+	const op errors.Op = "app/properties/mocks/repository.UpdateProperty"
+
+	str.mu.Lock()
+	defer str.mu.Unlock()
+
+	if _, ok := str.properties[uid]; !ok {
+		return errors.E(op, "property not found", errors.KindNotFound)
+	}
+	delete(str.properties, uid)
 
 	return nil
 }

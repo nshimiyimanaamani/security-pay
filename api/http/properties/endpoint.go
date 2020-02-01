@@ -11,8 +11,8 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
-// RegisterProperty handles property registration
-func RegisterProperty(lgger log.Entry, svc properties.Service) http.Handler {
+// Register handles property registration
+func Register(lgger log.Entry, svc properties.Service) http.Handler {
 	const op errors.Op = "api/http/properties/RegisterProperty"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
@@ -48,8 +48,8 @@ func RegisterProperty(lgger log.Entry, svc properties.Service) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-// UpdateProperty handles property update
-func UpdateProperty(lgger log.Entry, svc properties.Service) http.Handler {
+// Update handles property update
+func Update(lgger log.Entry, svc properties.Service) http.Handler {
 	const op errors.Op = "api/http/properties/UpdateProperty"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
@@ -87,8 +87,8 @@ func UpdateProperty(lgger log.Entry, svc properties.Service) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-// RetrieveProperty handles property retrieval
-func RetrieveProperty(lgger log.Entry, svc properties.Service) http.Handler {
+// Retrieve handles property retrieval
+func Retrieve(lgger log.Entry, svc properties.Service) http.Handler {
 	const op errors.Op = "api/http/properties/RetrieveProperty"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
@@ -116,8 +116,30 @@ func RetrieveProperty(lgger log.Entry, svc properties.Service) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-// ListPropertiesByOwner handles property list by owner
-func ListPropertiesByOwner(lgger log.Entry, svc properties.Service) http.Handler {
+// Delete handles property retrieval
+func Delete(lgger log.Entry, svc properties.Service) http.Handler {
+	const op errors.Op = "api/http/properties/RetrieveProperty"
+
+	f := func(w http.ResponseWriter, r *http.Request) {
+
+		vars := mux.Vars(r)
+
+		id := vars["id"]
+
+		err := svc.Delete(r.Context(), id)
+		if err != nil {
+			err = errors.E(op, err)
+			lgger.SystemErr(err)
+			encodeErr(w, err)
+			return
+		}
+		encode(w, http.StatusOK, map[string]string{"message": "property deleted"})
+	}
+	return http.HandlerFunc(f)
+}
+
+// ListByOwner handles property list by owner
+func ListByOwner(lgger log.Entry, svc properties.Service) http.Handler {
 	const op errors.Op = "api/http/properties/ListPropertiesByOwner"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
@@ -160,8 +182,8 @@ func ListPropertiesByOwner(lgger log.Entry, svc properties.Service) http.Handler
 	return http.HandlerFunc(f)
 }
 
-// ListPropertiesBySector handles property list by sector
-func ListPropertiesBySector(lgger log.Entry, svc properties.Service) http.Handler {
+// ListBySector handles property list by sector
+func ListBySector(lgger log.Entry, svc properties.Service) http.Handler {
 	const op errors.Op = "api/http/properties/ListPropertiesBySector"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
@@ -203,8 +225,8 @@ func ListPropertiesBySector(lgger log.Entry, svc properties.Service) http.Handle
 	return http.HandlerFunc(f)
 }
 
-// ListPropertiesByCell handles property list by cell
-func ListPropertiesByCell(lgger log.Entry, svc properties.Service) http.Handler {
+// ListByCell handles property list by cell
+func ListByCell(lgger log.Entry, svc properties.Service) http.Handler {
 	const op errors.Op = "api/http/properties/ListPropertiesByCell"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
@@ -247,8 +269,8 @@ func ListPropertiesByCell(lgger log.Entry, svc properties.Service) http.Handler 
 	return http.HandlerFunc(f)
 }
 
-// ListPropertiesByVillage handles property list by owner
-func ListPropertiesByVillage(lgger log.Entry, svc properties.Service) http.Handler {
+// ListByVillage handles property list by owner
+func ListByVillage(lgger log.Entry, svc properties.Service) http.Handler {
 	const op errors.Op = "api/http/properties/ListPropertiesByVillage"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
@@ -290,8 +312,8 @@ func ListPropertiesByVillage(lgger log.Entry, svc properties.Service) http.Handl
 	return http.HandlerFunc(f)
 }
 
-// ListPropertiesByRecorder handles property list by recorder
-func ListPropertiesByRecorder(lgger log.Entry, svc properties.Service) http.Handler {
+// ListByRecorder handles property list by recorder
+func ListByRecorder(lgger log.Entry, svc properties.Service) http.Handler {
 	const op errors.Op = "api/http/properties/ListPropertiesByRecorder"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
@@ -329,6 +351,5 @@ func ListPropertiesByRecorder(lgger log.Entry, svc properties.Service) http.Hand
 			return
 		}
 	}
-
 	return http.HandlerFunc(f)
 }

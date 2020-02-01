@@ -34,7 +34,7 @@ func makeOwners(owner properties.Owner) map[string]properties.Owner {
 	return owners
 }
 
-func TestRegisterProperty(t *testing.T) {
+func TestRegister(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
@@ -163,7 +163,7 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
-func TestRetrieveProperty(t *testing.T) {
+func TestRetrieve(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
@@ -204,7 +204,48 @@ func TestRetrieveProperty(t *testing.T) {
 	}
 }
 
-func TestListPropertiesByOwner(t *testing.T) {
+func TestDelete(t *testing.T) {
+	owner := properties.Owner{ID: uuid.New().ID()}
+	svc := newService(makeOwners(owner))
+
+	property := properties.Property{
+		Owner:      properties.Owner{ID: owner.ID},
+		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Due:        float64(1000),
+		RecordedBy: uuid.New().ID(),
+	}
+
+	ctx := context.Background()
+	saved, err := svc.Register(ctx, property)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+	const op errors.Op = "app/properties/service.Delete"
+
+	cases := []struct {
+		desc     string
+		identity string
+		err      error
+	}{
+		{
+			desc:     "delete existing property",
+			identity: saved.ID,
+			err:      nil,
+		},
+		{
+			desc:     "delete non-existing property",
+			identity: wrongValue,
+			err:      errors.E(op, "property not found"),
+		},
+	}
+
+	for _, tc := range cases {
+		ctx := context.Background()
+		err := svc.Delete(ctx, tc.identity)
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
+	}
+}
+
+func TestListByOwner(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
@@ -274,7 +315,7 @@ func TestListPropertiesByOwner(t *testing.T) {
 	}
 }
 
-func TestListPropertiesBySector(t *testing.T) {
+func TestBySector(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
@@ -343,7 +384,7 @@ func TestListPropertiesBySector(t *testing.T) {
 	}
 }
 
-func TestListPropertiesByCell(t *testing.T) {
+func TestListByCell(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
@@ -414,7 +455,7 @@ func TestListPropertiesByCell(t *testing.T) {
 
 }
 
-func TestListPropertiesByVillage(t *testing.T) {
+func TestListByVillage(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
@@ -484,7 +525,7 @@ func TestListPropertiesByVillage(t *testing.T) {
 
 }
 
-func TestListPropertiesByRecorder(t *testing.T) {
+func TestListByRecorder(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
