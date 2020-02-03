@@ -29,9 +29,7 @@
               :class="{'fa-spin':chart2.state.loading}"
             />
             <h1 class="text-center">{{activeCell}} TOTAL COLLECTED</h1>
-            <!--####################################################### -->
-            <selector :object="chart2.config" v-on:ok="loadData2" />
-            <!--################################################################# -->
+            <selector :object="config" v-on:ok="updated" />
           </b-card-header>
           <div class="chart position-relative" style="height: 85%">
             <div v-if="!chart2.state.loading" class="h-100">
@@ -75,7 +73,7 @@
               :class="{'fa-spin':chart3.state.loading}"
             />
             <h1 class="text-center">{{activeCell}} CELL</h1>
-            <selector :object="chart3.config" v-on:ok="loadData3" />
+            <selector :object="config" v-on:ok="updated" />
           </b-card-header>
           <div style="height:85%">
             <div v-if="!chart3.state.loading" class="h-100">
@@ -126,6 +124,11 @@ export default {
   },
   data() {
     return {
+      config: {
+        configuring: false,
+        year: new Date().getFullYear(),
+        month: new Date().getMonth() + 1
+      },
       chart2: {
         data: null,
         percentage: null,
@@ -133,11 +136,6 @@ export default {
           loading: true,
           error: false,
           errorMessage: null
-        },
-        config: {
-          configuring: false,
-          year: new Date().getFullYear(),
-          month: new Date().getMonth() + 1
         }
       },
       chart3: {
@@ -146,11 +144,6 @@ export default {
           loading: false,
           error: false,
           errorMessage: null
-        },
-        config: {
-          configuring: false,
-          year: new Date().getFullYear(),
-          month: new Date().getMonth() + 1
         }
       },
       chart1Data: null,
@@ -317,12 +310,17 @@ export default {
     this.loadData3();
   },
   methods: {
+    updated() {
+      this.fetchData();
+      this.loadData2();
+      this.loadData3();
+    },
     loadData2() {
       this.chart2.data = null;
       this.chart2.state.loading = true;
       this.chart2.state.error = false;
-      const year = this.chart2.config.year;
-      const month = this.chart2.config.month;
+      const year = this.config.year;
+      const month = this.config.month;
       this.axios
         .get(
           this.endpoint +
@@ -357,8 +355,8 @@ export default {
       this.chart3.state.loading = true;
       this.chart3.state.error = false;
       this.chart3.state.errorMessage = null;
-      const year = this.chart3.config.year;
-      const month = this.chart3.config.month;
+      const year = this.config.year;
+      const month = this.config.month;
       this.axios
         .get(
           this.endpoint +

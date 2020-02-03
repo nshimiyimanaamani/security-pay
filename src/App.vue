@@ -89,6 +89,12 @@ p {
 .text-normal {
   text-transform: none;
 }
+.h-f-content {
+  height: fit-content !important;
+}
+.w-f-content {
+  width: fit-content !important;
+}
 .vue-simple-context-menu {
   position: fixed !important;
 }

@@ -312,6 +312,7 @@ export default {
     },
     "search.name"() {
       handler: {
+        this.pagination.currentPage = 1;
         const searchedName = this.search.name;
         this.tableItems = this.filter().filter(obj => {
           const name = this.lc(obj.owner.fname + " " + obj.owner.lname);

@@ -3,12 +3,12 @@
     <header class="d-flex justify-content-center font-20 text-uppercase">Sector Report</header>
     <hr class="m-0 mb-3" />
     <b-row class="justify-content-between">
-      <b-button
-        variant="info"
-        class="font-13 border-0 my-2 py-2 mr-3 d-flex align-items-center"
-        @click="generateAction"
-      >Generate {{activeSector}} Report</b-button>
-      <div v-show="state.generating" class="w-auto px-3">
+      <selector
+        :object="config"
+        :title="'Generate '+activeSector+' Report'"
+        v-on:ok="generateAction"
+      />
+      <div v-show="state.generating" class="w-auto px-3 align-self-center">
         <strong class="font-15">Generating&nbsp;</strong>
         <b-spinner small />
       </div>
@@ -72,8 +72,12 @@
 
 <script>
 import download from "./downloadSectorReport";
+import selector from "../reportsDateSelector";
 export default {
   name: "sectorReports",
+  components: {
+    selector
+  },
   data() {
     return {
       state: {
@@ -82,6 +86,11 @@ export default {
         showReport: false,
         error: false,
         errorMessage: null
+      },
+      config: {
+        configuring: false,
+        year: new Date().getFullYear(),
+        month: new Date().getMonth() + 1
       },
       sectorData: null,
       cellData: null,
@@ -189,13 +198,15 @@ export default {
     generate() {
       this.sectorData = null;
       this.state.generating = true;
+      const year = this.config.year;
+      const month = this.config.month;
       const first = this.axios.get(
         this.endpoint +
-          `/metrics/ratios/sectors/${this.activeSector}?year=${this.currentYear}&month=${this.currentMonth}`
+          `/metrics/ratios/sectors/${this.activeSector}?year=${year}&month=${month}`
       );
       const second = this.axios.get(
         this.endpoint +
-          `/metrics/balance/sectors/${this.activeSector}?year=${this.currentYear}&month=${this.currentMonth}`
+          `/metrics/balance/sectors/${this.activeSector}?year=${year}&month=${month}`
       );
       const promise = this.axios.all([first, second]);
       return promise
@@ -232,13 +243,15 @@ export default {
     generateCell() {
       this.cellData = null;
       this.state.generating = true;
+      const year = this.config.year;
+      const month = this.config.month;
       const first = this.axios.get(
         this.endpoint +
-          `/metrics/ratios/sectors/all/${this.activeSector}?year=${this.currentYear}&month=${this.currentMonth}`
+          `/metrics/ratios/sectors/all/${this.activeSector}?year=${year}&month=${month}`
       );
       const second = this.axios.get(
         this.endpoint +
-          `/metrics/balance/sectors/all/${this.activeSector}?year=${this.currentYear}&month=${this.currentMonth}`
+          `/metrics/balance/sectors/all/${this.activeSector}?year=${year}&month=${month}`
       );
       const promise = this.axios.all([first, second]);
       return promise

@@ -26,13 +26,12 @@
           <option :value="null" disabled>Please select village</option>
         </template>
       </b-select>
-      <b-button
-        size="sm"
-        variant="info"
-        class="font-15 border-0 my-3"
+      <selector
         :disabled="village?false:true"
-        @click="generateAction"
-      >Generate {{village ? village : 'Village'}} Report</b-button>
+        :object="config"
+        :title="'Generate ' + title +' Report'"
+        v-on:ok="generateAction"
+      />
       <div v-show="state.generating" class="w-100">
         <strong class="font-15">Generating&nbsp;</strong>
         <b-spinner small />
@@ -77,8 +76,10 @@
 <script>
 const { Village } = require("rwanda");
 import download from "./downloadVillageReport";
+import selector from "../reportsDateSelector";
 export default {
   name: "VillageReports",
+  components: { selector },
   data() {
     return {
       cell: null,
@@ -89,6 +90,11 @@ export default {
         generate: false,
         error: false,
         errorMessage: null
+      },
+      config: {
+        configuring: false,
+        year: new Date().getFullYear(),
+        month: new Date().getMonth() + 1
       },
       table: {
         fields: [
@@ -157,6 +163,9 @@ export default {
     },
     activeCell() {
       return this.$store.getters.getActiveCell;
+    },
+    title() {
+      return this.village ? this.village : "Village";
     }
   },
   watch: {
@@ -180,13 +189,15 @@ export default {
     generateVillage() {
       this.downloadData = null;
       this.state.generating = true;
+      const year = this.config.year;
+      const month = this.config.month;
       const first = this.axios.get(
         this.endpoint +
-          `/metrics/ratios/villages/${this.village}?year=${this.currentYear}&month=${this.currentMonth}`
+          `/metrics/ratios/villages/${this.village}?year=${year}&month=${month}`
       );
       const second = this.axios.get(
         this.endpoint +
-          `/metrics/balance/villages/${this.village}?year=${this.currentYear}&month=${this.currentMonth}`
+          `/metrics/balance/villages/${this.village}?year=${year}&month=${month}`
       );
       const promise = this.axios.all([first, second]);
       return promise

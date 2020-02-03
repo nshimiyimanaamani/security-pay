@@ -1,14 +1,16 @@
 <template>
   <b-dropdown
-    menu-class="bg-light"
-    id="config-dropdown-form"
+    menu-class="bg-light w-100 font-13"
     size="sm"
-    ref="configure"
+    id="report-dropdown-form"
+    ref="configureReports"
     no-caret
-    right
+    :disabled.sync="disabled"
+    dropright
+    toggle-class="h-f-content border-0 my-2 py-2 app-color"
   >
     <template v-slot:button-content>
-      <i class="fa fa-cog text-white font-20" />
+      <p class="m-0 font-13">{{title}}</p>
     </template>
     <b-dropdown-form form-class="p-2">
       <b-form-group label="Year" label-for="dropdown-year" @submit.stop.prevent>
@@ -26,7 +28,7 @@
           <option v-for="i in 12" :value="i" :key="id+''+i">{{months[i-1]}}</option>
         </b-form-select>
       </b-form-group>
-      <b-button variant="primary" class="w-100" size="sm" @click="handleOk">OK</b-button>
+      <b-button variant="primary" class="w-100 app-color" size="sm" @click="handleOk">OK</b-button>
     </b-dropdown-form>
   </b-dropdown>
 </template>
@@ -35,7 +37,12 @@
 export default {
   props: {
     object: Object,
-    id: String
+    id: String,
+    title: String,
+    disabled: {
+      type: Boolean,
+      default: false
+    }
   },
   computed: {
     currentYear() {
@@ -56,6 +63,7 @@ export default {
             this.$set(this.object, "year", this.currentYear);
             this.object.month = 1;
           });
+          padding;
         }
       }
     },
@@ -73,7 +81,7 @@ export default {
   },
   methods: {
     handleOk() {
-      this.$refs.configure.hide(true);
+      this.$refs.configureReports.hide(true);
       this.$emit("ok", this.object);
     }
   }

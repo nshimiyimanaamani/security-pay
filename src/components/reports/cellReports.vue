@@ -15,13 +15,12 @@
           <option :value="null" disabled>Please select cell</option>
         </template>
       </b-select>
-      <b-button
-        size="sm"
-        variant="info"
-        class="font-15 border-0 my-2 d-flex align-items-center"
+      <selector
+        :title="'Generate '+title+' Report'"
+        :object="config"
         :disabled="cell?false:true"
-        @click="generateAction"
-      >Generate {{cell ? cell : 'Cell'}} Report</b-button>
+        v-on:ok="generateAction"
+      />
       <div v-show="state.generating" class="w-100">
         <strong class="font-15">Generating&nbsp;</strong>
         <b-spinner small />
@@ -86,8 +85,12 @@
 
 <script>
 import download from "./downloadCellReport";
+import selector from "../reportsDateSelector";
 export default {
   name: "cellReports",
+  components: {
+    selector
+  },
   data() {
     return {
       cell: null,
@@ -97,6 +100,11 @@ export default {
         showReport: false,
         error: false,
         errorMessage: null
+      },
+      config: {
+        configuring: false,
+        year: new Date().getFullYear(),
+        month: new Date().getMonth() + 1
       },
       cellData: null,
       villageData: null,
@@ -198,6 +206,9 @@ export default {
     },
     activeCell() {
       return this.$store.getters.getActiveCell;
+    },
+    title() {
+      return this.cell ? this.cell : "Cell";
     }
   },
   watch: {
@@ -222,13 +233,15 @@ export default {
     generate() {
       this.cellData = null;
       this.state.generating = true;
+      const year = this.config.year;
+      const month = this.config.month;
       const first = this.axios.get(
         this.endpoint +
-          `/metrics/ratios/cells/${this.cell}?year=${this.currentYear}&month=${this.currentMonth}`
+          `/metrics/ratios/cells/${this.cell}?year=${year}&month=${month}`
       );
       const second = this.axios.get(
         this.endpoint +
-          `/metrics/balance/cells/${this.cell}?year=${this.currentYear}&month=${this.currentMonth}`
+          `/metrics/balance/cells/${this.cell}?year=${year}&month=${month}`
       );
       const promise = this.axios.all([first, second]);
       return promise
@@ -263,13 +276,15 @@ export default {
     generateVillage() {
       this.villageData = null;
       this.state.generating = true;
+      const year = this.config.year;
+      const month = this.config.month;
       const first = this.axios.get(
         this.endpoint +
-          `/metrics/ratios/cells/all/${this.cell}?year=${this.currentYear}&month=${this.currentMonth}`
+          `/metrics/ratios/cells/all/${this.cell}?year=${year}&month=${month}`
       );
       const second = this.axios.get(
         this.endpoint +
-          `/metrics/balance/cells/all/${this.cell}?year=${this.currentYear}&month=${this.currentMonth}`
+          `/metrics/balance/cells/all/${this.cell}?year=${year}&month=${month}`
       );
       const promise = this.axios.all([first, second]);
       return promise
