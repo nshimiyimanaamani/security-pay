@@ -96,7 +96,7 @@ func TestSaveProperty(t *testing.T) {
 	}
 }
 
-func TestUpdateProperty(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	props := postgres.NewPropertyStore(db)
 
 	defer CleanDB(t)
@@ -144,7 +144,7 @@ func TestUpdateProperty(t *testing.T) {
 	sp, err := props.Save(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
-	const op errors.Op = "store/postgres/propertiesStore.UpdateProperty"
+	const op errors.Op = "store/postgres/propertiesStore.Update"
 
 	cases := []struct {
 		desc     string
@@ -188,7 +188,82 @@ func TestUpdateProperty(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		err := props.UpdateProperty(ctx, tc.property)
+		err := props.Update(ctx, tc.property)
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got '%v'\n", tc.desc, tc.err, err))
+	}
+
+}
+
+func TestDelete(t *testing.T) {
+	props := postgres.NewPropertyStore(db)
+
+	defer CleanDB(t)
+
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+
+	account, err := saveAccount(t, db, account)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+	agent := users.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Role:      users.Dev,
+		Account:   account.ID,
+	}
+
+	savedAgent, err := saveAgent(t, db, agent)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+
+	owner, err = saveOwner(t, db, owner)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+	property := properties.Property{
+		ID:    nanoid.New(nil).ID(),
+		Owner: properties.Owner{ID: owner.ID},
+		Address: properties.Address{
+			Sector:  "Remera",
+			Cell:    "Gishushu",
+			Village: "Ingabo",
+		},
+		Due:        float64(1000),
+		ForRent:    true,
+		RecordedBy: savedAgent.Telephone,
+		Occupied:   true,
+	}
+
+	ctx := context.Background()
+	property, err = props.Save(ctx, property)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+	const op errors.Op = "store/postgres/propertiesStore.Delete"
+
+	cases := []struct {
+		desc string
+		uid  string
+		err  error
+	}{
+		{
+			desc: "update existing property",
+			uid:  property.ID,
+			err:  nil,
+		},
+		{
+			desc: "update non existant property",
+			uid:  "invalid",
+			err:  errors.E(op, "property not found", errors.KindNotFound),
+		},
+	}
+
+	for _, tc := range cases {
+		ctx := context.Background()
+		err := props.Delete(ctx, tc.uid)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got '%v'\n", tc.desc, tc.err, err))
 	}
 

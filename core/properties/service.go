@@ -27,6 +27,10 @@ type Service interface {
 	// is successful given its unique id.
 	Retrieve(ctx context.Context, uid string) (Property, error)
 
+	// Delete removes a single property given it's id
+	// if the operation fails the function returns an error
+	Delete(ctx context.Context, uid string) error
+
 	// ListByOwner returns a list of properties that belong to a given owner
 	// withing a given range(offset, limit).
 	ListByOwner(ctx context.Context, owner string, offset, limit uint64) (PropertyPage, error)
@@ -86,7 +90,7 @@ func (svc *service) Update(ctx context.Context, prop Property) error {
 		return errors.E(op, err)
 	}
 
-	if err := svc.repo.UpdateProperty(ctx, prop); err != nil {
+	if err := svc.repo.Update(ctx, prop); err != nil {
 		return errors.E(op, err)
 	}
 	return nil
@@ -101,6 +105,16 @@ func (svc *service) Retrieve(ctx context.Context, uid string) (Property, error) 
 	}
 
 	return property, nil
+}
+
+func (svc *service) Delete(ctx context.Context, uid string) error {
+	const op errors.Op = "app/properties/service.Delete"
+
+	err := svc.repo.Delete(ctx, uid)
+	if err != nil {
+		return errors.E(op, err)
+	}
+	return err
 }
 
 func (svc *service) ListByOwner(ctx context.Context, owner string, offset, limit uint64) (PropertyPage, error) {

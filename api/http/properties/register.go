@@ -38,23 +38,24 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		panic("absolutely unacceptable handler opts")
 	}
 
-	r.Handle(RegisterPRoute, LogEntryHandler(RegisterProperty, opts)).Methods(http.MethodPost)
-	r.Handle(RetrievePRoute, LogEntryHandler(RetrieveProperty, opts)).Methods(http.MethodGet)
-	r.Handle(UpdatePRoute, LogEntryHandler(UpdateProperty, opts)).Methods(http.MethodPut)
+	r.Handle(RegisterPRoute, LogEntryHandler(Register, opts)).Methods(http.MethodPost)
+	r.Handle(RetrievePRoute, LogEntryHandler(Retrieve, opts)).Methods(http.MethodGet)
+	r.Handle(UpdatePRoute, LogEntryHandler(Update, opts)).Methods(http.MethodPut)
+	r.Handle(DeletePRoute, LogEntryHandler(Delete, opts)).Methods(http.MethodDelete)
 
-	r.Handle(ListPRoute, LogEntryHandler(ListPropertiesByCell, opts)).Methods(http.MethodGet).
+	r.Handle(ListPRoute, LogEntryHandler(ListByCell, opts)).Methods(http.MethodGet).
 		Queries("cell", "{cell}", "offset", "{offset}", "limit", "{limit}")
 
-	r.Handle(ListPRoute, LogEntryHandler(ListPropertiesByOwner, opts)).Methods(http.MethodGet).
+	r.Handle(ListPRoute, LogEntryHandler(ListByOwner, opts)).Methods(http.MethodGet).
 		Queries("owner", "{owner}", "offset", "{offset}", "limit", "{limit}")
 
-	r.Handle(ListPRoute, LogEntryHandler(ListPropertiesBySector, opts)).Methods(http.MethodGet).
+	r.Handle(ListPRoute, LogEntryHandler(ListBySector, opts)).Methods(http.MethodGet).
 		Queries("sector", "{sector}", "offset", "{offset}", "limit", "{limit}")
 
-	r.Handle(ListPRoute, LogEntryHandler(ListPropertiesByVillage, opts)).Methods(http.MethodGet).
+	r.Handle(ListPRoute, LogEntryHandler(ListByVillage, opts)).Methods(http.MethodGet).
 		Queries("village", "{village}", "offset", "{offset}", "limit", "{limit}")
 
-	r.Handle(ListPRoute, LogEntryHandler(ListPropertiesByRecorder, opts)).Methods(http.MethodGet).
+	r.Handle(ListPRoute, LogEntryHandler(ListByRecorder, opts)).Methods(http.MethodGet).
 		Queries("user", "{user}", "offset", "{offset}", "limit", "{limit}")
 
 	//mobile temp
