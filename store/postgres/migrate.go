@@ -357,10 +357,7 @@ func migrateDB(db *sql.DB) error {
 						ADD UNIQUE(id, due)`,
 
 					`ALTER TABLE invoices
-						DROP CONSTRAINT invoices_property_fkey;
-					`,
-
-					`ALTER TABLE invoices 
+						DROP CONSTRAINT invoices_property_fkey,
 						ADD FOREIGN KEY(property, amount) REFERENCES properties(id, due) ON UPDATE CASCADE ON DELETE CASCADE;
 					`,
 				},
