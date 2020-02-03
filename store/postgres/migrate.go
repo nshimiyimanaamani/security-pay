@@ -350,6 +350,61 @@ func migrateDB(db *sql.DB) error {
 					"DROP TABLE sectors",
 				},
 			},
+			{
+				Id: "002_update_invoice",
+				Up: []string{
+					`ALTER TABLE properties 
+						ADD UNIQUE(id, due)`,
+
+					`ALTER TABLE invoices
+						DROP CONSTRAINT invoices_property_fkey;
+					`,
+
+					`ALTER TABLE invoices 
+						ADD FOREIGN KEY(property, amount) REFERENCES properties(id, due) ON UPDATE CASCADE ON DELETE CASCADE;
+					`,
+				},
+			},
+
+			// {
+			// 	Id: "003_trigger_invoice_audits",
+			// 	Up: []string{
+			// 		`CREATE TABLE IF NOT EXISTS invoice_audits(
+			// 			uuid		 UUID,
+			// 			created_at 	 TIMESTAMP DEFAULT NOW(),
+			// 			updated_at   TIMESTAMP DEFAULT NOW(),
+			// 			PRIMARY KEY(uuid)
+			// 		);
+			// 		CREATE UNIQUE INDEX ON invoice_audits(extract(month from created_at), extract(year from created_at));
+			// 		`,
+
+			// 		`DROP TRIGGER IF EXISTS  create_initial_invoice ON properties;`,
+
+			// 		`CREATE OR REPLACE FUNCTION trigger_invoice_audit()
+			// 			RETURNS TRIGGER
+			// 		AS
+			// 		$$
+			// 		DECLARE
+			// 			rec record;
+			// 		BEGIN
+			// 			FOR rec IN
+			// 				SELECT * FROM properties
+			// 			LOOP
+			// 				INSERT INTO invoices (amount, property) VALUES (rec.due, rec.id);
+			// 			END LOOP;
+
+			// 			RETURN NULL;
+			// 		END;
+			// 		$$ LANGUAGE plpgsql;`,
+			// 		`
+
+			// 		CREATE TRIGGER trigger_invoice_on_audit
+			// 			AFTER INSERT ON invoice_audits
+			// 			FOR EACH ROW
+			// 			EXECUTE PROCEDURE trigger_invoice_audit();
+			// 		`,
+			// 	},
+			// },
 			// {
 			// 	Id: "paypack_8",
 
