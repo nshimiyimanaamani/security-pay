@@ -15,6 +15,7 @@
           <b-form-input
             id="input-1"
             v-model="form.fname"
+            size="sm"
             required
             placeholder="First name"
             :disabled="state.switch"
@@ -26,6 +27,7 @@
             v-model="form.lname"
             :disabled="state.switch"
             required
+            size="sm"
             placeholder="Last name"
           ></b-form-input>
         </b-form-group>
@@ -37,17 +39,26 @@
             :disabled="state.switch"
             required
             type="number"
+            size="sm"
             placeholder="Phone number"
           ></b-form-input>
           <b-form-invalid-feedback :state="checkNumber">Please use a valid Phone number!</b-form-invalid-feedback>
         </b-form-group>
-        <b-form-group
-          id="input-group-4"
-          :label="'Due: '+ Number(form.due).toLocaleString() +' Rwf'"
-          label-for="range-1"
-          v-show="state.switch"
-          class="mb-4"
-        >
+        <b-form-group id="input-group-4" label-for="range-1" v-show="state.switch" class="mb-4">
+          <template v-slot:label>
+            <b-row class="m-o align-items-center px-3">
+              Due:
+              <b-input
+                v-model="form.due"
+                required
+                step="500"
+                min="500"
+                size="sm"
+                type="number"
+                class="w-auto mx-1"
+              />Rwf
+            </b-row>
+          </template>
           <div>
             <vue-slider
               v-model="form.due"
@@ -71,9 +82,8 @@
             v-model="form.occupied"
             :options="occupiedOptions"
             name="radios-stacked"
-          >
-            <b-form-invalid-feedback :state="occupied">Hitamo Kimwe!</b-form-invalid-feedback>
-          </b-form-radio-group>
+            :state="occupied?true:false"
+          ></b-form-radio-group>
         </b-form-group>
         <b-form-group
           id="input-group-5"
@@ -82,7 +92,7 @@
           label-for="input-4"
           v-show="state.switch"
         >
-          <b-form-select v-model="address.cell" :options="cellOptions" class="mb-0">
+          <b-form-select v-model="address.cell" size="sm" :options="cellOptions" class="mb-0">
             <template v-slot:first>
               <option :value="null" disabled>select a cell</option>
             </template>
@@ -95,17 +105,23 @@
           v-show="state.switch"
           class="mb-3"
         >
-          <b-form-select v-model="address.village" :options="villageOptions" class="mb-0">
+          <b-form-select v-model="address.village" size="sm" :options="villageOptions" class="mb-0">
             <template v-slot:first>
               <option :value="null" disabled>select a village</option>
             </template>
           </b-form-select>
         </b-form-group>
-        <b-button :disabled="!clickable" type="submit" variant="primary" class="font-15 app-color">
+        <b-button
+          :disabled="!clickable"
+          size="sm"
+          type="submit"
+          variant="primary"
+          class="font-15 app-color"
+        >
           {{state.adding ? btnContent+'ing' : btnContent}}
           <b-spinner v-show="state.adding" small type="grow"></b-spinner>
         </b-button>
-        <b-button type="reset" class="font-15" variant="danger">cancel</b-button>
+        <b-button type="reset" size="sm" class="font-15" variant="danger">cancel</b-button>
       </b-form>
     </b-card>
   </div>

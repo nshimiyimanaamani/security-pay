@@ -41,7 +41,15 @@
         <template v-slot:label>
           <b-row class="m-o align-items-center px-3">
             Due:
-            <b-input v-model="house.due" size="sm" type="number" class="w-auto mx-1" />Rwf
+            <b-input
+              v-model="house.due"
+              required
+              step="500"
+              min="500"
+              size="sm"
+              type="number"
+              class="w-auto mx-1"
+            />Rwf
           </b-row>
         </template>
         <div>

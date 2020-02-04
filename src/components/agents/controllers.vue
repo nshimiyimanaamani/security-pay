@@ -55,12 +55,21 @@
             :state="occupied ? null : false"
           />
         </b-form-group>
-        <b-form-group
-          id="input-group-4"
-          :label="'Due: '+Number(form.due).toLocaleString()+' Rwf' "
-          class="m-2"
-          label-for="input-4"
-        >
+        <b-form-group id="input-group-4" class="m-2" label-for="input-4">
+          <template v-slot:label>
+            <b-row class="m-o align-items-center px-3">
+              Due:
+              <b-input
+                v-model="form.due"
+                required
+                step="500"
+                min="500"
+                size="sm"
+                type="number"
+                class="w-auto mx-1"
+              />Rwf
+            </b-row>
+          </template>
           <div>
             <vue-slider
               v-model="form.due"
