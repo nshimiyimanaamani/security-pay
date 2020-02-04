@@ -353,6 +353,30 @@ func migrateDB(db *sql.DB) error {
 			{
 				Id: "002_update_invoice",
 				Up: []string{
+					`
+					CREATE  OR REPLACE FUNCTION correct_invoice_amount() RETURNS void AS
+					$$
+					DECLARE
+						rec record;
+					BEGIN
+    					FOR rec IN
+							select 
+								invoices.id as invoice_id, 
+								due, amount 
+							from 
+								properties 
+							inner join invoices on properties.id=invoices.property
+						LOOP
+        					IF rec.due != rec.amount THEN
+		    					UPDATE invoices SET amount=rec.due WHERE id=rec.invoice_id;
+        					END IF;
+						END LOOP;
+					END;
+					$$ LANGUAGE plpgsql;
+					`,
+
+					`SELECT correct_invoice_amount();`,
+
 					`ALTER TABLE properties 
 						ADD UNIQUE(id, due)`,
 
