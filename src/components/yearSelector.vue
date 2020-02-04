@@ -1,18 +1,24 @@
 <template>
   <b-dropdown
     menu-class="bg-light"
-    id="config-dropdown-form"
+    :id="'config-dropdown-form_'+random"
     size="sm"
     ref="configure"
     no-caret
     right
+    toggle-class="p-0 border-0 bg-transparent"
   >
     <template v-slot:button-content>
       <i class="fa fa-cog text-white font-20" />
     </template>
     <b-dropdown-form form-class="p-2">
-      <b-form-group label="Year" label-for="dropdown-year" @submit.stop.prevent>
-        <b-form-select id="dropdown-year" v-model="object.year" class="bg-light" size="sm">
+      <b-form-group label="Year" :label-for="'dropdown-year_'+random" @submit.stop.prevent>
+        <b-form-select
+          :id="'dropdown-year_'+random"
+          v-model="object.year"
+          class="bg-light"
+          size="sm"
+        >
           <option
             v-for="(year,i) in (currentYear-2019)"
             :value="currentYear-i"
@@ -21,8 +27,13 @@
         </b-form-select>
       </b-form-group>
 
-      <b-form-group label="Month" label-for="dropdown-month">
-        <b-form-select id="dropdown-month" v-model="object.month" class="bg-light" size="sm">
+      <b-form-group label="Month" :label-for="'dropdown-month_'+random">
+        <b-form-select
+          :id="'dropdown-month'+random"
+          v-model="object.month"
+          class="bg-light"
+          size="sm"
+        >
           <option v-for="i in 12" :value="i" :key="id+''+i">{{months[i-1]}}</option>
         </b-form-select>
       </b-form-group>
@@ -46,6 +57,9 @@ export default {
     },
     months() {
       return this.$store.getters.getMonths;
+    },
+    random() {
+      return Math.floor(Math.random() * 101);
     }
   },
   watch: {

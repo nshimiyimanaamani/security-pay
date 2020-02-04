@@ -1,20 +1,20 @@
 <template>
-  <div>
+  <div style="min-width: 300px; min-height:490px">
     <vue-title title="Paypack | Login" />
     <div class="loginPage p-3">
-      <b-row class="loginTitle m-auto justify-content-center">
+      <b-row class="loginTitle m-auto h-50 justify-content-center" style="min-height: 250px">
         <b-col cols="4" class="align-self-center p-0">
           <img src="../../public/favicon.png" alt="paypack-logo" style="width:6.5rem;height:6.5rem" />
         </b-col>
-        <b-col class="align-self-center p-0 ml-2" style="font-size: 15px;height:6.5rem">
+        <b-col class="align-self-center p-0 ml-2 font-15" style="height:6.5rem">
           <b-row id="paypack" class="py-4">PAYPACK</b-row>
           <b-row class="py-2 slogan">Easy way to collect and organise public fees</b-row>
         </b-col>
       </b-row>
-      <b-row class="m-2 justify-content-center">
+      <b-row class="m-2 h-50 justify-content-center">
         <b-col sm="8" md="7" lg="4" xl="3">
           <b-form class="loginForm" @submit.prevent="login">
-            <b-form-group class="loginUsername mb-4">
+            <b-form-group class="loginUsername mb-3">
               <b-form-input
                 id="username"
                 v-model="form.email"

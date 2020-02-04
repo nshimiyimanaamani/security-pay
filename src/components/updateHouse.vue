@@ -37,12 +37,13 @@
       <b-form-group label="Irakodeshwa ?">
         <b-form-radio-group v-model="rented" :options="query" name="radio-stacked" size="sm"></b-form-radio-group>
       </b-form-group>
-      <b-form-group
-        id="input-group-4"
-        :label="'Due: '+ Number(house.due).toLocaleString() +' Rwf'"
-        label-for="range-1"
-        class="mb-4"
-      >
+      <b-form-group id="input-group-4" label-for="range-1" class="mb-4">
+        <template v-slot:label>
+          <b-row class="m-o align-items-center px-3">
+            Due:
+            <b-input v-model="house.due" size="sm" type="number" class="w-auto mx-1" />Rwf
+          </b-row>
+        </template>
         <div>
           <vue-slider
             v-model="house.due"
@@ -162,6 +163,9 @@ export default {
     }
   },
   methods: {
+    due(house) {
+      return Number(house.due).toLocaleString();
+    },
     update() {
       const sector = this.house.address.sector;
       const cell = this.newAddress.cell
@@ -185,7 +189,7 @@ export default {
               },
               address: { cell: cell, village: village, sector: sector },
               recorded_by: this.house.recorded_by,
-              due: this.house.due,
+              due: String(this.house.due),
               occupied: this.rented
             })
             .then(response => {
