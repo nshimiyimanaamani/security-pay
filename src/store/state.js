@@ -7,6 +7,19 @@ const state = {
   active_village: null,
   village_array: null,
   villageByCell: null,
-  months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-}
-export default state
+  months: [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ]
+};
+export default state;

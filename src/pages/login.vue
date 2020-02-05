@@ -66,6 +66,7 @@ export default {
   },
   methods: {
     login() {
+      console.log(this.endpoint)
       const email = this.form.email;
       const key = this.form.password;
       if (email && key) {

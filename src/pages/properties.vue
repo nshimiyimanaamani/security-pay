@@ -443,56 +443,6 @@ export default {
       this.selected = null;
       this.$refs.dropdown.hide(true);
     },
-    download() {
-      if (this.loading.request && !this.tableItems.length) {
-        this.$snotify.error(
-          "No Data available to download! refresh page to retry"
-        );
-      } else if (!this.loading.request && this.tableItems.length) {
-        const doc = new jsPDF();
-        const date = new Date();
-        const months = [
-          "January",
-          "February",
-          "March",
-          "April",
-          "May",
-          "June",
-          "July",
-          "August",
-          "September",
-          "October",
-          "November",
-          "December"
-        ];
-        const month = months[date.getMonth()];
-        const year = date.getFullYear();
-        var pageWidth = doc.internal.pageSize.width;
-        doc.setFontSize(12);
-        doc.text(`${this.activeSector} sector`, 14, 20);
-        doc.text(`on ${date.getDate()} ${month}, ${year}`, pageWidth - 50, 20);
-        doc.text(this.title, pageWidth / 3 + 10, 30);
-        doc.autoTable({
-          html: "#data-table",
-          startY: 40,
-          showHead: "firstPage",
-          bodyStyles: {
-            fillColor: [255, 255, 255],
-            textColor: 10
-          },
-          headStyles: {
-            fillColor: [255, 255, 255],
-            textColor: 10
-          },
-          styles: {
-            lineColor: [0, 0, 0],
-            lineWidth: 0.2
-          },
-          theme: "plain"
-        });
-        doc.save(`${this.title} of ${month}, ${year}.pdf`);
-      }
-    },
     capitalize(string) {
       string.toLowerCase();
       return string.charAt(0).toUpperCase() + string.slice(1);
