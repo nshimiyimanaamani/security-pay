@@ -4,7 +4,7 @@
     <b-alert
       :show="offline"
       variant="danger"
-      class="text-center offline-indicator font-15"
+      class="text-center offline-indicator font-13 w-auto mx-3"
       style="z-index: 10001"
       dismissible
     >

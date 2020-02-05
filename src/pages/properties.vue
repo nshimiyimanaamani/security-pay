@@ -166,10 +166,8 @@
 <script>
 import updateHouse from "../components/updateHouse.vue";
 import addPropertyModal from "../components/modals/addPropertyModal.vue";
-import jsPDF from "jspdf";
 const { Village } = require("rwanda");
 const { isPhoneNumber } = require("rwa-validator");
-import "jspdf-autotable";
 export default {
   name: "reports",
   components: {
