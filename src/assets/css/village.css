@@ -9,8 +9,12 @@
 }
 
 .village-wrapper .container {
-  width: 80vw;
-  padding: 15px 15px 0;
+  height: calc(100vh - 55px);
+}
+
+.village-wrapper .container .village-body {
+  overflow-y: scroll;
+  height: calc(100% - 45px);
 }
 
 .village-wrapper .container .card {
@@ -135,6 +139,21 @@
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+}
+
+.village-wrapper .container-title .width-3 {
+  width: calc(100% / 3);
+}
+
+.village-wrapper .container-title .search {
+  -webkit-transition: max-width 1s ease-out;
+  transition: max-width 1s ease-out;
+}
+
+.village-wrapper .container-title .search.w-0 {
+  max-width: 0;
+  padding: 0 !important;
+  border: 0;
 }
 
 .village-wrapper .container-title h1 {

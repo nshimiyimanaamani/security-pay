@@ -3,7 +3,7 @@
     <div class="dashboardSidebar">
       <h1>P A Y P A C K</h1>
       <hr />
-      <ul class="sidebarLinks">
+      <ul class="sidebarLinks font-14">
         <router-link v-if="user.role.toLowerCase() !='basic'" to="/dashboard">
           <li>SECTOR</li>
         </router-link>
@@ -62,16 +62,16 @@
           <li>Accounts</li>
         </router-link>
       </ul>
-      <p class="text-center powered" for="powered">
+      <p class="text-center powered m-0 pb-1" for="powered">
         Powered By
         <strong>Quarks Group.</strong>
       </p>
     </div>
     <div class="rightSide">
       <div class="top-nav">
-        <!-- <b-card-text class="d-flex align-items-end font-15 ml-2 text-uppercase">{{activeSector}}</b-card-text> -->
+        <!-- <b-card-text class="d-flex align-items-end font-14 ml-2 text-uppercase">{{activeSector}}</b-card-text> -->
         <div class="logout d-flex align-items-center">
-          <b-button class="btn-info py-1 font-15" @click.prevent="logout">Logout</b-button>
+          <b-button class="btn-info py-1 font-14" @click.prevent="logout">Logout</b-button>
         </div>
       </div>
       <div class="dashboardBody">

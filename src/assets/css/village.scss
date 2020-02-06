@@ -2,14 +2,18 @@
   .card-columns {
     column-count: 2 !important;
   }
+
   .progress {
     width: 100%;
     height: 5px;
   }
   .container {
-    width: 80vw;
-    padding: 15px 15px 0;
+    height: calc(100vh - 55px);
 
+    .village-body {
+      overflow-y: scroll;
+      height: calc(100% - 45px);
+    }
     .card {
       border: 1px solid lightgray;
 
@@ -37,7 +41,6 @@
             margin-left: auto;
           }
         }
-
         .card-footer {
           display: flex;
           padding: 10px 0px 0;
@@ -119,6 +122,17 @@
     background-color: #3a82a1;
     display: flex;
 
+    .width-3 {
+      width: calc(100% / 3);
+    }
+    .search {
+      transition: max-width 1s ease-out;
+    }
+    .search.w-0 {
+      max-width: 0;
+      padding: 0 !important;
+      border: 0;
+    }
     h1 {
       color: #ffffff;
       font-size: 14px;

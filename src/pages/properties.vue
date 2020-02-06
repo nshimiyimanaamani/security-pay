@@ -3,7 +3,7 @@
     <vue-title title="Paypack | Properties" />
     <h4 class="title text-center">
       {{title}}
-      <b-button class="add-property mb-1 font-15" variant="info" @click="addProperty.show = true">
+      <b-button class="add-property mb-1 font-14" variant="info" @click="addProperty.show = true">
         <i class="fas fa-plus-circle"></i> Property
       </b-button>
     </h4>
@@ -16,7 +16,9 @@
         ref="dropdown"
         class="filter-dropdown mr-auto"
       >
-        <template slot="button-content">Filter By</template>
+        <template slot="button-content">
+          <p class="font-14 d-inline">Filter By</p>
+        </template>
         <b-dropdown-form>
           <b-card-body class="p-2">
             <b-form-group label="cell">
@@ -64,7 +66,7 @@
       <div>
         <b-form-input
           placeholder="search user..."
-          class="rounded-2 font-15"
+          class="rounded-2 font-14"
           type="search"
           size="sm"
           v-model="search.name"
@@ -75,7 +77,7 @@
         </datalist>
       </div>
 
-      <b-button @click="loadData" variant="info" size="sm" class="ml-1 font-15">Refresh</b-button>
+      <b-button @click="loadData" variant="info" size="sm" class="ml-1 font-14">Refresh</b-button>
     </b-row>
 
     <b-table
@@ -112,7 +114,7 @@
       </template>
       <template v-slot:empty>
         <h5
-          class="text-center font-15 my-4"
+          class="text-center font-14 my-4"
         >{{search.name ? search.name+' "is not in the list"':'No Property Found!'}}</h5>
       </template>
       <template v-slot:custom-foot v-if="!loading.request">

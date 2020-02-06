@@ -1,6 +1,6 @@
 <template>
   <div>
-    <header class="d-flex justify-content-center font-20 text-uppercase">House Report</header>
+    <header class="d-flex justify-content-center font-19 text-uppercase">House Report</header>
     <hr class="m-0 mb-3" />
     <b-row class="px-3 align-items-center justify-content-between">
       <b-input
@@ -13,13 +13,13 @@
         size="sm"
         variant="info"
         :disabled="houseId?false:true"
-        class="font-15 border-0 my-3"
+        class="font-14 border-0 my-3"
         @click="generate"
       >Generate House Report</b-button>
     </b-row>
     <b-row class="justify-content-center text-capitalize">
       <div v-show="state.generating" class="w-100 px-3">
-        <strong class="font-15">Generating&nbsp;</strong>
+        <strong class="font-14">Generating&nbsp;</strong>
         <b-spinner small />
       </div>
       <b-collapse id="housereport-collapse" class="flex-grow-1 mx-3" v-model="state.showReport">
@@ -64,7 +64,7 @@
     </b-row>
     <b-row class="justify-content-center text-capitalize">
       <div v-show="state.generatingP" class="w-100 px-3">
-        <strong class="font-15">Generating&nbsp;</strong>
+        <strong class="font-14">Generating&nbsp;</strong>
         <b-spinner small />
       </div>
       <b-collapse id="PaymentReport-collapse" class="flex-grow-1 mx-3" v-model="state.showPayment">
@@ -87,7 +87,7 @@
       <b-button
         size="sm"
         variant="info"
-        class="font-15 border-0 my-3"
+        class="font-14 border-0 my-3"
         @click="download"
       >Download Report</b-button>
     </b-row>

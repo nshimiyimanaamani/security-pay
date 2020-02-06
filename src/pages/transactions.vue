@@ -3,19 +3,23 @@
     <vue-title title="Paypack | Transactions" />
     <div class="totals">
       <b-row>
-        <b-col cols="6" class="text-white ml-auto py-2" style="font-size: 40px">{{'RWF '+total()}}</b-col>
+        <b-col
+          cols="6"
+          class="text-white ml-auto py-2 text-overflow"
+          style="font-size: 40px"
+        >{{'RWF '+total()}}</b-col>
       </b-row>
       <b-row class="text-white">
         <b-col cols="2" class="ml-auto">
-          <p>BK Acc.</p>
+          <p class="text-overflow">BK Acc.</p>
           <p>RWF {{bkTotal()}}</p>
         </b-col>
         <b-col cols="2" class="m-0">
-          <p>MTN MoMo</p>
+          <p class="text-overflow">MTN MoMo</p>
           <p>RWF {{mtnTotal()}}</p>
         </b-col>
         <b-col cols="2" class="m-0">
-          <p>AIRTEL MONEY</p>
+          <p class="text-overflow">AIRTEL MONEY</p>
           <p>RWF {{airtelTotal()}}</p>
         </b-col>
       </b-row>
@@ -49,7 +53,7 @@
         </template>
         <template v-slot:empty>
           <label
-            class="container w-100 font-15 text-center p-5 text-capitalize"
+            class="container w-100 font-14 text-center p-5 text-capitalize"
           >No records of transactions found!</label>
         </template>
       </b-table>

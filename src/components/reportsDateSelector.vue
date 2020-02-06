@@ -7,7 +7,7 @@
     no-caret
     :disabled.sync="disabled"
     dropright
-    toggle-class="h-f-content border-0 my-2 py-2 app-color"
+    toggle-class="height-fit-content border-0 my-2 py-2 app-color"
   >
     <template v-slot:button-content>
       <p class="m-0 font-13">{{title}}</p>

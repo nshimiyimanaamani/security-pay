@@ -1,6 +1,6 @@
 <template>
   <div>
-    <header class="d-flex justify-content-center font-20 text-uppercase">village Report</header>
+    <header class="d-flex justify-content-center font-19 text-uppercase">village Report</header>
     <hr class="m-0 mb-3" />
     <b-row class="px-3 align-items-center justify-content-between">
       <b-select
@@ -33,14 +33,14 @@
         v-on:ok="generateAction"
       />
       <div v-show="state.generating" class="w-100">
-        <strong class="font-15">Generating&nbsp;</strong>
+        <strong class="font-14">Generating&nbsp;</strong>
         <b-spinner small />
       </div>
     </b-row>
     <b-row>
       <b-collapse id="sector-report-collapse" class="w-100 m-3" v-model="state.showReport">
         <b-card class="text-capitalize" v-if="!state.error">
-          <b-card-title class="font-20 text-uppercase">{{village}} village</b-card-title>
+          <b-card-title class="font-19 text-uppercase">{{village}} village</b-card-title>
           <hr />
           <b-table
             id="village-reports"

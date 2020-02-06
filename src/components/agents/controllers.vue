@@ -2,10 +2,10 @@
   <b-container class="p-0 mr-1">
     <b-row class="py-2">
       <b-col class="px-1">
-        <b-button v-b-modal.register-property class="py-1 font-15" size="sm" variant="info">Register</b-button>
+        <b-button v-b-modal.register-property class="py-1 font-14" size="sm" variant="info">Register</b-button>
       </b-col>
       <b-col class="pl-1">
-        <b-button class="py-1 font-15" size="sm" variant="info" @click.prevent="refresh">Refresh</b-button>
+        <b-button class="py-1 font-14" size="sm" variant="info" @click.prevent="refresh">Refresh</b-button>
       </b-col>
     </b-row>
     <b-modal id="register-property" ref="register-modal" scrollable hide-footer>
@@ -93,12 +93,12 @@
             type="submit"
             size="sm"
             variant="primary"
-            class="ml-2 px-3 py-1 app-color font-15"
+            class="ml-2 px-3 py-1 app-color font-14"
           >
             {{state.loading ? 'Registering' : 'Register'}}
             <b-spinner v-show="state.loading" small type="grow"></b-spinner>
           </b-button>
-          <b-button type="reset" variant="danger" size="sm" class="px-3 py-1 font-15">cancel</b-button>
+          <b-button type="reset" variant="danger" size="sm" class="px-3 py-1 font-14">cancel</b-button>
         </b-form-group>
       </b-form>
     </b-modal>

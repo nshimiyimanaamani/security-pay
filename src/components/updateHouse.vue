@@ -72,12 +72,12 @@
       <b-form-group
         id="input-group-5"
         :label="'Cell: '+house.address.cell.toUpperCase()"
-        label-class="font-15"
+        label-class="font-14"
         label-for="select-5"
       >
         <b-form-select
           id="select-5"
-          class="font-15"
+          class="font-14"
           :options="cellOptions"
           v-model="newAddress.cell"
           size="sm"
@@ -92,14 +92,14 @@
         id="input-group-7"
         :label="'village: '+house.address.village.toUpperCase()"
         label-for="input-7"
-        label-class="font-15"
+        label-class="font-14"
       >
         <b-form-select
           id="input-7"
           v-model="newAddress.village"
           :options="villageOptions"
           size="sm"
-          class="font-15"
+          class="font-14"
         >
           <template v-slot:first>
             <option :value="null" disabled>select new village</option>

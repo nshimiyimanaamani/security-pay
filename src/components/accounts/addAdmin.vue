@@ -17,7 +17,7 @@
           <b-button
             :disabled="form.email?false: true"
             variant="info"
-            class="float-right font-15"
+            class="float-right font-14"
             type="submit"
             size="sm"
           >

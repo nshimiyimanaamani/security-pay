@@ -23,7 +23,7 @@
         <b-form-group class="m-0">
           <b-button
             variant="info"
-            class="float-right font-15"
+            class="float-right font-14"
             :disabled="(form.cell&&form.email)?false:true"
             size="sm"
             type="submit"

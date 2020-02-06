@@ -6,7 +6,7 @@
         <b-col cols="4" class="align-self-center p-0">
           <img src="../../public/favicon.png" alt="paypack-logo" style="width:6.5rem;height:6.5rem" />
         </b-col>
-        <b-col class="align-self-center p-0 ml-2 font-15" style="height:6.5rem">
+        <b-col class="align-self-center p-0 ml-2 font-14" style="height:6.5rem">
           <b-row id="paypack" class="py-4">PAYPACK</b-row>
           <b-row class="py-2 slogan">Easy way to collect and organise public fees</b-row>
         </b-col>
@@ -38,7 +38,7 @@
               <b-spinner small type="grow" v-show="loading"></b-spinner>
             </b-button>
             <br />
-            <span class="float-right mt-1">
+            <span class="float-right mt-1 font-13">
               Forgot Password?
               <a href="#">Get HELP</a>
             </span>
@@ -66,7 +66,7 @@ export default {
   },
   methods: {
     login() {
-      console.log(this.endpoint)
+      console.log(this.endpoint);
       const email = this.form.email;
       const key = this.form.password;
       if (email && key) {

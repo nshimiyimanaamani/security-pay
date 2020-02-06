@@ -8,7 +8,7 @@
       </b-row>
     </b-card-sub-title>
     <hr />
-    <b-card-text class="font-15 text-capitalize">{{feedback.body}}</b-card-text>
+    <b-card-text class="font-14 text-capitalize">{{feedback.body}}</b-card-text>
   </b-card>
 </template>
 

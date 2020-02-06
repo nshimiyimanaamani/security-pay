@@ -116,12 +116,12 @@
           size="sm"
           type="submit"
           variant="primary"
-          class="font-15 app-color"
+          class="font-14 app-color"
         >
           {{state.adding ? btnContent+'ing' : btnContent}}
           <b-spinner v-show="state.adding" small type="grow"></b-spinner>
         </b-button>
-        <b-button type="reset" size="sm" class="font-15" variant="danger">cancel</b-button>
+        <b-button type="reset" size="sm" class="font-14" variant="danger">cancel</b-button>
       </b-form>
     </b-card>
   </div>
