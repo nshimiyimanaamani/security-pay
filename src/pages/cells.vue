@@ -1,64 +1,151 @@
 <template>
-  <div class="cells-container">
-    <!-- start of chart 1 -->
-    <div class="row">
-      <b-card-body>
-        <b-card-header>
-          <i class="fa fa-th-large"></i>
-          <h1 class>{{activeCell}} COLLECTING ACCOUNT</h1>
-          <i class="fa fa-cog"></i>
-        </b-card-header>
-        <bar-chart v-if="chart1Data" :chart-data="chart1Data" :style="style"></bar-chart>
-      </b-card-body>
-      <!-- end of chart 1 -->
+  <b-container class="max-width">
+    <vue-title title="Paypack | Cells" />
+    <b-row align-v="start" class="m-auto p-0 w-100 h-50">
+      <b-col xl="6" lg="6" md="6" sm="12" class="column">
+        <b-card-body>
+          <b-card-header>
+            <i class="fa fa-th-large"></i>
+            <h1 class="text-center">{{activeCell}} COLLECTING ACCOUNT</h1>
+            <i class="fa fa-cog"></i>
+          </b-card-header>
+          <div style="height:85%">
+            <bar-chart
+              v-if="chart1Data"
+              :chart-data="chart1Data"
+              :options="optionsChart1"
+              :style="style"
+            />
+          </div>
+        </b-card-body>
+        <!-- end of chart 1 -->
+      </b-col>
+      <b-col xl="6" lg="6" md="6" sm="12" class="column">
+        <b-card-body class="chart-2">
+          <b-card-header class="align-items-center p-2 px-3">
+            <i
+              class="fa fa-refresh cursor-pointer"
+              @click="loadData2"
+              :class="{'fa-spin':chart2.state.loading}"
+            />
+            <h1 class="text-center">{{activeCell}} TOTAL COLLECTED</h1>
+            <selector :object="config" v-on:ok="updated" />
+          </b-card-header>
+          <div class="chart position-relative" style="height: 85%">
+            <div v-if="!chart2.state.loading" class="h-100">
+              <doughnut-chart
+                :chart-data="chart2.data"
+                v-if="chart2.data"
+                :options="optionsChart2"
+                :style="style"
+              />
+              <div
+                class="center-text justify-content-center align-items-center w-100 h-100 d-flex position-absolute"
+                v-if="!chart2.state.error"
+              >{{chart2.percentage}}%</div>
+            </div>
 
-      <!-- start of chart 2 -->
-      <b-card-body class="chart-2">
-        <b-card-header>
-          <i class="fa fa-th-large"></i>
-          <h1 class>{{activeCell}} TOTAL COLLECTED</h1>
-          <i class="fa fa-cog"></i>
-        </b-card-header>
-        <div class="chart" style="height:100%;position:relative">
-          <doughnut-chart v-if="chart2Data" :chart-data="chart2Data" :style="style"></doughnut-chart>
-          <div class="center-text">{{percentage}}%</div>
-        </div>
-      </b-card-body>
-      <!-- end of chart 2 -->
-    </div>
-    <!-- start of chart 3 -->
-    <div class="row">
-      <b-card-body class="chart-3">
-        <b-card-header>
-          <i class="fa fa-th-large"></i>
-          <h1 class>{{activeCell}} CELL</h1>
-          <i class="fa fa-cog"></i>
-        </b-card-header>
-        <line-chart
-          v-if="chart3Data"
-          :chart-data="chart3Data"
-          :style="style"
-          :tooltipData="chart3AdditionalData"
-        />
-      </b-card-body>
-    </div>
-    <!-- end of chart 3 -->
-  </div>
+            <b-card
+              no-body
+              class="position-absolute bg-transparent border-0 chartLoader align-items-center"
+              v-if="chart2.state.loading"
+            >
+              <loader />
+            </b-card>
+            <b-card
+              no-body
+              class="position-absolute bg-transparent border-0 chartLoader align-items-center text-uppercase"
+              v-if="chart2.state.error"
+            >
+              <p>{{chart2.state.errorMessage}}</p>
+            </b-card>
+          </div>
+        </b-card-body>
+      </b-col>
+    </b-row>
+    <b-row align-v="end" class="m-auto p-0 w-100 h-50">
+      <b-col xl="12" lg="12" md="12" sm="12" class="column">
+        <b-card-body class="chart-3">
+          <b-card-header class="align-items-center p-2 px-3">
+            <i
+              class="fa fa-refresh cursor-pointer"
+              @click="loadData3"
+              :class="{'fa-spin':chart3.state.loading}"
+            />
+            <h1 class="text-center">{{activeCell}} CELL</h1>
+            <selector :object="config" v-on:ok="updated" />
+          </b-card-header>
+          <div style="height:85%">
+            <div v-if="!chart3.state.loading" class="h-100">
+              <line-chart
+                v-if="chart3.data"
+                :chart-data="chart3.data"
+                :style="style"
+                :tooltipData="chart3AdditionalData"
+                :options="optionsChart3"
+              />
+            </div>
+
+            <b-card
+              no-body
+              class="position-absolute bg-transparent border-0 chartLoader align-items-center"
+              v-if="chart3.state.loading"
+            >
+              <loader />
+            </b-card>
+            <b-card
+              no-body
+              class="position-absolute bg-transparent border-0 chartLoader align-items-center text-uppercase"
+              v-if="chart3.state.error"
+            >
+              <p>{{chart3.state.errorMessage}}</p>
+            </b-card>
+          </div>
+        </b-card-body>
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <script>
-import BarChart from "../components/cellsChart1.vue";
-import DoughnutChart from "../components/cellsChart2.vue";
-import LineChart from "../components/cellsChart3.vue";
+import BarChart from "../components/BarChart.vue";
+import DoughnutChart from "../components/DaughnutChart.vue";
+import LineChart from "../components/MixedCharts.vue";
+import loader from "../components/loader";
+import yearSelectorVue from "../components/yearSelector.vue";
 export default {
   name: "cells",
   components: {
     BarChart,
     DoughnutChart,
-    LineChart
+    LineChart,
+    loader,
+    selector: yearSelectorVue
   },
   data() {
     return {
+      config: {
+        configuring: false,
+        year: new Date().getFullYear(),
+        month: new Date().getMonth() + 1
+      },
+      chart2: {
+        data: null,
+        percentage: null,
+        state: {
+          loading: true,
+          error: false,
+          errorMessage: null
+        }
+      },
+      chart3: {
+        data: null,
+        state: {
+          loading: false,
+          error: false,
+          errorMessage: null
+        }
+      },
       chart1Data: null,
       chart2Data: null,
       chart3Data: null,
@@ -69,35 +156,250 @@ export default {
     };
   },
   computed: {
+    endpoint() {
+      return this.$store.getters.getEndpoint;
+    },
     activeCell() {
       return this.$store.getters.getActiveCell;
     },
     cellArray() {
-      return this.$store.getters.getSectorArray[this.activeCell];
+      return this.$store.getters.getCellsArray;
     },
     style() {
       return {
-        height: "85%",
-        "font-size": "15px"
+        height: "100%"
       };
+    },
+    months() {
+      return this.$store.getters.getMonths;
     },
     percentage() {
       const data = this.chart2Data.datasets[0].data;
       const percentage = (data[0] * 100) / (data[0] + data[1]);
       return percentage.toFixed();
+    },
+    optionsChart1() {
+      return {
+        tooltips: { enabled: false },
+        hover: { mode: null },
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          yAxes: [
+            {
+              ticks: {
+                min: 0,
+                stepSize: 10,
+                callback: (label, index, labels) => {
+                  switch (label) {
+                    case label:
+                      return label + "M";
+                  }
+                }
+              }
+            }
+          ],
+          xAxes: [
+            {
+              gridLines: { display: false }
+            }
+          ]
+        },
+        legend: {
+          display: false
+        },
+        layout: {
+          padding: {
+            left: 10,
+            right: 20,
+            top: 25,
+            bottom: 0
+          }
+        }
+      };
+    },
+    optionsChart2() {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutoutPercentage: 80,
+        hover: { mode: null },
+        tooltips: { enabled: false },
+        legend: { display: false },
+        layout: {
+          padding: {
+            left: 10,
+            right: 10,
+            top: 10,
+            bottom: 10
+          }
+        }
+      };
+    },
+    optionsChart3() {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          yAxes: [
+            {
+              ticks: {
+                min: 0,
+                stepSize: 10,
+                callback: (label, index, labels) => {
+                  switch (label) {
+                    case label:
+                      return label + "%";
+                  }
+                }
+              }
+            }
+          ],
+          xAxes: [
+            {
+              gridLines: { display: false }
+            }
+          ]
+        },
+        legend: {
+          display: false
+        },
+        layout: {
+          padding: {
+            left: 10,
+            right: 20,
+            top: 25,
+            bottom: 0
+          }
+        },
+        tooltips: {
+          displayColors: false,
+          callbacks: {
+            label: function(tooltipItem, data) {
+              var label = [data.datasets[tooltipItem.datasetIndex].label] || "";
+
+              if (label) {
+                label = new Array();
+                label.push(`Percentage: ${tooltipItem.value}%`);
+              }
+              return label;
+            }
+          }
+        }
+      };
+    },
+    currentYear() {
+      return new Date().getFullYear();
+    },
+    currentMonth() {
+      return new Date().getMonth() + 1;
     }
   },
   watch: {
     activeCell() {
       handler: {
         this.fetchData();
+        this.loadData2();
+        this.loadData3();
       }
     }
   },
   beforeMount() {
     this.fetchData();
+    this.loadData2();
+    this.loadData3();
   },
   methods: {
+    updated() {
+      this.fetchData();
+      this.loadData2();
+      this.loadData3();
+    },
+    loadData2() {
+      this.chart2.data = null;
+      this.chart2.state.loading = true;
+      this.chart2.state.error = false;
+      const year = this.config.year;
+      const month = this.config.month;
+      this.axios
+        .get(
+          this.endpoint +
+            `/metrics/ratios/cells/${this.activeCell}?year=${year}&month=${month}`
+        )
+        .then(res => {
+          const data = res.data.data;
+          const percentage = (data.payed * 100) / (data.payed + data.pending);
+          this.chart2.percentage = percentage.toFixed();
+          this.chart2.data = {
+            labels: Object.keys(data),
+            datasets: [
+              {
+                label: res.data.label,
+                backgroundColor: ["#008b8bb3", "#e4e4ec"],
+                borderColor: "white",
+                data: [data.payed, data.pending]
+              }
+            ]
+          };
+        })
+        .catch(err => {
+          this.chart2.state.error = true;
+          this.chart2.state.errorMessage = err.response
+            ? err.response.data.error || err.response.data
+            : "Error";
+        })
+        .finally(() => (this.chart2.state.loading = false));
+    },
+    loadData3() {
+      this.chart3.data = null;
+      this.chart3.state.loading = true;
+      this.chart3.state.error = false;
+      this.chart3.state.errorMessage = null;
+      const year = this.config.year;
+      const month = this.config.month;
+      this.axios
+        .get(
+          this.endpoint +
+            `/metrics/ratios/cells/all/${this.activeCell}?year=${year}&month=${month}`
+        )
+        .then(res => {
+          const data = res.data;
+          if (data.length > 0) {
+            let labels = data.map(item => item.label);
+            this.chart3.data = {
+              labels: labels,
+              datasets: [
+                {
+                  label: "Data",
+                  barPercentage: 0.95,
+                  categoryPercentage: 1,
+                  backgroundColor: "#008b8bb3",
+                  data: this.getDataByLabels(data)
+                },
+                {
+                  label: "Data",
+                  type: "line",
+                  backgroundColor: "transparent",
+                  borderColor: "#095252ad",
+                  pointRadius: 5,
+                  borderDash: [10],
+                  data: this.getDataByLabels(data)
+                }
+              ]
+            };
+          } else {
+            this.chart3.state.error = true;
+            this.chart3.state.errorMessage = "NO DATA FOUND FOR THIS SECTOR";
+          }
+        })
+        .catch(err => {
+          this.chart3.state.error = true;
+          this.chart3.state.errorMessage = err.response
+            ? err.response.data.error || err.response.data
+            : "Error";
+        })
+        .finally(() => (this.chart3.state.loading = false));
+    },
     fetchData() {
       window.Chart.defaults.global.defaultFontSize = 13.5;
       this.chart1Data = this.fillData(["BK", "MTN", "AIRTEL"]);
@@ -119,6 +421,8 @@ export default {
         datasets: [
           {
             label: "Data",
+            barPercentage: 0.95,
+            categoryPercentage: 1,
             backgroundColor: "#008b8bb3",
             data: this.getData(labels)
           }
@@ -148,10 +452,19 @@ export default {
         array.push(this.getRandomInt());
       });
       return array;
+    },
+    getDataByLabels(data) {
+      let array = [];
+      data.forEach(item => {
+        const percentage =
+          (item.data.payed * 100) / (item.data.payed + item.data.pending);
+        array.push(percentage);
+      });
+      return array;
     }
   }
 };
 </script>
 <style>
-@import url("../assets/css/cells.css");
+@import url("../assets/css/dashboard.css");
 </style>

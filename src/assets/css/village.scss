@@ -1,16 +1,23 @@
 .village-wrapper {
-  .container {
-    width: 80vw;
-    padding: 15px 15px 0;
+  .card-columns {
+    column-count: 2 !important;
+  }
 
+  .progress {
+    width: 100%;
+    height: 5px;
+  }
+  .container {
+    height: calc(100vh - 55px);
+
+    .village-body {
+      overflow-y: scroll;
+      height: calc(100% - 45px);
+    }
     .card {
       border: 1px solid lightgray;
-      border-top: none;
-      margin-bottom: 20px;
-      background: white;
-      box-shadow: 0px 5px 10px #e0d5d5;
 
-      .card-body>section {
+      .card-group {
         border: 1px solid #cec4c4;
         padding: 5px 10px;
         width: 49%;
@@ -19,14 +26,6 @@
         margin-bottom: 10px;
         display: block;
         break-inside: avoid;
-
-        &:nth-child(even) {
-          float: right;
-        }
-
-        &:nth-child(odd) {
-          float: left;
-        }
 
         .card-header {
           display: flex;
@@ -42,7 +41,6 @@
             margin-left: auto;
           }
         }
-
         .card-footer {
           display: flex;
           padding: 10px 0px 0;
@@ -52,7 +50,6 @@
             width: 100%;
             padding-right: 10px;
             display: block;
-
             font-size: 14px;
 
             .progress {
@@ -77,7 +74,7 @@
           margin: 6px -11px;
           border: 1px solid;
           border-top: none;
-          border-color: inherit;
+          border-color: #cec4c4;
           padding: 10px 10px 0;
 
           article {
@@ -87,7 +84,8 @@
 
             p {
               position: absolute;
-              margin-left: 20%;
+              margin-left: 35%;
+              text-transform: capitalize;
             }
           }
         }
@@ -98,8 +96,7 @@
       border: 1px solid lightgray;
       border-top: none;
       margin-bottom: 20px;
-      background: white;
-      box-shadow: 0px 5px 10px #e0d5d5;
+      background: transparent;
       padding-top: 1px;
 
       article {
@@ -122,9 +119,20 @@
   .container-title {
     padding: 10px;
     border-radius: 10px 10px 0 0;
-    background-color: darkcyan;
+    background-color: #3a82a1;
     display: flex;
 
+    .width-3 {
+      width: calc(100% / 3);
+    }
+    .search {
+      transition: max-width 1s ease-out;
+    }
+    .search.w-0 {
+      max-width: 0;
+      padding: 0 !important;
+      border: 0;
+    }
     h1 {
       color: #ffffff;
       font-size: 14px;

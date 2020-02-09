@@ -1,22 +1,17 @@
 .container {
-  padding: 60px 20px 0;
+  padding: 1rem;
   width: auto;
 }
 
-.container table thead th.table-name {
-  width: 20rem;
+.container table tbody .table-name {
+  text-transform: uppercase;
 }
 
-.container table thead th.table-icon {
-  width: 10rem;
-}
-
-.container table thead th.table-amount {
-  width: 10rem;
-}
-
-.container table thead th.table-date {
-  width: 10rem;
+.totals {
+  height: 150px;
+  background: #3a82a1;
+  width: 100%;
+  padding: 15px;
 }
 
 .container .pulse {
@@ -25,7 +20,7 @@
 
 .container .pulse::after {
   display: block;
-  content: "Please wait ...";
+  content: "  Please wait ...";
   font-weight: bold;
 }
 
@@ -45,8 +40,8 @@ tbody td {
   min-width: fit-content;
   background: white;
   padding: 5px 0;
-  -webkit-box-shadow: 1px 1px 4px #9a9797;
-          box-shadow: 1px 1px 4px #9a9797;
+  -webkit-box-shadow: 1px 1px 2px #9a9797;
+          box-shadow: 1px 1px 2px #9a9797;
   text-align: center;
   -webkit-user-select: none;
      -moz-user-select: none;
@@ -72,8 +67,8 @@ tbody td {
   min-width: fit-content;
   border-radius: 3px;
   background: #f93d3d;
-  -webkit-box-shadow: 1px 1px 5px #9a9797;
-          box-shadow: 1px 1px 5px #9a9797;
+  -webkit-box-shadow: 1px 1px 2px #9a9797;
+          box-shadow: 1px 1px 2px #9a9797;
   padding: 5px 0;
   -webkit-user-select: none;
      -moz-user-select: none;
@@ -98,8 +93,8 @@ tbody td {
   min-width: fit-content;
   border-radius: 3px;
   background: white;
-  -webkit-box-shadow: 1px 1px 4px #9a9797;
-          box-shadow: 1px 1px 4px #9a9797;
+  -webkit-box-shadow: 1px 1px 2px #9a9797;
+          box-shadow: 1px 1px 2px #9a9797;
   height: -webkit-fit-content;
   height: -moz-fit-content;
   height: fit-content;

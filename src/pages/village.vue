@@ -1,50 +1,44 @@
 <template>
-  <div class="village-wrapper">
-    <div class="container">
-      <div class="container-title">
-        <i class="fa fa-th-large"></i>
-        <h1>{{activeVillage}}</h1>
-        <span class="fa fa-cog"></span>
+  <div class="village-wrapper w-100" style="min-width: 700px">
+    <vue-title title="Paypack | Village" />
+    <div class="container mw-100">
+      <div class="container-title d-flex justify-content-between align-items-center">
+        <i class="fa fa-th-large width-3"></i>
+        <h1 class="m-0 width-3 text-center">{{activeVillage}}</h1>
+        <span class="d-flex flex-row-reverse align-items-center width-3 position-relative">
+          <transition name="fade">
+            <div v-if="state.showSearch">
+              <b-input
+                type="search"
+                size="sm"
+                style="left:-50px;top:-3px"
+                class="position-absolute font-13 app-font left"
+                placeholder="search user..."
+              />
+            </div>
+          </transition>
+
+          <i class="fa fa-cog cursor-pointer" @click="state.showSearch = !state.showSearch" />
+        </span>
       </div>
-      <b-card v-show="houses.length">
-        <section v-for="(house,index) in houses" :key="index">
-          <b-card-header>
-            <p>{{house.owner}}</p>
-            <p>{{house.id}}</p>
-          </b-card-header>
-          <b-card-footer>
-            <article>
-              <span v-show="house.percentage" class="completed">completed</span>
-              <span class="details">{{house.due}} /5 last months</span>
-              <b-progress :value="60" :max="100"></b-progress>
-            </article>
-            <i class="fa fa-ellipsis-v" v-b-toggle.collapse="''+index"></i>
-          </b-card-footer>
-          <b-collapse :id="'' + index" class="more-data">
-            <article>
-              <label for="sector">Sector:</label>
-              <p>{{house.sector}}</p>
-            </article>
-            <article>
-              <label for="cell">Cell:</label>
-              <p>{{house.cell}}</p>
-            </article>
-            <article>
-              <label for="village">village:</label>
-              <p>{{house.village}}</p>
-            </article>
-            <article>
-              <label for="due">To Pay:</label>
-              <p>{{house.due}} Rwf</p>
-            </article>
-          </b-collapse>
-        </section>
+      <b-card
+        body-bg-variant="white"
+        v-show="houses.length"
+        class="border-top-0 rounded-0 village-body"
+      >
+        <b-card-group columns>
+          <b-card body-bg-variant="white" no-body v-for="(house,index) in houses" :key="index">
+            <user-card :house="house" :index="index" />
+          </b-card>
+        </b-card-group>
       </b-card>
       <section class="error" v-show="!houses.length">
         <article>
           <center>
-            <i class="fa fa-exclamation-triangle"></i>
-            <label for="error">No House found in {{activeVillage}}</label>
+            <div v-if="!state.loading">
+              <label for="error" class="font-14">No House found in {{activeVillage}} village</label>
+            </div>
+            <loader :loading="state.loading" />
           </center>
         </article>
       </section>
@@ -53,23 +47,21 @@
 </template>
 
 <script>
+import userCard from "../components/usercard.vue";
+import loader from "../components/loader.vue";
 export default {
+  name: "village",
+  components: {
+    "user-card": userCard,
+    loader
+  },
   data() {
     return {
-      months: [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December"
-      ],
+      state: {
+        loading: true,
+        showCollapse: false,
+        showSearch: false
+      },
       houses: [],
       responseData: [],
       green: "#50a031",
@@ -91,7 +83,7 @@ export default {
   watch: {
     activeVillage() {
       handler: {
-        this.filterBy_village();
+        this.loadData();
       }
     }
   },
@@ -100,24 +92,30 @@ export default {
   },
   methods: {
     loadData() {
+      this.state.loading = true;
+      this.houses = new Array();
       this.axios
-        .get(this.endpoint + `/properties/sectors/remera?offset=1&limit=100`)
+        .get(
+          this.endpoint +
+            `/properties?village=${this.activeVillage}&offset=0&limit=1000`
+        )
         .then(res => {
-          console.log(res.data);
-          this.responseData = res.data.properties;
-          this.filterBy_village();
+          this.houses = res.data.Properties;
         })
         .catch(err => {
-          console.log(err);
+          if (navigator.onLine) {
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : "an error occured";
+            this.$snotify.error(error);
+          } else {
+            this.$snotify.error("Please connect to the internet");
+          }
           return [];
+        })
+        .finally(() => {
+          this.state.loading = false;
         });
-    },
-    filterBy_village() {
-      this.$nextTick(() => {
-        this.houses = this.responseData.filter(data => {
-          return data.village === this.activeVillage;
-        });
-      });
     }
   }
 };
