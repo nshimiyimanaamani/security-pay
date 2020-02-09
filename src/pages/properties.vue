@@ -191,7 +191,10 @@ export default {
         request: false
       },
       rightMenu: {
-        options: [{ name: "Edit House", slug: "edit" }]
+        options: [
+          { name: "Edit House", slug: "edit" },
+          { name: "Delete House", slug: "delete" }
+        ]
       },
       updateModal: {
         show: false,
@@ -388,11 +391,52 @@ export default {
       this.$refs.rightMenu.showMenu(evt, house);
     },
     showUpdateModal(data) {
-      if (data) {
+      if (data.option.slug == "edit") {
+        console.log(data);
         this.updateModal.item = data.item ? data.item : {};
         this.updateModal.option = data.option ? data.option : {};
         this.updateModal.show = data.item ? true : false;
+      } else if (data.option.slug == "delete") {
+        console.log(data);
+        this.deleteHouse(data.item);
       }
+    },
+    deleteHouse(house) {
+      const message = `Do you want to delete this house? Names: ${house.owner.fname} ${house.owner.lname}  ID: ${house.id}`;
+      this.$bvModal
+        .msgBoxOk(message, {
+          title: "Delete House",
+          size: "sm",
+          buttonSize: "sm",
+          okVariant: "info",
+          headerClass: "p-2 border-bottom-0",
+          footerClass: "p-2 border-top-0",
+          centered: true
+        })
+        .then(value => {
+          if (value === true) {
+            this.axios
+              .delete(this.endpoint + "/properties/" + house.id)
+              .then(res => {
+                console.log(res.data);
+                this.$snotify.info("House deleted successfully");
+                this.loadData();
+              })
+              .catch(err => {
+                if (navigator.onLine) {
+                  const error = err.response
+                    ? err.response.data.error || err.response.data
+                    : "an error occured";
+                  this.$snotify.error(error);
+                } else {
+                  this.$snotify.error("Please connect to the internet");
+                }
+              });
+          }
+        })
+        .catch(err => {
+          this.$snotify.error("An error occured");
+        });
     },
     closeUpdateModal() {
       this.loadData();
