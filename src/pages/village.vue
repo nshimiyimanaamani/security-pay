@@ -95,22 +95,15 @@ export default {
       this.state.loading = true;
       this.houses = new Array();
       this.axios
-        .get(
-          this.endpoint +
-            `/properties?village=${this.activeVillage}&offset=0&limit=1000`
-        )
+        .get(`/properties?village=${this.activeVillage}&offset=0&limit=1000`)
         .then(res => {
           this.houses = res.data.Properties;
         })
         .catch(err => {
-          if (navigator.onLine) {
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : "an error occured";
-            this.$snotify.error(error);
-          } else {
-            this.$snotify.error("Please connect to the internet");
-          }
+          const error = err.response
+            ? err.response.data.error || err.response.data
+            : null;
+          if (error) this.$snotify.error(error);
           return [];
         })
         .finally(() => {

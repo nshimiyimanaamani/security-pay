@@ -201,11 +201,11 @@ export default {
       const year = this.config.year;
       const month = this.config.month;
       const first = this.axios.get(
-        this.endpoint +
+        
           `/metrics/ratios/sectors/${this.activeSector}?year=${year}&month=${month}`
       );
       const second = this.axios.get(
-        this.endpoint +
+        
           `/metrics/balance/sectors/${this.activeSector}?year=${year}&month=${month}`
       );
       const promise = this.axios.all([first, second]);
@@ -246,11 +246,11 @@ export default {
       const year = this.config.year;
       const month = this.config.month;
       const first = this.axios.get(
-        this.endpoint +
+        
           `/metrics/ratios/sectors/all/${this.activeSector}?year=${year}&month=${month}`
       );
       const second = this.axios.get(
-        this.endpoint +
+        
           `/metrics/balance/sectors/all/${this.activeSector}?year=${year}&month=${month}`
       );
       const promise = this.axios.all([first, second]);

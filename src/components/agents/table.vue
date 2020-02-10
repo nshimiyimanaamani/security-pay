@@ -70,23 +70,16 @@ export default {
       } else {
         this.state.loading = true;
         this.axios
-          .get(
-            this.endpoint +
-              `/properties?sector=${agent.sector}&offset=0&limit=1000`
-          )
+          .get(`/properties?sector=${agent.sector}&offset=0&limit=1000`)
           .then(res => {
             this.table.items = [];
             this.table.items = res.data.Properties.filter(this.isForAgent);
           })
           .catch(err => {
-            if (navigator.onLine) {
-              const error = err.response
-                ? err.response.data.error || err.response.data
-                : "an error occured";
-              this.$snotify.error(error);
-            } else {
-              this.$snotify.error("Please connect to the internet");
-            }
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : null;
+            if (error) this.$snotify.error(error);
           })
           .finally(() => {
             this.state.loading = false;

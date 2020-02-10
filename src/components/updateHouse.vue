@@ -184,14 +184,14 @@ export default {
         : this.house.address.village;
       this.state.updating = true;
       this.axios
-        .put(this.endpoint + "/owners/" + this.house.owner.id, {
+        .put("/owners/" + this.house.owner.id, {
           fname: this.toCapital(this.house.owner.fname).trim(),
           lname: this.toCapital(this.house.owner.lname).trim(),
           phone: this.house.owner.phone.trim()
         })
         .then(res => {
           this.axios
-            .put(this.endpoint + "/properties/" + this.house.id, {
+            .put("/properties/" + this.house.id, {
               owner: {
                 id: res.data.id
               },
@@ -204,14 +204,10 @@ export default {
               this.$snotify.info(response.data.message);
             })
             .catch(err => {
-              if (navigator.onLine) {
-                const error = err.response
-                  ? err.response.data.message || err.response.data
-                  : "an error occured";
-                this.$snotify.error(error);
-              } else {
-                this.$snotify.error("Please connect to the internet");
-              }
+              const error = err.response
+                ? err.response.data.message || err.response.data
+                : null;
+              if (error) this.$snotify.error(error);
             })
             .finally(() => {
               this.state.updating = false;
@@ -219,14 +215,10 @@ export default {
             });
         })
         .catch(err => {
-          if (navigator.onLine) {
-            const error = err.response
-              ? err.response.data.message || err.response.data
-              : "an error occured";
-            this.$snotify.error(error);
-          } else {
-            this.$snotify.error("Please connect to the internet");
-          }
+          const error = err.response
+            ? err.response.data.message || err.response.data
+            : null;
+          if (error) this.$snotify.error(error);
           this.state.updating = false;
           this.$emit("closeModal");
         });

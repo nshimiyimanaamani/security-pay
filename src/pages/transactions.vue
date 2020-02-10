@@ -130,7 +130,7 @@ export default {
     requestItems() {
       this.loading = true;
       this.axios
-        .get(this.endpoint + "/transactions?offset=0&limit=1000")
+        .get("/transactions?offset=0&limit=1000")
         .then(res => {
           if (this.user.role.toLowerCase() == "basic") {
             this.table.items = res.data.Transactions.filter(
@@ -142,14 +142,10 @@ export default {
         })
         .catch(err => {
           this.table.items = [];
-          if (navigator.onLine) {
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : "an error occured";
-            this.$snotify.error(error);
-          } else {
-            this.$snotify.error("Please connect to the internet");
-          }
+          const error = err.response
+            ? err.response.data.error || err.response.data
+            : null;
+          if (error) this.$snotify.error(error);
         })
         .finally(() => {
           this.loading = false;

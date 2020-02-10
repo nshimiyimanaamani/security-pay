@@ -64,7 +64,7 @@ export default {
       if (creator && this.title.length && this.body.length) {
         this.state.sending = true;
         this.axios
-          .post(this.endpoint + "/feedback", {
+          .post("/feedback", {
             title: this.title,
             body: this.body,
             creator: creator
@@ -73,14 +73,10 @@ export default {
             this.$snotify.info("FeedBack Added");
           })
           .catch(err => {
-            if (navigator.onLine) {
-              const error = err.response
-                ? err.response.data.error || err.response.data
-                : "an error occured";
-              this.$snotify.error(error);
-            } else {
-              this.$snotify.error("Please connect to the internet");
-            }
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : null;
+            if (error) this.$snotify.error(error);
           })
           .finally(() => {
             this.state.sending = false;

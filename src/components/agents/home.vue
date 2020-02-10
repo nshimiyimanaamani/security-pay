@@ -40,20 +40,16 @@ export default {
   methods: {
     getInfo() {
       this.axios
-        .get(this.endpoint + "/accounts/agents/" + this.userDetails.username)
+        .get("/accounts/agents/" + this.userDetails.username)
         .then(res => {
           this.user = { ...res.data };
           this.key++;
         })
         .catch(err => {
-          if (navigator.onLine) {
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : "an error occured";
-            this.$snotify.error(error);
-          } else {
-            this.$snotify.error("Please connect to the internet");
-          }
+          const error = err.response
+            ? err.response.data.error || err.response.data
+            : null;
+          if (error) this.$snotify.error(error);
         });
     }
   }

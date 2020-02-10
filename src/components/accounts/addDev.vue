@@ -137,7 +137,7 @@ export default {
       this.state.creating = true;
       const account = jwt.decode(sessionStorage.token).account;
       this.axios
-        .post(this.endpoint + "/accounts/developers", {
+        .post("/accounts/developers", {
           account: account,
           email: this.form.email,
           password: this.form.password
@@ -158,14 +158,10 @@ export default {
             .then(res => console.log(""));
         })
         .catch(err => {
-          if (navigator.onLine) {
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : "an error occured";
-            this.$snotify.error(error);
-          } else {
-            this.$snotify.error("Please connect to the internet");
-          }
+          const error = err.response
+            ? err.response.data.error || err.response.data
+            : null;
+          if (error) this.$snotify.error(error);
         })
         .finally(() => {
           this.state.creating = false;
@@ -175,7 +171,7 @@ export default {
     loadData() {
       this.state.tableLoad = true;
       const promise = this.axios.get(
-        this.endpoint + "/accounts/developers?offset=0&limit=1000"
+        "/accounts/developers?offset=0&limit=1000"
       );
       return promise
         .then(res => {
@@ -196,20 +192,16 @@ export default {
       if (data.option.slug == "delete") {
         this.state.tableLoad = true;
         this.axios
-          .delete(this.endpoint + `/accounts/${data.email}`)
+          .delete(`/accounts/${data.email}`)
           .then(res => {
             this.loadData();
             this.$snotify.info("Developer deleted Succesfully");
           })
           .catch(err => {
-            if (navigator.onLine) {
-              const error = err.response
-                ? err.response.data.error || err.response.data
-                : "an error occured";
-              this.$snotify.error(error);
-            } else {
-              this.$snotify.error("Please connect to the internet");
-            }
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : null;
+            if (error) this.$snotify.error(error);
           })
           .finally(() => {
             this.state.tableLoad = false;
@@ -223,7 +215,7 @@ export default {
       this.state.changing = true;
       const data = this.change_pswd_modal.data;
       this.axios
-        .put(this.endpoint + "/accounts/developers/creds/" + data.email, {
+        .put("/accounts/developers/creds/" + data.email, {
           password: this.form.newPwd
         })
         .then(res => {
@@ -231,14 +223,10 @@ export default {
           this.loadData();
         })
         .catch(err => {
-          if (navigator.onLine) {
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : "an error occured";
-            this.$snotify.error(error);
-          } else {
-            this.$snotify.error("Please connect to the internet");
-          }
+          const error = err.response
+            ? err.response.data.error || err.response.data
+            : null;
+          if (error) this.$snotify.error(error);
         })
         .finally(() => {
           this.state.changing = false;

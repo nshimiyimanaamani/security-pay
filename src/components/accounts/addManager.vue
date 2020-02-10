@@ -166,7 +166,7 @@ export default {
       this.state.creating = true;
       const account = jwt.decode(sessionStorage.token).account;
       this.axios
-        .post(this.endpoint + "/accounts/managers", {
+        .post("/accounts/managers", {
           account: account,
           email: this.form.email,
           cell: this.form.cell
@@ -187,14 +187,10 @@ export default {
             .then(res => console.log(""));
         })
         .catch(err => {
-          if (navigator.onLine) {
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : "an error occured";
-            this.$snotify.error(error);
-          } else {
-            this.$snotify.error("Please connect to the internet");
-          }
+          const error = err.response
+            ? err.response.data.error || err.response.data
+            : null;
+          if (error) this.$snotify.error(error);
         })
         .finally(() => {
           this.state.creating = false;
@@ -202,9 +198,7 @@ export default {
         });
     },
     loadData() {
-      const promise = this.axios.get(
-        this.endpoint + "/accounts/managers?offset=0&limit=1000"
-      );
+      const promise = this.axios.get("/accounts/managers?offset=0&limit=1000");
       return promise
         .then(res => {
           this.state.tableLoad = false;
@@ -233,7 +227,7 @@ export default {
       this.state.changing = true;
       const data = this.change_pswd_modal.data;
       this.axios
-        .put(this.endpoint + "/accounts/managers/creds/" + data.email, {
+        .put("/accounts/managers/creds/" + data.email, {
           email: this.form.newEmail,
           password: this.form.newCell
         })
@@ -242,14 +236,10 @@ export default {
           this.loadData();
         })
         .catch(err => {
-          if (navigator.onLine) {
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : "an error occured";
-            this.$snotify.error(error);
-          } else {
-            this.$snotify.error("Please connect to the internet");
-          }
+          const error = err.response
+            ? err.response.data.error || err.response.data
+            : null;
+          if (error) this.$snotify.error(error);
         })
         .finally(() => {
           this.state.changing = false;
@@ -259,20 +249,16 @@ export default {
     deleteUser(data) {
       this.state.tableLoad = true;
       this.axios
-        .delete(this.endpoint + `/accounts/${data.email}`)
+        .delete(`/accounts/${data.email}`)
         .then(res => {
           this.loadData();
           this.$snotify.info("Manager deleted Succesfully");
         })
         .catch(err => {
-          if (navigator.onLine) {
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : "an error occured";
-            this.$snotify.error(error);
-          } else {
-            this.$snotify.error("Please connect to the internet");
-          }
+          const error = err.response
+            ? err.response.data.error || err.response.data
+            : null;
+          if (error) this.$snotify.error(error);
         })
         .finally(() => {
           this.state.tableLoad = false;

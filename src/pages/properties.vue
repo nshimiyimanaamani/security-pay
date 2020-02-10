@@ -344,12 +344,9 @@ export default {
       const axios = this.axios;
       var promise;
       if (this.user.role.toLowerCase() == "basic") {
-        promise =
-          this.endpoint + `/properties?cell=${this.activeCell}&offset=0&limit=`;
+        promise = `/properties?cell=${this.activeCell}&offset=0&limit=`;
       } else {
-        promise =
-          this.endpoint +
-          `/properties?sector=${this.activeSector}&offset=0&limit=`;
+        promise = `/properties?sector=${this.activeSector}&offset=0&limit=`;
       }
       axios
         .get(promise + `0`)
@@ -361,14 +358,10 @@ export default {
               this.pagination.totalRows = res.data.Total;
             })
             .catch(err => {
-              if (navigator.onLine) {
-                const error = err.response
-                  ? err.response.data.error || err.response.data
-                  : "an error occured";
-                this.$snotify.error(error);
-              } else {
-                this.$snotify.error("Please connect to the internet");
-              }
+              const error = err.response
+                ? err.response.data.error || err.response.data
+                : null;
+              if (error) this.$snotify.error(error);
             })
             .finally(() => {
               this.loading.request = false;
@@ -376,14 +369,10 @@ export default {
         })
         .catch(err => {
           this.loading.request = false;
-          if (navigator.onLine) {
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : "an error occured";
-            this.$snotify.error(error);
-          } else {
-            this.$snotify.error("Please connect to the internet");
-          }
+          const error = err.response
+            ? err.response.data.error || err.response.data
+            : null;
+          if (error) this.$snotify.error(error);
         });
     },
     editHouse(house, index, evt) {
@@ -416,21 +405,17 @@ export default {
         .then(value => {
           if (value === true) {
             this.axios
-              .delete(this.endpoint + "/properties/" + house.id)
+              .delete("/properties/" + house.id)
               .then(res => {
                 console.log(res.data);
                 this.$snotify.info("House deleted successfully");
                 this.loadData();
               })
               .catch(err => {
-                if (navigator.onLine) {
-                  const error = err.response
-                    ? err.response.data.error || err.response.data
-                    : "an error occured";
-                  this.$snotify.error(error);
-                } else {
-                  this.$snotify.error("Please connect to the internet");
-                }
+                const error = err.response
+                  ? err.response.data.error || err.response.data
+                  : null;
+                if (error) this.$snotify.error(error);
               });
           }
         })

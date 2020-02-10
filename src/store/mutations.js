@@ -34,7 +34,7 @@ const mutations = {
   logout(state) {
     delete sessionStorage.token;
     state.user = null;
-    router.push("/");
+    location.reload();
   }
 };
 export default mutations;

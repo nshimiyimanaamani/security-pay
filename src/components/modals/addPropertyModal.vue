@@ -228,8 +228,7 @@ export default {
         this.state.adding = true;
         this.axios
           .get(
-            this.endpoint +
-              "/owners/search?fname=" +
+            "/owners/search?fname=" +
               fname +
               "&lname=" +
               lname +
@@ -244,47 +243,39 @@ export default {
           })
           .catch(err => {
             this.state.adding = false;
-            if (navigator.onLine) {
-              const message = `${fname} ${lname} is not registered! Do you want to register this user?`;
-              this.confirm(message).then(state => {
-                if (state === true) {
-                  this.state.adding = true;
-                  this.axios
-                    .post(`${this.endpoint}/owners`, {
-                      fname: fname,
-                      lname: lname,
-                      phone: phone
-                    })
-                    .then(res => {
-                      this.state.adding = false;
-                      this.state.switch = true;
-                      this.btnContent = "Register";
-                      this.form.id = res.data.id;
-                      this.$snotify.info(
-                        `User created. proceeding to registration...`
-                      );
-                    })
-                    .catch(err => {
-                      if (navigator.onLine) {
-                        const error = err.response
-                          ? err.response.data.message || err.response.data
-                          : "an error occured";
-                        this.$snotify.error(error);
-                      } else {
-                        this.$snotify.error("Please connect to the internet");
-                      }
-                      this.state.adding = false;
-                    });
-                }
-              });
-            } else if (!navigator.onLine) {
-              this.$snotify.info(`Please connect to the internet...`);
-            }
+            const message = `${fname} ${lname} is not registered! Do you want to register this user?`;
+            this.confirm(message).then(state => {
+              if (state === true) {
+                this.state.adding = true;
+                this.axios
+                  .post(`/owners`, {
+                    fname: fname,
+                    lname: lname,
+                    phone: phone
+                  })
+                  .then(res => {
+                    this.state.adding = false;
+                    this.state.switch = true;
+                    this.btnContent = "Register";
+                    this.form.id = res.data.id;
+                    this.$snotify.info(
+                      `User created. proceeding to registration...`
+                    );
+                  })
+                  .catch(err => {
+                    const error = err.response
+                      ? err.response.data.message || err.response.data
+                      : null;
+                    if (error) this.$snotify.error(error);
+                    this.state.adding = false;
+                  });
+              }
+            });
           });
       } else if (this.state.switch) {
         this.state.adding = true;
         this.axios
-          .post(this.endpoint + "/properties", {
+          .post("/properties", {
             owner: {
               id: this.form.id
             },
@@ -303,14 +294,10 @@ export default {
             this.$snotify.info(`Property Registered successfully!`);
           })
           .catch(err => {
-            if (navigator.onLine) {
-              const error = err.response
-                ? err.response.data.error || err.response.data
-                : "an error occured";
-              this.$snotify.error(error);
-            } else {
-              this.$snotify.error("Please connect to the internet");
-            }
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : null;
+            if (error) this.$snotify.error(error);
             this.state.adding = false;
           });
       }

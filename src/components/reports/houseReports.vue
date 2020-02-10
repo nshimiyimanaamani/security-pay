@@ -128,22 +128,18 @@ export default {
       this.state.showReport = false;
       this.state.showPayment = false;
       this.axios
-        .get(this.endpoint + "/properties/" + this.houseId.toUpperCase())
+        .get("/properties/" + this.houseId.toUpperCase())
         .then(res => {
           this.state.showReport = true;
           this.userDetails = res.data;
           this.generatePayment();
         })
         .catch(err => {
-          if (navigator.onLine) {
-            this.state.showReport = false;
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : "an error occured";
-            this.$snotify.error(error);
-          } else {
-            this.$snotify.error("Please connect to the internet...");
-          }
+          this.state.showReport = false;
+          const error = err.response
+            ? err.response.data.error || err.response.data
+            : null;
+          if (error) this.$snotify.error(error);
         })
         .finally(() => {
           this.state.generating = false;
@@ -153,26 +149,17 @@ export default {
       this.state.showPayment = false;
       this.state.generatingP = true;
       this.axios
-        .get(
-          this.endpoint +
-            "/billing/invoices?property=" +
-            this.houseId +
-            "&months=12"
-        )
+        .get("/billing/invoices?property=" + this.houseId + "&months=12")
         .then(res => {
           this.paymentDetails = res.data.Invoices;
           this.state.showPayment = true;
         })
         .catch(err => {
-          if (navigator.onLine) {
-            this.state.showPayment = true;
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : "an error occured";
-            this.$snotify.error(error);
-          } else {
-            this.$snotify.error("Please connect to the internet...");
-          }
+          this.state.showPayment = true;
+          const error = err.response
+            ? err.response.data.error || err.response.data
+            : null;
+          if (error) this.$snotify.error(error);
         })
         .finally(() => (this.state.generatingP = false));
     },
