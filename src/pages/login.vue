@@ -66,30 +66,25 @@ export default {
   },
   methods: {
     login() {
-      console.log(this.endpoint);
       const email = this.form.email;
       const key = this.form.password;
       if (email && key) {
         this.loading = true;
         this.axios
-          .post(this.endpoint + "/accounts/login", {
+          .post("/accounts/login", {
             username: email,
             password: key
           })
           .then(res => {
             sessionStorage.setItem("token", res.data.token);
-            this.$router.push("dashboard");
+            location.reload();
           })
           .catch(err => {
             delete sessionStorage.token;
-            if (navigator.onLine) {
-              const error = err.response
-                ? err.response.data.error || err.response.data
-                : "an error occured";
-              this.$snotify.error(error);
-            } else {
-              this.$snotify.error("Please connect to the internet");
-            }
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : null;
+            if (error) this.$snotify.error(error);
           })
           .finally(() => {
             this.loading = false;

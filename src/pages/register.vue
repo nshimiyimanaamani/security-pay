@@ -77,7 +77,7 @@ export default {
       if (email && key) {
         this.loading = true;
         this.axios
-          .post(this.endpoint + "/users/", {
+          .post("/users/", {
             email: email,
             password: key,
             cell: this.form.cell
@@ -88,14 +88,10 @@ export default {
             this.loading = false;
           })
           .catch(err => {
-            if (navigator.onLine) {
-              const error = err.response
-                ? err.response.data.error || err.response.data
-                : "an error occured";
-              this.$snotify.error(error);
-            } else {
-              this.$snotify.error("Please connect to the internet");
-            }
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : null;
+            if (error) this.$snotify.error(error);
             this.loading = false;
           });
       }

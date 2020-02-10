@@ -123,22 +123,17 @@ export default {
         this.state.loading = true;
         this.axios
           .get(
-            this.endpoint +
-              `/billing/invoices?property=${this.house.id}&months=${this.availableMonths}`
+            `/billing/invoices?property=${this.house.id}&months=${this.availableMonths}`
           )
           .then(res => {
             this.state.show = true;
             this.invoices = res.data.Invoices;
           })
           .catch(err => {
-            if (navigator.onLine) {
-              const error = err.response
-                ? err.response.data.error || err.response.data
-                : "an error occured";
-              this.$snotify.error(error);
-            } else {
-              this.$snotify.error("Please connect to the internet");
-            }
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : null;
+            if (error) this.$snotify.error(error);
           })
           .finally(() => {
             this.state.loading = false;

@@ -49,7 +49,7 @@ export default {
     loadData() {
       this.state.loading = true;
       this.axios
-        .get(this.endpoint + "/feedback?offset=0&limit=1000")
+        .get("/feedback?offset=0&limit=1000")
         .then(res => {
           this.feedbacks = res.data.Messages.sort((a, b) => {
             return new Date(b.update_at) - new Date(a.update_at);
@@ -57,14 +57,10 @@ export default {
         })
         .catch(err => {
           this.feedbacks = null;
-          if (navigator.onLine) {
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : "an error occured";
-            this.$snotify.error(error);
-          } else {
-            this.$snotify.error("Please connect to the internet");
-          }
+          const error = err.response
+            ? err.response.data.error || err.response.data
+            : null;
+          if (error) this.$snotify.error(error);
         })
         .finally(() => {
           this.state.loading = false;

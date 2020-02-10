@@ -323,7 +323,7 @@ export default {
       const month = this.config.month;
       this.axios
         .get(
-          this.endpoint +
+          
             `/metrics/ratios/cells/${this.activeCell}?year=${year}&month=${month}`
         )
         .then(res => {
@@ -359,7 +359,7 @@ export default {
       const month = this.config.month;
       this.axios
         .get(
-          this.endpoint +
+          
             `/metrics/ratios/cells/all/${this.activeCell}?year=${year}&month=${month}`
         )
         .then(res => {

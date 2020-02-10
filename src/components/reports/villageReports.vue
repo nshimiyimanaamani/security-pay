@@ -192,11 +192,11 @@ export default {
       const year = this.config.year;
       const month = this.config.month;
       const first = this.axios.get(
-        this.endpoint +
+        
           `/metrics/ratios/villages/${this.village}?year=${year}&month=${month}`
       );
       const second = this.axios.get(
-        this.endpoint +
+        
           `/metrics/balance/villages/${this.village}?year=${year}&month=${month}`
       );
       const promise = this.axios.all([first, second]);

@@ -84,7 +84,7 @@ export default {
       this.state.changing = true;
       const password = this.newPassword;
       this.axios
-        .put(this.endpoint + `/accounts/agents/creds/${this.user.username}`, {
+        .put(`/accounts/agents/creds/${this.user.username}`, {
           password: password
         })
         .then(res => {
@@ -92,10 +92,10 @@ export default {
           this.close();
         })
         .catch(err => {
-          const errorMessage = navigator.onLine
+          const error = err.response
             ? err.response.data.error || err.response.data
-            : "Please connect to the internet...";
-          this.$snotify.error(errorMessage);
+            : null;
+          if (error) this.$snotify.error(error);
           this.close();
         });
     },

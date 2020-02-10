@@ -151,7 +151,7 @@ export default {
       } else {
         this.state.loading = true;
         this.axios
-          .post(this.endpoint + "/properties", {
+          .post("/properties", {
             owner: {
               id: this.owner.id
             },
@@ -169,14 +169,10 @@ export default {
             this.$snotify.info(`Property Registered successfully!`);
           })
           .catch(err => {
-            if (navigator.onLine) {
-              const error = err.response
-                ? err.response.data.error || err.response.data
-                : "an error occured";
-              this.$snotify.error(error);
-            } else {
-              this.$snotify.error("Please connect to the internet");
-            }
+            const error = err.response
+              ? err.response.data.error || err.response.data
+              : null;
+            if (error) this.$snotify.error(error);
           })
           .finally(() => {
             this.state.loading = false;
@@ -190,50 +186,37 @@ export default {
       const phone = this.form.phone.trim();
       this.state.loading = true;
       this.axios
-        .get(
-          this.endpoint +
-            `/owners/search?fname=${fname}&lname=${lname}&phone=${phone}`
-        )
+        .get(`/owners/search?fname=${fname}&lname=${lname}&phone=${phone}`)
         .then(res => {
           this.owner = { ...res.data };
           this.addProperty();
         })
         .catch(err => {
-          if (!navigator.onLine) {
-            this.state.loading = false;
-            this.$snotify.error("Please connect to the internet");
-          } else {
-            this.state.loading = false;
-            const message = `${fname} ${lname} is not a registered owner! Do you want to register this owner?"`;
-            this.confirm(message).then(state => {
-              if (state === true) {
-                this.state.loading = true;
-                this.axios
-                  .post(this.endpoint + "/owners", {
-                    fname: fname,
-                    lname: lname,
-                    phone: phone
-                  })
-                  .then(res => {
-                    this.owner = { ...res.data };
-                    this.addProperty();
-                    this.resetModal();
-                  })
-                  .catch(err => {
-                    if (navigator.onLine) {
-                      this.resetModal();
-                      const error = err.response
-                        ? err.response.data.message || err.response.data
-                        : "an error occured";
-                      this.$snotify.error(error);
-                    } else {
-                      this.$snotify.error("Please connect to the internet");
-                    }
-                    this.state.loading = false;
-                  });
-              }
-            });
-          }
+          this.state.loading = false;
+          const message = `${fname} ${lname} is not a registered owner! Do you want to register this owner?"`;
+          this.confirm(message).then(state => {
+            if (state === true) {
+              this.state.loading = true;
+              this.axios
+                .post("/owners", {
+                  fname: fname,
+                  lname: lname,
+                  phone: phone
+                })
+                .then(res => {
+                  this.owner = { ...res.data };
+                  this.addProperty();
+                  this.resetModal();
+                })
+                .catch(err => {
+                  const error = err.response
+                    ? err.response.data.message || err.response.data
+                    : null;
+                  if (error) this.$snotify.error(error);
+                  this.state.loading = false;
+                });
+            }
+          });
         });
     },
     resetModal() {
