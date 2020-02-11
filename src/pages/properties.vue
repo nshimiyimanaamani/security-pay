@@ -2,7 +2,7 @@
   <b-container class="table-container px-5 max-width">
     <vue-title title="Paypack | Properties" />
     <h4 class="title text-center">
-      {{title}}
+      List of Properties in {{selected}}
       <b-button class="add-property mb-1 font-14" variant="info" @click="addProperty.show = true">
         <i class="fas fa-plus-circle"></i> Property
       </b-button>
@@ -76,8 +76,16 @@
           <option v-for="name in search.datalist" :key="name">{{ name }}</option>
         </datalist>
       </div>
-
-      <b-button @click="loadData" variant="info" size="sm" class="ml-1 font-14">Refresh</b-button>
+      <b-button size="sm" variant="info" class="ml-1" @click="loadData">
+        <i class="fa fa-refresh" :class="{'fa-spin':loading.request}"></i>
+      </b-button>
+      <b-button
+        @click="downloadList"
+        :disabled="tableItems.length ? false:true"
+        variant="info"
+        size="sm"
+        class="ml-1 font-14"
+      >Download</b-button>
     </b-row>
 
     <b-table
@@ -100,7 +108,7 @@
       <template v-slot:cell(owner)="data">{{data.item.owner.fname +" "+ data.item.owner.lname}}</template>
       <template v-slot:cell(occupied)="data">
         <b-card-text
-          class="text-right m-0"
+          class="text-right m-0 text-center"
         >{{data.item.occupied ? data.item.occupied?'Yes':'No' : "No"}}</b-card-text>
       </template>
       <template v-slot:cell(index)="data">
@@ -168,6 +176,7 @@
 <script>
 import updateHouse from "../components/updateHouse.vue";
 import addPropertyModal from "../components/modals/addPropertyModal.vue";
+import download from "../components/download scripts/downloadProperties";
 const { Village } = require("rwanda");
 const { isPhoneNumber } = require("rwa-validator");
 export default {
@@ -182,7 +191,6 @@ export default {
         show: false
       },
       selected: null,
-      title: null,
       width: 0,
       options: [],
       color: "#333333bd",
@@ -306,13 +314,6 @@ export default {
           this.columns.length == this.select.shownColumn.length ? true : false;
       }
     },
-    selected() {
-      if (this.selected) {
-        this.title = `List of users in ${this.selected}`;
-      } else {
-        this.title = `List of users in ${this.activeSector}`;
-      }
-    },
     "search.name"() {
       handler: {
         this.pagination.currentPage = 1;
@@ -336,7 +337,11 @@ export default {
   mounted() {
     this.loadData();
     this.select.shownColumn = this.columns;
-    this.title = `List of users in ${this.activeSector}`;
+    if (this.user.role.toLowerCase() == "basic") {
+      this.selected = this.activeCell;
+    } else {
+      this.selected = this.activeSector;
+    }
   },
   methods: {
     loadData() {
@@ -344,7 +349,9 @@ export default {
       const axios = this.axios;
       var promise;
       if (this.user.role.toLowerCase() == "basic") {
-        promise = `/properties?cell=${this.activeCell}&offset=0&limit=`;
+        promise =
+          `/properties?cell=${this.activeCell}&offset=0&limit=` +
+          `${result.data.Total}`;
       } else {
         promise = `/properties?sector=${this.activeSector}&offset=0&limit=`;
       }
@@ -352,10 +359,11 @@ export default {
         .get(promise + `0`)
         .then(result => {
           axios
-            .get(promise + `${result.data.Total}`)
+            .get(promise + "10")
             .then(res => {
               this.items = [...res.data.Properties];
               this.pagination.totalRows = res.data.Total;
+              console.log(this.items);
             })
             .catch(err => {
               const error = err.response
@@ -374,6 +382,9 @@ export default {
             : null;
           if (error) this.$snotify.error(error);
         });
+    },
+    downloadList() {
+      download(this.tableItems, this.selected);
     },
     editHouse(house, index, evt) {
       evt.preventDefault();
@@ -449,11 +460,10 @@ export default {
         }
       });
       const sector = this.activeSector;
-      const cell = this.select.cell ? this.select.cell.toLowerCase() : "";
-      const village = this.select.village
-        ? this.select.village.toLowerCase()
-        : "";
+      const cell = this.select.cell || "";
+      const village = this.select.village || "";
       this.tableItems = this.items;
+      this.selected = village || cell || sector;
       return this.tableItems.filter(item => {
         return (
           item.address.sector.search(new RegExp(sector, "i")) != -1 &&
@@ -469,7 +479,11 @@ export default {
       this.select.cell = null;
       this.select.village = null;
       this.tableItems = this.items;
-      this.selected = null;
+      if (this.user.role.toLowerCase() == "basic") {
+        this.selected = this.activeCell;
+      } else {
+        this.selected = this.activeSector;
+      }
       this.$refs.dropdown.hide(true);
     },
     capitalize(string) {

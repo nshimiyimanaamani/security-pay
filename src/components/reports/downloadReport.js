@@ -5,7 +5,8 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 function download(user, payment) {
   const name = user.owner.fname + " " + user.owner.lname;
   var document = {
-    content: [{
+    content: [
+      {
         text: `Details of ${name}:`,
         style: "header"
       },
@@ -15,7 +16,8 @@ function download(user, payment) {
           headerRows: 0,
           widths: ["*", "*"],
           body: [
-            [{
+            [
+              {
                 text: "Names",
                 style: "tableHeader"
               },
@@ -24,7 +26,8 @@ function download(user, payment) {
                 style: "tableData"
               }
             ],
-            [{
+            [
+              {
                 text: "Phone Number",
                 style: "tableHeader"
               },
@@ -33,7 +36,8 @@ function download(user, payment) {
                 style: "tableData"
               }
             ],
-            [{
+            [
+              {
                 text: "House ID",
                 style: "tableHeader"
               },
@@ -42,12 +46,14 @@ function download(user, payment) {
                 style: "tableData"
               }
             ],
-            [{
+            [
+              {
                 text: "Location",
                 style: "tableHeader"
               },
               {
-                text: user.address.sector +
+                text:
+                  user.address.sector +
                   ", " +
                   user.address.cell +
                   ", " +
@@ -55,7 +61,8 @@ function download(user, payment) {
                 style: "tableData"
               }
             ],
-            [{
+            [
+              {
                 text: "Amount",
                 style: "tableHeader"
               },
@@ -64,7 +71,8 @@ function download(user, payment) {
                 style: "tableData"
               }
             ],
-            [{
+            [
+              {
                 text: "For Rent",
                 style: "tableHeader"
               },
@@ -73,7 +81,8 @@ function download(user, payment) {
                 style: "tableData"
               }
             ],
-            [{
+            [
+              {
                 text: "Registered by",
                 style: "tableHeader"
               },
@@ -82,7 +91,8 @@ function download(user, payment) {
                 style: "tableData"
               }
             ],
-            [{
+            [
+              {
                 text: "Registered on",
                 style: "tableHeader"
               },
@@ -115,27 +125,25 @@ function download(user, payment) {
       header: {
         fontSize: 15,
         bold: true,
-        margin: [0, 0, 0, 10]
-      },
-      tableData: {
-        fontSize: 13
-      },
-      subheader: {
-        fontSize: 14,
-        bold: true,
-        margin: [0, 10, 0, 5]
+        margin: [0, 0, 0, 25],
+        alignment: "center",
+        decoration: "underline"
       },
       table: {
-        margin: [0, 5, 0, 15]
+        margin: [0, 10, 10, 0]
+      },
+      tableData: {
+        fontSize: 11
       },
       tableHeader: {
         bold: true,
-        fontSize: 13,
+        fontSize: 12,
         color: "black"
       }
     },
     defaultStyle: {
-      alignment: "justify"
+      alignment: "left",
+      color: "#232323"
     }
   };
   pdfMake.createPdf(document).download(`${name} Report.pdf`);
@@ -143,7 +151,8 @@ function download(user, payment) {
 
 function BodyData(items) {
   let data = [];
-  data.push([{
+  data.push([
+    {
       text: "Months",
       style: "tableHeader"
     },
@@ -153,14 +162,15 @@ function BodyData(items) {
     }
   ]);
   items.map(item => {
-    data.push([{
+    data.push([
+      {
         text: new Date(item.created_at).toLocaleString("en-EN", {
           month: "long"
         }),
         style: "tableData"
       },
       {
-        text: item.status == 'pending' ? "Not Payed" : 'Payed',
+        text: item.status == "pending" ? "Not Payed" : "Payed",
         style: "tableData"
       }
     ]);
