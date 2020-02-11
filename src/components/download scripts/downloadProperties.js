@@ -118,7 +118,7 @@ function loopData(items) {
         style: "tableData"
       },
       {
-        text: item.due + " Rwf",
+        text: Number(item.due).toLocaleString() + " Rwf",
         style: "tableData",
         noWrap: true
       }
