@@ -349,14 +349,12 @@ export default {
       const axios = this.axios;
       var promise;
       if (this.user.role.toLowerCase() == "basic") {
-        promise =
-          `/properties?cell=${this.activeCell}&offset=0&limit=` +
-          `${result.data.Total}`;
+        promise = `/properties?cell=${this.activeCell}&offset=0&limit=`;
       } else {
         promise = `/properties?sector=${this.activeSector}&offset=0&limit=`;
       }
       axios
-        .get(promise + `0`)
+        .get(promise + `${result.data.Total}`)
         .then(result => {
           axios
             .get(promise + "10")
