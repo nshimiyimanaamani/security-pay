@@ -354,10 +354,10 @@ export default {
         promise = `/properties?sector=${this.activeSector}&offset=0&limit=`;
       }
       axios
-        .get(promise + `${result.data.Total}`)
+        .get(promise + "0")
         .then(result => {
           axios
-            .get(promise + "10")
+            .get(promise + `${result.data.Total}`)
             .then(res => {
               this.items = [...res.data.Properties];
               this.pagination.totalRows = res.data.Total;
