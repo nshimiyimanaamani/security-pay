@@ -4,7 +4,8 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 function download(cell, village, cellName) {
   var document = {
-    content: [{
+    content: [
+      {
         text: `Report of ${cellName}:`,
         style: "header"
       },
@@ -14,28 +15,30 @@ function download(cell, village, cellName) {
           headerRows: 1,
           widths: ["*", "*", "*", "*", "*"],
           body: [
-            [{
+            [
+              {
                 text: "No of Houses",
                 style: "tableHeader"
               },
               {
-                text: 'Payed Houses',
+                text: "Payed Houses",
                 style: "tableHeader"
               },
               {
-                text: 'Payed Amount',
+                text: "Payed Amount",
                 style: "tableHeader"
               },
               {
-                text: 'unpayed Houses',
+                text: "unpayed Houses",
                 style: "tableHeader"
               },
               {
-                text: 'UnPayed Amount',
+                text: "UnPayed Amount",
                 style: "tableHeader"
               }
             ],
-            [{
+            [
+              {
                 text: cell.total,
                 style: "tableHeader"
               },
@@ -44,7 +47,7 @@ function download(cell, village, cellName) {
                 style: "tableData"
               },
               {
-                text: Number(cell.payedAmount).toLocaleString() + ' Rwf',
+                text: Number(cell.payedAmount).toLocaleString() + " Rwf",
                 style: "tableData"
               },
               {
@@ -52,7 +55,7 @@ function download(cell, village, cellName) {
                 style: "tableData"
               },
               {
-                text: Number(cell.unpayedAmount).toLocaleString() + ' Rwf',
+                text: Number(cell.unpayedAmount).toLocaleString() + " Rwf",
                 style: "tableData"
               }
             ]
@@ -76,35 +79,34 @@ function download(cell, village, cellName) {
       header: {
         fontSize: 15,
         bold: true,
-        margin: [0, 0, 0, 10]
-      },
-      tableData: {
-        fontSize: 13
-      },
-      subheader: {
-        fontSize: 14,
-        bold: true,
-        margin: [0, 10, 0, 5]
+        margin: [0, 0, 0, 25],
+        alignment: "center",
+        decoration: "underline"
       },
       table: {
-        margin: [0, 5, 0, 15]
+        margin: [0, 10, 10, 0]
+      },
+      tableData: {
+        fontSize: 11
       },
       tableHeader: {
         bold: true,
-        fontSize: 13,
+        fontSize: 12,
         color: "black"
       }
     },
     defaultStyle: {
-      alignment: "left"
+      alignment: "left",
+      color: "#232323"
     }
   };
   pdfMake.createPdf(document).download(`${cellName} Report.pdf`);
 }
 
 function getData(items) {
-  var array = []
-  array.push([{
+  var array = [];
+  array.push([
+    {
       text: "Village",
       style: "tableHeader"
     },
@@ -113,43 +115,50 @@ function getData(items) {
       style: "tableHeader"
     },
     {
-      text: 'Payed Houses',
+      text: "Payed Houses",
       style: "tableHeader"
     },
     {
-      text: 'Payed Amount',
+      text: "Payed Amount",
       style: "tableHeader"
     },
     {
-      text: 'unpayed Houses',
+      text: "unpayed Houses",
       style: "tableHeader"
     },
     {
-      text: 'UnPayed Amount',
+      text: "UnPayed Amount",
       style: "tableHeader"
     }
   ]);
   items.map(item => {
-    array.push([{
-      text: item.name,
-      style: "tableData"
-    }, {
-      text: item.total,
-      style: "tableData"
-    }, {
-      text: item.payed,
-      style: "tableData"
-    }, {
-      text: Number(item.payedAmount).toLocaleString() + ' Rwf',
-      style: "tableData"
-    }, {
-      text: item.pending,
-      style: "tableData"
-    }, {
-      text: Number(item.unpayedAmount).toLocaleString() + ' Rwf',
-      style: "tableData"
-    }]);
+    array.push([
+      {
+        text: item.name,
+        style: "tableData"
+      },
+      {
+        text: item.total,
+        style: "tableData"
+      },
+      {
+        text: item.payed,
+        style: "tableData"
+      },
+      {
+        text: Number(item.payedAmount).toLocaleString() + " Rwf",
+        style: "tableData"
+      },
+      {
+        text: item.pending,
+        style: "tableData"
+      },
+      {
+        text: Number(item.unpayedAmount).toLocaleString() + " Rwf",
+        style: "tableData"
+      }
+    ]);
   });
-  return array
+  return array;
 }
 export default download;
