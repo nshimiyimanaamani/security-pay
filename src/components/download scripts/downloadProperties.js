@@ -13,7 +13,7 @@ function download(data, name) {
         style: "table",
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
+          widths: ["*", 50, 60, "auto", 60, 60, "auto", 50],
           body: loopData(data)
         }
       }
@@ -118,7 +118,7 @@ function loopData(items) {
         style: "tableData"
       },
       {
-        text: item.due + " Rwf",
+        text: Number(item.due).toLocaleString() + " Rwf",
         style: "tableData",
         noWrap: true
       }
