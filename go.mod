@@ -13,7 +13,7 @@ require (
 	github.com/fatih/color v1.9.0
 	github.com/go-redis/redis/v7 v7.0.0-beta.6
 	github.com/gorilla/handlers v1.4.2
-	github.com/gorilla/mux v1.7.3
+	github.com/gorilla/mux v1.7.4
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.3.0
 	github.com/matoous/go-nanoid v1.1.0
