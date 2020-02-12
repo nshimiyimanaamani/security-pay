@@ -1,28 +1,30 @@
 <template>
-  <b-container class="max-width">
+  <b-container class="mw-100 sector-dashboard">
     <vue-title title="Paypack | Cells" />
-    <b-row align-v="start" class="m-auto p-0 w-100 h-50">
-      <b-col xl="6" lg="6" md="6" sm="12" class="column">
+    <b-row align-v="start" class="m-auto p-0 w-100 top">
+      <b-col class="column position-relative">
         <b-card-body>
-          <b-card-header>
+          <b-card-header class="align-items-center p-2 px-3" style="height: 40px">
             <i class="fa fa-th-large"></i>
             <h1 class="text-center">{{activeCell}} COLLECTING ACCOUNT</h1>
             <i class="fa fa-cog"></i>
           </b-card-header>
-          <div style="height:85%">
-            <bar-chart
-              v-if="chart1Data"
-              :chart-data="chart1Data"
-              :options="optionsChart1"
-              :style="style"
-            />
+          <div style="height:calc(100% - 40px)">
+            <div class="position-relative canvas">
+              <bar-chart
+                v-if="chart1Data"
+                :chart-data="chart1Data"
+                :options="optionsChart1"
+                :style="style"
+              />
+            </div>
           </div>
         </b-card-body>
         <!-- end of chart 1 -->
       </b-col>
-      <b-col xl="6" lg="6" md="6" sm="12" class="column">
+      <b-col class="column position-relative">
         <b-card-body class="chart-2">
-          <b-card-header class="align-items-center p-2 px-3">
+          <b-card-header class="align-items-center p-2 px-3" style="height: 40px">
             <i
               class="fa fa-refresh cursor-pointer"
               @click="loadData2"
@@ -31,8 +33,8 @@
             <h1 class="text-center">{{activeCell}} TOTAL COLLECTED</h1>
             <selector :object="config" v-on:ok="updated" />
           </b-card-header>
-          <div class="chart position-relative" style="height: 85%">
-            <div v-if="!chart2.state.loading" class="h-100">
+          <div class="chart position-relative" style="height:calc(100% - 40px)">
+            <div v-if="!chart2.state.loading" class="position-relative canvas">
               <doughnut-chart
                 :chart-data="chart2.data"
                 v-if="chart2.data"
@@ -64,9 +66,9 @@
       </b-col>
     </b-row>
     <b-row align-v="end" class="m-auto p-0 w-100 h-50">
-      <b-col xl="12" lg="12" md="12" sm="12" class="column">
+      <b-col class="column">
         <b-card-body class="chart-3">
-          <b-card-header class="align-items-center p-2 px-3">
+          <b-card-header class="align-items-center p-2 px-3" style="height: 40px">
             <i
               class="fa fa-refresh cursor-pointer"
               @click="loadData3"
@@ -75,8 +77,8 @@
             <h1 class="text-center">{{activeCell}} CELL</h1>
             <selector :object="config" v-on:ok="updated" />
           </b-card-header>
-          <div style="height:85%">
-            <div v-if="!chart3.state.loading" class="h-100">
+          <div style="height:calc(100% - 40px)">
+            <div v-if="!chart3.state.loading" class="h-100 position-relative canvas">
               <line-chart
                 v-if="chart3.data"
                 :chart-data="chart3.data"
@@ -323,8 +325,7 @@ export default {
       const month = this.config.month;
       this.axios
         .get(
-          
-            `/metrics/ratios/cells/${this.activeCell}?year=${year}&month=${month}`
+          `/metrics/ratios/cells/${this.activeCell}?year=${year}&month=${month}`
         )
         .then(res => {
           const data = res.data.data;
@@ -359,8 +360,7 @@ export default {
       const month = this.config.month;
       this.axios
         .get(
-          
-            `/metrics/ratios/cells/all/${this.activeCell}?year=${year}&month=${month}`
+          `/metrics/ratios/cells/all/${this.activeCell}?year=${year}&month=${month}`
         )
         .then(res => {
           const data = res.data;

@@ -1,39 +1,41 @@
 <template>
-  <b-container style="max-width: 100vw">
+  <b-container class="mw-100 sector-dashboard">
     <vue-title title="Paypack | Dashboard" />
-    <b-row align-v="start" class="m-auto p-0 w-100 h-50">
-      <b-col xl="6" lg="6" md="6" sm="12" class="column position-relative">
+    <b-row align-v="start" class="m-auto p-0 w-100 top">
+      <b-col class="column position-relative">
         <b-card-body>
-          <b-card-header>
+          <b-card-header class="align-items-center p-2 px-3" style="height: 40px">
             <i class="fa fa-th-large"></i>
             <h1 class>{{activeSector}} COLLECTING ACCOUNT</h1>
             <i class="fa fa-cog"></i>
           </b-card-header>
-          <div style="height: 85%">
-            <bar-chart :chart-data="chart1Data" :options="optionsChart1" :style="style"></bar-chart>
+          <div style="height:calc(100% - 40px)">
+            <div class="position-relative canvas">
+              <bar-chart :chart-data="chart1Data" :options="optionsChart1" :style="style" />
+            </div>
           </div>
         </b-card-body>
         <!-- end of chart 1 -->
       </b-col>
-      <b-col xl="6" lg="6" md="6" sm="12" class="column position-relative">
+      <b-col class="column position-relative">
         <b-card-body class="chart-2">
-          <b-card-header class="align-items-center p-2 px-3">
+          <b-card-header class="align-items-center p-2 px-3" style="height: 40px">
             <i
               class="fa fa-refresh cursor-pointer"
               @click="loadData2"
               :class="{'fa-spin':chart2.state.loading}"
             />
-            <h1 class>{{activeSector}} TOTAL COLLECTED</h1>
+            <h1 class="text-center">{{activeSector}} TOTAL COLLECTED</h1>
             <selector :object="config" v-on:ok="updated" />
           </b-card-header>
-          <div class="chart position-relative" style="height: 85%">
-            <div v-if="!chart2.state.loading" class="h-100">
+          <div class="chart position-relative" style="height:calc(100% - 40px)">
+            <div v-if="!chart2.state.loading" class="position-relative canvas">
               <doughnut-chart
                 :chart-data="chart2.data"
                 v-if="chart2.data"
                 :options="optionsChart2"
                 :style="style"
-              ></doughnut-chart>
+              />
               <div
                 class="center-text justify-content-center align-items-center w-100 h-100 d-flex position-absolute"
                 v-if="!chart2.state.error"
@@ -58,10 +60,10 @@
         </b-card-body>
       </b-col>
     </b-row>
-    <b-row align-v="end" class="m-auto p-0" style="width: 100%;height: 50%">
-      <b-col xl="12" lg="12" md="12" sm="12" class="column">
+    <b-row align-v="end" class="m-auto p-0 w-100 h-50">
+      <b-col class="column">
         <b-card-body class="chart-3">
-          <b-card-header class="align-items-center p-2 px-3">
+          <b-card-header class="align-items-center p-2 px-3" style="height: 40px">
             <i
               class="fa fa-refresh cursor-pointer"
               @click="loadData3"
@@ -70,8 +72,8 @@
             <h1 class>{{activeSector}} SECTOR</h1>
             <selector :object="config" v-on:ok="updated" />
           </b-card-header>
-          <div style="height:85%">
-            <div v-if="!chart3.state.loading" class="h-100">
+          <div style="height:calc(100% - 40px)">
+            <div v-if="!chart3.state.loading" class="h-100 position-relative canvas">
               <line-chart
                 v-if="chart3.data"
                 :chart-data="chart3.data"
@@ -249,7 +251,8 @@ export default {
           ],
           xAxes: [
             {
-              gridLines: { display: false }
+              gridLines: { display: false },
+              ticks: { fontSize: 12.5 }
             }
           ]
         },
@@ -307,8 +310,7 @@ export default {
       const month = this.config.month;
       this.axios
         .get(
-          
-            `/metrics/ratios/sectors/${this.activeSector}?year=${year}&month=${month}`
+          `/metrics/ratios/sectors/${this.activeSector}?year=${year}&month=${month}`
         )
         .then(res => {
           const data = res.data.data;
@@ -343,8 +345,7 @@ export default {
       const month = this.config.month;
       this.axios
         .get(
-          
-            `/metrics/ratios/sectors/all/${this.activeSector}?year=${year}&month=${month}`
+          `/metrics/ratios/sectors/all/${this.activeSector}?year=${year}&month=${month}`
         )
         .then(res => {
           const data = res.data;
@@ -385,7 +386,6 @@ export default {
         .finally(() => (this.chart3.state.loading = false));
     },
     fetchData() {
-      window.Chart.defaults.global.defaultFontSize = 13.5;
       this.chart1Data = this.fillData(["BK Acc", "MTN", "AIRTEL"], 3);
       this.chart2Data = this.fill2Data(["abishyuye", "abasigaye"], 2);
       this.chart3Data = this.fillData(this.cellArray, this.cellArray.length);
