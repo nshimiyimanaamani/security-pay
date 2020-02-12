@@ -14,6 +14,7 @@ function download(data, name) {
         table: {
           headerRows: 1,
           widths: ["*", 50, 60, "auto", 60, 60, "auto", 50],
+          heights: 20,
           body: loopData(data)
         }
       }

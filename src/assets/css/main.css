@@ -7,6 +7,7 @@ body {
   font-size: 14px;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 * {
@@ -16,9 +17,7 @@ body {
   -moz-osx-font-smoothing: grayscale !important;
 }
 #app {
-  height: 100vh;
-  width: 100vw;
-  overflow-x: auto;
+  min-height: 100vh;
 }
 
 .offline-indicator {

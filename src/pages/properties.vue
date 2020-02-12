@@ -361,7 +361,6 @@ export default {
             .then(res => {
               this.items = [...res.data.Properties];
               this.pagination.totalRows = res.data.Total;
-              console.log(this.items);
             })
             .catch(err => {
               const error = err.response
