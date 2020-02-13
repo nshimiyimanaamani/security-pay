@@ -17,6 +17,10 @@ import properties from "./pages/properties.vue";
 import agentView from "./Layouts/agentView.vue";
 import feedbacks from "./pages/feedbacks.vue";
 import reports from "./pages/reports.vue";
+import devLayout from "./Layouts/Dev/layouts/main.vue";
+import DevAccounts from "./Layouts/Dev/layouts/views/account.vue";
+import devStats from "./Layouts/Dev/layouts/views/stats.vue";
+import notFound from "./pages/404.vue";
 
 Vue.use(Router);
 var jwt = require("jsonwebtoken");
@@ -26,21 +30,11 @@ let router = new Router({
   routes: [
     {
       path: "/",
-      name: "",
       component: startPage,
       children: [
         {
           path: "/",
-          name: "login",
           component: login,
-          meta: {
-            guest: true
-          }
-        },
-        {
-          path: "/register",
-          name: "register",
-          component: register,
           meta: {
             guest: true
           }
@@ -49,11 +43,10 @@ let router = new Router({
     },
     {
       path: "/dashboard",
-      name: "dashboardLayout",
       component: dashboardLayout,
       children: [
         {
-          path: "/dashboard",
+          path: "",
           name: "dashboard",
           component: dashboard,
           meta: {
@@ -149,6 +142,38 @@ let router = new Router({
         requireAuth: true,
         agent: true
       }
+    },
+    {
+      path: "/dev",
+      component: devLayout,
+      children: [
+        {
+          path: "",
+          name: "dev-stats",
+          component: devStats,
+          meta: {
+            requireAuth: true,
+            forDev: true
+          }
+        },
+        {
+          path: "account",
+          name: "accounts",
+          component: DevAccounts,
+          meta: {
+            requireAuth: true,
+            forDev: true
+          }
+        }
+      ]
+    },
+    {
+      path: "/error",
+      name: "not-found",
+      component: notFound,
+      meta: {
+        error: true
+      }
     }
   ]
 });
@@ -156,68 +181,62 @@ let router = new Router({
 router.beforeEach((to, from, next) => {
   const decoded = jwt.decode(sessionStorage.token);
 
-  if (decoded) {
-    axios.defaults.headers.common["Authorization"] = sessionStorage.token;
-    store.state.user = decoded;
-    if (decoded.role == "min") {
-      if (to.matched.some(record => record.meta.agent)) {
-        next();
-      } else {
-        next({
-          name: "agentView"
-        });
-      }
-    }
-    if (decoded.role == "admin") {
-      if (to.matched.some(record => record.meta.forAdmin)) {
-        next();
-      } else {
-        next({
-          name: "dashboard"
-        });
-      }
-    }
-    if (decoded.role == "dev") {
-      if (to.matched.some(record => record.meta.forDev)) {
-        next();
-      } else {
-        next({
-          name: "dashboard"
-        });
-      }
-    }
-    if (decoded.role == "basic") {
-      if (to.matched.some(record => record.meta.forManager)) {
-        next();
-      } else {
-        next({
-          name: "cells"
-        });
-      }
+  if (to.matched.some(record => record.meta.requireAuth)) {
+    if (decoded) {
+      next();
+      axios.defaults.headers.common["Authorization"] = sessionStorage.token;
+      store.state.user = decoded;
+      checkRoute(to, next, decoded.role);
     } else {
-      if (to.matched.some(record => record.meta.requireAuth)) {
-        next();
-      } else if (to.matched.some(record => record.meta.guest)) {
-        next({
-          name: "dashboard"
-        });
-      } else {
-        next();
-      }
+      next({ path: "/" });
+      store.state.user = null;
+      delete sessionStorage.token;
     }
-  } else {
-    store.state.user = null;
-    delete sessionStorage.token;
-    if (to.matched.some(record => record.meta.requireAuth)) {
-      next({
-        path: "/",
-        params: {
-          nextUrl: to.fullPath
-        }
-      });
-    } else if (to.matched.some(record => record.meta.guest)) {
+  } else if (to.matched.some(record => record.meta.guest)) {
+    if (decoded) {
+      checkRoute(to, next, decoded.role);
+    } else {
       next();
     }
+  } else if (to.matched.some(record => record.meta.error)) {
+    next();
+  } else {
+    next({
+      path: "/error",
+      params: {
+        nextUrl: to.fullPath
+      }
+    });
   }
 });
+function checkRoute(to, next, role) {
+  if (role == "min") {
+    if (to.matched.some(record => record.meta.agent)) {
+      next();
+    } else {
+      next({ path: "/error" });
+    }
+  }
+  if (role == "admin") {
+    if (to.matched.some(record => record.meta.forAdmin)) {
+      next();
+    } else {
+      next({ name: "dashboard" });
+    }
+  }
+  if (role == "dev") {
+    if (to.matched.some(record => record.meta.forDev)) {
+      next();
+    } else {
+      next({ name: "dashboard" });
+    }
+  }
+  if (role == "basic") {
+    if (to.matched.some(record => record.meta.forManager)) {
+      next();
+    } else {
+      next({ name: "cells" });
+    }
+  }
+}
 export default router;

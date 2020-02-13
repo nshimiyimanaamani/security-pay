@@ -400,14 +400,17 @@ export default {
     },
     deleteHouse(house) {
       const message = `Do you want to delete this house? Names: ${house.owner.fname} ${house.owner.lname}  ID: ${house.id}`;
+
       this.$bvModal
-        .msgBoxOk(message, {
-          title: "Delete House",
+        .msgBoxConfirm(message, {
+          title: "Delete Property?",
           size: "sm",
           buttonSize: "sm",
-          okVariant: "info",
-          headerClass: "p-2 border-bottom-0",
-          footerClass: "p-2 border-top-0",
+          okVariant: "danger",
+          okTitle: "Delete",
+          cancelTitle: "NO",
+          footerClass: "p-2",
+          hideHeaderClose: false,
           centered: true
         })
         .then(value => {
@@ -428,7 +431,10 @@ export default {
           }
         })
         .catch(err => {
-          this.$snotify.error("An error occured");
+          const error = err.response
+            ? err.response.data.error || err.response.data
+            : null;
+          if (error) this.$snotify.error(error);
         });
     },
     closeUpdateModal() {
