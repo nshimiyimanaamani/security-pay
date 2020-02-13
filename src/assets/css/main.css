@@ -7,7 +7,6 @@ body {
   font-size: 14px;
   margin: 0;
   padding: 0;
-  overflow: hidden;
 }
 
 * {
@@ -67,6 +66,9 @@ p {
   font-family: "Nunito Sans", sans-serif !important;
 }
 .hover-color:hover {
+  background-color: #49bdd6;
+}
+.active-color li {
   background-color: #49bdd6;
 }
 .max-width {

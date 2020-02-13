@@ -1,5 +1,3 @@
-import router from "../router.js";
-
 const { Cell, Village } = require("rwanda");
 const mutations = {
   on_startup(state) {
