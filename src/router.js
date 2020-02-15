@@ -214,7 +214,7 @@ function checkRoute(to, next, role) {
     if (to.matched.some(record => record.meta.agent)) {
       next();
     } else {
-      next({ path: "/error" });
+      next({ path: "/agent" });
     }
   }
   if (role == "admin") {

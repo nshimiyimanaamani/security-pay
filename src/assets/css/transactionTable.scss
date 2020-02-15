@@ -1,6 +1,5 @@
 .container {
   padding: 1rem;
-  width: auto;
 
   table tbody {
     .table-name {
@@ -14,7 +13,6 @@
   background: #3a82a1;
   width: 100%;
   padding: 15px;
-
 }
 
 .container .pulse {
@@ -23,7 +21,7 @@
   &::after {
     display: block;
     content: "  Please wait ...";
-    font-weight: bold
+    font-weight: bold;
   }
 }
 
@@ -34,7 +32,6 @@ table thead th {
 tbody td {
   vertical-align: initial !important;
 }
-
 
 .mtn {
   width: 50%;

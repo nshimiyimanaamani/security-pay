@@ -1,12 +1,12 @@
 <template>
   <b-container class="p-0 mr-1">
-    <b-row class="py-2">
-      <b-col class="px-1">
+    <b-row class="py-2 justify-content-between mx-1">
+      <div class="px-1">
         <b-button v-b-modal.register-property class="py-1 font-14" size="sm" variant="info">Register</b-button>
-      </b-col>
-      <b-col class="pl-1">
+      </div>
+      <div class="pl-1">
         <b-button class="py-1 font-14" size="sm" variant="info" @click.prevent="refresh">Refresh</b-button>
-      </b-col>
+      </div>
     </b-row>
     <b-modal id="register-property" ref="register-modal" scrollable hide-footer>
       <template v-slot:modal-title>Register Property</template>

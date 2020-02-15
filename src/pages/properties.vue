@@ -2,12 +2,14 @@
   <b-container class="table-container px-5 max-width">
     <vue-title title="Paypack | Properties" />
     <h4 class="title text-center">
-      List of Properties in {{selected}}
+      List of properties in {{selected}}
       <b-button class="add-property mb-1 font-14" variant="info" @click="addProperty.show = true">
         <i class="fas fa-plus-circle"></i> Property
       </b-button>
     </h4>
     <hr />
+
+    <!-- filters -->
     <b-row class="my-1 align-items-end px-3">
       <b-dropdown
         id="dropdown-dropright"
@@ -87,6 +89,7 @@
         class="ml-1 font-14"
       >Download</b-button>
     </b-row>
+    <!-- end of filters -->
 
     <b-table
       id="data-table"
@@ -308,6 +311,12 @@ export default {
         this.tableItems = this.items;
       }
     },
+    tableItems() {
+      handler: {
+        this.pagination.totalRows = this.tableItems;
+        this.pagination.currentPage = 1;
+      }
+    },
     "select.shownColumn"() {
       handler: {
         this.select.selectAll =
@@ -462,17 +471,28 @@ export default {
           delete value.thClass;
         }
       });
-      const sector = this.activeSector;
+      const sector = this.activeSector.trim().toLowerCase();
       const cell = this.select.cell || "";
       const village = this.select.village || "";
       this.tableItems = this.items;
       this.selected = village || cell || sector;
       return this.tableItems.filter(item => {
-        return (
-          item.address.sector.search(new RegExp(sector, "i")) != -1 &&
-          item.address.cell.search(new RegExp(cell, "i")) != -1 &&
-          item.address.village.search(new RegExp(village, "i")) != -1
-        );
+        if (sector && cell && village) {
+          return (
+            item.address.sector.toLowerCase().trim() == sector &&
+            item.address.cell.toLowerCase().trim() == cell &&
+            item.address.village.toLowerCase().trim() == village
+          );
+        }
+        if (sector && cell && !village) {
+          return (
+            item.address.sector.toLowerCase().trim() == sector &&
+            item.address.cell.toLowerCase().trim() == cell
+          );
+        }
+        if (sector && !cell && !village) {
+          return item.address.sector.toLowerCase().trim() == sector;
+        }
       });
     },
     allSelected(checked) {
@@ -524,7 +544,6 @@ hr {
 
 .table-container > h4.title {
   font-size: 20px;
-  text-transform: capitalize;
 }
 
 .title .add-property {
