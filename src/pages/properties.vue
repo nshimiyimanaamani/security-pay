@@ -313,7 +313,9 @@ export default {
     },
     tableItems() {
       handler: {
-        this.pagination.totalRows = this.tableItems;
+        this.pagination.totalRows = this.tableItems
+          ? this.tableItems.length + 1
+          : 0;
         this.pagination.currentPage = 1;
       }
     },
@@ -480,14 +482,14 @@ export default {
         if (sector && cell && village) {
           return (
             item.address.sector.toLowerCase().trim() == sector &&
-            item.address.cell.toLowerCase().trim() == cell &&
-            item.address.village.toLowerCase().trim() == village
+            item.address.cell.toLowerCase().trim() == cell.toLowerCase() &&
+            item.address.village.toLowerCase().trim() == village.toLowerCase()
           );
         }
         if (sector && cell && !village) {
           return (
             item.address.sector.toLowerCase().trim() == sector &&
-            item.address.cell.toLowerCase().trim() == cell
+            item.address.cell.toLowerCase().trim() == cell.toLowerCase()
           );
         }
         if (sector && !cell && !village) {

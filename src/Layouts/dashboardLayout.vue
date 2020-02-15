@@ -5,15 +5,15 @@
       <hr class="m-0" />
       <ul class="sidebar-links font-14 p-0 mt-5">
         <router-link v-if="user.role.toLowerCase() !='basic'" to="/dashboard">
-          <li>SECTOR</li>
+          <li class="hover-color">SECTOR</li>
         </router-link>
         <router-link v-if="user.role.toLowerCase() =='basic'" to="/cells">
-          <li>cells</li>
+          <li class="cursor-pointer hover-color">cells</li>
         </router-link>
         <li
           v-if="user.role.toLowerCase() != 'basic'"
           v-b-toggle.changecells
-          class="cursor-pointer"
+          class="cursor-pointer hover-color"
         >Cells</li>
         <b-collapse
           id="changecells"
@@ -31,9 +31,9 @@
             </router-link>
           </b-card>
         </b-collapse>
-        <li v-b-toggle.changevillage class="cursor-pointer">Village</li>
+        <li v-b-toggle.changevillage class="cursor-pointer hover-color">Village</li>
         <b-collapse id="changevillage" accordion="changecells" role="tabpanel">
-          <b-card no-body class="border-0" style="background: transparent">
+          <b-card no-body class="border-0 bg-transparent">
             <router-link to="/village" v-for="village in villageOptions" :key="village">
               <ul
                 @click="update({toUpdate: 'village', changed: village})"
@@ -44,22 +44,22 @@
           </b-card>
         </b-collapse>
         <router-link to="/transactions">
-          <li>Bank Accounts</li>
+          <li class="hover-color">Bank Accounts</li>
         </router-link>
         <router-link to="/properties">
-          <li>Properties</li>
+          <li class="hover-color">Properties</li>
         </router-link>
         <router-link to="/reports">
-          <li>REPORTS</li>
+          <li class="hover-color">REPORTS</li>
         </router-link>
         <router-link to="/feedbacks">
-          <li>Feedbacks</li>
+          <li class="hover-color">Feedbacks</li>
         </router-link>
         <router-link
           to="/create"
           v-if="user.role.toLowerCase() =='dev'||user.role.toLowerCase() =='admin'"
         >
-          <li>Accounts</li>
+          <li class="hover-color">Accounts</li>
         </router-link>
       </ul>
       <p class="text-center powered m-0 pb-1 app-color text-white" for="powered">
