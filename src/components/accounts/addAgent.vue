@@ -123,7 +123,6 @@
 
 <script>
 const { Village } = require("rwanda");
-const jwt = require("jsonwebtoken");
 import loader from "../loader";
 export default {
   name: "add-agent",
@@ -191,12 +190,15 @@ export default {
       } else {
         return null;
       }
+    },
+    user() {
+      return this.$store.getters.userDetails;
     }
   },
   methods: {
     create() {
       this.state.creating = true;
-      const account = jwt.decode(sessionStorage.token).account;
+      const account = this.user.account;
       this.axios
         .post("/accounts/agents", {
           account: account,
@@ -208,19 +210,21 @@ export default {
           sector: this.form.select.sector
         })
         .then(res => {
-          this.$snotify.info("Agent successfully created...");
-          const message = `Password For ${res.data.first_name} ${last_name} is: ${res.data.password}`;
-          this.$bvModal
-            .msgBoxOk(message, {
-              title: "Agent Details",
-              size: "md",
-              buttonSize: "sm",
-              okVariant: "info",
-              headerClass: "p-2 border-bottom-0",
-              footerClass: "p-2 border-top-0",
-              centered: true
-            })
-            .then(res => console.log(""));
+          if (res) {
+            this.$snotify.info("Agent successfully created...");
+            const message = `Password For ${res.data.first_name} ${last_name} is: ${res.data.password}`;
+            this.$bvModal
+              .msgBoxOk(message, {
+                title: "Agent Details",
+                size: "md",
+                buttonSize: "sm",
+                okVariant: "info",
+                headerClass: "p-2 border-bottom-0",
+                footerClass: "p-2 border-top-0",
+                centered: true
+              })
+              .then(res => console.log(""));
+          }
         })
         .catch(err => {
           const error = err.response

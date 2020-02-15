@@ -40,11 +40,10 @@ axios.interceptors.request.use(
     return config;
   },
   error => {
-    if (navigator.onLine) {
-      return Promise.reject(error);
-    } else {
+    if (!navigator.onLine) {
       Vue.prototype.$snotify.error("Please connect to the internet");
     }
+    return Promise.reject(error);
   }
 );
 axios.interceptors.response.use(
@@ -52,15 +51,13 @@ axios.interceptors.response.use(
     return response;
   },
   error => {
-    if (navigator.online) {
-      if (error.response.status === 401) {
-        store.dispatch("logout");
-      } else {
-        return Promise.reject(error);
-      }
-    } else {
+    if (error.response.status === 401) {
+      store.dispatch("logout");
+    }
+    if (!navigator.onLine) {
       Vue.prototype.$snotify.error("Please connect to the internet");
     }
+    return Promise.reject(error);
   }
 );
 Vue.config.productionTip = false;
