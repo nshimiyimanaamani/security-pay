@@ -4,7 +4,7 @@
     <b-row class="justify-content-between mx-1 align-items-baseline">
       <div class="d-flex">
         <h4 class="mb-0">FEEDBACKS</h4>&nbsp;&nbsp;
-        <b-spinner v-if="!state.loading" small></b-spinner>
+        <b-spinner v-if="state.loading" small />
       </div>
       <b-button @click="loadData" variant="info" class="app-color" size="sm">Refresh</b-button>
     </b-row>
