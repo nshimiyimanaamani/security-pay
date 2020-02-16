@@ -1,10 +1,10 @@
 <template>
   <b-container class="max-width" style="min-width:500px">
     <vue-title title="Paypack | Feedbacks" />
-    <b-row class="justify-content-between mx-1">
+    <b-row class="justify-content-between mx-1 align-items-baseline">
       <div class="d-flex">
         <h4 class="mb-0">FEEDBACKS</h4>&nbsp;&nbsp;
-        <b-spinner class="align-self-center" v-if="state.loading" small></b-spinner>
+        <b-spinner v-if="state.loading" small></b-spinner>
       </div>
       <b-button @click="loadData" variant="info" class="app-color" size="sm">Refresh</b-button>
     </b-row>
