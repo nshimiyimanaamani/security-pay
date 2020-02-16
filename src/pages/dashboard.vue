@@ -11,7 +11,7 @@
           </b-card-header>
           <div style="height:calc(100% - 40px)">
             <div class="position-relative canvas">
-              <bar-chart :chart-data="chart1Data" :options="optionsChart1" :style="style" />
+              <bar-chart :chart-data="chart1Data" :options="options.chart1" :style="style" />
             </div>
           </div>
         </b-card-body>
@@ -33,7 +33,7 @@
               <doughnut-chart
                 :chart-data="chart2.data"
                 v-if="chart2.data"
-                :options="optionsChart2"
+                :options="options.chart2"
                 :style="style"
               />
               <div
@@ -79,7 +79,7 @@
                 :chart-data="chart3.data"
                 :style="style"
                 :tooltipData="chart3AdditionalData"
-                :options="optionsChart3"
+                :options="options.chart3"
               />
             </div>
 
@@ -109,6 +109,7 @@ import DoughnutChart from "../components/DaughnutChart.vue";
 import LineChart from "../components/MixedCharts.vue";
 import loader from "../components/loader";
 import yearSelectorVue from "../components/yearSelector.vue";
+import options from "../components/scripts/chartOptions";
 export default {
   name: "dashboard",
   components: {
@@ -125,6 +126,7 @@ export default {
         year: new Date().getFullYear(),
         month: new Date().getMonth() + 1
       },
+      options: options,
       chart2: {
         data: null,
         percentage: null,

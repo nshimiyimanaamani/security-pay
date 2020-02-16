@@ -77,7 +77,9 @@
         <b-button class="btn-info py-1 font-14" @click.prevent="logout">Logout</b-button>
       </nav>
       <div class="admin-body" :class="{'active':active}">
-        <router-view />
+        <transition name="fade" :duration="250" mode="out-in">
+          <router-view />
+        </transition>
       </div>
     </div>
   </div>

@@ -14,7 +14,7 @@
               <bar-chart
                 v-if="chart1Data"
                 :chart-data="chart1Data"
-                :options="optionsChart1"
+                :options="options.chart1"
                 :style="style"
               />
             </div>
@@ -38,7 +38,7 @@
               <doughnut-chart
                 :chart-data="chart2.data"
                 v-if="chart2.data"
-                :options="optionsChart2"
+                :options="options.chart2"
                 :style="style"
               />
               <div
@@ -84,7 +84,7 @@
                 :chart-data="chart3.data"
                 :style="style"
                 :tooltipData="chart3AdditionalData"
-                :options="optionsChart3"
+                :options="options.chart3"
               />
             </div>
 
@@ -115,6 +115,7 @@ import DoughnutChart from "../components/DaughnutChart.vue";
 import LineChart from "../components/MixedCharts.vue";
 import loader from "../components/loader";
 import yearSelectorVue from "../components/yearSelector.vue";
+import options from "../components/scripts/chartOptions";
 export default {
   name: "cells",
   components: {
@@ -131,6 +132,7 @@ export default {
         year: new Date().getFullYear(),
         month: new Date().getMonth() + 1
       },
+      options: options,
       chart2: {
         data: null,
         percentage: null,
@@ -179,116 +181,6 @@ export default {
       const data = this.chart2Data.datasets[0].data;
       const percentage = (data[0] * 100) / (data[0] + data[1]);
       return percentage.toFixed();
-    },
-    optionsChart1() {
-      return {
-        tooltips: { enabled: false },
-        hover: { mode: null },
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          yAxes: [
-            {
-              ticks: {
-                min: 0,
-                stepSize: 10,
-                callback: (label, index, labels) => {
-                  switch (label) {
-                    case label:
-                      return label + "M";
-                  }
-                }
-              }
-            }
-          ],
-          xAxes: [
-            {
-              gridLines: { display: false }
-            }
-          ]
-        },
-        legend: {
-          display: false
-        },
-        layout: {
-          padding: {
-            left: 10,
-            right: 20,
-            top: 25,
-            bottom: 0
-          }
-        }
-      };
-    },
-    optionsChart2() {
-      return {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutoutPercentage: 80,
-        hover: { mode: null },
-        tooltips: { enabled: false },
-        legend: { display: false },
-        layout: {
-          padding: {
-            left: 10,
-            right: 10,
-            top: 10,
-            bottom: 10
-          }
-        }
-      };
-    },
-    optionsChart3() {
-      return {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          yAxes: [
-            {
-              ticks: {
-                min: 0,
-                stepSize: 10,
-                callback: (label, index, labels) => {
-                  switch (label) {
-                    case label:
-                      return label + "%";
-                  }
-                }
-              }
-            }
-          ],
-          xAxes: [
-            {
-              gridLines: { display: false }
-            }
-          ]
-        },
-        legend: {
-          display: false
-        },
-        layout: {
-          padding: {
-            left: 10,
-            right: 20,
-            top: 25,
-            bottom: 0
-          }
-        },
-        tooltips: {
-          displayColors: false,
-          callbacks: {
-            label: function(tooltipItem, data) {
-              var label = [data.datasets[tooltipItem.datasetIndex].label] || "";
-
-              if (label) {
-                label = new Array();
-                label.push(`Percentage: ${tooltipItem.value}%`);
-              }
-              return label;
-            }
-          }
-        }
-      };
     },
     currentYear() {
       return new Date().getFullYear();
