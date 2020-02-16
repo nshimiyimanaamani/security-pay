@@ -81,6 +81,7 @@
 .active {
   .sector-dashboard {
     min-width: 320px;
+    width: 100vw;
   }
 
   h1 {
@@ -96,4 +97,5 @@
   height: 100%;
   min-width: 370px;
   overflow: auto;
+  transition: width 0.5s;
 }
