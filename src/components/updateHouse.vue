@@ -150,9 +150,6 @@ export default {
     this.house = { ...obj };
   },
   computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    },
     cellOptions() {
       return this.$store.getters.getCellsArray;
     },

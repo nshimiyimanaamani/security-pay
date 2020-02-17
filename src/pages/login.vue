@@ -59,37 +59,22 @@ export default {
       }
     };
   },
-  computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    }
-  },
+
   methods: {
     login() {
-      const email = this.form.email;
-      const key = this.form.password;
-      if (email && key) {
-        this.loading = true;
-        this.axios
-          .post("/accounts/login", {
-            username: email,
-            password: key
-          })
-          .then(res => {
-            sessionStorage.setItem("token", res.data.token);
-            location.reload();
-          })
-          .catch(err => {
-            delete sessionStorage.token;
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : null;
-            if (error) this.$snotify.error(error);
-          })
-          .finally(() => {
-            this.loading = false;
-          });
-      }
+      this.loading = true;
+      const user = {
+        username: this.form.email.trim(),
+        key: this.form.password.trim()
+      };
+      this.$store
+        .dispatch("login", user)
+        .then(() => {
+          location.reload();
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     }
   }
 };

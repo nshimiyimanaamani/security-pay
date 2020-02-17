@@ -118,17 +118,14 @@ export default {
     };
   },
   computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    },
-    userDetails() {
+    user() {
       return this.$store.getters.userDetails;
     }
   },
   methods: {
     create() {
       this.state.creating = true;
-      const account = jwt.decode(sessionStorage.token).account;
+      const account = this.user.account;
       this.axios
         .post("/accounts/admin", {
           account: account,
@@ -184,16 +181,10 @@ export default {
       if (data.option.slug == "delete") {
         this.state.tableLoad = true;
         this.axios
-          .delete(`/accounts/${this.userDetails.username}/users/${data.email}`)
+          .delete(`/accounts/${this.user.username}/users/${data.email}`)
           .then(res => {
             this.loadData();
             this.$snotify.info("Agent deleted Succesfully");
-          })
-          .catch(err => {
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : null;
-            if (error) this.$snotify.error(error);
           })
           .finally(() => {
             this.state.tableLoad = false;
@@ -213,12 +204,6 @@ export default {
         .then(res => {
           this.$snotify.info(res.data.message);
           this.loadData();
-        })
-        .catch(err => {
-          const error = err.response
-            ? err.response.data.error || err.response.data
-            : null;
-          if (error) this.$snotify.error(error);
         })
         .finally(() => {
           this.state.changing = false;

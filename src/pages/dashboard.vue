@@ -154,9 +154,7 @@ export default {
     };
   },
   computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    },
+    
     activeSector() {
       this.fetchData();
       return this.$store.getters.getActiveSector;

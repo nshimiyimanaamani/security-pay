@@ -160,9 +160,7 @@ export default {
     };
   },
   computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    },
+    
     activeCell() {
       return this.$store.getters.getActiveCell;
     },

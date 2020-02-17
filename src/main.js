@@ -33,33 +33,6 @@ Vue.use(Snotify, {
   }
 });
 
-axios.interceptors.request.use(
-  config => {
-    const Baseurl = process.env.VUE_APP_PAYPACK_API;
-    config.url = `${Baseurl}${config.url}`;
-    return config;
-  },
-  error => {
-    if (!navigator.onLine) {
-      Vue.prototype.$snotify.error("Please connect to the internet");
-    }
-    return Promise.reject(error);
-  }
-);
-axios.interceptors.response.use(
-  response => {
-    return response;
-  },
-  error => {
-    if (error.response.status === 401) {
-      store.dispatch("logout");
-    }
-    if (!navigator.onLine) {
-      Vue.prototype.$snotify.error("Please connect to the internet");
-    }
-    return Promise.reject(error);
-  }
-);
 Vue.config.productionTip = false;
 
 /**

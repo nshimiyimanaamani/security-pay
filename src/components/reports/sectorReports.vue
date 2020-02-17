@@ -175,9 +175,7 @@ export default {
     };
   },
   computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    },
+    
     activeSector() {
       return this.$store.getters.getActiveSector;
     },

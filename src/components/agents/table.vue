@@ -52,9 +52,6 @@ export default {
     };
   },
   computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    },
     userDetails() {
       return this.$store.getters.userDetails;
     }
