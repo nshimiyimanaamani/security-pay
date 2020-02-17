@@ -1,23 +1,42 @@
+import request from "../scripts/requests";
+var jwt = require("jsonwebtoken");
 const actions = {
-  startup_function({
-    commit
-  }) {
+  //startup logic
+  startup_function({ commit }) {
     commit("on_startup");
   },
-  updatePlace({
-    commit
-  }, res) {
+  updatePlace({ commit }, res) {
     commit("updatePlace", res);
   },
-  villageByCell({
-    commit
-  }, data) {
-    commit('villageByCell', data)
+  //end of startup logic
+  //---------------------------------------------------------------------------
+  //login logic
+  login({ commit }, data) {
+    return new Promise((resolve, reject) => {
+      if (data.username && data.key) {
+        request.post
+          .login(data)
+          .then(res => {
+            const user = jwt.decode(res);
+            commit("set_user", user);
+            resolve();
+          })
+          .catch(() => {
+            reject();
+          });
+      }
+    });
   },
-  logout({
-    commit
-  }) {
-    commit("logout");
+  //End of login logic
+  //--------------------------------------------------------------------------
+  //logout logic
+  logout({ commit }) {
+    delete sessionStorage.token;
+    location.reload();
+    commit("set_user", null);
+    commit("reset_state");
   }
-}
-export default actions
+
+  //End of logout logic
+};
+export default actions;

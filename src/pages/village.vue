@@ -70,9 +70,7 @@ export default {
     };
   },
   computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    },
+    
     activeVillage() {
       return this.$store.getters.getActiveVillage;
     },

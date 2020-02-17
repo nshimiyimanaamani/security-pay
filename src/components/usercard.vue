@@ -96,9 +96,6 @@ export default {
     });
   },
   computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    },
     months() {
       return this.$store.getters.getMonths;
     },

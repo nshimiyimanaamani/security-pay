@@ -37,11 +37,7 @@ export default {
       feedbacks: null
     };
   },
-  computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    }
-  },
+  
   mounted() {
     this.loadData();
   },

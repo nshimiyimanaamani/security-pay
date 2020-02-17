@@ -6,7 +6,6 @@ const getters = {
   getActiveVillage: state => state.active_village,
   getVillageArray: state => state.village_array,
   getActiveSector: state => state.active_sector,
-  villageByCell: state => state.villageByCell,
   userDetails: state => state.user,
   getMonths: state => state.months
 }

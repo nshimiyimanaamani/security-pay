@@ -166,9 +166,7 @@ export default {
     };
   },
   computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    },
+    
     sectorOptions() {
       return [this.activeSector];
     },

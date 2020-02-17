@@ -127,11 +127,6 @@ export default {
       }
     };
   },
-  computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    }
-  },
   methods: {
     create() {
       this.state.creating = true;

@@ -189,9 +189,7 @@ export default {
     };
   },
   computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    },
+    
     cellOptions() {
       return this.$store.getters.getCellsArray;
     },

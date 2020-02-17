@@ -65,11 +65,7 @@ export default {
       }
     };
   },
-  computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    }
-  },
+  
   methods: {
     register() {
       const email = this.form.email;

@@ -166,9 +166,6 @@ export default {
     };
   },
   computed: {
-    endpoint() {
-      return this.$store.getters.getEndpoint;
-    },
     cellOptions() {
       const sector = this.form.select.sector;
       if (sector) {
