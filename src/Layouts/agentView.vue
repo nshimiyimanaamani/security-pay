@@ -1,25 +1,17 @@
 <template>
   <div id="agentView">
     <vue-title title="Paypack | Agents" />
-    <nav class="py-2" style="z-index:1000">
-      <b-container class="p-0">
-        <b-row>
-          <b-col lg="10" md="10" sm="11" xl="10" class="navs pl-4">
-            <h2 class="m-0 text-white">P A Y P A C K</h2>
-          </b-col>
-          <b-col lg="1" md="1" sm="1" xl="1" class="navs mr-2" style="margin-left:auto">
-            <b-dropdown variant="info" no-caret>
-              <template v-slot:button-content>
-                <i class="fa fa-cog" />
-              </template>
-              <b-dropdown-item v-b-modal.changePassword>Change Password</b-dropdown-item>
-              <b-dropdown-item @click="logout">Logout</b-dropdown-item>
-            </b-dropdown>
-          </b-col>
-        </b-row>
-      </b-container>
+    <nav class="p-2 d-flex justify-content-between" style="z-index:1000">
+      <h2 class="m-0 text-white text-truncate">P A Y P A C K</h2>
+      <b-dropdown variant="info" no-caret>
+        <template v-slot:button-content>
+          <i class="fa fa-cog" />
+        </template>
+        <b-dropdown-item v-b-modal.changePassword>Change Password</b-dropdown-item>
+        <b-dropdown-item @click="logout">Logout</b-dropdown-item>
+      </b-dropdown>
     </nav>
-    <user-table />
+    <agent-home />
     <b-modal
       id="changePassword"
       title="Change your Password"
@@ -57,7 +49,7 @@ import loader from "../components/loader";
 export default {
   name: "agentsView",
   components: {
-    "user-table": home,
+    "agent-home": home,
     loader
   },
   data() {
@@ -69,7 +61,6 @@ export default {
     };
   },
   computed: {
-    
     user() {
       return this.$store.getters.userDetails;
     }
@@ -113,6 +104,7 @@ export default {
   width: 100vw;
   height: 100vh;
   overflow-x: hidden;
+  min-width: 230px;
   nav {
     position: sticky;
     width: 100%;

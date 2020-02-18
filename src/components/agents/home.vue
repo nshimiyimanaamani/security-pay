@@ -1,12 +1,10 @@
 <template>
-  <b-container style="height: auto">
-    <b-row>
+  <b-container class="h-auto mw-100">
+    <b-row class="px-4">
       <controller :user="user" v-on:refresh="key++" />
     </b-row>
-    <b-row>
-      <b-col sm="12" md="12" lg="12" class="px-1 py-0 table-control">
-        <user-table v-on:getInfo="getInfo" :user="user" :key="key" />
-      </b-col>
+    <b-row class="px-4">
+      <user-table v-on:getInfo="getInfo" :user="user" :key="key" />
     </b-row>
   </b-container>
 </template>
