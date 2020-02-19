@@ -1,4 +1,4 @@
-const { Cell, Village } = require("rwanda");
+const { Cell, Village } = require("../assets/rwanda/index");
 const mutations = {
   reset_state(state) {
     state = {

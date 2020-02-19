@@ -180,7 +180,7 @@
 import updateHouse from "../components/updateHouse.vue";
 import addPropertyModal from "../components/modals/addPropertyModal.vue";
 import download from "../components/download scripts/downloadProperties";
-const { Village } = require("rwanda");
+const { Village, Cell, Villages } = require("../assets/rwanda/index");
 const { isPhoneNumber } = require("rwa-validator");
 export default {
   name: "reports",
@@ -269,7 +269,6 @@ export default {
     };
   },
   computed: {
-    
     sectorOptions() {
       return [this.activeSector];
     },
@@ -278,6 +277,11 @@ export default {
     },
     villageOptions() {
       const cell = this.select.cell;
+      console.log(
+        cell,
+        Village("Kigali", "Gasabo", "Remera", "Rukiri I"),
+        Cell("Kigali", "Gasabo", "Remera")
+      );
       if (cell) {
         return Village("Kigali", "Gasabo", "Remera", cell);
       } else {
