@@ -129,7 +129,7 @@
 
 <script>
 const { isPhoneNumber } = require("rwa-validator");
-const { Village } = require("rwanda");
+const { Village } = require("../../assets/rwanda/index");
 export default {
   name: "addPropertModal",
   props: {
@@ -166,7 +166,6 @@ export default {
     };
   },
   computed: {
-    
     sectorOptions() {
       return [this.activeSector];
     },

@@ -117,7 +117,7 @@
 </template>
 
 <script>
-const { Village } = require("rwanda");
+const { Village } = require("../assets/rwanda/index");
 export default {
   name: "updateHouse",
   props: {
