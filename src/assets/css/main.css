@@ -71,6 +71,10 @@ p {
 .active-color li {
   background-color: #49bdd6;
 }
+form input {
+  border: 1px solid #bdbdbd !important;
+  background: transparent !important;
+}
 .max-width {
   max-width: 100vw;
 }

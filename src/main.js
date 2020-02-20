@@ -35,11 +35,6 @@ Vue.use(Snotify, {
 
 Vue.config.productionTip = false;
 
-/**
- * @todo Invite fred
- * @body This is just a test to check on the tdo
- */
-
 new Vue({
   router,
   store,
