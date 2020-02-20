@@ -16,6 +16,7 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/fatih/color v1.9.0
+<<<<<<< HEAD
 	github.com/go-playground/validator/v10 v10.2.0
 	github.com/go-redis/redis/v7 v7.0.0-beta.6
 	github.com/google/uuid v1.1.1 // indirect
@@ -24,6 +25,11 @@ require (
 	github.com/huandu/xstrings v1.3.0 // indirect
 	github.com/imdario/mergo v0.3.8 // indirect
 	github.com/jaytaylor/html2text v0.0.0-20190408195923-01ec452cbe43 // indirect
+=======
+	github.com/go-redis/redis/v7 v7.0.1
+	github.com/gorilla/handlers v1.4.2
+	github.com/gorilla/mux v1.7.4
+>>>>>>> 6f1a7cb9b2367fac165e5e5d0ca5e2804fbed746
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.3.0
 	github.com/matcornic/hermes v1.2.0
@@ -44,9 +50,7 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
 	github.com/ttacon/libphonenumber v1.1.0
-	github.com/vmihailenco/msgpack/v4 v4.3.5
-	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6
-	golang.org/x/net v0.0.0-20200202094626-16171245cfb2
-	golang.org/x/tools v0.0.0-20191004055002-72853e10c5a3
-	gopkg.in/russross/blackfriday.v2 v2.0.0 // indirect
+	github.com/vmihailenco/msgpack/v4 v4.3.7
+	golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd
+	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
 )
