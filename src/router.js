@@ -5,7 +5,6 @@ import Router from "vue-router";
 import axios from "axios";
 import { store } from "./store";
 import login from "./pages/login.vue";
-import register from "./pages/register.vue";
 import startPage from "./Layouts/main.vue";
 import dashboard from "./pages/dashboard.vue";
 import transactions from "./pages/transactions.vue";
