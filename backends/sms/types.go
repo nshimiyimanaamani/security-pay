@@ -38,7 +38,7 @@ func (res *smsResponse) RetrieveError() error {
 }
 
 type authResponse struct {
-	Success      bool      `validate:"required" json:"success"`
+	Success      bool      `json:"success" validate:"required"`
 	Message      string    `json:"message,omitempty"`
 	ExpiresAt    time.Time `json:"expires_at,omitempty"`
 	AccessToken  string    `json:"access_token,omitempty"`
