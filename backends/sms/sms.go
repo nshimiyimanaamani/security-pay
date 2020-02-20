@@ -192,7 +192,7 @@ func (sms *Backend) refresh() error {
 	if err != nil {
 		return errors.E(op, err)
 	}
-	req, err := http.NewRequest(http.MethodPost, sms.URL+"/auth", bytes.NewReader(bs))
+	req, err := http.NewRequest(http.MethodPost, sms.URL+"/auth/", bytes.NewReader(bs))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 
