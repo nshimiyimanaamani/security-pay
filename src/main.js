@@ -9,11 +9,11 @@ import PortalVue from "portal-vue";
 import { store } from "./store";
 import Snotify from "vue-snotify";
 import { SnotifyPosition } from "vue-snotify";
-import "../node_modules/chart.js/dist/Chart.js";
+import "chart.js/dist/Chart";
 import axios from "axios";
 import VueAxios from "vue-axios";
 import titleComponent from "./components/title.vue";
-import VueSimpleContextMenu from "vue-simple-context-menu";
+import VueSimpleContextMenu from "./scripts/simplecontextMenu";
 import VueSlider from "vue-slider-component";
 import "vue-slider-component/theme/default.css";
 

@@ -1,7 +1,7 @@
 <template>
-  <b-container class="table-container px-5 max-width">
+  <b-container class="table-container px-5 py-3 max-width">
     <vue-title title="Paypack | Properties" />
-    <h4 class="title text-center">
+    <h4 class="title d-flex justify-content-between flex-nowrap">
       List of properties in {{selected}}
       <b-button class="add-property mb-1 font-14" variant="info" @click="addProperty.show = true">
         <i class="fas fa-plus-circle"></i> Property
@@ -10,7 +10,7 @@
     <hr />
 
     <!-- filters -->
-    <b-row class="my-1 align-items-end px-3">
+    <b-row class="my-1 align-items-end px-3 flex-nowrap">
       <b-dropdown
         id="dropdown-dropright"
         dropright
@@ -269,7 +269,6 @@ export default {
     };
   },
   computed: {
-    
     sectorOptions() {
       return [this.activeSector];
     },
@@ -532,144 +531,5 @@ export default {
 };
 </script>
 <style>
-.table-container {
-  position: relative;
-  min-height: 100%;
-}
-
-hr {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.table-container > h4.title {
-  font-size: 20px;
-}
-
-.title .add-property {
-  float: right;
-  padding: 5px 10px;
-  height: fit-content;
-  border: none;
-  margin-top: -5px;
-}
-
-.modal-body form button {
-  float: right;
-  margin-left: 10px;
-  padding: 3px 15px;
-}
-
-.controllers {
-  margin: 10px 0;
-  height: 30px;
-  display: flex;
-}
-
-.controllers .download {
-  margin-left: 10px;
-  outline: none;
-  padding: 0.25rem 10px;
-  height: fit-content;
-}
-
-.controllers button {
-  outline: none !important;
-}
-
-.progress {
-  border-radius: 10px;
-  height: 10px;
-  width: 50%;
-  margin: auto;
-}
-
-.progress-bar {
-  font-size: 10px;
-  line-height: 11px;
-  background: #4394da;
-}
-
-.subtitle {
-  font-weight: bold;
-  width: fit-content;
-  margin-left: auto;
-  font-size: 13px;
-  margin-bottom: auto;
-}
-
-.filter-dropdown legend {
-  font-size: 14px;
-  font-weight: bold;
-  padding-bottom: 5px;
-}
-
-.filter-dropdown select {
-  width: 100%;
-  font-size: 14px;
-  margin: 0;
-  height: auto;
-  border-radius: 3px;
-  border-color: #cacaca;
-}
-
-.filter-dropdown .form-group {
-  margin-bottom: 5px;
-}
-
-.filter-dropdown hr {
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-.filter-dropdown button {
-  float: right;
-  height: fit-content;
-  padding: 0.25rem 10px;
-  font-size: 15px;
-}
-
-.filter-dropdown .dropdown-menu {
-  min-width: 200px;
-  margin: 0 2px 0;
-}
-
-.filter-dropdown .dropdown-menu > button {
-  font-size: 13px !important;
-  padding: 5px 20px !important;
-  margin: 0 10px 0 0;
-  width: fit-content;
-}
-
-.filter-dropdown .dropdown-menu form {
-  outline: none !important;
-  display: flex !important;
-  width: 400px !important;
-  padding: 5px !important;
-}
-
-.table-container .controllers .search {
-  display: flex;
-  margin-left: auto;
-}
-
-.table-container .controllers .search input {
-  height: 100%;
-  border-radius: 5px 0 0 5px;
-}
-
-.table-container .controllers .search > button {
-  border-radius: 0 4px 4px 0;
-  color: white;
-  height: fit-content;
-  padding: 2px 10px;
-}
-
-table thead th {
-  font-size: 14px;
-}
-
-table td {
-  font-size: 14px;
-}
+.table-container{position:relative;min-height:100%}hr{margin-top:.5rem;margin-bottom:.5rem}.table-container>h4.title{font-size:20px}.title .add-property{float:right;padding:5px 10px;height:fit-content;border:none;margin-top:-5px}.modal-body form button{float:right;margin-left:10px;padding:3px 15px}.controllers{margin:10px 0;height:30px;display:flex}.controllers .download{margin-left:10px;outline:none;padding:.25rem 10px;height:fit-content}.controllers button{outline:none!important}.progress{border-radius:10px;height:10px;width:50%;margin:auto}.progress-bar{font-size:10px;line-height:11px;background:#4394da}.subtitle{font-weight:700;width:fit-content;margin-left:auto;font-size:13px;margin-bottom:auto}.filter-dropdown legend{font-size:14px;font-weight:700;padding-bottom:5px}.filter-dropdown select{width:100%;font-size:14px;margin:0;height:auto;border-radius:3px;border-color:#cacaca}.filter-dropdown .form-group{margin-bottom:5px}.filter-dropdown hr{margin-top:10px;margin-bottom:10px}.filter-dropdown button{float:right;height:fit-content;padding:.25rem 10px;font-size:15px}.filter-dropdown .dropdown-menu{min-width:200px;margin:0 2px 0}.filter-dropdown .dropdown-menu>button{font-size:13px!important;padding:5px 20px!important;margin:0 10px 0 0;width:fit-content}.filter-dropdown .dropdown-menu form{outline:none!important;display:flex!important;width:400px!important;padding:5px!important}.table-container .controllers .search{display:flex;margin-left:auto}.table-container .controllers .search input{height:100%;border-radius:5px 0 0 5px}.table-container .controllers .search>button{border-radius:0 4px 4px 0;color:white;height:fit-content;padding:2px 10px}table thead th{font-size:14px}table td{font-size:14px}.table{min-width:max-content}
 </style>

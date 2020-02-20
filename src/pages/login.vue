@@ -35,7 +35,7 @@
             </b-form-group>
             <b-button
               size="sm"
-              class="loginBtn app-color w-100 text-white"
+              class="loginBtn app-color w-100 text-white align-baseline"
               type="submit"
               :disabled="loading"
             >
@@ -85,33 +85,5 @@ export default {
 };
 </script>
 <style>
-.loginPage {
-  color: #0000007a;
-  min-width: 270px;
-  min-height: 100vh;
-}
-.loginTitle {
-  min-height: 250px;
-}
-.loginTitle #paypack {
-  font-size: 50px;
-  color: #3a82a1;
-  line-height: 0%;
-  letter-spacing: 5px;
-}
-.login-form {
-  width: 100%;
-  min-width: 300px;
-  max-width: 400px;
-}
-@media (max-width: 389px) {
-  .loginTitle .slogan {
-    text-align: center;
-    width: fit-content;
-    margin: auto;
-  }
-  .loginTitle #paypack {
-    margin: auto;
-  }
-}
+.loginPage{color:#0000007a;min-width:270px;min-height:100vh}.loginTitle{min-height:250px}.loginTitle #paypack{font-size:50px;color:#3a82a1;line-height:0%;letter-spacing:5px}.login-form{width:100%;min-width:300px;max-width:400px}@media (max-width:389px){.loginTitle .slogan{text-align:center;width:fit-content;margin:auto}.loginTitle #paypack{margin:auto}}
 </style>
