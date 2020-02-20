@@ -4,79 +4,81 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	accountsEndpoints "github.com/rugwirobaker/paypack-backend/api/http/accounts"
-	authEndpoints "github.com/rugwirobaker/paypack-backend/api/http/auth"
-	feedbackEndpoints "github.com/rugwirobaker/paypack-backend/api/http/feedback"
+	"github.com/rugwirobaker/paypack-backend/api/http/accounts"
+	"github.com/rugwirobaker/paypack-backend/api/http/auth"
+	"github.com/rugwirobaker/paypack-backend/api/http/feedback"
 	"github.com/rugwirobaker/paypack-backend/api/http/health"
-	invoiceEndpoints "github.com/rugwirobaker/paypack-backend/api/http/invoices"
-	ownersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/owners"
-	paymentEndpoints "github.com/rugwirobaker/paypack-backend/api/http/payment"
-	propertiesEndpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
-	metricsEndpoints "github.com/rugwirobaker/paypack-backend/api/http/metrics"
-	transactionsEndpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
-	usersEndpoints "github.com/rugwirobaker/paypack-backend/api/http/users"
+	"github.com/rugwirobaker/paypack-backend/api/http/invoices"
+	"github.com/rugwirobaker/paypack-backend/api/http/metrics"
+	"github.com/rugwirobaker/paypack-backend/api/http/notifications"
+	"github.com/rugwirobaker/paypack-backend/api/http/owners"
+	"github.com/rugwirobaker/paypack-backend/api/http/payment"
+	"github.com/rugwirobaker/paypack-backend/api/http/properties"
+	"github.com/rugwirobaker/paypack-backend/api/http/transactions"
+	"github.com/rugwirobaker/paypack-backend/api/http/users"
 	"github.com/rugwirobaker/paypack-backend/api/http/version"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
 // HandlerOptions ...
 type HandlerOptions struct {
-	AccountsOptions *accountsEndpoints.HandlerOpts
-	AuthOptions     *authEndpoints.HandlerOpts
-	FeedbackOptions *feedbackEndpoints.HandlerOpts
-	OwnersOptions   *ownersEndpoints.HandlerOpts
-	PayOptions      *paymentEndpoints.HandlerOpts
-	PropsOptions    *propertiesEndpoints.HandlerOpts
-	TransOptions    *transactionsEndpoints.HandlerOpts
-	UsersOptions    *usersEndpoints.HandlerOpts
-	InvoiceOptions  *invoiceEndpoints.HandlerOpts
-	StatsOptions    *metricsEndpoints.HandlerOpts
+	AccountsOptions *accounts.HandlerOpts
+	AuthOptions     *auth.HandlerOpts
+	FeedbackOptions *feedback.HandlerOpts
+	NotifOptions    *notifications.HandlerOpts
+	OwnersOptions   *owners.HandlerOpts
+	PayOptions      *payment.HandlerOpts
+	PropsOptions    *properties.HandlerOpts
+	TransOptions    *transactions.HandlerOpts
+	UsersOptions    *users.HandlerOpts
+	InvoiceOptions  *invoices.HandlerOpts
+	StatsOptions    *metrics.HandlerOpts
 }
 
 // NewHandlerOptions ...
 func NewHandlerOptions(s *Services, lggr *log.Logger) *HandlerOptions {
-	feedOpts := &feedbackEndpoints.HandlerOpts{
+	feedOpts := &feedback.HandlerOpts{
 		Service: s.Feedback,
 		Logger:  lggr,
 	}
-	proOpts := &propertiesEndpoints.HandlerOpts{
+	proOpts := &properties.HandlerOpts{
 		Service: s.Properties,
 		Logger:  lggr,
 	}
 
-	ownersOpts := &ownersEndpoints.HandlerOpts{
+	ownersOpts := &owners.HandlerOpts{
 		Service: s.Owners,
 		Logger:  lggr,
 	}
-	paymentOpts := &paymentEndpoints.HandlerOpts{
+	paymentOpts := &payment.HandlerOpts{
 		Service: s.Payment,
 		Logger:  lggr,
 	}
 
-	transOpts := &transactionsEndpoints.HandlerOpts{
+	transOpts := &transactions.HandlerOpts{
 		Service: s.Transactions,
 		Logger:  lggr,
 	}
 
-	usersOpts := &usersEndpoints.HandlerOpts{
+	usersOpts := &users.HandlerOpts{
 		Service: s.Users,
 		Logger:  lggr,
 	}
 
-	accountsOpts := &accountsEndpoints.HandlerOpts{
+	accountsOpts := &accounts.HandlerOpts{
 		Service: s.Accounts,
 		Logger:  lggr,
 	}
 
-	authOpts := &authEndpoints.HandlerOpts{
+	authOpts := &auth.HandlerOpts{
 		Service: s.Auth,
 		Logger:  lggr,
 	}
-	invOpts := &invoiceEndpoints.HandlerOpts{
+	invOpts := &invoices.HandlerOpts{
 		Service: s.Invoices,
 		Logger:  lggr,
 	}
-	statsOpts := &metricsEndpoints.HandlerOpts{
+	statsOpts := &metrics.HandlerOpts{
 		Service: s.Stats,
 		Logger:  lggr,
 	}
@@ -105,23 +107,23 @@ func Register(mux *mux.Router, opts *HandlerOptions) {
 	mux.HandleFunc("/healthz", health.Health).Methods(http.MethodGet)
 	mux.HandleFunc("/version", version.Build).Methods(http.MethodGet)
 
-	usersEndpoints.RegisterHandlers(mux, opts.UsersOptions)
+	users.RegisterHandlers(mux, opts.UsersOptions)
 
-	feedbackEndpoints.RegisterHandlers(mux, opts.FeedbackOptions)
+	feedback.RegisterHandlers(mux, opts.FeedbackOptions)
 
-	ownersEndpoints.RegisterHandlers(mux, opts.OwnersOptions)
+	owners.RegisterHandlers(mux, opts.OwnersOptions)
 
-	propertiesEndpoints.RegisterHandlers(mux, opts.PropsOptions)
+	properties.RegisterHandlers(mux, opts.PropsOptions)
 
-	paymentEndpoints.RegisterHandlers(mux, opts.PayOptions)
+	payment.RegisterHandlers(mux, opts.PayOptions)
 
-	transactionsEndpoints.RegisterHandlers(mux, opts.TransOptions)
+	transactions.RegisterHandlers(mux, opts.TransOptions)
 
-	accountsEndpoints.RegisterHandlers(mux, opts.AccountsOptions)
+	accounts.RegisterHandlers(mux, opts.AccountsOptions)
 
-	authEndpoints.RegisterHandlers(mux, opts.AuthOptions)
+	auth.RegisterHandlers(mux, opts.AuthOptions)
 
-	invoiceEndpoints.RegisterHandlers(mux, opts.InvoiceOptions)
+	invoices.RegisterHandlers(mux, opts.InvoiceOptions)
 
-	metricsEndpoints.RegisterHandlers(mux, opts.StatsOptions)
+	metrics.RegisterHandlers(mux, opts.StatsOptions)
 }

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/rugwirobaker/paypack-backend/backends/encoding"
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
@@ -64,7 +65,7 @@ func (cli *backend) Pull(ctx context.Context, tx payment.Transaction) (payment.S
 		CallbackURL: cli.Callback,
 	}
 
-	bits, err := Serialize(body)
+	bits, err := encoding.Serialize(body)
 	if err != nil {
 		return empty, errors.E(op, err)
 	}
@@ -87,7 +88,7 @@ func (cli *backend) Pull(ctx context.Context, tx payment.Transaction) (payment.S
 
 	res := &pullResponse{}
 
-	if err := Deserialize(resp.Body, res); err != nil {
+	if err := encoding.Deserialize(resp.Body, res); err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -120,7 +121,7 @@ func (cli *backend) Status(ctx context.Context) (int, error) {
 	defer resp.Body.Close()
 
 	var status = &statusResponse{}
-	if err := Deserialize(resp.Body, status); err != nil {
+	if err := encoding.Deserialize(resp.Body, status); err != nil {
 		return http.StatusInternalServerError, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -133,7 +134,7 @@ func (cli *backend) Auth(appID, appSecret string) (string, error) {
 	// assemble request
 	body := &authRequest{AppID: appID, Secret: appSecret}
 
-	bs, err := Serialize(body)
+	bs, err := encoding.Serialize(body)
 	if err != nil {
 		return "", errors.E(op, err)
 	}
@@ -150,7 +151,7 @@ func (cli *backend) Auth(appID, appSecret string) (string, error) {
 	// read response
 	res := &authResponse{}
 
-	if err := Deserialize(resp.Body, res); err != nil {
+	if err := encoding.Deserialize(resp.Body, res); err != nil {
 		return "", errors.E(op, err, errors.KindUnexpected)
 	}
 	if token := res.Data.Token; token == "" {

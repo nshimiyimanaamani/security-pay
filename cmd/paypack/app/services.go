@@ -10,6 +10,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/invoices"
 	"github.com/rugwirobaker/paypack-backend/core/metrics"
 	"github.com/rugwirobaker/paypack-backend/core/nanoid"
+	"github.com/rugwirobaker/paypack-backend/core/notifications"
 	"github.com/rugwirobaker/paypack-backend/core/owners"
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
@@ -26,31 +27,39 @@ import (
 
 // Services aggrates all the services
 type Services struct {
-	Accounts     accounts.Service
-	Auth         auth.Service
-	Feedback     feedback.Service
-	Owners       owners.Service
-	Payment      payment.Service
-	Properties   properties.Service
-	Transactions transactions.Service
-	Users        users.Service
-	Invoices     invoices.Service
-	Stats        metrics.Service
+	Accounts      accounts.Service
+	Auth          auth.Service
+	Feedback      feedback.Service
+	Notifications notifications.Service
+	Owners        owners.Service
+	Payment       payment.Service
+	Properties    properties.Service
+	Transactions  transactions.Service
+	Users         users.Service
+	Invoices      invoices.Service
+	Stats         metrics.Service
 }
 
 // Init initialises all services
-func Init(db *sql.DB, rclient *redis.Client, b payment.Backend, secret string) *Services {
+func Init(
+	db *sql.DB,
+	rclient *redis.Client,
+	p payment.Backend,
+	s notifications.Backend,
+	secret string,
+) *Services {
 	services := &Services{
-		Accounts:     bootAccountsService(db),
-		Feedback:     bootFeedbackService(db),
-		Owners:       bootOwnersService(db),
-		Payment:      bootPaymentService(db, rclient, b),
-		Properties:   bootPropertiesService(db),
-		Transactions: bootTransactionsService(db),
-		Users:        bootUserService(db, secret),
-		Auth:         bootAuthService(db, secret),
-		Invoices:     bootInvoiceService(db),
-		Stats:        bootStatsService(db),
+		Accounts:      bootAccountsService(db),
+		Feedback:      bootFeedbackService(db),
+		Notifications: bootNotifService(s),
+		Owners:        bootOwnersService(db),
+		Payment:       bootPaymentService(db, rclient, p),
+		Properties:    bootPropertiesService(db),
+		Transactions:  bootTransactionsService(db),
+		Users:         bootUserService(db, secret),
+		Auth:          bootAuthService(db, secret),
+		Invoices:      bootInvoiceService(db),
+		Stats:         bootStatsService(db),
 	}
 	return services
 }
@@ -131,4 +140,10 @@ func bootStatsService(db *sql.DB) metrics.Service {
 	repo := postgres.NewStatsRepository(db)
 	opts := &metrics.Options{Repo: repo}
 	return metrics.New(opts)
+}
+
+func bootNotifService(sms notifications.Backend) notifications.Service {
+	idp := uuid.New()
+	opts := &notifications.Options{Backend: sms, IDP: idp}
+	return notifications.New(opts)
 }

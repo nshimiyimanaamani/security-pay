@@ -16,6 +16,7 @@ type Config struct {
 	Postgres     *PostgresConfig
 	Redis        *RedisConfig
 	Payment      *PaymentConfig
+	SMS          *SmsConfig
 }
 
 //default config
