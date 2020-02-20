@@ -1,7 +1,7 @@
 <template>
   <div class="admin-wrapper d-flex">
     <div class="admin-sidebar" :class="{'active' : active}">
-      <h1 class="text-white p-1 d-flex justify-content-center align-items-center">P A Y P A C K</h1>
+      <h1 class="text-white p-1 m-0 d-flex justify-content-center align-items-center">P A Y P A C K</h1>
       <hr class="m-0" />
       <ul class="sidebar-links font-14 p-0 mt-5">
         <router-link v-if="user.role.toLowerCase() !='basic'" to="/dashboard">
@@ -126,6 +126,6 @@ export default {
   }
 };
 </script>
-<style scoped>
-@import url("../assets/css/dashboardLayout.css");
+<style lang="scss" scoped>
+@import "../assets/css/dashboardLayout.scss";
 </style>

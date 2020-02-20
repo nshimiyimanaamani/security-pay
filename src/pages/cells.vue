@@ -160,7 +160,6 @@ export default {
     };
   },
   computed: {
-    
     activeCell() {
       return this.$store.getters.getActiveCell;
     },
@@ -355,6 +354,7 @@ export default {
   }
 };
 </script>
-<style>
-@import url("../assets/css/dashboard.css");
+
+<style lang="scss" >
+@import "../assets/css/dashboard.scss";
 </style>

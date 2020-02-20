@@ -113,7 +113,6 @@ export default {
     };
   },
   computed: {
-    
     activeCell() {
       return this.$store.getters.getActiveCell;
     },
@@ -189,7 +188,6 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-@import url("../assets/css/transactionTable.css");
+<style lang="scss" scoped>
+@import "../assets/css/transactionTable.scss";
 </style>

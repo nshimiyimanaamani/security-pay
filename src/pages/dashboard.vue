@@ -154,7 +154,6 @@ export default {
     };
   },
   computed: {
-    
     activeSector() {
       this.fetchData();
       return this.$store.getters.getActiveSector;
@@ -450,8 +449,8 @@ export default {
   }
 };
 </script>
-<style>
-@import url("../assets/css/dashboard.css");
+<style lang="scss">
+@import "../assets/css/dashboard.scss";
 .chartLoader {
   top: 25%;
   right: 0;

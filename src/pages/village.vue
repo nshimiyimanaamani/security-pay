@@ -70,7 +70,6 @@ export default {
     };
   },
   computed: {
-    
     activeVillage() {
       return this.$store.getters.getActiveVillage;
     },
@@ -111,6 +110,6 @@ export default {
   }
 };
 </script>
-<style>
-@import url("../assets/css/village.css");
+<style lang="scss">
+@import "../assets/css/village.scss";
 </style>
