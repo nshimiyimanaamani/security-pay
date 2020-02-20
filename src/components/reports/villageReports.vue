@@ -74,7 +74,7 @@
 </template>
 
 <script>
-const { Village } = require("../../assets/rwanda/index");
+const { Village } = require("rwanda");
 import download from "./downloadVillageReport";
 import selector from "../reportsDateSelector";
 export default {

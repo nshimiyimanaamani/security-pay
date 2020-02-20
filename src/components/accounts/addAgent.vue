@@ -122,7 +122,7 @@
 </template>
 
 <script>
-const { Village } = require("../../assets/rwanda/index");
+const { Village } = require("rwanda");
 import loader from "../loader";
 export default {
   name: "add-agent",
