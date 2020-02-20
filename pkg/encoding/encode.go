@@ -9,7 +9,7 @@ import (
 
 // Encode serialises structs into bytes
 func Encode(ctx context.Context, v interface{}) ([]byte, error) {
-	const op errors.Op = "redis.Encode"
+	const op errors.Op = "encoding/binary/Encode"
 
 	b, err := msgpack.Marshal(v)
 	if err != nil {
@@ -20,7 +20,7 @@ func Encode(ctx context.Context, v interface{}) ([]byte, error) {
 
 // Decode deserialises bytes into structs
 func Decode(ctx context.Context, b []byte, v interface{}) error {
-	const op errors.Op = "redis.Decode"
+	const op errors.Op = "encoding/binary/Decode"
 
 	if err := msgpack.Unmarshal(b, v); err != nil {
 		return errors.E(op, err, errors.KindUnexpected)

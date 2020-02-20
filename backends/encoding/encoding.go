@@ -1,4 +1,4 @@
-package fdi
+package encoding
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 
 // Serialize encodes requests objects to json
 func Serialize(req interface{}) ([]byte, error) {
-	const op errors.Op = "fdi.Serialize"
+	const op errors.Op = "backend.Serialize"
 
 	b, err := json.Marshal(req)
 	if err != nil {
@@ -21,7 +21,7 @@ func Serialize(req interface{}) ([]byte, error) {
 
 // Deserialize decodes response bodies to appropriate objects
 func Deserialize(res io.Reader, v interface{}) error {
-	const op errors.Op = "fdi.Deserialize"
+	const op errors.Op = "backend.Deserialize"
 
 	data, err := ioutil.ReadAll(res)
 	if err != nil {

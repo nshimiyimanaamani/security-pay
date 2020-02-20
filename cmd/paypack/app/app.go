@@ -36,14 +36,20 @@ func Bootstrap(conf *config.Config) (http.Handler, error) {
 	}
 	lggr := log.New(conf.CloudRuntime, logLvl)
 
+	//init payment backend
 	pb, err := InitPBackend(ctx, conf.Payment)
 	if err != nil {
 		lggr.Errorf("error connecting to payment backend (%s)", err)
 	}
 
-	//create protocol
+	//init sms backend
+	sms, err := InitSMSBackend(ctx, conf.SMS)
+	if err != nil {
+		lggr.Errorf("error connecting to payment backend (%s)", err)
+	}
 
-	services := Init(db, rclient, pb, conf.Secret)
+	//create protocol
+	services := Init(db, rclient, pb, sms, conf.Secret)
 
 	handlerOpts := NewHandlerOptions(services, lggr)
 
