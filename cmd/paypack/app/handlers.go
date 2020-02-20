@@ -126,4 +126,6 @@ func Register(mux *mux.Router, opts *HandlerOptions) {
 	invoices.RegisterHandlers(mux, opts.InvoiceOptions)
 
 	metrics.RegisterHandlers(mux, opts.StatsOptions)
+
+	notifications.RegisterHandlers(mux, opts.NotifOptions)
 }
