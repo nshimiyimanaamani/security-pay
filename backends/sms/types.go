@@ -71,8 +71,8 @@ type singleMSISDNRequest struct {
 }
 
 type bulkMSISDNRequest struct {
-	MSISDN    []string `json:"msisdn"`    // a list of numbers to send message to
-	Message   string   `json:"message"`   // the sms message content
-	SenderID  string   `json:"sender_id"` // the id to display in the message
+	MSISDN    []string `json:"msisdn_list"` // a list of numbers to send message to
+	Message   string   `json:"message"`     // the sms message content
+	SenderID  string   `json:"sender_id"`   // the id to display in the message
 	Reference string   `json:"msgRef"`
 }
