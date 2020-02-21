@@ -154,6 +154,10 @@ func (cli *backend) Auth(appID, appSecret string) (string, error) {
 	if err := encoding.Deserialize(resp.Body, res); err != nil {
 		return "", errors.E(op, err, errors.KindUnexpected)
 	}
+
+	if err := res.Validate(); err != nil {
+		return "", errors.E(op, err, errors.KindUnexpected)
+	}
 	if token := res.Data.Token; token == "" {
 		return "", errors.E(op, "unable to authenticate client", errors.KindUnexpected)
 	}

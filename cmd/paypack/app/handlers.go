@@ -82,6 +82,10 @@ func NewHandlerOptions(s *Services, lggr *log.Logger) *HandlerOptions {
 		Service: s.Stats,
 		Logger:  lggr,
 	}
+	notifOpts := &notifications.HandlerOpts{
+		Service: s.Notifications,
+		Logger:  lggr,
+	}
 
 	opts := &HandlerOptions{
 		AuthOptions:     authOpts,
@@ -94,6 +98,7 @@ func NewHandlerOptions(s *Services, lggr *log.Logger) *HandlerOptions {
 		UsersOptions:    usersOpts,
 		InvoiceOptions:  invOpts,
 		StatsOptions:    statsOpts,
+		NotifOptions:    notifOpts,
 	}
 	return opts
 }

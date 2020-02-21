@@ -33,6 +33,10 @@ func main() {
 		log.Fatalf("could not load configuration: %v", err)
 	}
 
+	if err := config.Validate(conf); err != nil {
+		log.Fatalf("invalid configuration: %v", err)
+	}
+
 	handler, err := app.Bootstrap(conf)
 	if err != nil {
 		log.Fatal(err)

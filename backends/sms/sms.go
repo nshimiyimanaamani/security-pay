@@ -59,12 +59,13 @@ func (sms *Backend) Send(ctx context.Context, id, message string, recipients []s
 	case 0:
 		return errors.E(op, "cannot send message to recipients", errors.KindBadRequest)
 	case 1:
-		err := sms.sendBulk(ctx, id, message, recipients)
+		err := sms.sendSingle(ctx, id, recipients[0], message)
 		if err != nil {
 			return errors.E(op, err)
 		}
 	default:
-		err := sms.sendSingle(ctx, id, recipients[0], message)
+		err := sms.sendBulk(ctx, id, recipients, message)
+
 		if err != nil {
 			return errors.E(op, err)
 		}
@@ -107,9 +108,12 @@ func (sms *Backend) sendSingle(ctx context.Context, id, recipient, message strin
 	if err := encoding.Deserialize(res.Body, resBody); err != nil {
 		return errors.E(op, err)
 	}
+	if res.StatusCode > 299 {
+		return errors.E(op, resBody.Message, errors.KindUnexpected)
+	}
 	return nil
 }
-func (sms *Backend) sendBulk(ctx context.Context, id, message string, recipients []string) error {
+func (sms *Backend) sendBulk(ctx context.Context, id string, recipients []string, message string) error {
 	const op errors.Op = "backends/sms/Backend.sendBulk"
 
 	reqBody := &bulkMSISDNRequest{
@@ -144,6 +148,10 @@ func (sms *Backend) sendBulk(ctx context.Context, id, message string, recipients
 	if err := encoding.Deserialize(res.Body, resBody); err != nil {
 		return errors.E(op, err)
 	}
+
+	if res.StatusCode > 299 {
+		return errors.E(op, resBody.Message, errors.KindUnexpected)
+	}
 	return nil
 }
 
@@ -177,8 +185,14 @@ func (sms *Backend) authorize(appID, appSecret string) error {
 	if err := res.Validate(); err != nil {
 		return errors.E(op, err, errors.KindUnexpected)
 	}
+
+	if resp.StatusCode > 299 {
+		return errors.E(op, res.Message, errors.KindUnexpected)
+	}
+
 	sms.Token = res.AccessToken
 	sms.Refresh = res.RefreshToken
+
 	return nil
 }
 
@@ -192,7 +206,7 @@ func (sms *Backend) refresh() error {
 	if err != nil {
 		return errors.E(op, err)
 	}
-	req, err := http.NewRequest(http.MethodPost, sms.URL+"/auth/", bytes.NewReader(bs))
+	req, err := http.NewRequest(http.MethodPost, sms.URL+"/auth", bytes.NewReader(bs))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 
@@ -211,6 +225,10 @@ func (sms *Backend) refresh() error {
 
 	if err := res.Validate(); err != nil {
 		return errors.E(op, err, errors.KindUnexpected)
+	}
+
+	if resp.StatusCode > 299 {
+		return errors.E(op, res.Message, errors.KindUnexpected)
 	}
 
 	sms.Token = res.AccessToken

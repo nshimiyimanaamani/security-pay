@@ -40,12 +40,14 @@ func Bootstrap(conf *config.Config) (http.Handler, error) {
 	pb, err := InitPBackend(ctx, conf.Payment)
 	if err != nil {
 		lggr.Errorf("error connecting to payment backend (%s)", err)
+		return nil, err
 	}
 
 	//init sms backend
 	sms, err := InitSMSBackend(ctx, conf.SMS)
 	if err != nil {
-		lggr.Errorf("error connecting to payment backend (%s)", err)
+		lggr.Errorf("error connecting to sms backend (%s)", err)
+		return nil, err
 	}
 
 	//create protocol

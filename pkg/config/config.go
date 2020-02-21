@@ -3,7 +3,9 @@ package config
 import (
 	"log"
 
+	validate "github.com/go-playground/validator/v10"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
 // Config contains application wide config
@@ -37,4 +39,15 @@ func Load(prefix string) (*Config, error) {
 		log.Fatal(err.Error())
 	}
 	return &c, nil
+}
+
+func Validate(conf *Config) error {
+	const op errors.Op = "pkg/config/Config.Validate"
+
+	var validator = validate.New()
+
+	if err := validator.Struct(conf); err != nil {
+		return errors.E(op, err, errors.KindUnexpected)
+	}
+	return nil
 }

@@ -13,7 +13,7 @@ var errMissingAuth = fmt.Errorf("missing authorization header")
 type smsResponse struct {
 	Success          bool   `validate:"required" json:"success"`
 	Message          string `validate:"required" json:"message,omitempty"`
-	Cost             int    `validate:"required" json:"cost,string,omitempty"`
+	Cost             int    `validate:"required" json:"cost,omitempty"`
 	MessageReference string `validate:"required" json:"msgRef,omitempty"`
 	GatewayReference string `validate:"required" json:"gatewayRef,omitempty"`
 }
