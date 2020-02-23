@@ -1,24 +1,30 @@
 <template>
   <div class="village-wrapper w-100" style="min-width: 700px">
     <vue-title title="Paypack | Village" />
-    <div class="container mw-100">
-      <div class="container-title d-flex justify-content-between align-items-center">
+    <div class="container mw-100 mt-3">
+      <div
+        class="container-title d-flex justify-content-between align-items-center"
+        style="height: 40px"
+      >
         <i class="fa fa-th-large width-3"></i>
         <h1 class="m-0 width-3 text-center">{{activeVillage}}</h1>
-        <span class="d-flex flex-row-reverse align-items-center width-3 position-relative">
+        <span class="d-flex align-items-center width-3 position-relative justify-content-end">
           <transition name="fade">
-            <div v-if="state.showSearch">
+            <div class="w-100" v-if="!state.showSearch">
               <b-input
                 type="search"
                 size="sm"
-                style="left:-50px;top:-3px"
-                class="position-absolute font-13 app-font left"
+                class="font-13 app-font left"
                 placeholder="search user..."
+                v-model="search.name"
               />
             </div>
           </transition>
-
-          <i class="fa fa-cog cursor-pointer" @click="state.showSearch = !state.showSearch" />
+          <i
+            class="fa fa-search text-white ml-2 cursor-pointer"
+            aria-hidden="true"
+            @click="state.showSearch = !state.showSearch"
+          />
         </span>
       </div>
       <b-card
@@ -62,11 +68,11 @@ export default {
         showCollapse: false,
         showSearch: false
       },
+      search: {
+        name: ""
+      },
       houses: [],
-      responseData: [],
-      green: "#50a031",
-      orange: "#f0a700",
-      red: "#f3573c"
+      responseData: []
     };
   },
   computed: {
@@ -82,19 +88,45 @@ export default {
       handler: {
         this.loadData();
       }
+    },
+    "search.name"() {
+      handler: {
+        const searchedName = this.search.name.toLowerCase();
+        this.houses = this.responseData.filter(item => {
+          const name = String(
+            item.owner.fname + " " + item.owner.lname
+          ).toLowerCase();
+          console.log(name);
+          return name.includes(searchedName);
+        });
+      }
+    },
+    responseData() {
+      handler: {
+        this.houses.length = 0;
+        this.houses = this.responseData;
+      }
+    },
+    houses() {
+      handler: {
+        console.log(this.houses);
+      }
     }
   },
   mounted() {
     this.loadData();
   },
   methods: {
-    loadData() {
+    async loadData() {
       this.state.loading = true;
-      this.houses = new Array();
+      this.responseData = new Array();
+      var total = await this.getTotal();
       this.axios
-        .get(`/properties?village=${this.activeVillage}&offset=0&limit=1000`)
+        .get(
+          `/properties?village=${this.activeVillage}&offset=0&limit=${total}`
+        )
         .then(res => {
-          this.houses = res.data.Properties;
+          this.responseData = res.data.Properties;
         })
         .catch(err => {
           const error = err.response
@@ -105,6 +137,16 @@ export default {
         })
         .finally(() => {
           this.state.loading = false;
+        });
+    },
+    getTotal() {
+      return this.axios
+        .get(`/properties?village=${this.activeVillage}&offset=0&limit=0`)
+        .then(res => {
+          return res.data.Total;
+        })
+        .catch(err => {
+          return 0;
         });
     }
   }

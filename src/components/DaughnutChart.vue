@@ -6,7 +6,7 @@ export default {
   mixins: [reactiveProp],
   props: ["options"],
   mounted() {
-    Chart.defaults.global.defaultFontFamily = '"Nunito Sans", sans-serif';
+    Chart.defaults.global.defaultFontFamily = '"Roboto", sans-serif';
     Chart.defaults.global.defaultFontColor = "#2d2d2d";
     Chart.defaults.global.defaultFontSize = 12.3;
     this.renderChart(this.chartData, this.options);

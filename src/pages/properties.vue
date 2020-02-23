@@ -168,25 +168,34 @@
         v-on:closeModal="closeUpdateModal"
       />
     </b-modal>
-    <vue-simple-context-menu
+    <vue-menu
       :elementId="'rightmenu'"
       :options="rightMenu.options"
       :ref="'rightMenu'"
-      @option-clicked="showUpdateModal"
-    ></vue-simple-context-menu>
+      @option-clicked="showContextMenu"
+    ></vue-menu>
+
+    <message
+      :phones="message.sendTo"
+      v-if="message.show"
+      v-on:modal-closed="message.show= false"
+      v-on:sent="message.show= false"
+    />
   </b-container>
 </template>
 <script>
 import updateHouse from "../components/updateHouse.vue";
 import addPropertyModal from "../components/modals/addPropertyModal.vue";
 import download from "../components/download scripts/downloadProperties";
+import message from "../components/modals/message";
 const { Village } = require("rwanda");
 const { isPhoneNumber } = require("rwa-validator");
 export default {
   name: "reports",
   components: {
     "update-house": updateHouse,
-    "add-property": addPropertyModal
+    "add-property": addPropertyModal,
+    message
   },
   data() {
     return {
@@ -204,13 +213,18 @@ export default {
       rightMenu: {
         options: [
           { name: "Edit House", slug: "edit" },
-          { name: "Delete House", slug: "delete" }
+          { name: "Delete House", slug: "delete" },
+          { name: "Send Message", slug: "send" }
         ]
       },
       updateModal: {
         show: false,
         item: [],
         option: []
+      },
+      message: {
+        sendTo: null,
+        show: false
       },
       modal: {
         show: false,
@@ -395,15 +409,16 @@ export default {
       evt.preventDefault();
       this.$refs.rightMenu.showMenu(evt, house);
     },
-    showUpdateModal(data) {
+    showContextMenu(data) {
       if (data.option.slug == "edit") {
-        console.log(data);
         this.updateModal.item = data.item ? data.item : {};
         this.updateModal.option = data.option ? data.option : {};
         this.updateModal.show = data.item ? true : false;
       } else if (data.option.slug == "delete") {
-        console.log(data);
         this.deleteHouse(data.item);
+      } else if (data.option.slug == "send") {
+        this.message.sendTo = data.item.owner.phone;
+        this.message.show = true;
       }
     },
     deleteHouse(house) {
@@ -530,6 +545,6 @@ export default {
   }
 };
 </script>
-<style>
-.table-container{position:relative;min-height:100%}hr{margin-top:.5rem;margin-bottom:.5rem}.table-container>h4.title{font-size:20px}.title .add-property{float:right;padding:5px 10px;height:fit-content;border:none;margin-top:-5px}.modal-body form button{float:right;margin-left:10px;padding:3px 15px}.controllers{margin:10px 0;height:30px;display:flex}.controllers .download{margin-left:10px;outline:none;padding:.25rem 10px;height:fit-content}.controllers button{outline:none!important}.progress{border-radius:10px;height:10px;width:50%;margin:auto}.progress-bar{font-size:10px;line-height:11px;background:#4394da}.subtitle{font-weight:700;width:fit-content;margin-left:auto;font-size:13px;margin-bottom:auto}.filter-dropdown legend{font-size:14px;font-weight:700;padding-bottom:5px}.filter-dropdown select{width:100%;font-size:14px;margin:0;height:auto;border-radius:3px;border-color:#cacaca}.filter-dropdown .form-group{margin-bottom:5px}.filter-dropdown hr{margin-top:10px;margin-bottom:10px}.filter-dropdown button{float:right;height:fit-content;padding:.25rem 10px;font-size:15px}.filter-dropdown .dropdown-menu{min-width:200px;margin:0 2px 0}.filter-dropdown .dropdown-menu>button{font-size:13px!important;padding:5px 20px!important;margin:0 10px 0 0;width:fit-content}.filter-dropdown .dropdown-menu form{outline:none!important;display:flex!important;width:400px!important;padding:5px!important}.table-container .controllers .search{display:flex;margin-left:auto}.table-container .controllers .search input{height:100%;border-radius:5px 0 0 5px}.table-container .controllers .search>button{border-radius:0 4px 4px 0;color:white;height:fit-content;padding:2px 10px}table thead th{font-size:14px}table td{font-size:14px}.table{min-width:max-content}
+<style lang="scss">
+@import "../assets/css/properties.scss";
 </style>

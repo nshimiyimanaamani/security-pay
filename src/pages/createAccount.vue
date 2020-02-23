@@ -4,16 +4,16 @@
     <h3 class="d-flex justify-content-center mb-3">ACCOUNT REGISTRATION</h3>
     <b-card no-body class="nav-controls font-13">
       <b-tabs pills card vertical lazy class="text-uppercase" content-class="text-capitalize">
-        <b-tab title="Add Agent" active>
+        <b-tab title="Agents" active>
           <add-agent />
         </b-tab>
-        <b-tab v-if="user.role.toLowerCase() != 'admin'" title="Add Admin">
+        <b-tab v-if="user.role.toLowerCase() != 'admin'" title="Admins">
           <add-admin />
         </b-tab>
-        <b-tab title="Add Managers">
+        <b-tab title="Managers">
           <add-manager />
         </b-tab>
-        <b-tab v-if="user.role.toLowerCase() == 'dev'" title="Add Developers">
+        <b-tab v-if="user.role.toLowerCase() == 'dev'" title="Developers">
           <add-dev />
         </b-tab>
       </b-tabs>
