@@ -51,12 +51,12 @@ var script = {
         menu.style.top = event.pageY - 2 + "px";
       }
 
-      menu.classList.add("vue-simple-context-menu--active");
+      menu.classList.add("vue-menu--active");
     },
     hideContextMenu: function hideContextMenu() {
       var element = document.getElementById(this.elementId);
       if (element) {
-        element.classList.remove("vue-simple-context-menu--active");
+        element.classList.remove("vue-menu--active");
       }
     },
     onClickOutside: function onClickOutside() {
@@ -198,7 +198,7 @@ var __vue_render__ = function() {
             expression: "onClickOutside"
           }
         ],
-        staticClass: "vue-simple-context-menu",
+        staticClass: "vue-menu",
         attrs: { id: _vm.elementId }
       },
       _vm._l(_vm.options, function(option, index) {
@@ -206,7 +206,7 @@ var __vue_render__ = function() {
           "li",
           {
             key: index,
-            staticClass: "vue-simple-context-menu__item",
+            staticClass: "vue-menu__item",
             class: option.class,
             on: {
               click: function($event) {

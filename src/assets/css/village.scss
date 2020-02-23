@@ -1,1 +1,133 @@
-.village-wrapper{.card-columns{column-count:2!important}.progress{width:100%;height:5px}.container{height:calc(100vh - 55px);.village-body{overflow-y:scroll;height:calc(100% - 45px)}.card{border:1px solid lightgray;.card-group{border:1px solid #cec4c4;padding:5px 10px;width:49%;margin:0;position:relative;margin-bottom:10px;display:block;break-inside:avoid;.card-header{display:flex;text-transform:capitalize;padding:0;background:inherit;p:last-child{width:20%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:auto}}.card-footer{display:flex;padding:10px 0 0;background:inherit;article{width:100%;padding-right:10px;display:block;font-size:14px;.progress{width:100%;height:7px}}i{margin-left:auto;cursor:pointer;display:flex;align-items:flex-end}}.more-data{position:absolute;background:white;z-index:100;width:100.5%;margin:6px -11px;border:1px solid;border-top:none;border-color:#cec4c4;padding:10px 10px 0;article{display:flex;position:relative;font-size:14px;p{position:absolute;margin-left:35%;text-transform:capitalize}}}}}.error{border:1px solid lightgray;border-top:none;margin-bottom:20px;background:transparent;padding-top:1px;article{width:fit-content;margin:30px auto;i{font-size:70px;color:#e6d828}label{margin:15px;display:block}}}}.container-title{padding:10px;border-radius:10px 10px 0 0;background-color:#3a82a1;display:flex;.width-3{width:calc(100% / 3)}.search{transition:max-width 1s ease-out}.search.w-0{max-width:0;padding:0!important;border:0}h1{color:#fff;font-size:14px;letter-spacing:1.3px;margin:auto;text-transform:uppercase}.fa-cog{font-size:25px;margin:auto 15px;color:white}.fa-th-large{font-size:23px;margin:auto 15px;color:white}}}
+.village-wrapper {
+    height: calc( 100% - 1rem);
+  .card-columns {
+    column-count: 2 !important;
+  }
+  .progress {
+    width: 100%;
+    height: 5px;
+  }
+  .container {
+    height: calc(100vh - 55px - 1rem);
+    .village-body {
+      overflow-y: scroll;
+      height: calc(100% - 45px );
+    }
+    .card {
+      border: 1px solid lightgray;
+      .card-group {
+        border: 1px solid #cec4c4;
+        padding: 5px 10px;
+        width: 49%;
+        margin: 0;
+        position: relative;
+        margin-bottom: 10px;
+        display: block;
+        break-inside: avoid;
+        .card-header {
+          display: flex;
+          text-transform: capitalize;
+          padding: 0;
+          background: inherit;
+          p:last-child {
+            width: 20%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-left: auto;
+          }
+        }
+        .card-footer {
+          display: flex;
+          padding: 10px 0 0;
+          background: inherit;
+          article {
+            width: 100%;
+            padding-right: 10px;
+            display: block;
+            font-size: 14px;
+            .progress {
+              width: 100%;
+              height: 7px;
+            }
+          }
+          i {
+            margin-left: auto;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-end;
+          }
+        }
+        .more-data {
+          position: absolute;
+          background: white;
+          z-index: 100;
+          width: 100.5%;
+          margin: 6px -11px;
+          border: 1px solid;
+          border-top: none;
+          border-color: #cec4c4;
+          padding: 10px 10px 0;
+          article {
+            display: flex;
+            position: relative;
+            font-size: 14px;
+            p {
+              position: absolute;
+              margin-left: 35%;
+              text-transform: capitalize;
+            }
+          }
+        }
+      }
+    }
+    .error {
+      border: 1px solid lightgray;
+      border-top: none;
+      margin-bottom: 20px;
+      background: transparent;
+      padding-top: 1px;
+      article {
+        width: fit-content;
+        margin: 30px auto;
+        i {
+          font-size: 70px;
+          color: #e6d828;
+        }
+        label {
+          margin: 15px;
+          display: block;
+        }
+      }
+    }
+  }
+  .container-title {
+    padding: 10px;
+    border-radius: 10px 10px 0 0;
+    background-color: #3a82a1;
+    display: flex;
+    .width-3 {
+      width: calc(100% / 3);
+    }
+    .search {
+      transition: max-width 1s ease-out;
+    }
+    .search.w-0 {
+      max-width: 0;
+      padding: 0 !important;
+      border: 0;
+    }
+    h1 {
+      color: #fff;
+      font-size: 14px;
+      letter-spacing: 1.3px;
+      margin: auto;
+      text-transform: uppercase;
+    }
+    .fa-th-large {
+      font-size: 1.5em;
+      margin: auto 15px;
+      color: white;
+    }
+  }
+}

@@ -55,12 +55,12 @@
         </template>
       </b-table>
     </b-tab>
-    <vue-simple-context-menu
+    <vue-menu
       :elementId="'manager-rightmenu'"
       :options="rightMenu.options"
       :ref="'manager_rightMenu'"
       @option-clicked="optionClicked"
-    ></vue-simple-context-menu>
+    ></vue-menu>
     <b-modal v-model="change_pswd_modal.show" title="Change Password" hide-footer>
       <b-form @submit.prevent="changePassword">
         <b-form-group id="input-group-3" label="Current Email:" label-for="input-3">

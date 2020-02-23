@@ -48,12 +48,12 @@
         </template>
       </b-table>
     </b-tab>
-    <vue-simple-context-menu
+    <vue-menu
       :elementId="'admin-rightmenu'"
       :options="rightMenu.options"
       :ref="'admin_rightMenu'"
       @option-clicked="optionClicked"
-    ></vue-simple-context-menu>
+    ></vue-menu>
     <b-modal v-model="change_pswd_modal.show" title="Change Password" hide-footer>
       <b-form @submit.prevent="changePassword">
         <b-form-group id="input-group-1" label="New Password:" label-for="input-1">

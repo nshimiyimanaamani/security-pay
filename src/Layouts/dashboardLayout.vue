@@ -1,7 +1,7 @@
 <template>
   <div class="admin-wrapper d-flex">
     <div class="admin-sidebar" :class="{'active' : active}">
-      <h1 class="text-white p-1 m-0 d-flex justify-content-center align-items-center">P A Y P A C K</h1>
+      <h1 class="text-white p-1 m-0 d-flex justify-content-center align-items-center"></h1>
       <hr class="m-0" />
       <ul class="sidebar-links font-14 p-0 mt-5">
         <router-link v-if="user.role.toLowerCase() !='basic'" to="/dashboard">
@@ -67,13 +67,16 @@
         <strong>Quarks Group.</strong>
       </p>
     </div>
-    <div class="admin-content">
+    <div class="admin-content" :class="{'active' : active}">
       <nav
         class="navbar navbar-expand-lg navbar-light bg-light border-bottom d-flex justify-content-between"
       >
-        <b-button size="sm" variant="info" @click="active=!active">
-          <i class="fa fa-align-left"></i>
-        </b-button>
+        <div class="d-flex align-items-center">
+          <h1 class="mb-0">P A Y P A C K</h1>
+          <b-button size="sm" variant="info" class="h-100 ml-4" @click="active=!active">
+            <i class="fa fa-align-left"></i>
+          </b-button>
+        </div>
         <b-button class="btn-info py-1 font-14" @click.prevent="logout">Logout</b-button>
       </nav>
       <div class="admin-body" :class="{'active':active}">

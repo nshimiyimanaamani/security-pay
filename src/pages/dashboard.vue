@@ -442,7 +442,7 @@ export default {
       data.forEach(item => {
         const percentage =
           (item.data.payed * 100) / (item.data.payed + item.data.pending);
-        array.push(percentage);
+        array.push(percentage.toFixed(2));
       });
       return array;
     }
