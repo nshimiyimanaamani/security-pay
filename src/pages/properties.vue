@@ -179,7 +179,7 @@
       :phones="message.sendTo"
       v-if="message.show"
       v-on:modal-closed="message.show= false"
-      v-on:sent="message.show= false"
+      v-on:sent="messageSent"
     />
   </b-container>
 </template>
@@ -223,7 +223,7 @@ export default {
         option: []
       },
       message: {
-        sendTo: null,
+        sendTo: [],
         show: false
       },
       modal: {
@@ -417,7 +417,7 @@ export default {
       } else if (data.option.slug == "delete") {
         this.deleteHouse(data.item);
       } else if (data.option.slug == "send") {
-        this.message.sendTo = data.item.owner.phone;
+        this.message.sendTo.push(data.item.owner.phone);
         this.message.show = true;
       }
     },
@@ -463,6 +463,10 @@ export default {
     closeUpdateModal() {
       this.loadData();
       this.updateModal.show = false;
+    },
+    messageSent() {
+      this.message.show = false;
+      this.message.sendTo = [];
     },
     totals(data) {
       if (data) {
