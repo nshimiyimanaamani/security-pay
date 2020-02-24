@@ -4,22 +4,42 @@ import Vue from "vue";
 import Router from "vue-router";
 import axios from "axios";
 import { store } from "./store";
-const login = () => import("./pages/login.vue");
-const startPage = () => import("./Layouts/main.vue");
-const dashboard = () => import("./pages/dashboard.vue");
-const transactions = () => import("./pages/transactions.vue");
-const dashboardLayout = () => import("./Layouts/dashboardLayout.vue");
-const accounts = () => import("./pages/createAccount.vue");
-const village = () => import("./pages/village.vue");
-const cells = () => import("./pages/cells.vue");
-const properties = () => import("./pages/properties.vue");
-const agentView = () => import("./Layouts/agentView.vue");
-const feedbacks = () => import("./pages/feedbacks.vue");
-const reports = () => import("./pages/reports.vue");
-const devLayout = () => import("./Layouts/Dev/layouts/main.vue");
-const DevAccounts = () => import("./Layouts/Dev/layouts/views/account.vue");
-const devStats = () => import("./Layouts/Dev/layouts/views/stats.vue");
-const notFound = () => import("./pages/404.vue");
+const login = () =>
+  import(/* webpackChunkName: "main-page" */ "./pages/login.vue");
+const startPage = () =>
+  import(/* webpackChunkName: "main-page" */ "./Layouts/main.vue");
+const dashboard = () =>
+  import(/* webpackChunkName: "admin-page" */ "./pages/dashboard.vue");
+const transactions = () =>
+  import(/* webpackChunkName: "admin-page" */ "./pages/transactions.vue");
+const dashboardLayout = () =>
+  import(/* webpackChunkName: "admin-page" */ "./Layouts/dashboardLayout.vue");
+const accounts = () =>
+  import(/* webpackChunkName: "admin-page" */ "./pages/createAccount.vue");
+const village = () =>
+  import(/* webpackChunkName: "admin-page" */ "./pages/village.vue");
+const cells = () =>
+  import(/* webpackChunkName: "admin-page" */ "./pages/cells.vue");
+const properties = () =>
+  import(/* webpackChunkName: "admin-page" */ "./pages/properties.vue");
+const feedbacks = () =>
+  import(/* webpackChunkName: "admin-page" */ "./pages/feedbacks.vue");
+const reports = () =>
+  import(/* webpackChunkName: "admin-page" */ "./pages/reports.vue");
+const agentView = () =>
+  import(/* webpackChunkName: "agent-page" */ "./Layouts/agentView.vue");
+const devLayout = () =>
+  import(/* webpackChunkName: "dev-page" */ "./Layouts/Dev/layouts/main.vue");
+const DevAccounts = () =>
+  import(
+    /* webpackChunkName: "dev-page" */ "./Layouts/Dev/layouts/views/account.vue"
+  );
+const devStats = () =>
+  import(
+    /* webpackChunkName: "dev-page" */ "./Layouts/Dev/layouts/views/stats.vue"
+  );
+const notFound = () =>
+  import(/* webpackChunkName: "404-page" */ "./pages/404.vue");
 
 Vue.use(Router);
 var jwt = require("jsonwebtoken");
