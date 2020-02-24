@@ -10,6 +10,9 @@
     :items="table.items"
     :fields="table.fields"
   >
+    <template v-slot:cell(index)="data">
+      <article class="text-center">{{data.index + 1}}</article>
+    </template>
     <template v-slot:cell(due)="data">{{Number(data.item.due).toLocaleString()}} Rwf</template>
     <template v-slot:cell(owner)="data">{{data.item.owner.fname +" "+ data.item.owner.lname}}</template>
     <template v-slot:table-busy>
@@ -39,6 +42,7 @@ export default {
       agent: null,
       table: {
         fields: [
+          { key: "index", label: "NO" },
           { key: "owner", label: "Names", sortable: true },
           { key: "id", label: "House Code", sortable: false },
           { key: "owner.phone", label: "Phone Number", sortable: false },
@@ -60,17 +64,20 @@ export default {
     this.loadData();
   },
   methods: {
-    loadData() {
+    async loadData() {
       const agent = this.user;
       if (!agent) {
         this.$emit("getInfo");
       } else {
         this.state.loading = true;
+        const total = await this.getTotal();
         this.axios
-          .get(`/properties?sector=${agent.sector}&offset=0&limit=1000`)
+          .get(
+            `/properties?village=${this.user.village}&offset=0&limit=${total}`
+          )
           .then(res => {
             this.table.items = [];
-            this.table.items = res.data.Properties.filter(this.isForAgent);
+            this.table.items = res.data.Properties;
           })
           .catch(err => {
             const error = err.response
@@ -83,8 +90,12 @@ export default {
           });
       }
     },
-    isForAgent(value) {
-      return value.recorded_by == this.userDetails.username;
+    getTotal() {
+      return this.axios
+        .get(`/properties?village=${this.user.village}&offset=0&limit=10`)
+        .then(res => {
+          return res.data.Total;
+        });
     }
   }
 };
