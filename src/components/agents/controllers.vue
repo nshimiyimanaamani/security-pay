@@ -4,32 +4,38 @@
       <b-button v-b-modal.register-property class="py-1 font-14" size="sm" variant="info">Register</b-button>
       <b-button class="py-1 font-14" size="sm" variant="info" @click.prevent="refresh">Refresh</b-button>
     </b-row>
-    <b-modal id="register-property" ref="register-modal" scrollable hide-footer>
+    <b-modal id="register-property" ref="register-modal" hide-footer>
       <template v-slot:modal-title>Register Property</template>
       <b-form @reset="resetModal" @submit.prevent="addProperty">
-        <b-row>
-          <b-col lg="6" md="6" sm="auto">
-            <b-form-group id="input-group-1" label="First Name:" label-for="input-1">
-              <b-form-input
-                id="input-1"
-                v-model="form.fname"
-                required
-                placeholder="Enter first name..."
-                size="sm"
-              ></b-form-input>
-            </b-form-group>
-          </b-col>
-          <b-col lg="6" md="6" sm="auto">
-            <b-form-group id="input-group-2" label="Last Names:" label-for="input-2">
-              <b-form-input
-                id="input-2"
-                v-model="form.lname"
-                required
-                placeholder="Enter last name..."
-                size="sm"
-              ></b-form-input>
-            </b-form-group>
-          </b-col>
+        <b-row class="pl-3">
+          <b-form-group
+            id="input-group-1"
+            label="First Name:"
+            label-for="input-1"
+            class="w-auto pr-3 flex-grow-1"
+          >
+            <b-form-input
+              id="input-1"
+              v-model="form.fname"
+              required
+              placeholder="Enter first name..."
+              size="sm"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group
+            id="input-group-2"
+            label="Last Names:"
+            label-for="input-2"
+            class="w-auto pr-3 flex-grow-1"
+          >
+            <b-form-input
+              id="input-2"
+              v-model="form.lname"
+              required
+              placeholder="Enter last name..."
+              size="sm"
+            ></b-form-input>
+          </b-form-group>
         </b-row>
 
         <b-form-group id="input-group-3" label="Phone Number:" label-for="input-3">
@@ -42,7 +48,7 @@
             size="sm"
           ></b-form-input>
         </b-form-group>
-        <b-form-group label="Inzu ituwemo?">
+        <b-form-group label="House occupied?">
           <b-form-radio-group
             v-model="form.occupied"
             :options="occupiedOptions"
@@ -51,9 +57,9 @@
             :state="occupied ? null : false"
           />
         </b-form-group>
-        <b-form-group id="input-group-4" class="m-2" label-for="input-4">
+        <b-form-group id="input-group-4" class label-for="input-4">
           <template v-slot:label>
-            <b-row class="m-o align-items-center px-3">
+            <b-row class="m-o align-items-center px-3 flex-nowrap">
               Due:
               <b-input
                 v-model="form.due"
@@ -66,36 +72,25 @@
               />Rwf
             </b-row>
           </template>
-          <div>
-            <vue-slider
-              v-model="form.due"
-              :marks="slider.marks"
-              :interval="500"
-              :process="true"
-              :tooltip="'none'"
-              :min="500"
-              :max="50000"
-            >
-              <template v-slot:label="{ active, value }">
-                <div
-                  :class="['vue-slider-mark-label', 'custom-label', { active }]"
-                >{{ value/1000 }}K</div>
-              </template>
-            </vue-slider>
-          </div>
-        </b-form-group>
-        <b-form-group id="input-group-8" class="float-right m-0 mt-3">
-          <b-button
-            type="submit"
+          <b-form-input
+            id="range-1"
+            v-model="form.due"
+            type="range"
+            min="500"
+            max="10000"
+            step="500"
             size="sm"
-            variant="primary"
-            class="ml-2 px-3 py-1 app-color font-14"
-          >
-            {{state.loading ? 'Registering' : 'Register'}}
-            <b-spinner v-show="state.loading" small type="grow"></b-spinner>
-          </b-button>
-          <b-button type="reset" variant="danger" size="sm" class="px-3 py-1 font-14">cancel</b-button>
+            class="border-0"
+          />
         </b-form-group>
+        <hr />
+        <b-row id="input-group-8" class="m-0 mt-3 justify-content-between">
+          <b-button type="reset" variant="danger" size="sm" class="px-3 py-1 font-14">cancel</b-button>
+          <b-button type="submit" size="sm" variant="info" class="px-3 py-1 font-14">
+            {{state.loading ? 'Registering' : 'Register'}}
+            <b-spinner v-show="state.loading" small type="grow" />
+          </b-button>
+        </b-row>
       </b-form>
     </b-modal>
   </div>
@@ -110,8 +105,8 @@ export default {
   data() {
     return {
       occupiedOptions: [
-        { text: "oya", value: false },
-        { text: "yego", value: true }
+        { text: "No", value: false },
+        { text: "Yes", value: true }
       ],
       form: {
         fname: null,
@@ -138,15 +133,14 @@ export default {
     }
   },
   methods: {
-    addProperty() {
-      if (!this.owner) {
-        this.search();
-      } else {
-        this.state.loading = true;
+    async addProperty() {
+      const ownerId = await this.search();
+      this.state.loading = true;
+      if (ownerId) {
         this.axios
           .post("/properties", {
             owner: {
-              id: this.owner.id
+              id: ownerId
             },
             address: {
               cell: this.user.cell,
@@ -177,37 +171,29 @@ export default {
       const fname = this.capitalize(this.form.fname.trim());
       const lname = this.capitalize(this.form.lname.trim());
       const phone = this.form.phone.trim();
-      this.state.loading = true;
-      this.axios
+      return this.axios
         .get(`/owners/search?fname=${fname}&lname=${lname}&phone=${phone}`)
-        .then(res => {
-          this.owner = { ...res.data };
-          this.addProperty();
-        })
+        .then(res => res.data.id)
         .catch(err => {
-          this.state.loading = false;
-          const message = `${fname} ${lname} is not a registered owner! Do you want to register this owner?"`;
-          this.confirm(message).then(state => {
+          const message = `${fname} ${lname} is not a registered owner! Do you want to register this owner?`;
+          return this.confirm(message).then(state => {
             if (state === true) {
-              this.state.loading = true;
-              this.axios
+              return this.axios
                 .post("/owners", {
                   fname: fname,
                   lname: lname,
                   phone: phone
                 })
                 .then(res => {
-                  this.owner = { ...res.data };
-                  this.addProperty();
-                  this.resetModal();
+                  return res.data;
                 })
                 .catch(err => {
-                  const error = err.response
-                    ? err.response.data.message || err.response.data
-                    : null;
-                  if (error) this.$snotify.error(error);
-                  this.state.loading = false;
+                  this.$snotify.error("Failed to register owner!");
+                  return null;
                 });
+            } else {
+              this.resetModal();
+              return null;
             }
           });
         });
