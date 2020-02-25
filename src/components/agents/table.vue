@@ -55,12 +55,7 @@ export default {
       }
     };
   },
-  computed: {
-    userDetails() {
-      return this.$store.getters.userDetails;
-    }
-  },
-  created() {
+  mounted() {
     this.loadData();
   },
   methods: {

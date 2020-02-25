@@ -134,8 +134,8 @@ export default {
   },
   methods: {
     async addProperty() {
-      const ownerId = await this.search();
       this.state.loading = true;
+      const ownerId = await this.search();
       if (ownerId) {
         this.axios
           .post("/properties", {
