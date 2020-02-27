@@ -153,6 +153,7 @@ export default {
           })
           .then(res => {
             this.refresh();
+            console.log(ownerId);
             this.$snotify.info(`Property Registered successfully!`);
           })
           .catch(err => {
@@ -167,7 +168,7 @@ export default {
           });
       }
     },
-    search() {
+    async search() {
       const fname = this.capitalize(this.form.fname.trim());
       const lname = this.capitalize(this.form.lname.trim());
       const phone = this.form.phone.trim();
@@ -184,8 +185,9 @@ export default {
                   lname: lname,
                   phone: phone
                 })
-                .then(res => {
-                  return res.data;
+                .then(async res => {
+                  const id = await this.checkOwner(res.data.id);
+                  return id;
                 })
                 .catch(err => {
                   this.$snotify.error("Failed to register owner!");
@@ -197,6 +199,28 @@ export default {
             }
           });
         });
+    },
+    checkOwner(id) {
+      return new Promise(resolve => {
+        var i = 0;
+        var resolved = false;
+        var interval = setInterval(() => {
+          i++;
+          this.axios.get(`/owners/${id}`).then(res => {
+            if (res && res.status == 200) {
+              resolve(res.data.id);
+              clearInterval(interval);
+              resolved = true;
+            }
+            if (i > 5) {
+              clearInterval(interval);
+              if (resolved === false) {
+                resolve(null);
+              }
+            }
+          });
+        }, 1000);
+      });
     },
     resetModal() {
       this.$refs["register-modal"].hide();

@@ -366,41 +366,43 @@ export default {
     }
   },
   methods: {
-    loadData() {
+    async loadData() {
       this.loading.request = true;
-      const axios = this.axios;
       var promise;
       if (this.user.role.toLowerCase() == "basic") {
         promise = `/properties?cell=${this.activeCell}&offset=0&limit=`;
       } else {
         promise = `/properties?sector=${this.activeSector}&offset=0&limit=`;
       }
-      axios
-        .get(promise + "0")
-        .then(result => {
-          axios
-            .get(promise + `${result.data.Total}`)
-            .then(res => {
-              this.items = [...res.data.Properties];
-              this.pagination.totalRows = res.data.Total;
-            })
-            .catch(err => {
-              const error = err.response
-                ? err.response.data.error || err.response.data
-                : null;
-              if (error) this.$snotify.error(error);
-            })
-            .finally(() => {
-              this.loading.request = false;
-            });
+      var total = await this.getTotal();
+      // total = (total / 10).toFixed();
+      this.axios
+        .get(promise + `${total}`)
+        .then(res => {
+          this.items = [...res.data.Properties];
+          this.pagination.totalRows = total;
         })
         .catch(err => {
-          this.loading.request = false;
           const error = err.response
             ? err.response.data.error || err.response.data
             : null;
           if (error) this.$snotify.error(error);
+        })
+        .finally(() => {
+          this.loading.request = false;
         });
+    },
+    getTotal() {
+      var promise;
+      if (this.user.role.toLowerCase() == "basic") {
+        promise = `/properties?cell=${this.activeCell}&offset=0&limit=`;
+      } else {
+        promise = `/properties?sector=${this.activeSector}&offset=0&limit=`;
+      }
+      return this.axios
+        .get(`${promise}0`)
+        .then(res => res.data.Total)
+        .catch(err => null);
     },
     downloadList() {
       download(this.tableItems, this.selected);
