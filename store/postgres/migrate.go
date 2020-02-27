@@ -386,6 +386,16 @@ func migrateDB(db *sql.DB) error {
 					`,
 				},
 			},
+			{
+				Id: "003_fix_metrics_indexes",
+				Up: []string{
+					`CREATE unique index on cell_payment_metrics(cell, sector, period);`,
+					`CREATE unique index on village_payment_metrics(village, cell, period);`,
+
+					`DROP index cell_payment_metrics_cell_period_idx;`,
+					`DROP index village_payment_metrics_village_period_idx;`,
+				},
+			},
 
 			// {
 			// 	Id: "003_trigger_invoice_audits",
