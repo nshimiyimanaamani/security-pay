@@ -5,27 +5,29 @@ import Router from "vue-router";
 import axios from "axios";
 import { store } from "./store";
 const login = () =>
-  import(/* webpackChunkName: "main-page" */ "./pages/login.vue");
+  import(/* webpackChunkName: "login-page" */ "./pages/login.vue");
 const startPage = () =>
-  import(/* webpackChunkName: "main-page" */ "./Layouts/main.vue");
+  import(/* webpackChunkName: "login-page" */ "./Layouts/main.vue");
 const dashboard = () =>
-  import(/* webpackChunkName: "admin-page" */ "./pages/dashboard.vue");
+  import(/* webpackChunkName: "dashboard-page" */ "./pages/dashboard.vue");
 const transactions = () =>
-  import(/* webpackChunkName: "admin-page" */ "./pages/transactions.vue");
+  import(/* webpackChunkName: "dashboard-page" */ "./pages/transactions.vue");
 const dashboardLayout = () =>
-  import(/* webpackChunkName: "admin-page" */ "./Layouts/dashboardLayout.vue");
+  import(
+    /* webpackChunkName: "dashboard-page" */ "./Layouts/dashboardLayout.vue"
+  );
 const accounts = () =>
-  import(/* webpackChunkName: "admin-page" */ "./pages/createAccount.vue");
+  import(/* webpackChunkName: "dashboard-page" */ "./pages/createAccount.vue");
 const village = () =>
-  import(/* webpackChunkName: "admin-page" */ "./pages/village.vue");
+  import(/* webpackChunkName: "dashboard-page" */ "./pages/village.vue");
 const cells = () =>
-  import(/* webpackChunkName: "admin-page" */ "./pages/cells.vue");
+  import(/* webpackChunkName: "dashboard-page" */ "./pages/cells.vue");
 const properties = () =>
-  import(/* webpackChunkName: "admin-page" */ "./pages/properties.vue");
+  import(/* webpackChunkName: "dashboard-page" */ "./pages/properties.vue");
 const feedbacks = () =>
-  import(/* webpackChunkName: "admin-page" */ "./pages/feedbacks.vue");
+  import(/* webpackChunkName: "dashboard-page" */ "./pages/feedbacks.vue");
 const reports = () =>
-  import(/* webpackChunkName: "admin-page" */ "./pages/reports.vue");
+  import(/* webpackChunkName: "dashboard-page" */ "./pages/reports.vue");
 const agentView = () =>
   import(/* webpackChunkName: "agent-page" */ "./Layouts/agentView.vue");
 const devLayout = () =>
@@ -42,8 +44,7 @@ const notFound = () =>
   import(/* webpackChunkName: "404-page" */ "./pages/404.vue");
 
 Vue.use(Router);
-var jwt = require("jsonwebtoken");
-
+import { decode } from "jsonwebtoken";
 let router = new Router({
   mode: "history",
   routes: [
@@ -198,7 +199,7 @@ let router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  const decoded = jwt.decode(sessionStorage.token);
+  const decoded = decode(sessionStorage.token);
 
   if (to.matched.some(record => record.meta.requireAuth)) {
     if (decoded) {

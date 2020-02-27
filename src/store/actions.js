@@ -1,5 +1,5 @@
 import request from "../scripts/requests";
-var jwt = require("jsonwebtoken");
+import { decode } from "jsonwebtoken";
 const actions = {
   //startup logic
   startup_function({ commit }) {
@@ -17,7 +17,7 @@ const actions = {
         request.post
           .login(data)
           .then(res => {
-            const user = jwt.decode(res);
+            const user = decode(res);
             commit("set_user", user);
             resolve();
           })

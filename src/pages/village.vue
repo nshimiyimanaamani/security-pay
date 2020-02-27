@@ -96,7 +96,6 @@ export default {
           const name = String(
             item.owner.fname + " " + item.owner.lname
           ).toLowerCase();
-          console.log(name);
           return name.includes(searchedName);
         });
       }
@@ -105,11 +104,6 @@ export default {
       handler: {
         this.houses.length = 0;
         this.houses = this.responseData;
-      }
-    },
-    houses() {
-      handler: {
-        console.log(this.houses);
       }
     }
   },

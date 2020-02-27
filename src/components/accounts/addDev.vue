@@ -93,7 +93,6 @@
 </template>
 
 <script>
-const jwt = require("jsonwebtoken");
 import loader from "../loader";
 export default {
   name: "add-dev",
@@ -127,10 +126,15 @@ export default {
       }
     };
   },
+  computed: {
+    user() {
+      return this.$store.getters.userDetails;
+    }
+  },
   methods: {
     create() {
       this.state.creating = true;
-      const account = jwt.decode(sessionStorage.token).account;
+      const account = this.user.account;
       this.axios
         .post("/accounts/developers", {
           account: account,

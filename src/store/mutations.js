@@ -1,4 +1,4 @@
-const { Cell, Village } = require("rwanda");
+import { Cell, Village } from "rwanda";
 const mutations = {
   reset_state(state) {
     state = {

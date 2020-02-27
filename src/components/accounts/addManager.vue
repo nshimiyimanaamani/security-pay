@@ -104,7 +104,6 @@
 </template>
 
 <script>
-const jwt = require("jsonwebtoken");
 import loader from "../loader";
 export default {
   name: "add-agent",
@@ -156,12 +155,15 @@ export default {
           cell: null
         };
       }
+    },
+    user() {
+      return this.$store.getters.userDetails;
     }
   },
   methods: {
     create() {
       this.state.creating = true;
-      const account = jwt.decode(sessionStorage.token).account;
+      const account = this.user.account;
       this.axios
         .post("/accounts/managers", {
           account: account,
