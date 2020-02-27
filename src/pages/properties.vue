@@ -375,7 +375,7 @@ export default {
         promise = `/properties?sector=${this.activeSector}&offset=0&limit=`;
       }
       var total = await this.getTotal();
-      total = (total / 10).toFixed();
+      // total = (total / 10).toFixed();
       this.axios
         .get(promise + `${total}`)
         .then(res => {

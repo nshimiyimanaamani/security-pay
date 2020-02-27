@@ -9,6 +9,7 @@
     :busy="state.loading"
     :items="table.items"
     :fields="table.fields"
+    :sort-by.sync="table.sortBy"
   >
     <template v-slot:cell(index)="data">
       <article class="text-center">{{data.index + 1}}</article>
@@ -51,7 +52,9 @@ export default {
           { key: "address.village", label: "Village", sortable: true },
           { key: "due", label: "Amount", sortable: false }
         ],
-        items: null
+        items: null,
+        sortBy: "owner",
+        sortDesc: false
       }
     };
   },
