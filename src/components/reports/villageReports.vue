@@ -74,7 +74,7 @@
 </template>
 
 <script>
-const { Village } = require("rwanda");
+import { Village } from "rwanda";
 import download from "./downloadVillageReport";
 import selector from "../reportsDateSelector";
 export default {
@@ -136,7 +136,6 @@ export default {
     };
   },
   computed: {
-    
     activeSector() {
       return this.$store.getters.getActiveSector;
     },
@@ -190,12 +189,10 @@ export default {
       const year = this.config.year;
       const month = this.config.month;
       const first = this.axios.get(
-        
-          `/metrics/ratios/villages/${this.village}?year=${year}&month=${month}`
+        `/metrics/ratios/villages/${this.village}?year=${year}&month=${month}`
       );
       const second = this.axios.get(
-        
-          `/metrics/balance/villages/${this.village}?year=${year}&month=${month}`
+        `/metrics/balance/villages/${this.village}?year=${year}&month=${month}`
       );
       const promise = this.axios.all([first, second]);
       return promise

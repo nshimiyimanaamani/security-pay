@@ -26,7 +26,7 @@ import addAgent from "../components/accounts/addAgent.vue";
 import addDev from "../components/accounts/addDev.vue";
 import addManager from "../components/accounts/addManager.vue";
 import addAdmin from "../components/accounts/addAdmin.vue";
-const { Cell, Village } = require("rwanda");
+import { Cell, Village } from "rwanda";
 export default {
   name: "createAccount",
   components: {

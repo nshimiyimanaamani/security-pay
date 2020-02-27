@@ -4,7 +4,7 @@
     <h4 class="title d-flex justify-content-between flex-nowrap">
       List of properties in {{selected}}
       <b-button class="add-property mb-1 font-14" variant="info" @click="addProperty.show = true">
-        <i class="fas fa-plus-circle"></i> Property
+        <i class="fa fa-plus-circle"></i> Property
       </b-button>
     </h4>
     <hr />
@@ -188,8 +188,8 @@ import updateHouse from "../components/updateHouse.vue";
 import addPropertyModal from "../components/modals/addPropertyModal.vue";
 import download from "../components/download scripts/downloadProperties";
 import message from "../components/modals/message";
-const { Village } = require("rwanda");
-const { isPhoneNumber } = require("rwa-validator");
+import { Village } from "rwanda";
+import { isPhoneNumber } from "rwa-validator";
 export default {
   name: "reports",
   components: {
@@ -368,12 +368,7 @@ export default {
   methods: {
     async loadData() {
       this.loading.request = true;
-      var promise;
-      if (this.user.role.toLowerCase() == "basic") {
-        promise = `/properties?cell=${this.activeCell}&offset=0&limit=`;
-      } else {
-        promise = `/properties?sector=${this.activeSector}&offset=0&limit=`;
-      }
+      var promise = await this.getUrl();
       var total = await this.getTotal();
       // total = (total / 10).toFixed();
       this.axios
@@ -392,13 +387,8 @@ export default {
           this.loading.request = false;
         });
     },
-    getTotal() {
-      var promise;
-      if (this.user.role.toLowerCase() == "basic") {
-        promise = `/properties?cell=${this.activeCell}&offset=0&limit=`;
-      } else {
-        promise = `/properties?sector=${this.activeSector}&offset=0&limit=`;
-      }
+    async getTotal() {
+      var promise = await this.getUrl();
       return this.axios
         .get(`${promise}0`)
         .then(res => res.data.Total)
@@ -440,6 +430,7 @@ export default {
         })
         .then(value => {
           if (value === true) {
+            this.loading.request = true;
             this.axios
               .delete("/properties/" + house.id)
               .then(res => {
@@ -451,6 +442,7 @@ export default {
                 const error = err.response
                   ? err.response.data.error || err.response.data
                   : null;
+                this.loading.request = false;
                 if (error) this.$snotify.error(error);
               });
           }
@@ -535,6 +527,13 @@ export default {
     },
     lc(a) {
       return a.toLowerCase();
+    },
+    getUrl() {
+      if (this.user.role.toLowerCase() == "basic") {
+        return `/properties?cell=${this.activeCell}&offset=0&limit=`;
+      } else {
+        return `/properties?sector=${this.activeSector}&offset=0&limit=`;
+      }
     },
     confirm(message) {
       return this.$bvModal.msgBoxConfirm(message, {

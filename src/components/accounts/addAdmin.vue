@@ -83,7 +83,6 @@
 </template>
 
 <script>
-const jwt = require("jsonwebtoken");
 import loader from "../loader";
 export default {
   name: "add-agent",
