@@ -16,6 +16,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/core/transactions"
 	"github.com/rugwirobaker/paypack-backend/core/users"
+	"github.com/rugwirobaker/paypack-backend/core/ussd"
 	"github.com/rugwirobaker/paypack-backend/core/uuid"
 	"github.com/rugwirobaker/paypack-backend/pkg/encrypt"
 	"github.com/rugwirobaker/paypack-backend/pkg/passwords/bcrypt"
@@ -38,6 +39,7 @@ type Services struct {
 	Users         users.Service
 	Invoices      invoices.Service
 	Stats         metrics.Service
+	USSD          ussd.Service
 }
 
 // Init initialises all services
@@ -60,6 +62,7 @@ func Init(
 		Auth:          bootAuthService(db, secret),
 		Invoices:      bootInvoiceService(db),
 		Stats:         bootStatsService(db),
+		USSD:          bootUSSDService(),
 	}
 	return services
 }
@@ -146,4 +149,8 @@ func bootNotifService(sms notifications.Backend) notifications.Service {
 	idp := uuid.New()
 	opts := &notifications.Options{Backend: sms, IDP: idp}
 	return notifications.New(opts)
+}
+
+func bootUSSDService() ussd.Service {
+	return ussd.New()
 }

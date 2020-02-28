@@ -16,6 +16,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/api/http/properties"
 	"github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	"github.com/rugwirobaker/paypack-backend/api/http/users"
+	"github.com/rugwirobaker/paypack-backend/api/http/ussd"
 	"github.com/rugwirobaker/paypack-backend/api/http/version"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
@@ -33,57 +34,62 @@ type HandlerOptions struct {
 	UsersOptions    *users.HandlerOpts
 	InvoiceOptions  *invoices.HandlerOpts
 	StatsOptions    *metrics.HandlerOpts
+	USSDOptions     *ussd.HandlerOpts
 }
 
 // NewHandlerOptions ...
-func NewHandlerOptions(s *Services, lggr *log.Logger) *HandlerOptions {
+func NewHandlerOptions(services *Services, lggr *log.Logger) *HandlerOptions {
 	feedOpts := &feedback.HandlerOpts{
-		Service: s.Feedback,
+		Service: services.Feedback,
 		Logger:  lggr,
 	}
 	proOpts := &properties.HandlerOpts{
-		Service: s.Properties,
+		Service: services.Properties,
 		Logger:  lggr,
 	}
 
 	ownersOpts := &owners.HandlerOpts{
-		Service: s.Owners,
+		Service: services.Owners,
 		Logger:  lggr,
 	}
 	paymentOpts := &payment.HandlerOpts{
-		Service: s.Payment,
+		Service: services.Payment,
 		Logger:  lggr,
 	}
 
 	transOpts := &transactions.HandlerOpts{
-		Service: s.Transactions,
+		Service: services.Transactions,
 		Logger:  lggr,
 	}
 
 	usersOpts := &users.HandlerOpts{
-		Service: s.Users,
+		Service: services.Users,
 		Logger:  lggr,
 	}
 
 	accountsOpts := &accounts.HandlerOpts{
-		Service: s.Accounts,
+		Service: services.Accounts,
 		Logger:  lggr,
 	}
 
 	authOpts := &auth.HandlerOpts{
-		Service: s.Auth,
+		Service: services.Auth,
 		Logger:  lggr,
 	}
 	invOpts := &invoices.HandlerOpts{
-		Service: s.Invoices,
+		Service: services.Invoices,
 		Logger:  lggr,
 	}
 	statsOpts := &metrics.HandlerOpts{
-		Service: s.Stats,
+		Service: services.Stats,
 		Logger:  lggr,
 	}
 	notifOpts := &notifications.HandlerOpts{
-		Service: s.Notifications,
+		Service: services.Notifications,
+		Logger:  lggr,
+	}
+	ussdOpts := &ussd.HandlerOpts{
+		Service: services.USSD,
 		Logger:  lggr,
 	}
 
@@ -99,6 +105,7 @@ func NewHandlerOptions(s *Services, lggr *log.Logger) *HandlerOptions {
 		InvoiceOptions:  invOpts,
 		StatsOptions:    statsOpts,
 		NotifOptions:    notifOpts,
+		USSDOptions:     ussdOpts,
 	}
 	return opts
 }
@@ -133,4 +140,6 @@ func Register(mux *mux.Router, opts *HandlerOptions) {
 	metrics.RegisterHandlers(mux, opts.StatsOptions)
 
 	notifications.RegisterHandlers(mux, opts.NotifOptions)
+
+	ussd.RegisterHandlers(mux, opts.USSDOptions)
 }
