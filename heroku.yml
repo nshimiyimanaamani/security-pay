@@ -6,4 +6,6 @@ setup:
 build:
   docker:
     web:
-       dockerfile: Dockerfile
+      dockerfile: cmd/paypack/Dockerfile
+    worker:
+      dockerfile: cmd/auditor/Dockerfile
