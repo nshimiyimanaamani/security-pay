@@ -98,7 +98,7 @@ export default {
 
 <style lang="scss">
 #agentView {
-  font-family: "Raleway", Helvetica, Arial, sans-serif;
+  font-family: "Montserrat", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   width: 100vw;
