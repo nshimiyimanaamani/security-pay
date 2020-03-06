@@ -12,10 +12,14 @@
     :sort-by.sync="table.sortBy"
   >
     <template v-slot:cell(index)="data">
-      <article class="text-center">{{data.index + 1}}</article>
+      <article class="text-center">{{ data.index + 1}}</article>
     </template>
-    <template v-slot:cell(due)="data">{{Number(data.item.due).toLocaleString()}} Rwf</template>
-    <template v-slot:cell(owner)="data">{{data.item.owner.fname +" "+ data.item.owner.lname}}</template>
+    <template v-slot:cell(due)="data">{{ Number(data.item.due).toLocaleString() }} Rwf</template>
+    <template v-slot:cell(owner)="data">
+      {{
+      data.item.owner.fname + " " + data.item.owner.lname
+      }}
+    </template>
     <template v-slot:table-busy>
       <div class="text-center my-2">
         <loader />
@@ -75,7 +79,9 @@ export default {
           )
           .then(res => {
             this.table.items = [];
-            this.table.items = res.data.Properties;
+            this.table.items = res.data.Properties.filter(
+              item => item.address.cell == this.user.cell
+            );
           })
           .catch(err => {
             const error = err.response
