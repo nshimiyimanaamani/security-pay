@@ -18,7 +18,7 @@ RUN GO111MODULE=on CGO_ENABLED=0 go build -o /bin/worker ./cmd/worker
 #packaging stage
 FROM alpine
 
-COPY --from=builder /bin/auditor /bin/auditor
+COPY --from=builder /bin/worker /bin/worker
 
 RUN apk add --update ca-certificates tini
 
