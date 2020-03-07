@@ -16,7 +16,7 @@ import (
 func TestSaveAdmin(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	const op errors.Op = "store/postgres/userRepository.SaveAdmin"
 
@@ -24,8 +24,7 @@ func TestSaveAdmin(t *testing.T) {
 
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
 
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	cases := []struct {
 		desc string
@@ -59,17 +58,17 @@ func TestSaveAdmin(t *testing.T) {
 func TestRetrieveAdmin(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	id := "gasabo.remera"
 
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Administrator{Account: account.ID, Email: "email@example.com", Role: users.Admin}
 	saved, err := repo.SaveAdmin(context.Background(), user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres/userRepository.RetrieveAdmin"
 
@@ -100,16 +99,16 @@ func TestRetrieveAdmin(t *testing.T) {
 func TestUpdateAdminCreds(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	id := "gasabo.remera"
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Administrator{Account: account.ID, Email: "email@example.com", Role: users.Admin}
 	saved, err := repo.SaveAdmin(context.Background(), user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres/userRepository.UpdateAdminCreds"
 
@@ -140,12 +139,11 @@ func TestUpdateAdminCreds(t *testing.T) {
 func TestListAdmins(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Administrator{Account: account.ID, Role: users.Admin}
 

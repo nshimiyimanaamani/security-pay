@@ -16,12 +16,10 @@ import (
 func TestSaveManager(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
-
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	const op errors.Op = "store/postgres.userRepository.SaveManager"
 
@@ -57,15 +55,14 @@ func TestSaveManager(t *testing.T) {
 func TestRetrieveManager(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
-
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Manager{Account: account.ID, Email: "email@example.com", Role: users.Basic}
 	saved, err := repo.SaveManager(context.Background(), user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres/userRepository.RetrieveManager"
 
@@ -98,15 +95,14 @@ func TestRetrieveManager(t *testing.T) {
 func TestUpdateManagerCreds(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
-
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Manager{Account: account.ID, Email: "email@example.com", Role: users.Basic}
 	saved, err := repo.SaveManager(context.Background(), user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres.userRepository.UpdateManagerCreds"
 
@@ -137,12 +133,11 @@ func TestUpdateManagerCreds(t *testing.T) {
 func TestListManagers(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
 
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Manager{Account: account.ID, Role: users.Basic}
 
@@ -189,15 +184,14 @@ func TestListManagers(t *testing.T) {
 func TestDeleteManager(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Bens}
-
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Manager{Account: account.ID, Email: "email@example.com", Role: users.Basic}
 	saved, err := repo.SaveManager(context.Background(), user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres/userRepository.DeleteManager"
 

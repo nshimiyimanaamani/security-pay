@@ -13,18 +13,16 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestListAll(t *testing.T) {
 	repo := postgres.NewInvoiceRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	// save account
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	// save agent
 	agent := users.Agent{
@@ -38,18 +36,16 @@ func TestListAll(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	//save owner
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	sown, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	//save property
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: properties.Owner{ID: sown.ID},
+		Owner: properties.Owner{ID: owner.ID},
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -59,8 +55,7 @@ func TestListAll(t *testing.T) {
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
-	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	property = saveProperty(t, db, property)
 
 	cases := []struct {
 		desc     string
@@ -101,12 +96,11 @@ func TestListAll(t *testing.T) {
 func TestListPending(t *testing.T) {
 	repo := postgres.NewInvoiceRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	// save account
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	// save agent
 	agent := users.Agent{
@@ -120,18 +114,16 @@ func TestListPending(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	//save owner
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	sown, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	//save property
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: properties.Owner{ID: sown.ID},
+		Owner: properties.Owner{ID: owner.ID},
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -141,8 +133,7 @@ func TestListPending(t *testing.T) {
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
-	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	property = saveProperty(t, db, property)
 
 	cases := []struct {
 		desc     string
@@ -183,12 +174,11 @@ func TestListPending(t *testing.T) {
 func TestListPayed(t *testing.T) {
 	repo := postgres.NewInvoiceRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	// save account
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	// save agent
 	agent := users.Agent{
@@ -202,18 +192,16 @@ func TestListPayed(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	//save owner
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	sown, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	//save property
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: properties.Owner{ID: sown.ID},
+		Owner: properties.Owner{ID: owner.ID},
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -223,8 +211,7 @@ func TestListPayed(t *testing.T) {
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
-	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	property = saveProperty(t, db, property)
 
 	cases := []struct {
 		desc     string

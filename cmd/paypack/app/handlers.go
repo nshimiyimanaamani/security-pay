@@ -14,6 +14,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/api/http/owners"
 	"github.com/rugwirobaker/paypack-backend/api/http/payment"
 	"github.com/rugwirobaker/paypack-backend/api/http/properties"
+	"github.com/rugwirobaker/paypack-backend/api/http/scheduler"
 	"github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	"github.com/rugwirobaker/paypack-backend/api/http/users"
 	"github.com/rugwirobaker/paypack-backend/api/http/version"
@@ -22,83 +23,89 @@ import (
 
 // HandlerOptions ...
 type HandlerOptions struct {
-	AccountsOptions *accounts.HandlerOpts
-	AuthOptions     *auth.HandlerOpts
-	FeedbackOptions *feedback.HandlerOpts
-	NotifOptions    *notifications.HandlerOpts
-	OwnersOptions   *owners.HandlerOpts
-	PayOptions      *payment.HandlerOpts
-	PropsOptions    *properties.HandlerOpts
-	TransOptions    *transactions.HandlerOpts
-	UsersOptions    *users.HandlerOpts
-	InvoiceOptions  *invoices.HandlerOpts
-	StatsOptions    *metrics.HandlerOpts
+	AccountsOptions  *accounts.HandlerOpts
+	AuthOptions      *auth.HandlerOpts
+	FeedbackOptions  *feedback.HandlerOpts
+	NotifOptions     *notifications.HandlerOpts
+	OwnersOptions    *owners.HandlerOpts
+	PayOptions       *payment.HandlerOpts
+	PropsOptions     *properties.HandlerOpts
+	TransOptions     *transactions.HandlerOpts
+	UsersOptions     *users.HandlerOpts
+	InvoiceOptions   *invoices.HandlerOpts
+	StatsOptions     *metrics.HandlerOpts
+	SchedulerOptions *scheduler.HandlerOpts
 }
 
 // NewHandlerOptions ...
-func NewHandlerOptions(s *Services, lggr *log.Logger) *HandlerOptions {
+func NewHandlerOptions(services *Services, lggr *log.Logger) *HandlerOptions {
 	feedOpts := &feedback.HandlerOpts{
-		Service: s.Feedback,
+		Service: services.Feedback,
 		Logger:  lggr,
 	}
 	proOpts := &properties.HandlerOpts{
-		Service: s.Properties,
+		Service: services.Properties,
 		Logger:  lggr,
 	}
 
 	ownersOpts := &owners.HandlerOpts{
-		Service: s.Owners,
+		Service: services.Owners,
 		Logger:  lggr,
 	}
 	paymentOpts := &payment.HandlerOpts{
-		Service: s.Payment,
+		Service: services.Payment,
 		Logger:  lggr,
 	}
 
 	transOpts := &transactions.HandlerOpts{
-		Service: s.Transactions,
+		Service: services.Transactions,
 		Logger:  lggr,
 	}
 
 	usersOpts := &users.HandlerOpts{
-		Service: s.Users,
+		Service: services.Users,
 		Logger:  lggr,
 	}
 
 	accountsOpts := &accounts.HandlerOpts{
-		Service: s.Accounts,
+		Service: services.Accounts,
 		Logger:  lggr,
 	}
 
 	authOpts := &auth.HandlerOpts{
-		Service: s.Auth,
+		Service: services.Auth,
 		Logger:  lggr,
 	}
 	invOpts := &invoices.HandlerOpts{
-		Service: s.Invoices,
+		Service: services.Invoices,
 		Logger:  lggr,
 	}
 	statsOpts := &metrics.HandlerOpts{
-		Service: s.Stats,
+		Service: services.Stats,
 		Logger:  lggr,
 	}
 	notifOpts := &notifications.HandlerOpts{
-		Service: s.Notifications,
+		Service: services.Notifications,
+		Logger:  lggr,
+	}
+	scOptions := &scheduler.HandlerOpts{
+		Service: services.Scheduler,
 		Logger:  lggr,
 	}
 
 	opts := &HandlerOptions{
-		AuthOptions:     authOpts,
-		AccountsOptions: accountsOpts,
-		FeedbackOptions: feedOpts,
-		OwnersOptions:   ownersOpts,
-		PropsOptions:    proOpts,
-		PayOptions:      paymentOpts,
-		TransOptions:    transOpts,
-		UsersOptions:    usersOpts,
-		InvoiceOptions:  invOpts,
-		StatsOptions:    statsOpts,
-		NotifOptions:    notifOpts,
+		AuthOptions:      authOpts,
+		AccountsOptions:  accountsOpts,
+		FeedbackOptions:  feedOpts,
+		OwnersOptions:    ownersOpts,
+		PropsOptions:     proOpts,
+		PayOptions:       paymentOpts,
+		TransOptions:     transOpts,
+		UsersOptions:     usersOpts,
+		InvoiceOptions:   invOpts,
+		StatsOptions:     statsOpts,
+		NotifOptions:     notifOpts,
+		SchedulerOptions: scOptions,
 	}
 	return opts
 }
@@ -133,4 +140,6 @@ func Register(mux *mux.Router, opts *HandlerOptions) {
 	metrics.RegisterHandlers(mux, opts.StatsOptions)
 
 	notifications.RegisterHandlers(mux, opts.NotifOptions)
+
+	scheduler.RegisterHandlers(mux, opts.SchedulerOptions)
 }

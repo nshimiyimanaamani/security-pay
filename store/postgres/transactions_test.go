@@ -4,8 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
-
-	"github.com/stretchr/testify/require"
+	"time"
 
 	"github.com/rugwirobaker/paypack-backend/core/accounts"
 	"github.com/rugwirobaker/paypack-backend/core/invoices"
@@ -13,6 +12,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/core/users"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/rugwirobaker/paypack-backend/pkg/tools"
 
 	"github.com/rugwirobaker/paypack-backend/core/transactions"
 	"github.com/rugwirobaker/paypack-backend/core/uuid"
@@ -28,11 +28,10 @@ var (
 func TestSingleTransactionRetrieveByID(t *testing.T) {
 	repo := postgres.NewTransactionRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -46,29 +45,21 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 		Account:   account.ID,
 	}
 
-	savedAgent, err := saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-
-	sown, err := saveOwner(t, db, owner)
-
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
 		ID:         nanoid.New(nil).ID(),
-		Owner:      properties.Owner{ID: sown.ID},
+		Owner:      properties.Owner{ID: owner.ID},
 		Due:        float64(1000),
-		RecordedBy: savedAgent.Telephone,
+		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
-	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	property = saveProperty(t, db, property)
 
-	//save invoice
-	invoice := invoices.Invoice{Amount: property.Due, Property: property.ID, Status: invoices.Pending}
-	invoice, err = saveInvoice(t, db, invoice)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	invoice := retrieveInvoice(t, db, property.ID)
 
 	method := "kcb"
 
@@ -80,9 +71,7 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 		Method:  method,
 		Invoice: invoice.ID,
 	}
-
-	_, err = saveTx(t, db, transaction)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	saveTx(t, db, transaction)
 
 	const op errors.Op = "store/postgres/transactionsRepository.RetrieveByID"
 
@@ -120,11 +109,10 @@ func TestRetrieveAll(t *testing.T) {
 	idp := uuid.New()
 	repo := postgres.NewTransactionRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -137,51 +125,34 @@ func TestRetrieveAll(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err = saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
-
-	property := properties.Property{
-		ID:         nanoid.New(nil).ID(),
-		Owner:      properties.Owner{ID: owner.ID},
-		Due:        float64(1000),
-		RecordedBy: agent.Telephone,
-		Occupied:   true,
-	}
-	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
-
-	//save invoice
-	invoice := invoices.Invoice{Amount: property.Due, Property: property.ID, Status: invoices.Pending}
-	invoice, err = saveInvoice(t, db, invoice)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
-
-	method := "mtn"
+	owner = saveOwner(t, db, owner)
 
 	n := uint64(10)
 
 	for i := uint64(0); i < n; i++ {
-		invoice := invoices.Invoice{
-			Amount:   property.Due,
-			Property: property.ID,
-			Status:   invoices.Pending,
+		property := properties.Property{
+			ID:         nanoid.New(nil).ID(),
+			Owner:      properties.Owner{ID: owner.ID},
+			Due:        float64(1000),
+			RecordedBy: agent.Telephone,
+			Occupied:   true,
 		}
-		invoice, err = saveInvoice(t, db, invoice)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+		property = saveProperty(t, db, property)
+
+		invoice := retrieveInvoice(t, db, property.ID)
 
 		tx := transactions.Transaction{
 			ID:      idp.ID(),
 			OwnerID: owner.ID,
 			MadeFor: property.ID,
 			Amount:  invoice.Amount,
-			Method:  method,
+			Method:  "mtn",
 			Invoice: invoice.ID,
 		}
-		_, err = saveTx(t, db, tx)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+		saveTx(t, db, tx)
 	}
 
 	cases := map[string]struct {
@@ -214,11 +185,10 @@ func TestRetrieveByProperty(t *testing.T) {
 	idp := uuid.New()
 	repo := postgres.NewTransactionRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -232,38 +202,33 @@ func TestRetrieveByProperty(t *testing.T) {
 		Account:   account.ID,
 	}
 
-	savedAgent, err := saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-
-	sown, err := saveOwner(t, db, owner)
-
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
 		ID:         nanoid.New(nil).ID(),
-		Owner:      properties.Owner{ID: sown.ID},
+		Owner:      properties.Owner{ID: owner.ID},
 		Due:        float64(1000),
-		RecordedBy: savedAgent.Telephone,
+		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
-
-	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
-
-	method := "airtel"
+	property = saveProperty(t, db, property)
 
 	n := uint64(10)
 
+	now := time.Now()
+
 	for i := uint64(0); i < n; i++ {
 		invoice := invoices.Invoice{
-			Amount:   property.Due,
-			Property: property.ID,
-			Status:   invoices.Pending,
+			Amount:    property.Due,
+			Property:  property.ID,
+			Status:    invoices.Pending,
+			CreatedAt: tools.AddMonth(now, int(i+1)),
+			UpdatedAt: tools.AddMonth(now, int(i+1)),
 		}
-		invoice, err = saveInvoice(t, db, invoice)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+		invoice = saveInvoice(t, db, invoice)
 
 		tx := transactions.Transaction{
 			ID:      idp.ID(),
@@ -271,11 +236,9 @@ func TestRetrieveByProperty(t *testing.T) {
 			MadeFor: property.ID,
 			Amount:  invoice.Amount,
 			Invoice: invoice.ID,
-			Method:  method,
+			Method:  "airtel",
 		}
-
-		_, err = saveTx(t, db, tx)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+		saveTx(t, db, tx)
 	}
 
 	cases := map[string]struct {
@@ -317,11 +280,10 @@ func TestRetrieveByPropertyR(t *testing.T) {
 	idp := uuid.New()
 	repo := postgres.NewTransactionRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -335,38 +297,34 @@ func TestRetrieveByPropertyR(t *testing.T) {
 		Account:   account.ID,
 	}
 
-	savedAgent, err := saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-
-	sown, err := saveOwner(t, db, owner)
-
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
 		ID:         nanoid.New(nil).ID(),
-		Owner:      properties.Owner{ID: sown.ID},
+		Owner:      properties.Owner{ID: owner.ID},
 		Due:        float64(1000),
-		RecordedBy: savedAgent.Telephone,
+		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
 
-	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	property = saveProperty(t, db, property)
 
-	method := "airtel"
+	now := time.Now()
 
 	n := uint64(10)
 
 	for i := uint64(0); i < n; i++ {
 		invoice := invoices.Invoice{
-			Amount:   property.Due,
-			Property: property.ID,
-			Status:   invoices.Pending,
+			Amount:    property.Due,
+			Property:  property.ID,
+			Status:    invoices.Pending,
+			CreatedAt: tools.AddMonth(now, int(i+1)),
+			UpdatedAt: tools.AddMonth(now, int(i+1)),
 		}
-		invoice, err = saveInvoice(t, db, invoice)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+		invoice = saveInvoice(t, db, invoice)
 
 		tx := transactions.Transaction{
 			ID:      idp.ID(),
@@ -374,11 +332,9 @@ func TestRetrieveByPropertyR(t *testing.T) {
 			MadeFor: property.ID,
 			Amount:  invoice.Amount,
 			Invoice: invoice.ID,
-			Method:  method,
+			Method:  "airtel",
 		}
-
-		_, err = saveTx(t, db, tx)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+		saveTx(t, db, tx)
 	}
 
 	cases := map[string]struct {
@@ -408,11 +364,10 @@ func TestRetrieveByMethod(t *testing.T) {
 	idp := uuid.New()
 	repo := postgres.NewTransactionRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -426,35 +381,25 @@ func TestRetrieveByMethod(t *testing.T) {
 		Account:   account.ID,
 	}
 
-	savedAgent, err := saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	sown, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
-
-	property := properties.Property{
-		ID:         nanoid.New(nil).ID(),
-		Owner:      properties.Owner{ID: sown.ID},
-		Due:        float64(1000),
-		RecordedBy: savedAgent.Telephone,
-		Occupied:   true,
-	}
-	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
-
-	method := "equity"
+	owner = saveOwner(t, db, owner)
 
 	n := uint64(10)
 
 	for i := uint64(0); i < n; i++ {
-		invoice := invoices.Invoice{
-			Amount:   property.Due,
-			Property: property.ID,
-			Status:   invoices.Pending,
+
+		property := properties.Property{
+			ID:         nanoid.New(nil).ID(),
+			Owner:      properties.Owner{ID: owner.ID},
+			Due:        float64(1000),
+			RecordedBy: agent.Telephone,
+			Occupied:   true,
 		}
-		invoice, err = saveInvoice(t, db, invoice)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+		property = saveProperty(t, db, property)
+
+		invoice := retrieveInvoice(t, db, property.ID)
 
 		tx := transactions.Transaction{
 			ID:      idp.ID(),
@@ -462,11 +407,10 @@ func TestRetrieveByMethod(t *testing.T) {
 			MadeFor: property.ID,
 			Amount:  invoice.Amount,
 			Invoice: invoice.ID,
-			Method:  method,
+			Method:  "mtn",
 		}
 
-		_, err = saveTx(t, db, tx)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+		saveTx(t, db, tx)
 	}
 
 	cases := map[string]struct {
