@@ -32,7 +32,7 @@ require (
 	github.com/hibiken/asynq v0.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.3.0
-	github.com/matoous/go-nanoid v1.1.0
+	github.com/matoous/go-nanoid v1.2.0
 	github.com/matryer/is v1.3.0
 	github.com/mitchellh/copystructure v1.0.0 // indirect
 	github.com/mitchellh/hashstructure v1.0.0 // indirect
