@@ -8,4 +8,4 @@ build:
     web:
       dockerfile: web.dockerfile
     worker:
-      dockerfile: auditor.dockerfile
+      dockerfile: worker.dockerfile
