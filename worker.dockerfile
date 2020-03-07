@@ -13,7 +13,7 @@ COPY . .
 
 ARG VERSION="unset"
 
-RUN GO111MODULE=on CGO_ENABLED=0 go build -o /bin/auditor ./cmd/auditor
+RUN GO111MODULE=on CGO_ENABLED=0 go build -o /bin/worker ./cmd/worker
 
 #packaging stage
 FROM alpine
@@ -29,4 +29,4 @@ USER auditor
 
 ENTRYPOINT [ "/sbin/tini", "-s", "--" ]
 
-CMD ["auditor"]
+CMD ["worker"]

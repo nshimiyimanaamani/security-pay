@@ -16,14 +16,13 @@ import (
 func TestSaveAgent(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	phone := "0780456000"
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	const op errors.Op = "store/postgres/userRepository.SaveAgent"
 
@@ -60,15 +59,15 @@ func TestSaveAgent(t *testing.T) {
 func TestRetrieveAgent(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Agent{Telephone: "0780456000", Password: "password", Role: users.Min, Account: account.ID}
 	saved, err := repo.SaveAgent(context.Background(), user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres/userRepository.RetrieveAgent"
 
@@ -99,15 +98,15 @@ func TestRetrieveAgent(t *testing.T) {
 func TestUpdateAgentDetails(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Agent{Telephone: "0780456000", Password: "password", Role: users.Min, Account: account.ID}
 	saved, err := repo.SaveAgent(context.Background(), user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres/userRepository.UpdateAgentDetails"
 
@@ -138,15 +137,15 @@ func TestUpdateAgentDetails(t *testing.T) {
 func TestUpdateAgentCreds(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Agent{Telephone: "0780456000", Password: "password", Role: users.Min, Account: account.ID}
 	saved, err := repo.SaveAgent(context.Background(), user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres/userRepository.UpdateAgentCreds"
 
@@ -177,12 +176,11 @@ func TestUpdateAgentCreds(t *testing.T) {
 func TestListAgents(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Agent{Account: account.ID, Role: users.Min}
 
@@ -230,15 +228,14 @@ func TestListAgents(t *testing.T) {
 func TestDeleteAgent(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "gasabo.remera", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Agent{Telephone: "0780456000", Password: "password", Role: users.Min, Account: account.ID}
 	saved, err := repo.SaveAgent(context.Background(), user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres/userRepository.DeleteAgent"
 

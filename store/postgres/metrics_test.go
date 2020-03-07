@@ -14,17 +14,15 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestRetrieveSectorPayRatio(t *testing.T) {
 	repo := postgres.NewStatsRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -37,12 +35,10 @@ func TestRetrieveSectorPayRatio(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err = saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
@@ -56,8 +52,7 @@ func TestRetrieveSectorPayRatio(t *testing.T) {
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
-	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	property = saveProperty(t, db, property)
 
 	const op errors.Op = "store/postgres/statsRepository.FindSectorRatio"
 
@@ -107,11 +102,10 @@ func TestRetrieveSectorPayRatio(t *testing.T) {
 func TestRetrieveCellPayRatio(t *testing.T) {
 	repo := postgres.NewStatsRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -124,12 +118,10 @@ func TestRetrieveCellPayRatio(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err = saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
@@ -143,8 +135,7 @@ func TestRetrieveCellPayRatio(t *testing.T) {
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
-	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	property = saveProperty(t, db, property)
 
 	const op errors.Op = "store/postgres/statsRepository.FindCellRatio"
 
@@ -195,11 +186,10 @@ func TestRetrieveCellPayRatio(t *testing.T) {
 func TestRetrieveVillagePayRatio(t *testing.T) {
 	repo := postgres.NewStatsRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -212,12 +202,10 @@ func TestRetrieveVillagePayRatio(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err = saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
@@ -231,8 +219,7 @@ func TestRetrieveVillagePayRatio(t *testing.T) {
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
-	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	property = saveProperty(t, db, property)
 
 	const op errors.Op = "store/postgres/statsRepository.FindVillageRatio"
 
@@ -283,13 +270,12 @@ func TestRetrieveVillagePayRatio(t *testing.T) {
 func TestListSectorRatios(t *testing.T) {
 	repo := postgres.NewStatsRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	var sector, cell, village = "sector", "cell", "village"
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -302,12 +288,10 @@ func TestListSectorRatios(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err = saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	n := uint64(10)
 
@@ -325,8 +309,7 @@ func TestListSectorRatios(t *testing.T) {
 			Occupied:   true,
 		}
 
-		_, err := saveProperty(t, db, p)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+		saveProperty(t, db, p)
 	}
 
 	cases := []struct {
@@ -358,13 +341,12 @@ func TestListSectorRatios(t *testing.T) {
 func TestListCellRatios(t *testing.T) {
 	repo := postgres.NewStatsRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	var sector, cell, village = "sector", "cell", "village"
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -377,12 +359,10 @@ func TestListCellRatios(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err = saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	n := uint64(10)
 
@@ -400,8 +380,7 @@ func TestListCellRatios(t *testing.T) {
 			Occupied:   true,
 		}
 
-		_, err := saveProperty(t, db, p)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+		saveProperty(t, db, p)
 	}
 
 	cases := []struct {
@@ -432,11 +411,10 @@ func TestListCellRatios(t *testing.T) {
 func TestRetrieveSectorBalance(t *testing.T) {
 	repo := postgres.NewStatsRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -449,12 +427,10 @@ func TestRetrieveSectorBalance(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err = saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
@@ -468,8 +444,7 @@ func TestRetrieveSectorBalance(t *testing.T) {
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
-	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	property = saveProperty(t, db, property)
 
 	const op errors.Op = "store/postgres/statsRepository.FindSectorBalance"
 
@@ -520,11 +495,10 @@ func TestRetrieveSectorBalance(t *testing.T) {
 func TestRetrieveCellBalance(t *testing.T) {
 	repo := postgres.NewStatsRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -537,12 +511,10 @@ func TestRetrieveCellBalance(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err = saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
@@ -556,8 +528,7 @@ func TestRetrieveCellBalance(t *testing.T) {
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
-	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	property = saveProperty(t, db, property)
 
 	const op errors.Op = "store/postgres/statsRepository.FindCellBalance"
 
@@ -608,11 +579,10 @@ func TestRetrieveCellBalance(t *testing.T) {
 func TestRetrieveVillageBalance(t *testing.T) {
 	repo := postgres.NewStatsRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -625,12 +595,10 @@ func TestRetrieveVillageBalance(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err = saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
@@ -644,8 +612,7 @@ func TestRetrieveVillageBalance(t *testing.T) {
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
-	property, err = saveProperty(t, db, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	property = saveProperty(t, db, property)
 
 	const op errors.Op = "store/postgres/statsRepository.FindVillageBalance"
 
@@ -696,13 +663,12 @@ func TestRetrieveVillageBalance(t *testing.T) {
 func TestListSectorBalances(t *testing.T) {
 	repo := postgres.NewStatsRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	var sector, cell, village = "sector", "cell", "village"
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -715,12 +681,10 @@ func TestListSectorBalances(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err = saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	n := uint64(10)
 
@@ -738,8 +702,7 @@ func TestListSectorBalances(t *testing.T) {
 			Occupied:   true,
 		}
 
-		_, err := saveProperty(t, db, p)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+		saveProperty(t, db, p)
 	}
 
 	cases := []struct {
@@ -770,13 +733,12 @@ func TestListSectorBalances(t *testing.T) {
 func TestListCellBalances(t *testing.T) {
 	repo := postgres.NewStatsRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	var sector, cell, village = "sector", "cell", "village"
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -789,12 +751,10 @@ func TestListCellBalances(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-	agent, err = saveAgent(t, db, agent)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err = saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	n := uint64(10)
 
@@ -812,8 +772,7 @@ func TestListCellBalances(t *testing.T) {
 			Occupied:   true,
 		}
 
-		_, err := saveProperty(t, db, p)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+		saveProperty(t, db, p)
 	}
 
 	cases := []struct {

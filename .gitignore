@@ -19,3 +19,6 @@ runner.conf
 .env
 
 data
+
+#temp test scripts
+scripts/local
