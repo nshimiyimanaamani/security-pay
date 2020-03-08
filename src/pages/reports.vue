@@ -1,5 +1,5 @@
 <template>
-  <b-container class="max-width" style="min-width:500px">
+  <b-container class="max-width py-3" style="min-width:500px">
     <vue-title title="Paypack | Reports" />
     <b-card no-body>
       <b-tabs pills card vertical lazy class="font-13 text-uppercase">

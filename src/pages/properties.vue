@@ -79,7 +79,7 @@
         </datalist>
       </div>
       <b-button size="sm" variant="info" class="ml-1" @click="loadData">
-        <i class="fa fa-refresh" :class="{'fa-spin':loading.request}"></i>
+        <i class="fa fa-sync-alt" :class="{'fa-spin':loading.request}"></i>
       </b-button>
       <b-button
         @click="downloadList"

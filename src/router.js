@@ -9,36 +9,36 @@ const login = () =>
 const startPage = () =>
   import(/* webpackChunkName: "login-page" */ "./Layouts/main.vue");
 const dashboard = () =>
-  import(/* webpackChunkName: "dashboard-page" */ "./pages/dashboard.vue");
+  import(/* webpackChunkName: "admin-page" */ "./pages/dashboard.vue");
 const transactions = () =>
-  import(/* webpackChunkName: "dashboard-page" */ "./pages/transactions.vue");
+  import(/* webpackChunkName: "transactions" */ "./pages/transactions.vue");
 const dashboardLayout = () =>
   import(
-    /* webpackChunkName: "dashboard-page" */ "./Layouts/dashboardLayout.vue"
+    /* webpackChunkName: "layouts" */ "./Layouts/dashboardLayout.vue"
   );
 const accounts = () =>
-  import(/* webpackChunkName: "dashboard-page" */ "./pages/createAccount.vue");
+  import(/* webpackChunkName: "account" */ "./pages/createAccount.vue");
 const village = () =>
-  import(/* webpackChunkName: "dashboard-page" */ "./pages/village.vue");
+  import(/* webpackChunkName: "village" */ "./pages/village.vue");
 const cells = () =>
-  import(/* webpackChunkName: "dashboard-page" */ "./pages/cells.vue");
+  import(/* webpackChunkName: "cells" */ "./pages/cells.vue");
 const properties = () =>
-  import(/* webpackChunkName: "dashboard-page" */ "./pages/properties.vue");
+  import(/* webpackChunkName: "properties" */ "./pages/properties.vue");
 const feedbacks = () =>
-  import(/* webpackChunkName: "dashboard-page" */ "./pages/feedbacks.vue");
+  import(/* webpackChunkName: "feedbacks" */ "./pages/feedbacks.vue");
 const reports = () =>
-  import(/* webpackChunkName: "dashboard-page" */ "./pages/reports.vue");
+  import(/* webpackChunkName: "reports" */ "./pages/reports.vue");
 const agentView = () =>
-  import(/* webpackChunkName: "agent-page" */ "./Layouts/agentView.vue");
+  import(/* webpackChunkName: "agents" */ "./Layouts/agentView.vue");
 const devLayout = () =>
-  import(/* webpackChunkName: "dev-page" */ "./Layouts/Dev/layouts/main.vue");
+  import(/* webpackChunkName: "developers" */ "./Layouts/Dev/layouts/main.vue");
 const DevAccounts = () =>
   import(
-    /* webpackChunkName: "dev-page" */ "./Layouts/Dev/layouts/views/account.vue"
+    /* webpackChunkName: "developers" */ "./Layouts/Dev/layouts/views/account.vue"
   );
 const devStats = () =>
   import(
-    /* webpackChunkName: "dev-page" */ "./Layouts/Dev/layouts/views/stats.vue"
+    /* webpackChunkName: "developers" */ "./Layouts/Dev/layouts/views/stats.vue"
   );
 const notFound = () =>
   import(/* webpackChunkName: "404-page" */ "./pages/404.vue");
