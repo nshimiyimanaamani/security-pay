@@ -61,6 +61,9 @@
         >
           <li class="hover-color">Accounts</li>
         </router-link>
+        <router-link to="/message">
+          <li class="hover-color">Messages</li>
+        </router-link>
       </ul>
       <p class="text-center powered m-0 pb-1 app-color text-white" for="powered">
         Powered By

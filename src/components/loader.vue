@@ -1,6 +1,6 @@
 <template>
   <div v-if="loading">
-    <b-spinner variant="black" small></b-spinner>&nbsp;
+    <b-spinner variant="black" small />&nbsp;
     <strong>Loading...</strong>
   </div>
 </template>

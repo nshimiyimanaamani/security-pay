@@ -42,6 +42,8 @@ const devStats = () =>
   );
 const notFound = () =>
   import(/* webpackChunkName: "404-page" */ "./pages/404.vue");
+const message = () =>
+  import(/* webpackChunkName: "message" */ "./pages/messages.vue");
 
 Vue.use(Router);
 import { decode } from "jsonwebtoken";
@@ -145,6 +147,17 @@ let router = new Router({
           path: "/feedbacks",
           name: "feedbacks",
           component: feedbacks,
+          meta: {
+            requireAuth: true,
+            forAdmin: true,
+            forDev: true,
+            forManager: true
+          }
+        },
+        {
+          path: "/message",
+          name: "messages",
+          component: message,
           meta: {
             requireAuth: true,
             forAdmin: true,
