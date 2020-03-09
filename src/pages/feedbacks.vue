@@ -1,5 +1,5 @@
 <template>
-  <b-container class="max-width" style="min-width:500px">
+  <b-container class="max-width py-3" style="min-width:500px">
     <vue-title title="Paypack | Feedbacks" />
     <b-row class="justify-content-between mx-1">
       <div class="d-flex align-items-baseline">
