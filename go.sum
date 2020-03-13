@@ -192,6 +192,8 @@ github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb h1:b5rjCoWHc7eqmAS
 github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/hibiken/asynq v0.6.0 h1:1tbYEvGd5+FnF7msdnIZc/NAcNkjuU/toI7Zyw28zDg=
 github.com/hibiken/asynq v0.6.0/go.mod h1:X7NEtcJrLJxQuDm2PoIrVjJ5xAbe67pJkIiEDzWhwMw=
+github.com/hibiken/asynq v0.6.1 h1:YnepUpBzZZrG8Db9aqHRpGiiEXJ9CFYRItB5iUTGs10=
+github.com/hibiken/asynq v0.6.1/go.mod h1:X7NEtcJrLJxQuDm2PoIrVjJ5xAbe67pJkIiEDzWhwMw=
 github.com/hpcloud/tail v1.0.0 h1:nfCOvKYfkgYP8hkirhJocXT2+zOD8yUNjXaWfTlyFKI=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/huandu/xstrings v1.2.0 h1:yPeWdRnmynF7p+lLYz0H2tthW9lqhMJrQV/U7yy4wX0=
