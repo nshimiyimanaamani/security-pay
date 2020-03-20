@@ -21,7 +21,6 @@ export default {
     };
   },
   beforeMount() {
-    delete sessionStorage.token;
     this.$store.dispatch("startup_function");
   },
   mounted() {
