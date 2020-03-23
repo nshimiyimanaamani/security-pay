@@ -29,7 +29,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hashicorp/nomad v0.10.4 // indirect
 	github.com/hashicorp/raft v1.1.2 // indirect
-	github.com/hibiken/asynq v0.6.2
+	github.com/hibiken/asynq v0.7.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.3.0
 	github.com/matoous/go-nanoid v1.2.0
