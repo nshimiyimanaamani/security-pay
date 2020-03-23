@@ -499,6 +499,48 @@ func migrateDB(db *sql.DB) error {
 					`,
 				},
 			},
+			{
+				Id: "008_create_earliest_pending_invoices_view",
+				Up: []string{
+					`CREATE MATERIALIZED VIEW earliest_pending_invoices_view AS
+						SELECT 
+							invoices.*
+						FROM
+							(
+								SELECT
+									property, MIN(created_at) as created_at 
+								FROM 
+									invoices WHERE status='pending' GROUP BY property
+							) AS pending
+						INNER JOIN
+							invoices
+						ON 
+							invoices.property=pending.property AND invoices.created_at=pending.created_at 
+						ORDER BY 
+							invoices.id
+					`,
+
+					`CREATE unique index ON earliest_pending_invoices_view(property);`,
+
+					`REFRESH MATERIALIZED VIEW concurrently earliest_pending_invoices_view;`,
+
+					`
+					CREATE OR REPLACE FUNCTION refresh_earliest_pending_invoices_view()
+					RETURNS TRIGGER AS $$
+					BEGIN
+						refresh materialized view concurrently earliest_pending_invoices_view;
+						RETURN NULL;
+					END;
+					$$ LANGUAGE plpgsql;`,
+
+					`
+					CREATE TRIGGER trigger_refresh_earliest_pending_invoices_view
+					AFTER INSERT OR UPDATE OR DELETE ON invoices
+					FOR EACH ROW
+					EXECUTE PROCEDURE refresh_earliest_pending_invoices_view();
+					`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

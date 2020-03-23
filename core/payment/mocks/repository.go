@@ -58,7 +58,7 @@ func (repo *repoMock) RetrieveProperty(ctx context.Context, code string) (string
 	return "", errors.E(op, "property not found", errors.KindNotFound)
 }
 
-func (repo *repoMock) OldestInvoice(ctx context.Context, property string) (payment.Invoice, error) {
+func (repo *repoMock) EarliestInvoice(ctx context.Context, property string) (payment.Invoice, error) {
 	const op errors.Op = "app/mocks/repoMock.OldestInvoice"
 
 	for _, val := range repo.properties {
