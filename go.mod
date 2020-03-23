@@ -51,7 +51,7 @@ require (
 	github.com/ttacon/libphonenumber v1.1.0
 	github.com/vmihailenco/msgpack/v4 v4.3.9
 	golang.org/x/crypto v0.0.0-20200219234226-1ad67e1f0ef4
-	golang.org/x/net v0.0.0-20200202094626-16171245cfb2
+	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
 	google.golang.org/genproto v0.0.0-20200303153909-beee998c1893 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
 )

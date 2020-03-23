@@ -1,6 +1,7 @@
 package payment_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -11,11 +12,16 @@ import (
 
 	"github.com/gorilla/mux"
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/payment"
+	"github.com/rugwirobaker/paypack-backend/core/nanoid"
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/core/payment/mocks"
 	"github.com/rugwirobaker/paypack-backend/core/uuid"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
+)
+
+const (
+	contentType = "application/json"
 )
 
 type testRequest struct {
@@ -26,6 +32,11 @@ type testRequest struct {
 	token       string
 	body        io.Reader
 }
+
+var idprovider = nanoid.New(&nanoid.Config{
+	Alphabet: nanoid.Alphabet,
+	Length:   nanoid.Length,
+})
 
 func (tr testRequest) make() (*http.Response, error) {
 	req, err := http.NewRequest(tr.method, tr.url, tr.body)
@@ -59,8 +70,10 @@ func newServer(svc payment.Service) *httptest.Server {
 	endpoints.RegisterHandlers(mux, opts)
 	return httptest.NewServer(mux)
 }
+
 func TestInitialize(t *testing.T) {
-	code := uuid.New().ID()
+	code := idprovider.ID()
+	id := "123e4567-e89b-12d3-a456-000000000001"
 	invoice := payment.Invoice{
 		ID:     uint64(1000),
 		Amount: float64(1000),
@@ -78,13 +91,72 @@ func TestInitialize(t *testing.T) {
 		contentType string
 		status      int
 		res         string
-	}{}
+	}{
+		{
+			desc: "initialize valid transaction",
+			req: toJSON(payment.Transaction{
+				Code:   code,
+				Amount: invoice.Amount,
+				Phone:  "0785780891",
+				Method: payment.MTN,
+			}),
+			status:      http.StatusOK,
+			contentType: contentType,
+			res:         toJSON(map[string]string{"status": "success", "transaction_id": id, "transaction_state": "processing"}),
+		},
+		{
+			desc: "empty transaction amount",
+			req: toJSON(payment.Transaction{
+				Code:   code,
+				Phone:  "0785780891",
+				Method: payment.MTN,
+			}),
+			status:      http.StatusBadRequest,
+			contentType: contentType,
+			res:         toJSON(map[string]string{"error": "amount must be greater than zero"}),
+		},
+		{
+			desc: "missing house code",
+			req: toJSON(payment.Transaction{
+				Amount: invoice.Amount,
+				Phone:  "0785780891",
+				Method: payment.MTN,
+			}),
+			status:      http.StatusBadRequest,
+			contentType: contentType,
+			res:         toJSON(map[string]string{"error": "missing house code"}),
+		},
+
+		{
+			desc: "missing payment method",
+			req: toJSON(payment.Transaction{
+				Code:   code,
+				Amount: invoice.Amount,
+				Phone:  "0785780891",
+			}),
+			status:      http.StatusBadRequest,
+			contentType: contentType,
+			res:         toJSON(map[string]string{"error": "payment method must be specified"}),
+		},
+		{
+			desc: "initialize payment with unsaved house code",
+			req: toJSON(payment.Transaction{
+				Code:   idprovider.ID(),
+				Amount: invoice.Amount,
+				Phone:  "0785780891",
+				Method: payment.MTN,
+			}),
+			status:      http.StatusNotFound,
+			contentType: contentType,
+			res:         toJSON(map[string]string{"error": "property not found"}),
+		},
+	}
 
 	for _, tc := range cases {
 		req := testRequest{
 			client:      client,
 			method:      http.MethodPost,
-			url:         fmt.Sprintf("%s/owners", srv.URL),
+			url:         fmt.Sprintf("%s/payment/initialize", srv.URL),
 			contentType: tc.contentType,
 			body:        strings.NewReader(tc.req),
 		}
@@ -140,4 +212,9 @@ func TestConfirm(t *testing.T) {
 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
 		assert.Equal(t, tc.res, data, fmt.Sprintf("%s: expected body %s got %s", tc.desc, tc.res, data))
 	}
+}
+
+func toJSON(data interface{}) string {
+	jsonData, _ := json.Marshal(data)
+	return string(jsonData)
 }

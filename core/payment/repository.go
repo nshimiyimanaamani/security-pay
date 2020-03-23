@@ -6,5 +6,5 @@ import "context"
 type Repository interface {
 	Save(ctx context.Context, tx Transaction) error
 	RetrieveProperty(ctx context.Context, code string) (string, error)
-	OldestInvoice(ctx context.Context, property string) (Invoice, error)
+	EarliestInvoice(ctx context.Context, property string) (Invoice, error)
 }

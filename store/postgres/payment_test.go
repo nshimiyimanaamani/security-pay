@@ -224,7 +224,7 @@ func TestOldestInvoice(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		_, err := repo.OldestInvoice(ctx, tc.property)
+		_, err := repo.EarliestInvoice(ctx, tc.property)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error: '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }
