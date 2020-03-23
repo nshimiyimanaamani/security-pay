@@ -11,25 +11,45 @@
       <b>OFFLINE!</b> Please check your internet connection...
     </b-alert>
     <router-view />
+    <div class="version text-truncate" v-if="showVersion">Version {{version}}</div>
   </div>
 </template>
 <script>
 export default {
   data() {
     return {
-      offline: false
+      offline: false,
+      showVersion: false,
+      version: ""
     };
   },
   beforeMount() {
     this.$store.dispatch("startup_function");
   },
   mounted() {
+    this.showVersion = false;
     window.addEventListener("offline", e => (this.offline = true));
     window.addEventListener("online", e => (this.offline = false));
+    this.axios.get("/version").then(res => {
+      this.version = res.data.version;
+      this.showVersion = true;
+    });
   }
 };
 </script>
 
 <style>
 @import url("./assets/css/main.css");
+.version {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin-right: 1rem;
+  opacity: 0.7;
+  font-size: 13px;
+  letter-spacing: 1px;
+  z-index: 1001;
+  user-select: none;
+  cursor: text;
+}
 </style>
