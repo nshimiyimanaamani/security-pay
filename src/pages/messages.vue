@@ -28,7 +28,7 @@
         rows="10"
         class="message-textarea"
         v-model="message"
-      ></textarea>
+      />
       <b-button
         variant="info"
         :disabled="message && selected?false:true"
@@ -38,7 +38,7 @@
         {{state.sending ? 'Sending ':'Send '}}
         <b-spinner v-if="state.sending" variant="black" small />
         <i v-else class="fa fa-paper-plane" />
-      </template>
+      </b-button>
     </div>
   </div>
 </template>
