@@ -13,15 +13,12 @@ const dashboard = () =>
 const transactions = () =>
   import(/* webpackChunkName: "transactions" */ "./pages/transactions.vue");
 const dashboardLayout = () =>
-  import(
-    /* webpackChunkName: "layouts" */ "./Layouts/dashboardLayout.vue"
-  );
+  import(/* webpackChunkName: "layouts" */ "./Layouts/dashboardLayout.vue");
 const accounts = () =>
   import(/* webpackChunkName: "account" */ "./pages/createAccount.vue");
 const village = () =>
   import(/* webpackChunkName: "village" */ "./pages/village.vue");
-const cells = () =>
-  import(/* webpackChunkName: "cells" */ "./pages/cells.vue");
+const cells = () => import(/* webpackChunkName: "cells" */ "./pages/cells.vue");
 const properties = () =>
   import(/* webpackChunkName: "properties" */ "./pages/properties.vue");
 const feedbacks = () =>

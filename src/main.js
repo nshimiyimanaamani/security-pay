@@ -13,8 +13,10 @@ import titleComponent from "./components/title.vue";
 import VueSimpleContextMenu from "./scripts/simplecontextMenu";
 import VueSlider from "vue-slider-component";
 import "vue-slider-component/theme/default.css";
-// import "./scripts/import bootstrap";
 import vueBoostrap from "bootstrap-vue";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-vue/dist/bootstrap-vue.min.css";
+import "./assets/css/main.css";
 
 Vue.use(vueBoostrap);
 Vue.component("VueSlider", VueSlider);

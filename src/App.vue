@@ -39,7 +39,6 @@ export default {
 </script>
 
 <style>
-@import url("./assets/css/main.css");
 .version {
   position: absolute;
   bottom: 0;
