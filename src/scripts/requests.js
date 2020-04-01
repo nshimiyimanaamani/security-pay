@@ -27,7 +27,7 @@ axios.interceptors.response.use(
     return response;
   },
   error => {
-    if (error.response.status === 401) {
+    if (error.response && error.response.status === 401) {
       that.$store.dispatch("logout");
     }
     if (!navigator.onLine) {
@@ -35,7 +35,7 @@ axios.interceptors.response.use(
     }
     if (navigator.onLine) {
       var message;
-      if (error.response.data) {
+      if (error.response && error.response.data) {
         message =
           error.response.data.error ||
           error.response.data.message ||

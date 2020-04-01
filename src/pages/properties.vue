@@ -1,5 +1,5 @@
 <template>
-  <b-container class="table-container px-5 py-3 max-width">
+  <b-container class="table-container px-5 py-3 mw-100">
     <vue-title title="Paypack | Properties" />
     <h4 class="title d-flex justify-content-between flex-nowrap">
       List of properties in {{selected}}
@@ -42,17 +42,10 @@
             <b-form-group>
               <template v-slot:label>
                 <b>Choose columns to display:</b>
-                <br />
-                <b-form-checkbox
-                  v-model="select.selectAll"
-                  aria-describedby="columns"
-                  aria-controls="columns"
-                  @change="allSelected"
-                >{{ (select.selectAll) ? 'Un-select All' : 'Select All' }}</b-form-checkbox>
               </template>
               <b-form-checkbox-group
                 id="columns"
-                v-model="select.shownColumn"
+                v-model="select.postColumns"
                 :options="columns"
                 size="sm"
                 name="columns"
@@ -61,7 +54,7 @@
             </b-form-group>
           </b-card-body>
         </b-dropdown-form>
-        <b-button variant="primary" size="sm" @click.prevent="tableItems = filter()">Ok</b-button>
+        <b-button variant="primary" size="sm" @click.prevent="disableColumns">Ok</b-button>
         <b-button variant="danger" size="sm" @click.prevent="clearFilter">Clear</b-button>
       </b-dropdown>
 
@@ -83,7 +76,7 @@
       </b-button>
       <b-button
         @click="downloadList"
-        :disabled="tableItems.length ? false:true"
+        :disabled="filteredItems.length ? false:true"
         variant="info"
         size="sm"
         class="ml-1 font-14"
@@ -98,7 +91,8 @@
       hover
       small
       responsive
-      :items="tableItems"
+      :key="key"
+      :items="shownItems"
       :fields="fields"
       :busy="loading.request"
       :sort-by.sync="sortBy"
@@ -118,7 +112,7 @@
         <article class="text-center">{{data.index + 1}}</article>
       </template>
       <template v-slot:table-busy>
-        <div class="text-center my-2">
+        <div class="text-center my-2 p-3">
           <b-spinner small class="align-middle" />&nbsp;
           <strong>Loading...</strong>
         </div>
@@ -130,15 +124,15 @@
       </template>
       <template v-slot:custom-foot v-if="!loading.request">
         <b-tr v-if="select.shownColumn.includes('Amount')">
-          <b-td v-for="index in select.shownColumn" :key="index" variant="primary">
+          <b-td v-for="(index,i) in select.shownColumn" :key="i" variant="primary">
             <div
-              v-if="index == select.shownColumn[select.shownColumn.indexOf('Amount')-1]"
-              class="text-danger"
+              class="text-danger text-right"
+              v-if="select.shownColumn.length > 1 && i===select.shownColumn.length-2 "
             >
-              <strong>TOTAL:</strong>
+              <strong>Total:</strong>
             </div>
-            <div v-if="index == 'Amount'">
-              <strong>{{totals(tableItems)}} Rwf</strong>
+            <div v-if="i===select.shownColumn.length-1">
+              <strong>{{totals(filteredItems)}} Rwf</strong>
             </div>
           </b-td>
         </b-tr>
@@ -184,18 +178,24 @@
   </b-container>
 </template>
 <script>
-import updateHouse from "../components/updateHouse.vue";
-import addPropertyModal from "../components/modals/addPropertyModal.vue";
-import download from "../components/download scripts/downloadProperties";
-import message from "../components/modals/message";
+const download = import(
+  /* webpackChunkName: "downloadScript" */ "../components/download scripts/downloadProperties"
+);
 import { Village } from "rwanda";
 import { isPhoneNumber } from "rwa-validator";
 export default {
   name: "reports",
   components: {
-    "update-house": updateHouse,
-    "add-property": addPropertyModal,
-    message
+    "update-house": () =>
+      import(
+        /* webpackChunkName: "updateHouse" */ "../components/updateHouse.vue"
+      ),
+    "add-property": () =>
+      import(
+        /* webpackChunkName: "addProperty" */ "../components/modals/addPropertyModal.vue"
+      ),
+    message: () =>
+      import(/* webpackChunkName: "message" */ "../components/modals/message")
   },
   data() {
     return {
@@ -256,7 +256,7 @@ export default {
         cellOptions: [],
         villageOptions: [],
         shownColumn: [],
-        selectAll: true
+        postColumns: []
       },
       size: "5px",
       sortBy: "owner",
@@ -273,7 +273,7 @@ export default {
         { key: "due", label: "Amount" }
       ],
       items: [],
-      tableItems: [],
+      key: 1,
       pagination: {
         perPage: 15,
         currentPage: 1,
@@ -285,6 +285,44 @@ export default {
   computed: {
     sectorOptions() {
       return [this.activeSector];
+    },
+    filteredItems() {
+      const sector = this.activeSector.trim().toLowerCase();
+      const cell = this.select.cell || "";
+      const village = this.select.village || "";
+      this.selected = village || cell || sector;
+      return this.items.filter(item => {
+        if (sector && cell && village) {
+          return (
+            item.address.sector.toLowerCase().trim() == sector &&
+            item.address.cell.toLowerCase().trim() == cell.toLowerCase() &&
+            item.address.village.toLowerCase().trim() == village.toLowerCase()
+          );
+        }
+        if (sector && cell && !village) {
+          return (
+            item.address.sector.toLowerCase().trim() == sector &&
+            item.address.cell.toLowerCase().trim() == cell.toLowerCase()
+          );
+        }
+        if (sector && !cell && !village) {
+          return item.address.sector.toLowerCase().trim() == sector;
+        }
+      });
+    },
+    shownItems() {
+      if (this.items) {
+        this.pagination.currentPage = 1;
+        this.pagination.totalRows = this.filteredItems.length;
+        while (this.search.datalist.length > 7) {
+          this.search.datalist.pop();
+        }
+        return this.filteredItems.filter(item => {
+          return (item.owner.fname + " " + item.owner.lname)
+            .toLowerCase()
+            .includes(this.search.name.toLowerCase());
+        });
+      } else [];
     },
     cellOptions() {
       return this.$store.getters.getCellsArray;
@@ -304,61 +342,20 @@ export default {
       return this.capitalize(this.$store.getters.getActiveCell);
     },
     columns() {
-      let array = [];
-      this.fields.forEach(i => array.push(i.label));
-      return array;
+      return this.fields.map(i => i.label);
     },
     checkNumber() {
-      const n = this.modal.form.phone;
-      return n ? isPhoneNumber(n) : null;
+      return this.modal.form.phone
+        ? isPhoneNumber(this.modal.form.phone)
+        : null;
     },
     user() {
       return this.$store.getters.userDetails;
     }
   },
-  watch: {
-    items() {
-      handler: {
-        this.tableItems = this.items;
-      }
-    },
-    tableItems() {
-      handler: {
-        this.pagination.totalRows = this.tableItems
-          ? this.tableItems.length + 1
-          : 0;
-        this.pagination.currentPage = 1;
-      }
-    },
-    "select.shownColumn"() {
-      handler: {
-        this.select.selectAll =
-          this.columns.length == this.select.shownColumn.length ? true : false;
-      }
-    },
-    "search.name"() {
-      handler: {
-        this.pagination.currentPage = 1;
-        const searchedName = this.search.name;
-        this.tableItems = this.filter().filter(obj => {
-          const name = this.lc(obj.owner.fname + " " + obj.owner.lname);
-          this.search.datalist = [...new Set([...this.search.datalist, name])];
-          if (name.search(new RegExp(searchedName, "i")) != -1) {
-            return (
-              obj.owner.fname.includes(obj.owner.fname) ||
-              obj.owner.lname.includes(obj.owner.lname)
-            );
-          }
-        });
-        while (this.search.datalist.length > 7) {
-          this.search.datalist.pop();
-        }
-      }
-    }
-  },
   mounted() {
     this.loadData();
-    this.select.shownColumn = this.columns;
+    this.select.postColumns = this.columns;
     if (this.user.role.toLowerCase() == "basic") {
       this.selected = this.activeCell;
     } else {
@@ -395,7 +392,7 @@ export default {
         .catch(err => null);
     },
     downloadList() {
-      download(this.tableItems, this.selected);
+      download(this.filteredItems, this.selected);
     },
     editHouse(house, index, evt) {
       evt.preventDefault();
@@ -471,10 +468,12 @@ export default {
         return total.toLocaleString();
       }
     },
-    filter() {
-      this.$refs.dropdown.hide(true);
+    disableColumns() {
       //disabling some of the columns
-      this.fields.forEach(value => {
+      this.loading.request = true;
+      if (this.$refs.dropdown) this.$refs.dropdown.hide(true);
+      this.select.shownColumn = this.select.postColumns;
+      this.fields.map(value => {
         if (!this.select.shownColumn.includes(value.label)) {
           value.tdClass = "d-none";
           value.thClass = "d-none";
@@ -483,37 +482,14 @@ export default {
           delete value.thClass;
         }
       });
-      const sector = this.activeSector.trim().toLowerCase();
-      const cell = this.select.cell || "";
-      const village = this.select.village || "";
-      this.tableItems = this.items;
-      this.selected = village || cell || sector;
-      return this.tableItems.filter(item => {
-        if (sector && cell && village) {
-          return (
-            item.address.sector.toLowerCase().trim() == sector &&
-            item.address.cell.toLowerCase().trim() == cell.toLowerCase() &&
-            item.address.village.toLowerCase().trim() == village.toLowerCase()
-          );
-        }
-        if (sector && cell && !village) {
-          return (
-            item.address.sector.toLowerCase().trim() == sector &&
-            item.address.cell.toLowerCase().trim() == cell.toLowerCase()
-          );
-        }
-        if (sector && !cell && !village) {
-          return item.address.sector.toLowerCase().trim() == sector;
-        }
-      });
-    },
-    allSelected(checked) {
-      this.select.shownColumn = checked ? this.columns.slice() : [];
+      this.key++;
+      this.loading.request = false;
     },
     clearFilter() {
       this.select.cell = null;
       this.select.village = null;
-      this.tableItems = this.items;
+      this.select.shownColumn = this.columns;
+      this.key = 1;
       if (this.user.role.toLowerCase() == "basic") {
         this.selected = this.activeCell;
       } else {

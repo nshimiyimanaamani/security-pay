@@ -7,7 +7,7 @@
     responsive
     show-empty
     :busy="state.loading"
-    :items="table.items"
+    :items="shownItems"
     :fields="table.fields"
     :sort-by.sync="table.sortBy"
   >
@@ -36,7 +36,8 @@ export default {
     loader
   },
   props: {
-    user: Object
+    user: Object,
+    searchItem: String
   },
   data() {
     return {
@@ -64,6 +65,17 @@ export default {
   },
   mounted() {
     this.loadData();
+  },
+  computed: {
+    shownItems() {
+      if (this.table.items) {
+        return this.table.items.filter(item => {
+          return (item.owner.fname + " " + item.owner.lname)
+            .toLowerCase()
+            .includes(this.searchItem.toLowerCase());
+        });
+      } else [];
+    }
   },
   methods: {
     async loadData() {

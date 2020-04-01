@@ -40,6 +40,7 @@
   .admin-content {
     width: 100%;
     transition: all 0.5s;
+    min-width: 500px;
     &.active {
       nav h1 {
         margin-left: 0;

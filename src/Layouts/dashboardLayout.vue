@@ -72,7 +72,7 @@
     </div>
     <div class="admin-content" :class="{'active' : active}">
       <nav
-        class="navbar navbar-expand-lg navbar-light bg-light border-bottom d-flex justify-content-between"
+        class="navbar navbar-expand-lg navbar-light bg-light border-bottom d-flex justify-content-between flex-nowrap"
       >
         <div class="d-flex align-items-center">
           <h1 class="mb-0">P A Y P A C K</h1>
@@ -80,7 +80,7 @@
             <i class="fa fa-align-left"></i>
           </b-button>
         </div>
-        <b-button class="btn-info py-1 font-14" @click.prevent="logout">Logout</b-button>
+        <b-button class="btn-info py-1 font-14 ml-2" @click.prevent="logout">Logout</b-button>
       </nav>
       <div class="admin-body" :class="{'active':active}">
         <transition name="fade" :duration="250" mode="out-in">
