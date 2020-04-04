@@ -132,7 +132,7 @@
               <strong>Total:</strong>
             </div>
             <div v-if="i===select.shownColumn.length-1">
-              <strong>{{totals(filteredItems)}} Rwf</strong>
+              <strong>{{totals()}} Rwf</strong>
             </div>
           </b-td>
         </b-tr>
@@ -356,6 +356,7 @@ export default {
   mounted() {
     this.loadData();
     this.select.postColumns = this.columns;
+    this.select.shownColumn = this.columns;
     if (this.user.role.toLowerCase() == "basic") {
       this.selected = this.activeCell;
     } else {
@@ -459,10 +460,10 @@ export default {
       this.message.show = false;
       this.message.sendTo = [];
     },
-    totals(data) {
-      if (data) {
+    totals() {
+      if (this.filteredItems) {
         let total = 0;
-        data.forEach(element => {
+        this.filteredItems.forEach(element => {
           total += Number(element.due);
         });
         return total.toLocaleString();
