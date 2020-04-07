@@ -134,7 +134,7 @@ export default {
           .then(res => {
             this.table.items = res.data.Transactions.filter(item => {
               return (
-                item.village === "Gishushu" &&
+                item.village === this.user.village &&
                 new Date(item.date_recorded).getFullYear() === this.date.year &&
                 new Date(item.date_recorded).getMonth() + 1 === this.date.month
               );
@@ -155,9 +155,9 @@ export default {
         .then(res => res.data.Total)
         .catch(err => null);
     },
-    closeSearch(){
-      this.searchItem=''
-      this.state.search = false
+    closeSearch() {
+      this.searchItem = "";
+      this.state.search = false;
     }
   }
 };
