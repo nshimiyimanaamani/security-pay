@@ -11,7 +11,7 @@
       <b>OFFLINE!</b> Please check your internet connection...
     </b-alert>
     <router-view />
-    <div class="version text-truncate" v-if="showVersion">Version {{version}}</div>
+    <!-- <div class="version text-truncate" v-if="showVersion">Version {{version}}</div> -->
   </div>
 </template>
 <script>

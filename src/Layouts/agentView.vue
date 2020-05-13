@@ -108,7 +108,7 @@ export default {
   nav {
     position: sticky;
     width: 100%;
-    background: #3a82a1;
+    background: #017db3;
     .navs {
       width: fit-content;
       button {

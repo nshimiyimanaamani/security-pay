@@ -4,7 +4,6 @@
     <hr class="m-0 mb-3" />
     <b-row class="px-3 align-items-center justify-content-between">
       <b-select
-        size="sm"
         id="input-1"
         v-model="cell"
         :options="cellOptions"
@@ -189,7 +188,6 @@ export default {
     };
   },
   computed: {
-    
     cellOptions() {
       return this.$store.getters.getCellsArray;
     },
@@ -234,12 +232,10 @@ export default {
       const year = this.config.year;
       const month = this.config.month;
       const first = this.axios.get(
-        
-          `/metrics/ratios/cells/${this.cell}?year=${year}&month=${month}`
+        `/metrics/ratios/cells/${this.cell}?year=${year}&month=${month}`
       );
       const second = this.axios.get(
-        
-          `/metrics/balance/cells/${this.cell}?year=${year}&month=${month}`
+        `/metrics/balance/cells/${this.cell}?year=${year}&month=${month}`
       );
       const promise = this.axios.all([first, second]);
       return promise
@@ -277,12 +273,10 @@ export default {
       const year = this.config.year;
       const month = this.config.month;
       const first = this.axios.get(
-        
-          `/metrics/ratios/cells/all/${this.cell}?year=${year}&month=${month}`
+        `/metrics/ratios/cells/all/${this.cell}?year=${year}&month=${month}`
       );
       const second = this.axios.get(
-        
-          `/metrics/balance/cells/all/${this.cell}?year=${year}&month=${month}`
+        `/metrics/balance/cells/all/${this.cell}?year=${year}&month=${month}`
       );
       const promise = this.axios.all([first, second]);
       return promise

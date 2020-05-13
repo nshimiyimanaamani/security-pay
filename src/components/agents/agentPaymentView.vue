@@ -70,7 +70,7 @@ export default {
   name: "agentPaymentView",
   components: {
     loader: () => import("../loader"),
-    selector: () => import("../yearSelector")
+    selector: () => import("../agent-yearSelector")
   },
   props: {
     user: Object
@@ -84,7 +84,7 @@ export default {
       },
       date: {
         year: new Date().getFullYear(),
-        month: new Date().getMonth() + 1
+        month: null
       },
       table: {
         items: null,
@@ -125,28 +125,44 @@ export default {
   },
   methods: {
     async loadData() {
-      this.state.loading = true;
-      const url = "/transactions?offset=0&limit=";
-      let total = await this.getTotal(url + "0");
-      if (total && this.user.village) {
-        this.axios
-          .get(url + total)
-          .then(res => {
-            this.table.items = res.data.Transactions.filter(item => {
-              return (
-                item.village === this.user.village &&
-                new Date(item.date_recorded).getFullYear() === this.date.year &&
-                new Date(item.date_recorded).getMonth() + 1 === this.date.month
-              );
+      if (!this.user) {
+        this.$emit("getInfo");
+      } else {
+        this.state.loading = true;
+        const url = "/transactions?offset=0&limit=";
+        let total = await this.getTotal(url + "0");
+        if (total && this.user.village) {
+          this.axios
+            .get(url + total)
+            .then(res => {
+              let filteredItems = res.data.Transactions;
+              if (this.user.village) {
+                filteredItems = filteredItems.filter(
+                  item => item.village === this.user.village
+                );
+              }
+              if (this.date.month) {
+                filteredItems = filteredItems.filter(
+                  item =>
+                    new Date(item.date_recorded).getFullYear() == this.date.year
+                );
+              }
+              if (this.date.year) {
+                filteredItems = filteredItems.filter(
+                  item =>
+                    new Date(item.date_recorded).getFullYear() ===
+                    this.date.year
+                );
+              }
+              this.table.items = filteredItems;
+            })
+            .catch(err => {
+              console.log(err, err.response);
+            })
+            .finally(() => {
+              this.state.loading = false;
             });
-            console.log(res.data);
-          })
-          .catch(err => {
-            console.log(err, err.response);
-          })
-          .finally(() => {
-            this.state.loading = false;
-          });
+        }
       }
     },
     getTotal(url) {

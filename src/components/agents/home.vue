@@ -39,11 +39,11 @@
           </b-row>
         </transition>
         <b-row class="px-4">
-          <user-table v-on:getInfo="getInfo" :user="user" :key="key" :searchItem="searchItem" />
+          <user-table @getInfo="getInfo" :user="user" :key="key" :searchItem="searchItem" />
         </b-row>
       </div>
       <div v-show="state.btn2" key="payment">
-        <agent-payment-view :user="user" />
+        <agent-payment-view :user="user" @getInfo="getInfo" :key="key" />
       </div>
     </transition-group>
   </b-container>
@@ -83,6 +83,7 @@ export default {
         .get("/accounts/agents/" + this.userDetails.username)
         .then(res => {
           this.user = { ...res.data };
+          console.log(this.user);
           this.key++;
         })
         .catch(err => {

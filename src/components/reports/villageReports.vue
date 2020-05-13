@@ -4,7 +4,6 @@
     <hr class="m-0 mb-3" />
     <b-row class="px-3 align-items-center justify-content-between">
       <b-select
-        size="sm"
         id="input-1"
         v-model="cell"
         :options="cellOptions"
@@ -16,7 +15,6 @@
         </template>
       </b-select>
       <b-select
-        size="sm"
         id="input-1"
         v-model="village"
         :options="villageOptions"

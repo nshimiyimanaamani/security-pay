@@ -1,5 +1,4 @@
 import Vue from "vue";
-var that = Vue;
 import axios from "axios";
 
 const req = axios.create({
@@ -15,10 +14,10 @@ axios.interceptors.request.use(
     config.url = `${baseURL}${config.url}`;
     return config;
   },
+
   error => {
     if (!navigator.onLine)
-      that.$snotify.error("Please connect to the internet");
-
+      Vue.prototype.$snotify.error("Please connect to the internet");
     return Promise.reject(error);
   }
 );
@@ -28,10 +27,10 @@ axios.interceptors.response.use(
   },
   error => {
     if (error.response && error.response.status === 401) {
-      that.$store.dispatch("logout");
+      Vue.prototype.$store.dispatch("logout");
     }
     if (!navigator.onLine) {
-      that.$snotify.error("Please connect to the internet");
+      Vue.prototype.$snotify.error("Please connect to the internet");
     }
     if (navigator.onLine) {
       var message;
@@ -43,7 +42,7 @@ axios.interceptors.response.use(
       } else {
         message = null;
       }
-      if (message) that.prototype.$snotify.error(message);
+      if (message) Vue.prototype.$snotify.error(message);
     }
   }
 );
@@ -67,7 +66,7 @@ const requests = {
             const error = err.response
               ? err.response.data.error || err.response.data
               : null;
-            if (error) that.$notify.error(error);
+            if (error) Vue.prototype.$snotify.error(error);
             reject();
           });
       });

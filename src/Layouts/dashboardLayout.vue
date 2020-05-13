@@ -76,7 +76,7 @@
       >
         <div class="d-flex align-items-center">
           <h1 class="mb-0">P A Y P A C K</h1>
-          <b-button size="sm" variant="info" class="h-100 ml-4" @click="active=!active">
+          <b-button size="sm" variant="info" class="h-100 ml-5" @click="active=!active">
             <i class="fa fa-align-left"></i>
           </b-button>
         </div>
