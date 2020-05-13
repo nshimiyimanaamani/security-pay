@@ -1,44 +1,120 @@
 <template>
   <div class="message-container px-5 py-3">
-    <h4 align="center" class="align-self-center text-uppercase mb-4">Send Text Messages</h4>
-    <div class="controls">
-      <b-form-radio-group v-model="selected" :options="options" name="message-controls"></b-form-radio-group>
-    </div>
-    <div class="message-select">
-      <b-select v-model="select.cell" :options="cellOptions" v-if="showCell || showVillage">
-        <template v-slot:first>
-          <option :value="null" disabled>Select cell</option>
-        </template>
-      </b-select>
-      <b-select v-model="select.village" :options="villageOptions" v-if="showVillage">
-        <template v-slot:first>
-          <option
-            :value="null"
-            disabled
-          >{{villageOptions.length?'Select village':'Select cell first'}}</option>
-        </template>
-      </b-select>
-    </div>
-    <div class="text-wrapper w-100">
-      <textarea
-        name="message"
-        id="message"
-        placeholder="Write your message..."
-        cols="30"
-        rows="10"
-        class="message-textarea"
-        v-model="message"
-      />
-      <b-button
-        variant="info"
-        :disabled="message && selected?false:true"
-        class="float-right"
-        @click="send"
+    <div class="tabs-wrapper">
+      <b-tabs
+        :no-fade="false"
+        content-class="mt-3"
+        justified
+        active-nav-item-class="app-color text-white"
+        @activate-tab="clear"
       >
-        {{state.sending ? 'Sending ':'Send '}}
-        <b-spinner v-if="state.sending" variant="black" small />
-        <i v-else class="fa fa-paper-plane" />
-      </b-button>
+        <b-tab title="SECTOR" active>
+          <div class="sector-body">
+            <h3>Send message to all payers in {{activeSector ? activeSector : "Sector"}}</h3>
+            <label for="textarea">Message:</label>
+            <textarea
+              name="message"
+              id="message"
+              placeholder="Write your message..."
+              cols="30"
+              rows="10"
+              class="message-textarea"
+              v-model="message"
+            />
+            <div class="w-100 d-flex mt-2">
+              <b-button variant="info" :disabled="message ?false:true" class @click="sendToSector">
+                {{state.sending ? 'Sending ':'Send '}}
+                <b-spinner v-if="state.sending" variant="black" small />
+                <i v-else class="fa fa-paper-plane" />
+              </b-button>
+            </div>
+          </div>
+        </b-tab>
+        <b-tab title="CELL">
+          <div class="cell-body">
+            <h3>Send message to all payers in {{select.cell ? select.cell : "Cell"}}</h3>
+            <div class="control mb-4">
+              <label for="select">Select a cell:</label>
+              <b-select v-model="select.cell" :options="cellOptions">
+                <template v-slot:first>
+                  <option :value="null" disabled>-- select cell --</option>
+                </template>
+              </b-select>
+            </div>
+            <label for="textarea">Message:</label>
+            <textarea
+              name="message"
+              id="message"
+              placeholder="Write your message..."
+              cols="30"
+              rows="10"
+              class="message-textarea"
+              v-model="message"
+            />
+            <div class="w-100 d-flex mt-2">
+              <b-button
+                variant="info"
+                :disabled="message && select.cell?false:true"
+                class
+                @click="sendToCell"
+              >
+                {{state.sending ? 'Sending ':'Send '}}
+                <b-spinner v-if="state.sending" variant="black" small />
+                <i v-else class="fa fa-paper-plane" />
+              </b-button>
+            </div>
+          </div>
+        </b-tab>
+        <b-tab title="VILLAGE">
+          <div class="village-body">
+            <h3>Send message to all payers in {{select.village ? select.village : "Village"}}</h3>
+            <div class="control mb-4">
+              <div class="cell-select">
+                <label for="select">Select a cell:</label>
+                <b-select v-model="select.cell" :options="cellOptions">
+                  <template v-slot:first>
+                    <option :value="null" disabled>-- select cell --</option>
+                  </template>
+                </b-select>
+              </div>
+              <div class="village-select">
+                <label for="select">Select a village:</label>
+                <b-select
+                  v-model="select.village"
+                  :disabled="!select.cell"
+                  :options="villageOptions"
+                >
+                  <template v-slot:first>
+                    <option :value="null" disabled>-- select village --</option>
+                  </template>
+                </b-select>
+              </div>
+            </div>
+            <label for="textarea">Message:</label>
+            <textarea
+              name="message"
+              id="message"
+              placeholder="Write your message..."
+              cols="30"
+              rows="10"
+              class="message-textarea"
+              v-model="message"
+            />
+            <div class="w-100 d-flex mt-2">
+              <b-button
+                variant="info"
+                :disabled="message && select.village?false:true"
+                class
+                @click="sendToVillage"
+              >
+                {{state.sending ? 'Sending ':'Send '}}
+                <b-spinner v-if="state.sending" variant="black" small />
+                <i v-else class="fa fa-paper-plane" />
+              </b-button>
+            </div>
+          </div>
+        </b-tab>
+      </b-tabs>
     </div>
   </div>
 </template>
@@ -49,35 +125,23 @@ export default {
   data() {
     return {
       message: null,
-      selected: null,
       state: {
         sending: false
       },
       select: {
         cell: null,
         village: null
-      },
-      options: [
-        { text: "Send to sector", value: "sector" },
-        { text: "Send to cell", value: "cell" },
-        { text: "Send to village", value: "village" }
-      ]
+      }
     };
   },
   computed: {
-    showVillage() {
-      return this.selected == "village" ? true : false;
-    },
-    showCell() {
-      return this.selected == "cell" ? true : false;
-    },
     cellOptions() {
       return this.$store.getters.getCellsArray;
     },
     villageOptions() {
       const cell = this.select.cell;
       if (cell) {
-        return Village("Kigali", "Gasabo", "Remera", cell);
+        return Village("Kigali", "Gasabo", this.activeSector, cell);
       } else {
         return [];
       }
@@ -86,13 +150,14 @@ export default {
       return this.$store.getters.getActiveSector;
     }
   },
+  watch: {
+    "select.cell"() {
+      handler: {
+        this.select.village = null;
+      }
+    }
+  },
   methods: {
-    send() {
-      const selected = this.selected;
-      if (selected == "sector") this.sendToSector();
-      else if (selected == "cell") this.sendToCell();
-      else if (selected == "village") this.sendToVillage();
-    },
     async sendToSector() {
       this.state.sending = true;
       let request = `/properties?sector=${this.activeSector}&offset=0&limit=`;
@@ -188,11 +253,114 @@ export default {
         .get(request)
         .then(res => res.data.Total)
         .catch(err => null);
+    },
+    clear() {
+      this.message = null;
+      this.state.sending = false;
+      this.select.cell = null;
+      this.select.village = null;
     }
   }
 };
 </script>
 
 <style lang="scss">
-@import "../assets/css/messages.scss";
+.tabs-wrapper {
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+  width: 100%;
+  margin-top: 3rem;
+
+  .message-textarea {
+    width: 100%;
+    max-width: 100%;
+    min-width: 100%;
+    resize: vertical;
+    color: #535d5f;
+    -webkit-appearance: none;
+    -webkit-box-align: center;
+  }
+  .sector-body {
+    padding: 1rem 2rem;
+    h3 {
+      text-align: center;
+      font-size: 1.4rem;
+      text-transform: uppercase;
+      font-weight: bold;
+      margin-bottom: 1.5rem;
+      color: #2e3757;
+    }
+    label {
+      color: #6a6e7b;
+      margin-bottom: 2px;
+      font-size: 17px;
+      font-weight: bold;
+    }
+    textarea {
+      border-radius: 2px;
+      border: 1px solid #b9bec3;
+      box-shadow: none;
+      -webkit-text-fill-color: #2e3757;
+      padding: 0.5rem;
+    }
+    button {
+      border-radius: 2px;
+      width: 120px;
+      margin-left: auto;
+      font-size: 16px !important;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  }
+  .cell-body,
+  .village-body {
+    padding: 1rem 2rem;
+    h3 {
+      text-align: center;
+      font-size: 1.4rem;
+      text-transform: uppercase;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #2e3757;
+    }
+    label {
+      color: #6a6e7b;
+      margin-bottom: 0px;
+      font-size: 15px;
+      font-weight: bold;
+      text-transform: lowercase;
+    }
+    textarea,
+    select {
+      border-radius: 2px;
+      border: 1px solid #b9bec3;
+      box-shadow: none;
+      padding: 0.5rem;
+      -webkit-text-fill-color: #2e3757;
+    }
+    button {
+      border-radius: 2px;
+      width: 120px;
+      margin-left: auto;
+      font-size: 16px !important;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  }
+  .village-body {
+    .control {
+      display: flex;
+
+      & > div:nth-child(1) {
+        flex: 1;
+        padding-right: 0.5rem;
+      }
+      & > div:nth-child(2) {
+        flex: 1;
+        padding-left: 0.5rem;
+      }
+    }
+  }
+}
+// @import "../assets/css/messages.scss";
 </style>

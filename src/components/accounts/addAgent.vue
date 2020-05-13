@@ -97,7 +97,12 @@
       :ref="'agent_rightMenu'"
       @option-clicked="optionClicked"
     ></vue-menu>
-    <b-modal v-model="change_pswd_modal.show" title="Change Password" hide-footer>
+    <b-modal
+      v-model="change_pswd_modal.show"
+      title="Change Password"
+      hide-footer
+      header-class="align-items-center"
+    >
       <b-form @submit.prevent="changePassword">
         <b-form-group id="input-group-1" label="Current Password:" label-for="input-1">
           <b-form-input id="input-1" disabled v-model="currentPwd"></b-form-input>

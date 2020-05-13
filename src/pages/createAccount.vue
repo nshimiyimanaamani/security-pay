@@ -72,9 +72,9 @@ export default {
 
 <style>
 .nav-controls .nav-link.active {
-  background-color: #3a82a1;
+  background-color: #017db3;
 }
 .nav-controls a {
-  color: #3a82a1;
+  color: #017db3;
 }
 </style>

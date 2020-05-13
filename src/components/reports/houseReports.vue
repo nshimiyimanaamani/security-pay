@@ -4,13 +4,11 @@
     <hr class="m-0 mb-3" />
     <b-row class="px-3 align-items-center justify-content-between">
       <b-input
-        size="sm"
         v-model="houseId"
         placeholder="Enter House ID..."
         class="w-auto mr-3 flex-grow-1 text-uppercase font-13"
       ></b-input>
       <b-button
-        size="sm"
         variant="info"
         :disabled="houseId?false:true"
         class="font-14 border-0 my-3"
@@ -112,7 +110,6 @@ export default {
     };
   },
   computed: {
-    
     cellOptions() {
       return this.$store.getters.getCellsArray;
     }

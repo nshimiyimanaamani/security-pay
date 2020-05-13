@@ -33,16 +33,16 @@ p {
   padding: 6px 10px;
 }
 .btn-info {
-  background-color: #3a82a1 !important;
-  border-color: #3a82a1 !important;
+  background-color: #0382b9 !important;
+  border-color: #0382b9 !important;
 }
 .pagination .active .page-link {
-  background-color: #3a82a1 !important;
-  border-color: #3a82a1 !important;
+  background-color: #017db3 !important;
+  border-color: #017db3 !important;
   color: white !important;
 }
 .pagination .page-link {
-  color: #3a82a1 !important;
+  color: #017db3 !important;
 }
 .font-14 {
   font-size: 14px !important;
@@ -59,7 +59,7 @@ p {
   cursor: pointer;
 }
 .app-color {
-  background: #3a82a1 !important;
+  background: #017db3 !important;
   background-image: none;
 }
 .app-font {
@@ -97,7 +97,7 @@ form input {
   border-radius: 15px;
 }
 .vue-slider-process {
-  background: #3a82a1 !important;
+  background: #017db3 !important;
   border-radius: 15px;
 }
 .vue-slider-dot-handle {
