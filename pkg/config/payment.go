@@ -11,6 +11,7 @@ type PaymentConfig struct {
 	Callback string `validate:"required" envconfig:"PAYPACK_PAYMENT_CALLBACK"`
 }
 
+// Validate payment configuration
 func (conf *PaymentConfig) Validate() error {
 	validator := validate.New()
 	return validator.Struct(conf)

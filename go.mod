@@ -32,10 +32,9 @@ require (
 	github.com/hibiken/asynq v0.7.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.3.0
-	github.com/matoous/go-nanoid v1.2.0
+	github.com/marianogappa/sqlparser v0.0.0-20190512194142-a82c3f44d2fc // indirect
+	github.com/matoous/go-nanoid v1.1.0
 	github.com/matryer/is v1.3.0
-	github.com/mitchellh/copystructure v1.0.0 // indirect
-	github.com/mitchellh/hashstructure v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
 	github.com/ory/dockertest v3.3.5+incompatible

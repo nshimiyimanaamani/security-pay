@@ -3,14 +3,15 @@ package ussd
 import (
 	"encoding/json"
 	"io"
+	"time"
 
 	validate "github.com/go-playground/validator/v10"
 )
 
-// SessionRequest ...
-type SessionRequest struct {
+// Request ...
+type Request struct {
 	//ussd session as passed by the telecom.
-	ID string `validate:"required" json:"sessionId"`
+	Session string `validate:"required" json:"sessionId"`
 
 	// ussd code and where relevant, with your service extension
 	ServiceCode string `validate:"required" json:"serviceCode"`
@@ -37,29 +38,41 @@ type SessionRequest struct {
 	TenantID string `validate:"required" json:"tenantId"`
 }
 
-func (ses *SessionRequest) FromJSON(r io.Reader) error {
+// FromJSON ...
+func (req *Request) FromJSON(r io.Reader) error {
 	decoder := json.NewDecoder(r)
-	return decoder.Decode(ses)
+	return decoder.Decode(req)
 }
 
-func (ses *SessionRequest) Validate() error {
+// Validate ...
+func (req *Request) Validate() error {
 	validator := validate.New()
-	return validator.Struct(ses)
+	return validator.Struct(req)
 }
 
-func (ses *SessionRequest) ToJSON(w io.Writer) error {
+// ToJSON ...
+func (req *Request) ToJSON(w io.Writer) error {
 	encoder := json.NewEncoder(w)
-	return encoder.Encode(ses)
+	return encoder.Encode(req)
 }
 
-// type Command struct {
-// 	screen   string
-// 	level    string
-// 	children []*Command
-// }
+// Response ...
+type Response struct {
+	//ussd session as passed by the telecom.
+	Session string `validate:"required" json:"sessionId"`
 
-// func ParseCmd(input string) error {
-// 	if input == "" {
-// 	}
-// 	return nil
-// }
+	// unique USSD Gateway reference generated when the session starts
+	GatewayRef string `validate:"required" json:"gwRef"`
+
+	// Your unique app/service session reference as captured in your app or service.
+	AppRef string `validate:"required" json:"appRef"`
+
+	//Your unique app /service timestamp as captured in your app or service
+	Timestamp time.Time
+
+	//The text to be passed back to the telco formatted with “\n” for new  lines
+	Text string `validate:"required" json:"text"`
+
+	//Indicats whether we are the end of our session
+	End int `validate:"required" json:"continueSession"`
+}

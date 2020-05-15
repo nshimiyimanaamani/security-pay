@@ -9,13 +9,13 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
-// Callback ...
+// Callback recieves ussd callback requests
 func Callback(lgger log.Entry, svc ussd.Service) http.Handler {
 	const op errors.Op = "api/http/ussd.Callback"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
 
-		var req ussd.SessionRequest
+		var req ussd.Request
 
 		err := encoding.Decode(r, &req)
 		if err != nil {
@@ -32,7 +32,7 @@ func Callback(lgger log.Entry, svc ussd.Service) http.Handler {
 			encoding.EncodeErr(w, err)
 			return
 		}
-		if err := encoding.Encode(w, http.StatusOK, "OK"); err != nil {
+		if err := encoding.Encode(w, http.StatusOK, "Ok"); err != nil {
 			lgger.SystemErr(err)
 			encoding.EncodeErr(w, err)
 			return
