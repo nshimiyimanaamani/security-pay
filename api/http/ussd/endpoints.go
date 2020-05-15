@@ -9,6 +9,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
+// Callback ...
 func Callback(lgger log.Entry, svc ussd.Service) http.Handler {
 	const op errors.Op = "api/http/ussd.Callback"
 
