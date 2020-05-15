@@ -14,6 +14,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/api/http/owners"
 	"github.com/rugwirobaker/paypack-backend/api/http/payment"
 	"github.com/rugwirobaker/paypack-backend/api/http/properties"
+	"github.com/rugwirobaker/paypack-backend/api/http/scheduler"
 	"github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	"github.com/rugwirobaker/paypack-backend/api/http/users"
 	"github.com/rugwirobaker/paypack-backend/api/http/ussd"
@@ -23,18 +24,19 @@ import (
 
 // HandlerOptions ...
 type HandlerOptions struct {
-	AccountsOptions *accounts.HandlerOpts
-	AuthOptions     *auth.HandlerOpts
-	FeedbackOptions *feedback.HandlerOpts
-	NotifOptions    *notifications.HandlerOpts
-	OwnersOptions   *owners.HandlerOpts
-	PayOptions      *payment.HandlerOpts
-	PropsOptions    *properties.HandlerOpts
-	TransOptions    *transactions.HandlerOpts
-	UsersOptions    *users.HandlerOpts
-	InvoiceOptions  *invoices.HandlerOpts
-	StatsOptions    *metrics.HandlerOpts
-	USSDOptions     *ussd.HandlerOpts
+	AccountsOptions  *accounts.HandlerOpts
+	AuthOptions      *auth.HandlerOpts
+	FeedbackOptions  *feedback.HandlerOpts
+	NotifOptions     *notifications.HandlerOpts
+	OwnersOptions    *owners.HandlerOpts
+	PayOptions       *payment.HandlerOpts
+	PropsOptions     *properties.HandlerOpts
+	TransOptions     *transactions.HandlerOpts
+	UsersOptions     *users.HandlerOpts
+	InvoiceOptions   *invoices.HandlerOpts
+	StatsOptions     *metrics.HandlerOpts
+	SchedulerOptions *scheduler.HandlerOpts
+	USSDOptions      *ussd.HandlerOpts
 }
 
 // NewHandlerOptions ...
@@ -92,20 +94,25 @@ func NewHandlerOptions(services *Services, lggr *log.Logger) *HandlerOptions {
 		Service: services.USSD,
 		Logger:  lggr,
 	}
+	scOptions := &scheduler.HandlerOpts{
+		Service: services.Scheduler,
+		Logger:  lggr,
+	}
 
 	opts := &HandlerOptions{
-		AuthOptions:     authOpts,
-		AccountsOptions: accountsOpts,
-		FeedbackOptions: feedOpts,
-		OwnersOptions:   ownersOpts,
-		PropsOptions:    proOpts,
-		PayOptions:      paymentOpts,
-		TransOptions:    transOpts,
-		UsersOptions:    usersOpts,
-		InvoiceOptions:  invOpts,
-		StatsOptions:    statsOpts,
-		NotifOptions:    notifOpts,
-		USSDOptions:     ussdOpts,
+		AuthOptions:      authOpts,
+		AccountsOptions:  accountsOpts,
+		FeedbackOptions:  feedOpts,
+		OwnersOptions:    ownersOpts,
+		PropsOptions:     proOpts,
+		PayOptions:       paymentOpts,
+		TransOptions:     transOpts,
+		UsersOptions:     usersOpts,
+		InvoiceOptions:   invOpts,
+		StatsOptions:     statsOpts,
+		NotifOptions:     notifOpts,
+		SchedulerOptions: scOptions,
+		USSDOptions:      ussdOpts,
 	}
 	return opts
 }
@@ -142,4 +149,5 @@ func Register(mux *mux.Router, opts *HandlerOptions) {
 	notifications.RegisterHandlers(mux, opts.NotifOptions)
 
 	ussd.RegisterHandlers(mux, opts.USSDOptions)
+	scheduler.RegisterHandlers(mux, opts.SchedulerOptions)
 }

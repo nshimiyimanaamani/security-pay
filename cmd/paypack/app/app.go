@@ -13,6 +13,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const namespace = "paypack"
+
 // Bootstrap is where all routes and middleware for the server
 func Bootstrap(conf *config.Config) (http.Handler, error) {
 
@@ -50,8 +52,14 @@ func Bootstrap(conf *config.Config) (http.Handler, error) {
 		return nil, err
 	}
 
+	queue, err := InitQueue(conf.Redis)
+	if err != nil {
+		lggr.Errorf("error connecting to redis queue (%s)", err)
+		return nil, err
+	}
+
 	//create protocol
-	services := Init(db, rclient, pb, sms, conf.Secret)
+	services := Init(db, rclient, queue, pb, sms, conf.Secret, namespace)
 
 	handlerOpts := NewHandlerOptions(services, lggr)
 

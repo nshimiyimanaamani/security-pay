@@ -397,63 +397,150 @@ func migrateDB(db *sql.DB) error {
 				},
 			},
 
-			// {
-			// 	Id: "003_trigger_invoice_audits",
-			// 	Up: []string{
-			// 		`CREATE TABLE IF NOT EXISTS invoice_audits(
-			// 			uuid		 UUID,
-			// 			created_at 	 TIMESTAMP DEFAULT NOW(),
-			// 			updated_at   TIMESTAMP DEFAULT NOW(),
-			// 			PRIMARY KEY(uuid)
-			// 		);
-			// 		CREATE UNIQUE INDEX ON invoice_audits(extract(month from created_at), extract(year from created_at));
-			// 		`,
+			{
+				Id: "004_create_unique_index_on_invoice_created_at",
+				Up: []string{
+					`
+					CREATE OR REPLACE FUNCTION start_of_month(p_date TIMESTAMP)
+  					returns DATE
+					AS
+					$$
+  				 		SELECT DATE_TRUNC('month', p_date)::date;
+					$$
+					language SQL
+					immutable;
+					`,
 
-			// 		`DROP TRIGGER IF EXISTS  create_initial_invoice ON properties;`,
+					`
+					CREATE unique index single_invoice_per_property_per_month 
+						ON invoices(property, start_of_month(created_at))
+					`,
+				},
+			},
+			{
+				Id: "005_update_trigger_initial_invoice()",
+				Up: []string{
+					`
+					CREATE OR REPLACE FUNCTION trigger_initial_invoice()
+					RETURNS TRIGGER AS $$
+					BEGIN
+						INSERT INTO invoices (
+							amount, property, created_at, updated_at
+						) VALUES (
+							NEW.due, NEW.id, NEW.created_at, New.updated_at
+						);
+						RETURN NEW;
+					END;
+					$$ LANGUAGE plpgsql;`,
+				},
+			},
+			{
+				Id: "006_create_one_month_old_properties_view",
 
-			// 		`CREATE OR REPLACE FUNCTION trigger_invoice_audit()
-			// 			RETURNS TRIGGER
-			// 		AS
-			// 		$$
-			// 		DECLARE
-			// 			rec record;
-			// 		BEGIN
-			// 			FOR rec IN
-			// 				SELECT * FROM properties
-			// 			LOOP
-			// 				INSERT INTO invoices (amount, property) VALUES (rec.due, rec.id);
-			// 			END LOOP;
+				Up: []string{
+					`
+					CREATE materialized view one_month_old_properties_view AS
+						select 
+							id, due, created_at
+						from 
+							properties
+						where 
+							created_at < date_trunc('month', now())::date
+						order 
+							by id asc
+					`,
 
-			// 			RETURN NULL;
-			// 		END;
-			// 		$$ LANGUAGE plpgsql;`,
-			// 		`
+					`CREATE unique index ON one_month_old_properties_view(id);`,
 
-			// 		CREATE TRIGGER trigger_invoice_on_audit
-			// 			AFTER INSERT ON invoice_audits
-			// 			FOR EACH ROW
-			// 			EXECUTE PROCEDURE trigger_invoice_audit();
-			// 		`,
-			// 	},
-			// },
-			// {
-			// 	Id: "paypack_8",
+					// Make sure to refreshe the view for existing databases
+					`refresh materialized view concurrently one_month_old_properties_view;`,
 
-			// 	Up: []string{
-			// 		`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`,
+					`
+					CREATE OR REPLACE FUNCTION refresh_one_month_old_properties_view()
+					RETURNS TRIGGER AS $$
+					BEGIN
+						refresh materialized view concurrently one_month_old_properties_view;
+						RETURN NULL;
+					END;
+					$$ LANGUAGE plpgsql;`,
 
-			// 		`ALTER EXTENSION "uuid-ossp" SET SCHEMA public;`,
+					`
+					CREATE TRIGGER trigger_refresh_one_month_old_properties_view
+					AFTER INSERT OR UPDATE OR DELETE ON properties
+					FOR EACH ROW
+					EXECUTE PROCEDURE refresh_one_month_old_properties_view();
+					`,
+				},
+			},
+			{
+				Id: "007_create_audit_func",
+				Up: []string{
+					`
+					CREATE  OR REPLACE FUNCTION audit_func(x INT, y INT) RETURNS INT AS
+					$$
+					DECLARE
+						count INT := 0;
+						rec RECORD;
+					BEGIN
+						FOR rec IN
+							select 
+								id, due 
+							from 
+								one_month_old_properties_view
+							order by id offset x limit y
+						LOOP
+							INSERT INTO invoices (property, amount) VALUES (rec.id, rec.due);
+							count:= count + 1;
+						END LOOP;
 
-			// 		`ALTER TABLE transactions ALTER COLUMN id TYPE uuid USING (uuid_generate_v4());`,
+						RETURN count;
+					END;
+					$$ LANGUAGE plpgsql;
+					`,
+				},
+			},
+			{
+				Id: "008_create_earliest_pending_invoices_view",
+				Up: []string{
+					`CREATE MATERIALIZED VIEW earliest_pending_invoices_view AS
+						SELECT 
+							invoices.*
+						FROM
+							(
+								SELECT
+									property, MIN(created_at) as created_at 
+								FROM 
+									invoices WHERE status='pending' GROUP BY property
+							) AS pending
+						INNER JOIN
+							invoices
+						ON 
+							invoices.property=pending.property AND invoices.created_at=pending.created_at 
+						ORDER BY 
+							invoices.id
+					`,
 
-			// 		`ALTER TABLE owners DROP COLUMN  password;`,
-			// 	},
-			// 	Down: []string{
-			// 		`ALTER TABLE transactions ALTER COLUMN id TYPE TEXT;`,
+					`CREATE unique index ON earliest_pending_invoices_view(property);`,
 
-			// 		`ALTER TABLE owners ADD COLUMN password VARCHAR(60) NOT NULL;`,
-			// 	},
-			// },
+					`REFRESH MATERIALIZED VIEW concurrently earliest_pending_invoices_view;`,
+
+					`
+					CREATE OR REPLACE FUNCTION refresh_earliest_pending_invoices_view()
+					RETURNS TRIGGER AS $$
+					BEGIN
+						refresh materialized view concurrently earliest_pending_invoices_view;
+						RETURN NULL;
+					END;
+					$$ LANGUAGE plpgsql;`,
+
+					`
+					CREATE TRIGGER trigger_refresh_earliest_pending_invoices_view
+					AFTER INSERT OR UPDATE OR DELETE ON invoices
+					FOR EACH ROW
+					EXECUTE PROCEDURE refresh_earliest_pending_invoices_view();
+					`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

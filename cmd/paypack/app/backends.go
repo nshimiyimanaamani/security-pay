@@ -21,6 +21,7 @@ func InitPBackend(ctx context.Context, cfg *config.PaymentConfig) (payment.Backe
 	return fdi.NewBackend(opts)
 }
 
+// InitSMSBackend ...
 func InitSMSBackend(ctx context.Context, cfg *config.SmsConfig) (notifications.Backend, error) {
 	opts := &sms.Options{
 		URL:       cfg.SmsURL,

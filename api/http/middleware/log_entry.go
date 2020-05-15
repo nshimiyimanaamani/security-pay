@@ -3,9 +3,9 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/sirupsen/logrus"
 )
 
 // LogEntryMiddleware builds a log.Entry, setting the request fields

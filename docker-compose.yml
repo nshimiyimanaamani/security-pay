@@ -2,28 +2,37 @@ version: "3.4"
 
 services:
   #network_mode: host
-  backend:                        # backend api
+  web:                        # backend api
     build:
       network: host
       context: .
-      dockerfile: Dockerfile
-    container_name: backend
+      dockerfile: test.web.dockerfile
+    container_name: paypack-web
     depends_on:
-       - database
-       - cache
-    environment:
-      PAYPACK_POSTGRES_URL: ${PAYPACK_POSTGRES_URL}
-      PAYPACK_LOG_LEVEL: ${PAYPACK_LOG_LEVEL}
-      PAYPACK_REDIS_URL: ${PAYPACK_REDIS_URL}
-      PAYPACK_PAYMENT_URL: ${PAYPACK_PAYMENT_URL}
-      PAYPACK_PAYMENT_SECRET: ${PAYPACK_PAYMENT_SECRET}
-      PAYPACK_PAYMENT_APP_ID: ${PAYPACK_PAYMENT_APP_ID}
-      PAYPACK_PAYMENT_CALLBACK: ${PAYPACK_PAYMENT_CALLBACK}
-      PORT: "8000"
-      GO_ENV: ${GO_ENV}
+      - database
+      - cache
+
+    env_file:
+      - .env.test
     ports:
       - "8000:8000"  
     restart: always
+    
+  worker:
+    build:
+      network: host
+      context: .
+      dockerfile: test.worker.dockerfile
+    container_name: paypack-worker
+    depends_on:
+      - web
+      - database
+      - cache
+
+    restart: always
+
+    env_file:
+      - .env.test
 
   database:
     image: postgres:alpine

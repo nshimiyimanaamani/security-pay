@@ -1,11 +1,19 @@
 package payment
 
-import "github.com/rugwirobaker/paypack-backend/pkg/errors"
+import (
+	"time"
 
-import "time"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+)
 
 // TxExpiration is the time it takes for a non confirmed treansaction to expire
 const TxExpiration = time.Minute * 10
+
+// payment methods
+const (
+	MTN    = "mtn"
+	AIRTEL = "airtel"
+)
 
 // State defines transaction states
 type State string
@@ -77,15 +85,15 @@ type Transaction struct {
 func (py *Transaction) Validate() error {
 	const op errors.Op = "payment.Transaction.Validate"
 	if py.Code == "" {
-		return errors.E(op, "code field must not be empty", errors.KindBadRequest)
+		return errors.E(op, "missing house code", errors.KindBadRequest)
 	}
 
 	if py.Phone == "" {
-		return errors.E(op, "phone field must not be empty", errors.KindBadRequest)
+		return errors.E(op, "missing phone number", errors.KindBadRequest)
 	}
 
 	if py.Amount == float64(0) {
-		return errors.E(op, "payment amount must be greate than zero", errors.KindBadRequest)
+		return errors.E(op, "amount must be greater than zero", errors.KindBadRequest)
 	}
 
 	if py.Method == "" {

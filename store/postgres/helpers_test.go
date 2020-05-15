@@ -13,20 +13,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func saveOwner(t *testing.T, db *sql.DB, owner properties.Owner) (properties.Owner, error) {
+func saveOwner(t *testing.T, db *sql.DB, owner properties.Owner) properties.Owner {
 	t.Helper()
 
 	q := `INSERT INTO owners (id, fname, lname, phone) VALUES ($1, $2, $3, $4) RETURNING id;`
 
 	_, err := db.Exec(q, &owner.ID, &owner.Fname, &owner.Lname, &owner.Phone)
 	if err != nil {
-		return properties.Owner{}, err
+		t.Fatalf("err: %s", err)
 	}
-
-	return owner, nil
+	return owner
 }
 
-func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) (transactions.Transaction, error) {
+func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) transactions.Transaction {
 	t.Helper()
 
 	q := `
@@ -40,16 +39,15 @@ func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) (transactions
 		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING created_at;
 	`
 
-	var empty = transactions.Transaction{}
-
 	err := db.QueryRow(q, tx.ID, tx.MadeFor, tx.OwnerID, tx.Amount, tx.Method, tx.Invoice).Scan(&tx.DateRecorded)
 	if err != nil {
-		return empty, err
+		t.Fatalf("err: %s", err)
 	}
-	return tx, nil
+	return tx
 }
 
-func saveAgent(t *testing.T, db *sql.DB, agent users.Agent) (users.Agent, error) {
+func saveAgent(t *testing.T, db *sql.DB, agent users.Agent) users.Agent {
+	t.Helper()
 
 	q := `
 		INSERT into users (
@@ -61,16 +59,18 @@ func saveAgent(t *testing.T, db *sql.DB, agent users.Agent) (users.Agent, error)
 			updated_at
 		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING username
 	`
-	empty := users.Agent{}
+	_, err := db.Exec(q, agent.Telephone, agent.FirstName, agent.Role,
+		agent.Account, agent.CreatedAt, agent.UpdatedAt)
 
-	if _, err := db.Exec(q, agent.Telephone, agent.FirstName, agent.Role,
-		agent.Account, agent.CreatedAt, agent.UpdatedAt); err != nil {
-		return empty, err
+	if err != nil {
+		t.Fatalf("err: %s", err)
 	}
-	return agent, nil
+	return agent
 }
 
-func saveAccount(t *testing.T, db *sql.DB, acc accounts.Account) (accounts.Account, error) {
+func saveAccount(t *testing.T, db *sql.DB, acc accounts.Account) accounts.Account {
+	t.Helper()
+
 	q := `
 		INSERT INTO accounts (
 			id, 
@@ -83,16 +83,16 @@ func saveAccount(t *testing.T, db *sql.DB, acc accounts.Account) (accounts.Accou
 			$1, $2, $3, $4, $5, $6
 		) RETURNING id;`
 
-	empty := accounts.Account{}
-
 	_, err := db.Exec(q, acc.ID, acc.Name, acc.Type, acc.NumberOfSeats, acc.CreatedAt, acc.UpdatedAt)
 	if err != nil {
-		return empty, err
+		t.Fatalf("err: %s", err)
 	}
-	return acc, nil
+	return acc
 }
 
-func saveProperty(t *testing.T, db *sql.DB, pp properties.Property) (properties.Property, error) {
+func saveProperty(t *testing.T, db *sql.DB, pp properties.Property) properties.Property {
+	t.Helper()
+
 	q := `
 		INSERT INTO properties (
 			id, 
@@ -109,32 +109,83 @@ func saveProperty(t *testing.T, db *sql.DB, pp properties.Property) (properties.
 		pp.Address.Cell, pp.Address.Village, pp.RecordedBy, pp.Occupied).Scan(&pp.CreatedAt, &pp.UpdatedAt)
 
 	if err != nil {
-		return properties.Property{}, err
+		t.Fatalf("err:%v", err)
 	}
-	return pp, nil
+	return pp
 }
 
-func saveInvoice(t *testing.T, db *sql.DB, inv invoices.Invoice) (invoices.Invoice, error) {
+func saveInvoice(t *testing.T, db *sql.DB, inv invoices.Invoice) invoices.Invoice {
+	t.Helper()
+
 	q := `
 		INSERT INTO invoices (
 			amount, 
 			property, 
-			status
-		) VALUES (
-			$1, $2, $3
-	) RETURNING id, amount, property, status, created_at, updated_at;
+			status,
+			created_at,
+			updated_at
+		) VALUES ($1, $2, $3, $4, $5) RETURNING id;
 	`
 
-	err := db.QueryRow(q, inv.Amount, inv.Property, inv.Status).
-		Scan(&inv.ID, &inv.Amount, &inv.Property, &inv.Status, &inv.CreatedAt, &inv.UpdatedAt)
+	err := db.QueryRow(q, inv.Amount, inv.Property, inv.Status, inv.CreatedAt, inv.UpdatedAt).Scan(&inv.ID)
 
 	if err != nil {
-		return invoices.Invoice{}, err
+		t.Fatalf("err: %v", err)
 	}
-	return inv, nil
+	return inv
 }
 
-func CleanDB(t *testing.T) {
+func savePropertyOn(t *testing.T, db *sql.DB, p properties.Property) properties.Property {
+	t.Helper()
+
+	q := `
+		INSERT INTO properties (
+			id, 
+			owner, 
+			due,
+			sector, 
+			cell, 
+			village, 
+			recorded_by, 
+			occupied,
+			created_at,
+			updated_at
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+
+	_, err := db.Exec(q, p.ID, p.Owner.ID, p.Due, p.Address.Sector, p.Address.Cell,
+		p.Address.Village, p.RecordedBy, p.Occupied, p.CreatedAt, p.UpdatedAt,
+	)
+
+	if err != nil {
+		t.Fatalf("err: %v", err)
+	}
+	return p
+}
+
+func retrieveInvoice(t *testing.T, db *sql.DB, id string) invoices.Invoice {
+	var val invoices.Invoice
+
+	q := `
+		SELECT 
+			id,
+			property,
+			amount,
+			status,
+			created_at,
+			updated_at
+		FROM 
+			invoices
+		WHERE property=$1
+	`
+	err := db.QueryRow(q, id).Scan(
+		&val.ID, &val.Property, &val.Amount, &val.Status, &val.CreatedAt, &val.UpdatedAt)
+	if err != nil {
+		t.Fatalf("err: %v", err)
+	}
+	return val
+}
+
+func CleanDB(t *testing.T, db *sql.DB) {
 	q := `
 		TRUNCATE TABLE 
 			messages, 

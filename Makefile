@@ -13,9 +13,18 @@ all: help
 
 .PHONY: build
 build:  	## build development paypack binary
-	@echo "> building binary..."
+	@echo "> building all..."
+	@CGO_ENABLED=0 go build -ldflags $(BUILD_FLAGS) -o bin/paypack ./cmd/paypack
+	@CGO_ENABLED=0 go build -ldflags $(BUILD_FLAGS) -o bin/worker ./cmd/worker
+
+build-main:
+	@echo "> building main..."
 	@CGO_ENABLED=0 go build -ldflags $(BUILD_FLAGS) -o bin/paypack ./cmd/paypack
 
+build-worker:
+	@echo "> building worker..."
+	@CGO_ENABLED=0 go build -ldflags $(BUILD_FLAGS) -o bin/worker ./cmd/worker
+	
 clean:		## remove build artifacts
 	@echo "> removing artifacts..."
 	@rm -r bin/*
@@ -42,8 +51,9 @@ test:		## run unit tests
 	@echo "> running unit tests..."
 	@go test -race $(GOFILES)
 
-tidy:		## install dependencies
-	@echo "> downloading dependincies..."
+tidy:		## verify dependencies
+	@echo "> verifying dependincies..."
+	@echo "> go mod tidy $(GOFILES)"
 
 .PHONY: help
 help:

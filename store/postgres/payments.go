@@ -65,10 +65,10 @@ func (repo *paymentRepo) RetrieveProperty(ctx context.Context, code string) (str
 	return property, nil
 }
 
-func (repo *paymentRepo) OldestInvoice(ctx context.Context, property string) (payment.Invoice, error) {
+func (repo *paymentRepo) EarliestInvoice(ctx context.Context, property string) (payment.Invoice, error) {
 	const op errors.Op = "store/postgres/paymentRepo.OldestInvoice"
 
-	q := `SELECT id, amount FROM invoices WHERE created_at = (SELECT MIN(created_at) FROM invoices WHERE property=$1 AND status='pending');`
+	q := `SELECT id, amount FROM earliest_pending_invoices_view WHERE property=$1;`
 
 	invoice := payment.Invoice{}
 

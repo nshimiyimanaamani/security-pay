@@ -3,6 +3,7 @@ package payment
 import (
 	"net/http"
 
+	"github.com/rugwirobaker/paypack-backend/api/http/encoding"
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
@@ -15,11 +16,11 @@ func Initialize(logger log.Entry, svc payment.Service) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		tx := payment.Transaction{}
 
-		err := Decode(r, &tx)
+		err := encoding.Decode(r, &tx)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(errors.E(op, err))
-			encodeErr(w, errors.Kind(err), err)
+			encoding.EncodeError(w, errors.Kind(err), err)
 			return
 		}
 
@@ -27,13 +28,13 @@ func Initialize(logger log.Entry, svc payment.Service) http.Handler {
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encoding.EncodeError(w, errors.Kind(err), err)
 			return
 		}
-		if err := encode(w, http.StatusOK, res); err != nil {
+		if err := encoding.Encode(w, http.StatusOK, res); err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(errors.E(op, err))
-			encodeErr(w, errors.Kind(err), err)
+			encoding.EncodeError(w, errors.Kind(err), err)
 			return
 		}
 	}
@@ -48,10 +49,10 @@ func Confirm(logger log.Entry, svc payment.Service) http.Handler {
 
 		callback := payment.Callback{}
 
-		if err := Decode(r, &callback); err != nil {
+		if err := encoding.Decode(r, &callback); err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encoding.EncodeError(w, errors.Kind(err), err)
 			return
 		}
 
@@ -59,7 +60,7 @@ func Confirm(logger log.Entry, svc payment.Service) http.Handler {
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
+			encoding.EncodeError(w, errors.Kind(err), err)
 			return
 		}
 		w.WriteHeader(http.StatusOK)

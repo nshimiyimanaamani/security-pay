@@ -6,4 +6,6 @@ setup:
 build:
   docker:
     web:
-       dockerfile: Dockerfile
+      dockerfile: web.dockerfile
+    worker:
+      dockerfile: worker.dockerfile

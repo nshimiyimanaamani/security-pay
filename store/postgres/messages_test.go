@@ -17,11 +17,10 @@ import (
 func TestSaveMessage(t *testing.T) {
 	repo := postgres.NewMessageRepo(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	message := feedback.Message{
 		ID:      uuid.New().ID(),
@@ -60,11 +59,10 @@ func TestSaveMessage(t *testing.T) {
 func TestUpdateMessage(t *testing.T) {
 	repo := postgres.NewMessageRepo(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	message := feedback.Message{
 		ID: uuid.New().ID(), Title: "title",
@@ -106,11 +104,10 @@ func TestUpdateMessage(t *testing.T) {
 func TestRetrieveMessage(t *testing.T) {
 	repo := postgres.NewMessageRepo(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	message := feedback.Message{
 		ID:      uuid.New().ID(),
@@ -158,11 +155,10 @@ func TestRetrieveMessage(t *testing.T) {
 func TestDeleteMessage(t *testing.T) {
 	repo := postgres.NewMessageRepo(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	message := feedback.Message{
 		ID: uuid.New().ID(), Title: "title",
@@ -210,11 +206,10 @@ func TestDeleteMessage(t *testing.T) {
 func TestRetrieveAllMessages(t *testing.T) {
 	repo := postgres.NewMessageRepo(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-	owner, err := saveOwner(t, db, owner)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	owner = saveOwner(t, db, owner)
 
 	n := uint64(10)
 

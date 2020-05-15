@@ -10,21 +10,19 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestLoginRetrieve(t *testing.T) {
 	repo := postgres.NewAuthRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Agent{Telephone: "0780456000", Password: "password", Role: users.Min, Account: account.ID}
-	saved, err := saveAgent(t, db, user)
+	user = saveAgent(t, db, user)
 
 	const op errors.Op = "store/postgres/authRepository.Retrieve"
 
@@ -35,7 +33,7 @@ func TestLoginRetrieve(t *testing.T) {
 	}{
 		{
 			desc: "retrieve existing user",
-			id:   saved.Telephone,
+			id:   user.Telephone,
 			err:  nil,
 		},
 		{

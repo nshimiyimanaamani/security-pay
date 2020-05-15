@@ -16,12 +16,10 @@ import (
 func TestSaveDeveloper(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "developers", NumberOfSeats: 10, Type: accounts.Devs}
-
-	saved, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	const op errors.Op = "store/postgres.userRepository.SaveDeveloper"
 
@@ -32,12 +30,12 @@ func TestSaveDeveloper(t *testing.T) {
 	}{
 		{
 			desc: "save valid developer",
-			user: users.Developer{Email: "email@gmail.com", Password: "password", Role: users.Dev, Account: saved.ID},
+			user: users.Developer{Email: "email@gmail.com", Password: "password", Role: users.Dev, Account: account.ID},
 			err:  nil,
 		},
 		{
 			desc: "save duplicate developer",
-			user: users.Developer{Email: "email@gmail.com", Password: "password", Role: users.Dev, Account: saved.ID},
+			user: users.Developer{Email: "email@gmail.com", Password: "password", Role: users.Dev, Account: account.ID},
 			err:  errors.E(op, "user already exists", errors.KindAlreadyExists),
 		},
 		{
@@ -58,15 +56,14 @@ func TestSaveDeveloper(t *testing.T) {
 func TestRetrieveDeveloper(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Administrator{Account: account.ID, Email: "email@example.com", Role: users.Admin}
 	saved, err := repo.SaveAdmin(context.Background(), user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres/userRepository.RetrieveDeveloper"
 
@@ -97,15 +94,14 @@ func TestRetrieveDeveloper(t *testing.T) {
 func TestUpdateDeveloperCreds(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Administrator{Account: account.ID, Email: "developer@gmail.com", Role: users.Admin}
 	saved, err := repo.SaveAdmin(context.Background(), user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres.userRepository.UpdateDeveloperCreds"
 
@@ -136,12 +132,11 @@ func TestUpdateDeveloperCreds(t *testing.T) {
 func TestListDevelopers(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Developer{Account: account.ID, Role: users.Dev}
 
@@ -189,15 +184,14 @@ func TestListDevelopers(t *testing.T) {
 func TestDeleteDeveloper(t *testing.T) {
 	repo := postgres.NewUserRepository(db)
 
-	defer CleanDB(t)
+	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
-
-	account, err := saveAccount(t, db, account)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	account = saveAccount(t, db, account)
 
 	user := users.Administrator{Account: account.ID, Email: "email@example.com", Role: users.Admin}
 	saved, err := repo.SaveAdmin(context.Background(), user)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "store/postgres/userRepository.DeleteDeveloper"
 

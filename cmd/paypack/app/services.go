@@ -14,6 +14,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/owners"
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
+	"github.com/rugwirobaker/paypack-backend/core/scheduler"
 	"github.com/rugwirobaker/paypack-backend/core/transactions"
 	"github.com/rugwirobaker/paypack-backend/core/users"
 	"github.com/rugwirobaker/paypack-backend/core/ussd"
@@ -21,6 +22,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/encrypt"
 	"github.com/rugwirobaker/paypack-backend/pkg/passwords/bcrypt"
 	"github.com/rugwirobaker/paypack-backend/pkg/passwords/rand"
+	"github.com/rugwirobaker/paypack-backend/pkg/tasks/queue"
 	"github.com/rugwirobaker/paypack-backend/pkg/tokens/jwt"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	rstore "github.com/rugwirobaker/paypack-backend/store/redis"
@@ -40,15 +42,18 @@ type Services struct {
 	Invoices      invoices.Service
 	Stats         metrics.Service
 	USSD          ussd.Service
+	Scheduler     scheduler.Service
 }
 
 // Init initialises all services
 func Init(
 	db *sql.DB,
 	rclient *redis.Client,
+	queue *queue.Queue,
 	p payment.Backend,
 	s notifications.Backend,
 	secret string,
+	namespace string,
 ) *Services {
 	services := &Services{
 		Accounts:      bootAccountsService(db),
@@ -63,6 +68,7 @@ func Init(
 		Invoices:      bootInvoiceService(db),
 		Stats:         bootStatsService(db),
 		USSD:          bootUSSDService(),
+		Scheduler:     bootScheduler(db, queue),
 	}
 	return services
 }
@@ -153,4 +159,10 @@ func bootNotifService(sms notifications.Backend) notifications.Service {
 
 func bootUSSDService() ussd.Service {
 	return ussd.New()
+}
+
+func bootScheduler(db *sql.DB, queue *queue.Queue) scheduler.Service {
+	counter := postgres.NewCounter(db)
+	opts := &scheduler.Options{Queue: queue, Auditable: counter}
+	return scheduler.New(opts)
 }
