@@ -2,14 +2,16 @@
   <b-dropdown
     menu-class="bg-light"
     :id="'config-dropdown-form_'+random"
-    size="sm"
     ref="configure"
     no-caret
     right
-    toggle-class="p-0 border-0 bg-transparent"
+    toggle-class="m-0 border-0 bg-transparent"
   >
     <template v-slot:button-content>
-      <i class="fa fa-cog text-white font-19" />
+      <p class="m-0 d-flex align-items-center">
+        settings
+        <i class="fa fa-cog text-white font-19 ml-1" />
+      </p>
     </template>
     <b-dropdown-form form-class="p-2">
       <b-form-group label="Year" :label-for="'dropdown-year_'+random" @submit.stop.prevent>

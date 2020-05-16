@@ -1,14 +1,16 @@
 <template>
   <div class="agent-payment-view">
     <b-row class="justify-content-between px-3">
-      <b-button size="sm" variant="info" @click="loadData">Refresh</b-button>
-      <b-button-group>
-        <b-button size="sm" variant="info" @click="state.search = true">search</b-button>
-        <b-button size="sm" variant="info">
-          settings
+      <b-button variant="info" @click="loadData">Refresh</b-button>
+      <div class="button-group">
+        <b-button variant="info" @click="state.search = true">
+          search
+          <i class="fa fa-search" />
+        </b-button>
+        <b-button variant="info" class="settings p-0">
           <selector :object="date" :id="'agent-date-selector'" @ok="loadData" />
         </b-button>
-      </b-button-group>
+      </div>
     </b-row>
     <transition name="fade" :duration="500">
       <b-row
@@ -84,7 +86,7 @@ export default {
       },
       date: {
         year: new Date().getFullYear(),
-        month: null
+        month: new Date().getMonth() + 1
       },
       table: {
         items: null,
@@ -120,7 +122,7 @@ export default {
   },
   mounted() {
     this.state.loader = false;
-    console.log(this.user);
+    console.log(this.date.month);
     this.loadData();
   },
   methods: {
@@ -144,7 +146,8 @@ export default {
               if (this.date.month) {
                 filteredItems = filteredItems.filter(
                   item =>
-                    new Date(item.date_recorded).getFullYear() == this.date.year
+                    new Date(item.date_recorded).getMonth() + 1 ==
+                    this.date.month
                 );
               }
               if (this.date.year) {
@@ -188,6 +191,13 @@ export default {
     max-width: 300px;
     &::placeholder {
       color: #212121;
+    }
+  }
+  .button-group {
+    button {
+      margin: 0 0.5rem;
+      border-radius: 3px;
+      padding: 0.5rem 1.5rem;
     }
   }
   .fa-times {

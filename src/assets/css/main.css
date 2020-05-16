@@ -66,10 +66,12 @@ p {
   font-family: "Roboto", sans-serif !important;
 }
 .hover-color:hover {
-  background-color: #49bdd6;
+  background: white;
+  color: #017db3 !important;
 }
 .active-color li {
-  background-color: #49bdd6;
+  background: white;
+  color: #017db3;
 }
 form input {
   border: 1px solid #bdbdbd !important;
@@ -135,12 +137,14 @@ samp {
   font-family: monospace;
 }
 input,
-button,
 select,
 optgroup,
 textarea {
   font-family: inherit;
   font-size: inherit !important;
+}
+button {
+  font-family: "Montserrat", sans-serif;
 }
 .tooltip {
   font-family: sans-serif;

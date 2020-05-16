@@ -16,9 +16,13 @@
     .sidebar-links {
       a {
         text-decoration: none;
+        li {
+          margin: 2px 0;
+        }
         &.router-link-exact-active.router-link-active {
           li {
-            background-color: #49bdd6;
+            background: white;
+            color: #017db3;
           }
         }
       }
