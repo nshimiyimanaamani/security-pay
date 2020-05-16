@@ -1,8 +1,11 @@
 <template>
-  <div class="w-100">
-    <b-row class="py-2 justify-content-between mx-1">
-      <b-button v-b-modal.register-property class="py-1 font-14" size="sm" variant="info">Register</b-button>
-      <b-button class="py-1 font-14" size="sm" variant="info" @click.prevent="refresh">Refresh</b-button>
+  <div class="w-100 m-auto">
+    <b-row class="m-0 justify-content-between align-items-center">
+      <b-button v-b-modal.register-property class="font-14" variant="info">Register</b-button>
+      <b-button class="font-14 ml-2" variant="info" @click.prevent="refresh">
+        Refresh
+        <i class="fa fa-sync-alt ml-1" />
+      </b-button>
     </b-row>
     <b-modal id="register-property" ref="register-modal" hide-footer>
       <template v-slot:modal-title>Register Property</template>

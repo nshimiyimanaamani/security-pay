@@ -107,21 +107,23 @@ export default {
       padding: 0;
       font-size: 14px;
       flex: 3;
+      font-family: "Montserrat", sans-serif;
       #paypack {
         font-size: 50px;
         color: #017db3;
-        line-height: 0%;
+        line-height: 100%;
         letter-spacing: 5px;
-        padding: 1.5rem 0;
+        padding: 0;
         margin: 0;
+        font-weight: 700;
       }
     }
     .slogan {
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
       font-size: 16px;
-      line-height: 1.3;
-      color: #11374a;
-      padding: 0.5rem 0;
+      line-height: 1.4;
+      color: #0c222b;
+      padding: 0.2rem 0;
       margin: 0;
       font-weight: 300;
     }
@@ -144,7 +146,7 @@ export default {
       width: 100%;
       border: 1px solid #d0dae0;
       fieldset {
-        background: #f5f8fa;
+        background: #e8f0fe;
         padding: 0.2rem;
         border-bottom: 2px solid #017db366;
         margin-top: 1.5rem !important;
@@ -153,29 +155,30 @@ export default {
       }
       h3 {
         text-align: center;
-        margin-bottom: 1.2rem;
-        font-size: 21px;
+        margin-bottom: 2rem;
+        font-size: 20px;
         font-weight: bold;
+        font-family: "Montserrat", sans-serif;
         color: #017db3;
       }
     }
 
     label {
-      font-size: 15px !important;
-      font-weight: normal;
-      font-family: inherit;
+      font-size: 14px !important;
       text-transform: capitalize;
       letter-spacing: 0;
       color: #017db3;
       margin: 0;
-      font-weight: 300;
+      font-weight: 400;
+      font-family: "Montserrat", sans-serif;
     }
     .forgot {
-      font-size: 14px;
-      color: #017db3;
-      margin-left: calc(100% - 119px);
+      font-size: 13px;
+      margin-left: calc(100% - 126px);
       white-space: nowrap;
-      font-weight: 300;
+      color: #017db3;
+      font-weight: 400;
+      font-family: "Montserrat", sans-serif;
     }
 
     input {
@@ -190,8 +193,10 @@ export default {
       box-shadow: none !important;
       border: none !important;
       background: transparent !important;
+      font-family: "Montserrat", sans-serif;
       &::placeholder {
         font-size: 13px;
+        font-family: "Montserrat", sans-serif;
         color: #00000075;
         -webkit-text-fill-color: #00000087;
       }
@@ -208,7 +213,7 @@ export default {
         border: none;
         text-transform: uppercase;
         margin-top: 1.5rem;
-        font-weight: 300;
+        font-weight: 400;
       }
     }
   }
@@ -244,11 +249,8 @@ export default {
   }
   .loginForm {
     padding: 1.5rem 1rem !important;
-    h3{
+    h3 {
       font-size: 18px !important;
-    }
-    fieldset {
-      background: #ebf1f5 !important;
     }
   }
 }

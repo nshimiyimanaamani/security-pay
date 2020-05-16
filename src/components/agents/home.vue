@@ -1,44 +1,36 @@
 <template>
   <b-container class="h-auto mw-100 agent-home">
-    <b-row class="pt-3 px-3 justify-content-center">
-      <b-button-group class="agent-nav-btn">
-        <b-button
-          variant="info"
-          class="px-4"
-          :class="{'active':state.btn1}"
-          @click="toggleClass('btn1')"
-        >Lists</b-button>
-        <b-button
-          variant="info"
-          class="px-4"
-          :class="{'active':state.btn2}"
-          @click="toggleClass('btn2')"
-        >Payments</b-button>
-      </b-button-group>
+    <b-row class="tab-buttons">
+      <b-button variant="info" :class="{'active':state.btn1}" @click="toggleClass('btn1')">Lists</b-button>
+      <b-button variant="info" :class="{'active':state.btn2}" @click="toggleClass('btn2')">Payments</b-button>
     </b-row>
     <hr />
     <transition-group name="fade" :duration="300">
       <div v-show="state.btn1" key="lists">
-        <b-row class="px-4 flex-nowrap">
+        <b-row class="flex-nowrap m-0 my-2">
           <controller :user="user" v-on:refresh="key++" />
-          <b-button size="sm" class="my-2" variant="info" @click="state.search = true">search</b-button>
+
+          <b-button
+            class="ml-2 d-flex align-items-center"
+            variant="info"
+            @click="state.search = true"
+          >
+            search
+            <i class="fa fa-search ml-1" />
+          </b-button>
         </b-row>
         <transition name="fade" :duration="500">
-          <b-row
-            class="flex-row justify-content-end w-100 m-0 flex-nowrap align-items-center px-2"
-            v-if="state.search"
-          >
+          <b-row class="w-100 m-0 my-3 search" v-if="state.search">
             <input
               type="search"
-              name="search"
               id="agent-search-user"
+              placeholder="keyword to search..."
               v-model="searchItem"
-              class="search w-100 my-2 py-1 px-3"
             />
-            <i class="fa fa-times ml-2 p-2 app-color text-white" @click="closeSearch" />
+            <i class="fa fa-times" @click="closeSearch" />
           </b-row>
         </transition>
-        <b-row class="px-4">
+        <b-row class="m-0">
           <user-table @getInfo="getInfo" :user="user" :key="key" :searchItem="searchItem" />
         </b-row>
       </div>
@@ -117,25 +109,48 @@ export default {
 <style lang='scss'>
 .agent-home {
   .search {
-    border-radius: 2px;
-    border: 1px solid #909090;
-    color: #212121;
-    max-width: 300px;
-    &::placeholder {
-      color: #212121;
+    input {
+      flex: 1;
+      border-radius: 3px;
+      border: 1px solid #d6d6d6;
+      color: #233a44;
+      padding: 0.5rem;
+      margin-right: 0.5rem;
+      &::placeholder {
+        color: #717679;
+      }
+    }
+    i {
+      background: #017db3;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      -webkit-box-align: center;
+      align-items: center;
+      width: 2.5rem;
+      font-size: 1rem;
+      border-radius: 3px;
+      cursor: pointer;
     }
   }
-  .fa-times {
-    border-radius: 2px;
+
+  hr {
+    margin-top: 0;
   }
-  .agent-nav-btn {
-    .btn {
-      border: 0;
-      border-left: 1.5px solid white !important ;
-      border-right: 1.5px solid white !important ;
-      border-radius: 15px !important;
+  .tab-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem;
+
+    button {
+      margin: 0 0.5rem;
+      background: white !important;
+      color: #017db3 !important;
       &.active {
-        background: #37505a !important;
+        background: #017db3 !important;
+        color: white !important;
       }
     }
   }

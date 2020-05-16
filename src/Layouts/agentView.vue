@@ -1,11 +1,11 @@
 <template>
   <div id="agentView">
     <vue-title title="Paypack | Agents" />
-    <nav class="p-2 d-flex justify-content-between" style="z-index:1000">
+    <nav style="z-index:1000">
       <h2 class="m-0 text-white text-truncate">P A Y P A C K</h2>
       <b-dropdown variant="info" no-caret>
         <template v-slot:button-content>
-          <i class="fa fa-cog" />
+          <i class="fa fa-bars" />
         </template>
         <b-dropdown-item v-b-modal.changePassword>Change Password</b-dropdown-item>
         <b-dropdown-item @click="logout">Logout</b-dropdown-item>
@@ -98,7 +98,7 @@ export default {
 
 <style lang="scss">
 #agentView {
-  font-family: "Raleway", Helvetica, Arial, sans-serif;
+  font-family: "Montserrat", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   width: 100vw;
@@ -107,13 +107,19 @@ export default {
   min-width: 230px;
   nav {
     position: sticky;
+    top: 0;
     width: 100%;
     background: #017db3;
-    .navs {
-      width: fit-content;
-      button {
-        border: 1px solid white !important;
-      }
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0.5rem;
+
+    button {
+      background: transparent !important;
+      border: none !important;
+      font-size: 25px;
     }
   }
 }
