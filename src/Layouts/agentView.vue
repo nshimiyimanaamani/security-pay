@@ -107,6 +107,7 @@ export default {
   min-width: 230px;
   nav {
     position: sticky;
+    top: 0;
     width: 100%;
     background: #017db3;
     height: 60px;
