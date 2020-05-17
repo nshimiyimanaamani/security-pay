@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/rugwirobaker/paypack-backend/core/identity"
 	"github.com/rugwirobaker/paypack-backend/core/ussd/actions"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/ussd"
@@ -16,21 +17,21 @@ type Service interface {
 	Process(ctx context.Context, r Request) (Response, error)
 }
 
-// Settings aggregates service creation settings
-type Settings struct {
-	AppID string
+// Options aggregates service creation settings
+type Options struct {
+	Idp identity.Provider
 }
 
 type service struct {
-	AppID    string
 	executor executor.Executor
+	idp      identity.Provider
 }
 
 // New initialises the ussd service.
-func New(sets *Settings) Service {
+func New(opts *Options) Service {
 	base := actions.Action0()
 	return &service{
-		AppID:    sets.AppID,
+		idp:      opts.Idp,
 		executor: executor.NewSimpleExecutor(base),
 	}
 }
@@ -57,10 +58,10 @@ func (svc *service) Process(ctx context.Context, req Request) (Response, error) 
 
 func (svc *service) Respond(res ussd.Result, req Request) Response {
 	return Response{
-		Session:    req.Session,
-		GatewayRef: req.GatewayRef,
-		AppRef:     svc.AppID,
-		Timestamp:  time.Now(),
+		SessionID:  req.SessionID,
+		GatewayRef: req.GwRef,
+		AppRef:     svc.idp.ID(),
+		GwTstamp:   time.Now(),
 		Text:       res.String(),
 		End:        res.End(),
 	}

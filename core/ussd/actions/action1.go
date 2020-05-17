@@ -13,7 +13,7 @@ type action1 struct {
 // Action1 contains the logic to view user's associated propery codes
 func Action1() action.Action {
 	action := &action1{
-		Base: action.NewBase(1),
+		Base: action.New(1),
 	}
 	// action.Register(1, initAction11())
 	// action.Register(2, initAction12())

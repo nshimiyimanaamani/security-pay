@@ -15,7 +15,6 @@ type Config struct {
 	LogLevel     string `envconfig:"PAYPACK_LOG_LEVEL"` // http port
 	Port         string `envconfig:"PORT"`              // http port
 	Secret       string `envconfig:"PAYPACK_SECRET"`
-	USSD         *USSDConfig
 	Postgres     *PostgresConfig
 	Redis        *RedisConfig
 	Payment      *PaymentConfig

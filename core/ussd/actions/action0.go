@@ -50,7 +50,7 @@ func (action *action0) run() (ussd.Result, error) {
 // Action0 ...
 func Action0() action.Action {
 	var root = &action0{
-		Base: action.NewBase(0),
+		Base: action.New(0),
 	}
 	root.Register(1, Action1())
 	root.Register(2, Action2())

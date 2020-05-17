@@ -15,7 +15,7 @@ type action2 struct {
 func Action2() action.Action {
 	action := &action2{
 		output: "action:1",
-		Base:   action.NewBase(1),
+		Base:   action.New(1),
 	}
 	// action.Register(1, initAction11())
 	// action.Register(2, initAction12())

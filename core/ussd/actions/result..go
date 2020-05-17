@@ -15,10 +15,10 @@ func (res Result) String() string {
 	return res.output
 }
 
-// End converts true to 1 and false to 0
+// End converts true to 0 and false to 1
 func (res Result) End() int {
 	if res.end {
-		return 1
+		return 0
 	}
-	return 0
+	return 1
 }

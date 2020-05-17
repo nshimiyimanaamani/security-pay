@@ -35,8 +35,8 @@ type Base struct {
 	subs  map[int]Action
 }
 
-// NewBase ...
-func NewBase(depth int) Base {
+// New ...
+func New(depth int) Base {
 	return Base{
 		depth: depth,
 		subs:  make(map[int]Action),
@@ -76,8 +76,11 @@ func (action *Base) Register(key int, sub Action) {
 	action.subs[key] = sub
 }
 
-// Tail ...
+// Tail indicates whether action is a tail
 func (action *Base) Tail() bool {
+	if len(action.subs) == 0 {
+		return true
+	}
 	return false
 }
 

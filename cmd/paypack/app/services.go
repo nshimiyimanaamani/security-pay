@@ -67,7 +67,8 @@ func Init(
 		Auth:          bootAuthService(db, secret),
 		Invoices:      bootInvoiceService(db),
 		Stats:         bootStatsService(db),
-		USSD:          bootUSSDService(""),
+		Scheduler:     bootScheduler(db, queue),
+		USSD:          bootUSSDService(),
 	}
 	return services
 }
@@ -156,11 +157,10 @@ func bootNotifService(sms notifications.Backend) notifications.Service {
 	return notifications.New(opts)
 }
 
-func bootUSSDService(appID string) ussd.Service {
-	settings := &ussd.Settings{
-		AppID: appID,
-	}
-	return ussd.New(settings)
+func bootUSSDService() ussd.Service {
+	idp := uuid.New()
+	opts := &ussd.Options{Idp: idp}
+	return ussd.New(opts)
 }
 
 func bootScheduler(db *sql.DB, queue *queue.Queue) scheduler.Service {

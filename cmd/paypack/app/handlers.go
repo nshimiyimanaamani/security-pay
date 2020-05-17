@@ -149,5 +149,6 @@ func Register(mux *mux.Router, opts *HandlerOptions) {
 	notifications.RegisterHandlers(mux, opts.NotifOptions)
 
 	ussd.RegisterHandlers(mux, opts.USSDOptions)
+
 	scheduler.RegisterHandlers(mux, opts.SchedulerOptions)
 }
