@@ -29,13 +29,13 @@ const agentView = () =>
   import(/* webpackChunkName: "agents" */ "./Layouts/agentView.vue");
 const devLayout = () =>
   import(/* webpackChunkName: "developers" */ "./Layouts/Dev/layouts/main.vue");
-const DevAccounts = () =>
+const developers = () =>
   import(
-    /* webpackChunkName: "developers" */ "./Layouts/Dev/layouts/views/account.vue"
+    /* webpackChunkName: "developers" */ "./Layouts/Dev/layouts/views/developers.vue"
   );
-const devStats = () =>
+const dev_accounts = () =>
   import(
-    /* webpackChunkName: "developers" */ "./Layouts/Dev/layouts/views/stats.vue"
+    /* webpackChunkName: "developers" */ "./Layouts/Dev/layouts/views/accounts.vue"
   );
 const notFound = () =>
   import(/* webpackChunkName: "404-page" */ "./pages/404.vue");
@@ -179,17 +179,17 @@ let router = new Router({
       children: [
         {
           path: "",
-          name: "dev-stats",
-          component: devStats,
+          name: "accounts",
+          component: dev_accounts,
           meta: {
             requireAuth: true,
             forDev: true
           }
         },
         {
-          path: "account",
-          name: "accounts",
-          component: DevAccounts,
+          path: "developers",
+          name: "developers",
+          component: developers,
           meta: {
             requireAuth: true,
             forDev: true

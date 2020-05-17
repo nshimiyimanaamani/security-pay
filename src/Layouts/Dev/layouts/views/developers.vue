@@ -1,0 +1,225 @@
+<template>
+  <div class="dev-wrapper">
+    <div class="stats">
+      <header class="secondary-font">Developers in Numbers</header>
+      <div class="cards">
+        <div class="custom-card" v-for="i in 3" :key="i">
+          <div class="card-content">
+            <h3>{{Number(i * 2093).toLocaleString()}}</h3>
+            <h4>Developers</h4>
+          </div>
+          <div class="icon">
+            <i class="fa fa-laptop-code" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="account-table">
+      <header class="secondary-font custom-header">
+        <h5>Developers Accounts</h5>
+        <div class="add">
+          <i class="fa fa-plus" />
+        </div>
+        <div class="refresh" @click="refresh">
+          <i class="fa fa-sync-alt" :class="{'fa-spin':state.loading}" />
+        </div>
+      </header>
+      <div class="custom-table">
+        <b-table
+          hover
+          responsive
+          :items="items"
+          :fields="fields"
+          :busy="state.loading"
+          head-variant="light"
+          thead-class="table-header"
+          tbody-tr-class="table-row"
+          table-class="secondary-font"
+        >
+          <template v-slot:cell(type)="data">
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1">{{data.value}}</div>
+              <i class="fa fa-ellipsis-v cursor-pointer" />
+            </div>
+          </template>
+        </b-table>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "developers-dashboard",
+  data() {
+    return {
+      state: {
+        loading: false
+      },
+      fields: [
+        {
+          key: "id",
+          label: "No",
+          sortable: true
+        },
+        {
+          key: "account_name",
+          label: "account name",
+          sortable: true
+        },
+        {
+          key: "type",
+          label: "account type",
+          sortable: true
+        }
+      ],
+      items: [
+        { isActive: true, id: 1, account_name: "Gasabo", type: "Developer" },
+        { isActive: true, id: 2, account_name: "Remera", type: "Developer" },
+        { isActive: false, id: 3, account_name: "Gishushu", type: "Developer" },
+        { isActive: true, id: 4, account_name: "Paypack", type: "Developer" },
+        {
+          isActive: true,
+          id: 5,
+          account_name: "Nyarutarama",
+          type: "Developer"
+        },
+        {
+          isActive: false,
+          id: 6,
+          account_name: "Nyabisindu",
+          type: "Developer"
+        },
+        { isActive: true, id: 7, account_name: "Rukiri", type: "Developer" },
+        { isActive: true, id: 8, account_name: "Kangondo", type: "Developer" }
+      ]
+    };
+  },
+  methods: {
+    refresh() {
+      this.state.loading = true;
+      let timeout = setTimeout(() => {
+        this.state.loading = false;
+        clearTimeout(timeout);
+      }, 3000);
+    }
+  }
+};
+</script>
+
+<style lang="scss">
+.dev-wrapper {
+  display: grid;
+  grid-template-rows: auto auto;
+  width: 100%;
+  padding: 15px 0;
+  header {
+    font-size: 1.4rem;
+    margin: 0.7rem 0;
+    color: #3e4c52;
+    &.custom-header {
+      display: flex;
+      align-items: center;
+
+      h5 {
+        flex: 1;
+        margin: 0;
+        font-size: 1.4rem;
+        color: #3e4c52;
+      }
+      .refresh,
+      .add {
+        background: #0382b9;
+        height: 2rem;
+        flex-basis: 2rem;
+        border-radius: 50%;
+        box-shadow: 0 2px 6px 0 rgba(32, 33, 36, 0.28);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: whitesmoke;
+        margin-left: 1rem;
+        cursor: pointer;
+
+        i {
+          font-size: 1.2rem;
+        }
+      }
+    }
+  }
+
+  .cards {
+    display: flex;
+    flex-wrap: wrap;
+    .custom-card {
+      background: white;
+      box-shadow: 0 1px 6px 0 rgba(32, 33, 36, 0.28);
+      padding: 2rem;
+      border-radius: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-basis: calc(100% / 3 - 1rem);
+      margin-right: 1rem;
+      flex-wrap: nowrap;
+      background: #0382b9;
+      margin-bottom: 1rem;
+      .card-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        margin-right: 1rem;
+        h3 {
+          font-size: 2.5rem;
+          color: white;
+          margin: 0;
+        }
+        h4 {
+          font-size: 1.2rem;
+          margin: 0;
+          color: white;
+          font-weight: 100;
+        }
+      }
+      .icon {
+        border: 2px solid whitesmoke;
+        border-radius: 50%;
+        width: 5rem;
+        height: 5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        i {
+          font-size: 2rem;
+          color: whitesmoke;
+        }
+      }
+    }
+  }
+  .account-table {
+    margin-top: 2rem;
+
+    .custom-table {
+      .table-header th {
+        border-color: #e9ecef;
+        font-weight: 600;
+        padding-left: 1rem;
+        color: #33454c;
+        text-transform: capitalize;
+      }
+      .table-row {
+        &:hover {
+          background-color: ghostwhite;
+          box-shadow: 0 4px 5px 0 rgba(158, 158, 158, 0.22);
+        }
+        td {
+          padding-left: 1rem;
+        }
+      }
+    }
+  }
+}
+</style>

@@ -1,50 +1,29 @@
 <template>
-  <div class="dev-dashboard d-flex">
-    <div class="dev-sidebar app-color" :class="{'active':active}">
-      <h1>
+  <div class="dev-dashboard">
+    <nav class="dev-nav">
+      <h1 class="logo">
         paypack
-        <code class="font-13 text-white">{dev}</code>
+        <code>{dev}</code>
       </h1>
-
-      <ul class="dev-sidebar-links">
-        <router-link
-          to="/dev"
-          class="text-white text-decoration-none"
-          exact-active-class="selected"
-        >
-          <li class="text-uppercase">statistics</li>
+      <ul class="dev-links">
+        <router-link to="/dev" exact-active-class="selected">
+          <li>Accounts</li>
         </router-link>
-        <router-link
-          to="/dev/account"
-          class="text-white text-decoration-none"
-          exact-active-class="selected"
-        >
-          <li class="text-uppercase">accounts</li>
+        <router-link to="/dev/developers" exact-active-class="selected">
+          <li>Developers</li>
         </router-link>
       </ul>
-    </div>
-    <div class="dev-content" :class="{'active':active}">
-      <nav class="dev-nav navbar navbar-expand-lg navbar-light bg-light border-bottom">
-        <b-button variant="info" @click="active =!active">
-          <i class="fa fa-align-left" />
-        </b-button>
-        <b-button variant="info" @click="logout">Logout</b-button>
-      </nav>
-      <b-container class="dev-body">
-        <router-view />
-      </b-container>
-    </div>
+      <b-button class="custom-button" @click="logout">Logout</b-button>
+    </nav>
+    <b-container class="dev-body">
+      <router-view />
+    </b-container>
   </div>
 </template>
 
 <script>
 export default {
   name: "dev-dashboard",
-  data() {
-    return {
-      active: false
-    };
-  },
   methods: {
     logout() {
       this.$store.dispatch("logout");
@@ -56,80 +35,73 @@ export default {
 
 <style lang="scss">
 .dev-dashboard {
-  width: 100vw;
-  .dev-sidebar {
-    min-width: 200px;
-    max-width: 200px;
-    transition: all 0.5s;
+  width: 100%;
+  display: grid;
+  grid-template-rows: 60px minmax(calc(100vh - 60px), auto);
+
+  nav {
+    height: 60px;
     display: flex;
-    flex-direction: column;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+    background: #0382b9;
+    color: white;
+    align-items: center;
+    padding: 0 1rem;
+    position: sticky;
+    top: 0;
+    box-shadow: 0 1px 5px 0 rgba(32, 33, 36, 0.32);
 
-    &.active {
-      margin-left: -200px;
-    }
-    h1 {
-      font-size: 27px;
-      height: 60px;
-      letter-spacing: 5px;
-      white-space: nowrap;
-      display: flex;
-      user-select: none;
-      justify-content: center;
-      align-items: center;
+    .logo {
       text-transform: uppercase;
-      color: white;
-      border-bottom: 1px solid #dee2e6;
-    }
-    .dev-sidebar-links {
-      list-style: none;
-      padding: 0;
-      width: 100%;
       margin: 0;
-      margin-top: 3rem;
-      .selected li {
-        background: white;
-        color: #017db3;
+      font-family: "Montserrat", Arial, sans-serif;
+      font-size: 2.2rem;
+      display: flex;
+      flex-wrap: nowrap;
+      code {
+        color: #bdf3ff;
       }
+    }
 
-      li {
-        padding: 1rem;
-        margin: 1px 0;
+    .dev-links {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      flex: 1;
+      justify-content: center;
+      align-items: flex-end;
+      align-self: flex-end;
 
+      a {
+        list-style: none;
+        margin: 0 1px;
+        color: white;
+        text-transform: uppercase;
+        font-family: "Montserrat", Arial, Helvetica, -apple-system,
+          BlinkMacSystemFont, "Helvetica Neue", "Noto Sans", sans-serif;
+        font-weight: 500;
+        font-size: 1rem;
+        padding: 0.5rem 1.5rem;
+        text-decoration: none;
+        border-radius: 3px 3px 0 0;
+
+        &.selected,
         &:hover {
           background: white;
-          color: #017db3;
+          color: #0382b9;
         }
       }
     }
-  }
-  .dev-content {
-    width: 100%;
-    min-height: 100vh;
-    transition: all 0.5s;
 
-    nav {
-      height: 60px;
-      max-width: calc(100vw - 200px);
-      transition: all 0.5s;
-      display: flex;
-      justify-content: space-between;
-
-      button {
-        border-radius: 3px;
-      }
-    }
-    .dev-body {
-      height: calc(100vh - 60px);
-      max-width: calc(100vw - 200px);
-      transition: all 0.5s;
-    }
-    &.active {
-      .dev-body {
-        max-width: 100vw;
-      }
-      nav {
-        max-width: 100vw;
-      }
+    .custom-button {
+      border-radius: 3px;
+      height: fit-content;
+      background: transparent;
+      color: white;
+      border: 1px solid white;
     }
   }
 }
