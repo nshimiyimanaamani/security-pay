@@ -69,6 +69,10 @@ p {
   background: white;
   color: #017db3 !important;
 }
+.secondary-font {
+  font-family: "Montserrat", Arial, Helvetica, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", "Noto Sans", sans-serif;
+}
 .active-color li {
   background: white;
   color: #017db3;
