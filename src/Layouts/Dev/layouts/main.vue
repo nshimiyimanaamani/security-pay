@@ -15,9 +15,11 @@
       </ul>
       <b-button class="custom-button" @click="logout">Logout</b-button>
     </nav>
-    <b-container class="dev-body">
-      <router-view />
-    </b-container>
+    <div class="dev-body">
+      <b-container>
+        <router-view />
+      </b-container>
+    </div>
   </div>
 </template>
 
@@ -61,6 +63,7 @@ export default {
       flex-wrap: nowrap;
       code {
         color: #bdf3ff;
+        font-size: 1.2rem;
       }
     }
 
@@ -103,6 +106,13 @@ export default {
       color: white;
       border: 1px solid white;
     }
+  }
+  .dev-body {
+    width: 100%;
+    height: calc(100vh - 60px);
+    padding: 0;
+    margin: 0;
+    overflow: auto;
   }
 }
 </style>

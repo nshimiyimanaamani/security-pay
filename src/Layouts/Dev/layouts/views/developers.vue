@@ -37,9 +37,9 @@
           table-class="secondary-font"
         >
           <template v-slot:cell(type)="data">
-            <div class="d-flex align-items-center">
-              <div class="flex-grow-1">{{data.value}}</div>
-              <i class="fa fa-ellipsis-v cursor-pointer" />
+            <div class="d-flex align-items-center position-relative">
+              <div class="edited-cell">{{data.value}}</div>
+              <i class="fa fa-ellipsis-v more-icon" />
             </div>
           </template>
         </b-table>
@@ -117,6 +117,7 @@ export default {
     font-size: 1.4rem;
     margin: 0.7rem 0;
     color: #3e4c52;
+    padding-right: 0.5rem;
     &.custom-header {
       display: flex;
       align-items: center;
@@ -152,6 +153,9 @@ export default {
     display: flex;
     flex-wrap: wrap;
     .custom-card {
+      min-width: 270px;
+      height: fit-content;
+      max-width: 300px;
       background: white;
       box-shadow: 0 1px 6px 0 rgba(32, 33, 36, 0.28);
       padding: 2rem;
@@ -160,10 +164,13 @@ export default {
       justify-content: center;
       align-items: center;
       flex-basis: calc(100% / 3 - 1rem);
-      margin-right: 1rem;
       flex-wrap: nowrap;
       background: #0382b9;
-      margin-bottom: 1rem;
+
+      &:not(:last-child) {
+        margin-right: 1.5rem;
+        margin-bottom: 1rem;
+      }
       .card-content {
         flex: 1;
         display: flex;
@@ -203,6 +210,8 @@ export default {
     margin-top: 2rem;
 
     .custom-table {
+      box-shadow: 0 4px 5px 0 rgba(32, 33, 36, 0.09);
+      border-radius: 5px;
       .table-header th {
         border-color: #e9ecef;
         font-weight: 600;
@@ -213,10 +222,31 @@ export default {
       .table-row {
         &:hover {
           background-color: ghostwhite;
-          box-shadow: 0 4px 5px 0 rgba(158, 158, 158, 0.22);
+          box-shadow: 0 3px 5px 0 rgba(32, 33, 36, 0.08);
         }
         td {
           padding-left: 1rem;
+          .edited-cell {
+            width: calc(100% - 30px);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+      .more-icon {
+        cursor: pointer;
+        border-radius: 50%;
+        width: 2.1rem;
+        background: white;
+        height: 2rem;
+        position: absolute;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        &:hover {
+          box-shadow: 0 1px 3px 0 rgba(32, 33, 36, 0.22);
         }
       }
     }
