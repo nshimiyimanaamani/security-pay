@@ -31,7 +31,7 @@
               :disabled="loading"
             >
               <span>{{loading ? 'Logging In ':'Login' }}</span>
-              <b-spinner small type="grow" v-show="loading"></b-spinner>
+              <i class="fa fa-spinner fa-spin" v-if="loading" />
             </b-button>
           </div>
         </b-form>
