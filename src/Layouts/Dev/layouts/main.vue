@@ -1,5 +1,6 @@
 <template>
   <div class="dev-dashboard">
+    <vue-title title="Paypack | Dev" />
     <nav class="dev-nav">
       <h1 class="logo">
         paypack

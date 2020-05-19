@@ -2,14 +2,27 @@
   <div class="dev-wrapper">
     <div class="stats">
       <header class="secondary-font">Developers in Numbers</header>
-      <div class="cards">
-        <div class="custom-card" v-for="i in 3" :key="i">
+      <div class="custom-loader" v-if="state.loading">
+        <i class="fa fa-spinner fa-spin" />
+        <p class="secondary-font">Loading...</p>
+      </div>
+      <div class="cards" v-else>
+        <div class="custom-card">
           <div class="card-content">
-            <h3>{{Number(i * 2093).toLocaleString()}}</h3>
+            <h3>{{Number(developersTotal).toLocaleString()}}</h3>
             <h4>Developers</h4>
           </div>
           <div class="icon">
             <i class="fa fa-laptop-code" />
+          </div>
+        </div>
+        <div class="custom-card">
+          <div class="card-content">
+            <h3>{{Number(assigneAccounts).toLocaleString()}}</h3>
+            <h4>Assigned Accounts</h4>
+          </div>
+          <div class="icon">
+            <i class="fa fa-address-card" />
           </div>
         </div>
       </div>
@@ -20,13 +33,14 @@
         <div class="add">
           <i class="fa fa-plus" />
         </div>
-        <div class="refresh" @click="refresh">
+        <div class="refresh" @click="getData">
           <i class="fa fa-sync-alt" :class="{'fa-spin':state.loading}" />
         </div>
       </header>
       <div class="custom-table">
         <b-table
           hover
+          show-empty
           responsive
           :items="items"
           :fields="fields"
@@ -36,13 +50,38 @@
           tbody-tr-class="table-row"
           table-class="secondary-font"
         >
-          <template v-slot:cell(type)="data">
+          <template v-slot:cell(updated_at)="data">
             <div class="d-flex align-items-center position-relative">
-              <div class="edited-cell">{{data.value}}</div>
-              <i class="fa fa-ellipsis-v more-icon" />
+              <div class="edited-cell">{{data.value | dateFormatter}}</div>
+              <i
+                class="fa fa-ellipsis-v more-icon"
+                @click.prevent.stop="showMenu($event,data.item)"
+              />
+            </div>
+          </template>
+          <template v-slot:cell(created_at)="data">{{data.value | dateFormatter}}</template>
+          <template v-slot:empty>
+            <p class="custom-data">No accounts available to display at the moment!</p>
+          </template>
+          <template v-slot:table-busy>
+            <div class="custom-loader">
+              <i class="fa fa-spinner fa-spin" />
+              <p class="secondary-font">Loading...</p>
             </div>
           </template>
         </b-table>
+        <vue-menu
+          elementId="dev-left-menu"
+          ref="devLeftMenu"
+          :options="menuOptions"
+          @option-clicked="optionClicked"
+        />
+        <b-modal
+          ref="dev-updateAccount-modal"
+          hide-footer
+          title="Update Account"
+          content-class="secondary-font"
+        ></b-modal>
       </div>
     </div>
   </div>
@@ -56,52 +95,97 @@ export default {
       state: {
         loading: false
       },
+      menuOptions: [{ slug: "update", name: "Update account" }],
       fields: [
         {
-          key: "id",
-          label: "No",
+          key: "email",
+          label: "Username",
           sortable: true
         },
         {
-          key: "account_name",
-          label: "account name",
+          key: "account",
+          label: "assigned account",
           sortable: true
         },
         {
-          key: "type",
+          key: "role",
           label: "account type",
+          sortable: true,
+          tdClass: "text-center text-capitalize"
+        },
+        {
+          key: "created_at",
+          label: "Creation Date",
+          sortable: true
+        },
+        {
+          key: "updated_at",
+          label: "Last Updated at",
           sortable: true
         }
       ],
-      items: [
-        { isActive: true, id: 1, account_name: "Gasabo", type: "Developer" },
-        { isActive: true, id: 2, account_name: "Remera", type: "Developer" },
-        { isActive: false, id: 3, account_name: "Gishushu", type: "Developer" },
-        { isActive: true, id: 4, account_name: "Paypack", type: "Developer" },
-        {
-          isActive: true,
-          id: 5,
-          account_name: "Nyarutarama",
-          type: "Developer"
-        },
-        {
-          isActive: false,
-          id: 6,
-          account_name: "Nyabisindu",
-          type: "Developer"
-        },
-        { isActive: true, id: 7, account_name: "Rukiri", type: "Developer" },
-        { isActive: true, id: 8, account_name: "Kangondo", type: "Developer" }
-      ]
+      items: []
     };
   },
+  computed: {
+    developersTotal() {
+      if (this.items < 1) return 0;
+      return this.items.length;
+    },
+    assigneAccounts() {
+      if (this.items < 1) return 0;
+      return [...new Set(this.items.map(item => item.account))].length;
+    }
+  },
+  filters: {
+    dateFormatter: date => {
+      if (!date) return "";
+      return new Date(date).toLocaleDateString("en-EN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+    }
+  },
+  mounted() {
+    this.getData();
+  },
+  destroyed() {
+    this.state.loading = false;
+    delete this.state.items;
+  },
   methods: {
-    refresh() {
+    async getData() {
       this.state.loading = true;
-      let timeout = setTimeout(() => {
-        this.state.loading = false;
-        clearTimeout(timeout);
-      }, 3000);
+      const limit = await this.getTotal(
+        "/accounts/developers?offset=0&limit=0"
+      );
+      return this.axios
+        .get("/accounts/developers?offset=0&limit=" + limit)
+        .then(res => {
+          this.state.loading = false;
+          this.items = res.data.Developers;
+        })
+        .catch(err => {
+          console.log(err, err.response);
+          this.state.loading = false;
+        });
+    },
+    getTotal(endpoint) {
+      return this.axios
+        .get(endpoint)
+        .then(res => res.data.Total)
+        .catch(err => 0);
+    },
+    showMenu(event, data) {
+      this.$refs.devLeftMenu.showMenu(event, data);
+    },
+    optionClicked(data) {
+      if (!data) return;
+      if (data.option.slug == "update") {
+        this.$refs["dev-updateAccount-modal"].show();
+        console.log(data.item);
+      }
     }
   }
 };
@@ -206,6 +290,27 @@ export default {
       }
     }
   }
+  .custom-loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem;
+    user-select: none;
+    background: ghostwhite;
+    animation-name: fade;
+    animation-duration: 500ms;
+    animation-iteration-count: 1;
+
+    i {
+      font-size: 2rem;
+      margin-right: 0.5rem;
+    }
+    p {
+      margin-bottom: 0 !important;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+  }
   .account-table {
     margin-top: 2rem;
 
@@ -232,6 +337,13 @@ export default {
             overflow: hidden;
             text-overflow: ellipsis;
           }
+          .custom-data {
+            text-align: center;
+            padding: 4rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background: ghostwhite;
+          }
         }
       }
       .more-icon {
@@ -248,6 +360,30 @@ export default {
         &:hover {
           box-shadow: 0 1px 3px 0 rgba(32, 33, 36, 0.22);
         }
+      }
+      table.table[aria-busy="true"] {
+        opacity: 0.8;
+      }
+    }
+  }
+  @keyframes fade {
+    5% {
+      opacity: 0.1;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  .vue-menu {
+    font-family: "Montserrat", Arial, Helvetica, -apple-system,
+      BlinkMacSystemFont, "Helvetica Neue", "Noto Sans", sans-serif !important;
+    &--active {
+      background-color: ghostwhite;
+    }
+
+    &__item {
+      &:hover {
+        background-color: #0382b9;
       }
     }
   }

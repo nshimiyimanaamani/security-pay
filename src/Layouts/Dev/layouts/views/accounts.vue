@@ -53,7 +53,10 @@
           <template v-slot:cell(updated_at)="data">
             <div class="d-flex align-items-center position-relative">
               <div class="edited-cell">{{data.value | dateFormatter}}</div>
-              <i class="fa fa-ellipsis-v more-icon" />
+              <i
+                class="fa fa-ellipsis-v more-icon"
+                @click.prevent.stop="showMenu($event,data.item)"
+              />
             </div>
           </template>
           <template v-slot:cell(created_at)="data">
@@ -71,6 +74,18 @@
             </div>
           </template>
         </b-table>
+        <vue-menu
+          elementId="devAccounts-left-menu"
+          ref="devAccounts_leftMenu"
+          :options="menuOptions"
+          @option-clicked="optionClicked"
+        />
+        <b-modal
+          ref="devAccounts-updateAccount-modal"
+          hide-footer
+          title="Update Account"
+          content-class="secondary-font"
+        ></b-modal>
       </div>
     </div>
   </div>
@@ -84,6 +99,7 @@ export default {
       state: {
         loading: false
       },
+      menuOptions: [{ slug: "update", name: "Update account" }],
       fields: [
         {
           key: "name",
@@ -145,6 +161,7 @@ export default {
   },
   methods: {
     async getData() {
+      if (this.state.loading === true) return;
       this.state.loading = true;
       const Total = await this.getTotals("/accounts?offset=0&limit=0");
       this.axios
@@ -163,6 +180,16 @@ export default {
         .get(endpoint)
         .then(res => res.data.Total)
         .catch(err => 0);
+    },
+    showMenu(event, data) {
+      this.$refs.devAccounts_leftMenu.showMenu(event, data);
+    },
+    optionClicked(data) {
+      if (!data) return;
+      if (data.option.slug == "update") {
+        this.$refs["devAccounts-updateAccount-modal"].show();
+        console.log(data.item);
+      }
     }
   }
 };
@@ -275,6 +302,7 @@ export default {
     padding: 4rem;
     display: flex;
     justify-content: center;
+    background-color: ghostwhite;
     align-items: center;
     user-select: none;
     animation-name: fade;
@@ -285,8 +313,9 @@ export default {
       margin-right: 0.5rem;
     }
     p {
-      font-size: 1.3rem;
-      margin: 0 !important;
+      font-size: 1.2rem;
+      margin-bottom: 0 !important;
+      font-weight: bold;
     }
   }
   .account-table {
@@ -347,15 +376,16 @@ export default {
         align-items: center;
         padding: 2.5rem;
         user-select: none;
+        background-color: ghostwhite;
 
         i {
-          color: #010d19;
           font-size: 2rem;
           margin-right: 0.5rem;
         }
         p {
-          font-size: 1.3rem;
-          margin: 0 !important;
+          font-size: 1.2rem;
+          margin-bottom: 0 !important;
+          font-weight: bold;
         }
       }
       .table-empty {
@@ -375,6 +405,19 @@ export default {
     }
     100% {
       opacity: 1;
+    }
+  }
+  .vue-menu {
+    font-family: "Montserrat", Arial, Helvetica, -apple-system,
+      BlinkMacSystemFont, "Helvetica Neue", "Noto Sans", sans-serif !important;
+    &--active {
+      background-color: ghostwhite;
+    }
+
+    &__item {
+      &:hover {
+        background-color: #0382b9;
+      }
     }
   }
 }
