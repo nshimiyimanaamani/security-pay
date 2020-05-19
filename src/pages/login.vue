@@ -16,20 +16,30 @@
           <h3>LOGIN</h3>
           <b-form-group class="loginUsername mb-3">
             <label for="input">Username</label>
-            <b-form-input id="username" v-model="form.email" required size="sm"></b-form-input>
+            <b-form-input
+              id="username"
+              v-model="form.email"
+              required
+              :disabled="loading"
+              size="sm"
+              trim
+            ></b-form-input>
           </b-form-group>
           <b-form-group class="loginPassword mb-3">
             <label for="input">Password</label>
-            <b-form-input type="password" id="password" v-model="form.password" size="sm" required></b-form-input>
+            <b-form-input
+              type="password"
+              id="password"
+              v-model="form.password"
+              :disabled="loading"
+              size="sm"
+              trim
+              required
+            ></b-form-input>
           </b-form-group>
           <a class="forgot" href="#">Forgot Password?</a>
           <div class="button-area">
-            <b-button
-              size="sm"
-              class="loginBtn app-color w-100 text-white align-baseline"
-              type="submit"
-              :disabled="loading"
-            >
+            <b-button variant="info" class="loginBtn" type="submit" :disabled="loading">
               <span>{{loading ? 'Logging In ':'Login' }}</span>
               <i class="fa fa-spinner fa-spin" v-if="loading" />
             </b-button>
@@ -50,7 +60,11 @@ export default {
       }
     };
   },
-
+  destroyed() {
+    this.loading = false;
+    this.form.email = null;
+    this.form.password = null;
+  },
   methods: {
     login() {
       this.loading = true;
@@ -207,13 +221,13 @@ export default {
       flex-direction: column;
       align-items: center;
       .loginBtn {
-        border-radius: 2px;
-        padding: 0.5rem 3rem;
-        width: fit-content !important;
         border: none;
-        text-transform: uppercase;
-        margin-top: 1.5rem;
+        margin-top: 2rem;
         font-weight: 400;
+        border-radius: 2px;
+        width: fit-content;
+        padding: 0.5rem 3rem;
+        text-transform: uppercase;
       }
     }
   }
