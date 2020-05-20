@@ -81,20 +81,29 @@
           hide-footer
           title="Update Account"
           content-class="secondary-font"
-        ></b-modal>
+          centered
+          @hide="modalClosed"
+        >
+          <update-account :account="selectedAccount" v-if="selectedAccount" @updated="closeModal" />
+        </b-modal>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import updateAccount from "../../components/updateDev-account";
 export default {
   name: "developers-dashboard",
+  components: {
+    "update-account": updateAccount
+  },
   data() {
     return {
       state: {
         loading: false
       },
+      selectedAccount: null,
       menuOptions: [{ slug: "update", name: "Update account" }],
       fields: [
         {
@@ -180,12 +189,22 @@ export default {
     showMenu(event, data) {
       this.$refs.devLeftMenu.showMenu(event, data);
     },
-    optionClicked(data) {
+    async optionClicked(data) {
       if (!data) return;
       if (data.option.slug == "update") {
+        this.selectedAccount = data.item;
+        await this.selectedAccount;
         this.$refs["dev-updateAccount-modal"].show();
         console.log(data.item);
       }
+    },
+    modalClosed() {
+      this.selectedAccount = null;
+    },
+    closeModal() {
+      this.getData();
+      this.selectedAccount = null;
+      this.$refs["dev-updateAccount-modal"].hide();
     }
   }
 };

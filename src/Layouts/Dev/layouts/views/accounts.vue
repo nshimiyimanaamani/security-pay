@@ -30,7 +30,7 @@
     <div class="account-table">
       <header class="secondary-font custom-header">
         <h5>All Accounts</h5>
-        <div class="add">
+        <div class="add" @click="state.show.addAccount_modal=true">
           <i class="fa fa-plus" />
         </div>
         <div class="refresh" @click="getData">
@@ -85,27 +85,43 @@
           hide-footer
           title="Update Account"
           content-class="secondary-font"
-        ></b-modal>
+          centered
+          @hide="modalClosed"
+        >
+          <update-account :account="selectedAccount" v-if="selectedAccount" @updated="closeModal" />
+        </b-modal>
+        <add-account
+          v-if="state.show.addAccount_modal"
+          @close="state.show.addAccount_modal=false"
+          @created="closeModal"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import update_modal from "../../components/update-account";
+import createAccount from "../../components/createAccount";
 export default {
   name: "developers-dashboard",
+  components: {
+    "update-account": update_modal,
+    "add-account": createAccount
+  },
   data() {
     return {
       state: {
-        loading: false
+        loading: false,
+        show: { addAccount_modal: false }
       },
+      selectedAccount: null,
       menuOptions: [{ slug: "update", name: "Update account" }],
       fields: [
         {
           key: "name",
           label: "account name",
-          sortable: true,
-          tdClass: "text-capitalize"
+          sortable: true
         },
         {
           key: "id",
@@ -184,12 +200,21 @@ export default {
     showMenu(event, data) {
       this.$refs.devAccounts_leftMenu.showMenu(event, data);
     },
-    optionClicked(data) {
+    async optionClicked(data) {
       if (!data) return;
       if (data.option.slug == "update") {
+        this.selectedAccount = data.item;
+        await this.selectedAccount;
         this.$refs["devAccounts-updateAccount-modal"].show();
-        console.log(data.item);
       }
+    },
+    modalClosed() {
+      this.selectedAccount = null;
+    },
+    closeModal() {
+      this.getData();
+      this.$refs["devAccounts-updateAccount-modal"].hide();
+      this.state.show.addAccount_modal = false;
     }
   }
 };

@@ -17,7 +17,7 @@
       <b-button class="custom-button" @click="logout">Logout</b-button>
     </nav>
     <div class="dev-body">
-      <b-container>
+      <b-container >
         <router-view />
       </b-container>
     </div>
