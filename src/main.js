@@ -10,6 +10,7 @@ import Snotify, { SnotifyPosition } from "vue-snotify";
 import axios from "axios";
 import VueAxios from "vue-axios";
 import titleComponent from "./components/title.vue";
+import loadingComponent from "./components/loading.vue";
 import VueSimpleContextMenu from "./scripts/simplecontextMenu";
 import VueSlider from "vue-slider-component";
 import "vue-slider-component/theme/default.css";
@@ -22,6 +23,7 @@ Vue.use(vueBoostrap);
 Vue.component("VueSlider", VueSlider);
 Vue.component("vue-title", titleComponent);
 Vue.component("vue-menu", VueSimpleContextMenu);
+Vue.component("vue-load", loadingComponent);
 
 Vue.use(VueAxios, axios);
 Vue.use(PortalVue);
