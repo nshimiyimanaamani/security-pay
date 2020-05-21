@@ -1,5 +1,5 @@
 <template>
-  <div style="position: relative">
+  <div class="position-relative transaction-page">
     <vue-title title="Paypack | Transactions" />
     <div class="totals">
       <b-row>
@@ -7,32 +7,41 @@
           cols="6"
           class="text-white ml-auto py-2 text-overflow"
           style="font-size: 40px"
-        >{{'RWF '+total()}}</b-col>
+        >RWF &nbsp;{{total() | number}}</b-col>
       </b-row>
       <b-row class="text-white">
         <b-col cols="2" class="ml-auto">
-          <p class="text-overflow">BK Acc.</p>
-          <p>RWF {{bkTotal()}}</p>
+          <p class="text-overflow">BK ACC.</p>
+          <p>RWF {{bkTotal() | number}}</p>
         </b-col>
         <b-col cols="2" class="m-0">
           <p class="text-overflow">MTN MoMo</p>
-          <p>RWF {{mtnTotal()}}</p>
+          <p>RWF {{mtnTotal() | number}}</p>
         </b-col>
         <b-col cols="2" class="m-0">
           <p class="text-overflow">AIRTEL MONEY</p>
-          <p>RWF {{airtelTotal()}}</p>
+          <p>RWF {{airtelTotal() | number}}</p>
         </b-col>
       </b-row>
     </div>
-    <div class="container max-width">
+    <div class="transaction-table max-width">
+      <header class="secondary-font mb-3 table-header">
+        <h3>All Transactions</h3>
+        <b-button variant="info" @click="requestItems" :disabled="loading">
+          Refresh
+          <i class="fa fa-sync-alt" />
+        </b-button>
+      </header>
       <b-table
         :items="table.items"
         :fields="table.fields"
         :busy="loading"
+        head-variant="light"
+        thead-class="secondary-font"
         show-empty
         responsive
         bordered
-        small
+        hover
       >
         <template v-slot:cell(method)="data">
           <div :class="data.value=='momo-mtn-rw'? 'mtn' : data.value">
@@ -43,18 +52,19 @@
           v-slot:cell(owner_firstname)="data"
         >{{data.item.owner_firstname +" "+data.item.owner_lastname}}</template>
         <template v-slot:cell(amount)="data">
-          <article>{{Number(data.value).toLocaleString()}} Frw</article>
+          <article>{{data.value | number}} Frw</article>
         </template>
         <template v-slot:cell(date_recorded)="data">
-          <article>{{datify(data.value)}}</article>
+          <article>{{data.value | date}}</article>
         </template>
         <template v-slot:table-busy>
-          <loader class="d-flex justify-content-center p-5" />
+          <div class="table-loader">
+            <i class="fa fa-spinner fa-spin" />
+            <p>Loading...</p>
+          </div>
         </template>
         <template v-slot:empty>
-          <label
-            class="container w-100 font-14 text-center p-5 text-capitalize"
-          >No records of transactions found!</label>
+          <label class="table-empty">No records of transactions found!</label>
         </template>
       </b-table>
     </div>
@@ -70,8 +80,6 @@ export default {
   data() {
     return {
       loading: false,
-      color: "#3db3fa",
-      size: "12px",
       transactionData: [],
       table: {
         fields: [
@@ -83,12 +91,12 @@ export default {
           },
           {
             key: "madefor",
-            label: "Payed for",
+            label: "Paid for",
             sortable: true
           },
           {
             key: "method",
-            label: "Payed With",
+            label: "Paid With",
             sortable: true,
             thClass: "text-center",
             tdClass: "text-center"
@@ -96,15 +104,15 @@ export default {
           {
             key: "amount",
             label: "Amount",
-            sortable: false,
-            thClass: "text-center",
+            sortable: true,
+            thClass: "text-right",
             tdClass: "text-right"
           },
           {
             key: "date_recorded",
             label: "Date",
             sortable: true,
-            thClass: "text-center",
+            thClass: "text-right",
             tdClass: "text-right"
           }
         ],
@@ -118,6 +126,15 @@ export default {
     },
     user() {
       return this.$store.getters.userDetails;
+    }
+  },
+  filters: {
+    number: num => {
+      return Number(num).toLocaleString();
+    },
+    date: date => {
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      return new Date(date).toLocaleDateString("en-EN", options);
     }
   },
   mounted() {
@@ -149,10 +166,12 @@ export default {
         });
     },
     total() {
+      if (this.table.items.length < 1) return 0;
       let total = 0;
       this.table.items.forEach(element => {
         total += element.amount;
       });
+      console.log(total);
       return total;
     },
     mtnTotal() {
@@ -180,10 +199,6 @@ export default {
         total += element.amount;
       });
       return total;
-    },
-    datify(date) {
-      const options = { year: "numeric", month: "long", day: "numeric" };
-      return new Date(date).toLocaleDateString("en-EN", options);
     }
   }
 };

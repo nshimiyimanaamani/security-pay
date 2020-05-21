@@ -6,12 +6,15 @@
         content-class="mt-3"
         justified
         active-nav-item-class="app-color text-white"
+        nav-class="message-nav"
         @activate-tab="clear"
       >
         <b-tab title="SECTOR" active>
           <div class="sector-body">
-            <h3>Send message to all payers in {{activeSector ? activeSector : "Sector"}}</h3>
-            <label for="textarea">Message:</label>
+            <h3
+              class="message-title secondary-font"
+            >Send message to all payers in {{activeSector ? activeSector : "Sector"}}</h3>
+            <label for="textarea" class="message-label">Message:</label>
             <textarea
               name="message"
               id="message"
@@ -32,16 +35,18 @@
         </b-tab>
         <b-tab title="CELL">
           <div class="cell-body">
-            <h3>Send message to all payers in {{select.cell ? select.cell : "Cell"}}</h3>
+            <h3
+              class="message-title secondary-font"
+            >Send message to all payers in {{select.cell ? select.cell : "Cell"}}</h3>
             <div class="control mb-4">
-              <label for="select">Select a cell:</label>
+              <label class="message-label" for="select">Select a cell:</label>
               <b-select v-model="select.cell" :options="cellOptions">
                 <template v-slot:first>
                   <option :value="null" disabled>-- select cell --</option>
                 </template>
               </b-select>
             </div>
-            <label for="textarea">Message:</label>
+            <label class="message-label" for="textarea">Message:</label>
             <textarea
               name="message"
               id="message"
@@ -67,10 +72,12 @@
         </b-tab>
         <b-tab title="VILLAGE">
           <div class="village-body">
-            <h3>Send message to all payers in {{select.village ? select.village : "Village"}}</h3>
+            <h3
+              class="message-title secondary-font"
+            >Send message to all payers in {{select.village ? select.village : "Village"}}</h3>
             <div class="control mb-4">
               <div class="cell-select">
-                <label for="select">Select a cell:</label>
+                <label class="message-label" for="select">Select a cell:</label>
                 <b-select v-model="select.cell" :options="cellOptions">
                   <template v-slot:first>
                     <option :value="null" disabled>-- select cell --</option>
@@ -78,7 +85,7 @@
                 </b-select>
               </div>
               <div class="village-select">
-                <label for="select">Select a village:</label>
+                <label class="message-label" for="select">Select a village:</label>
                 <b-select
                   v-model="select.village"
                   :disabled="!select.cell"
@@ -90,7 +97,7 @@
                 </b-select>
               </div>
             </div>
-            <label for="textarea">Message:</label>
+            <label class="message-label" for="textarea">Message:</label>
             <textarea
               name="message"
               id="message"
@@ -270,6 +277,23 @@ export default {
   border-radius: 3px;
   width: 100%;
   margin-top: 3rem;
+  .message-nav {
+    background: #efefef;
+  }
+  .message-title {
+    text-align: center;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #3a3a3a;
+  }
+  .message-label {
+    color: #5d5d5d;
+    margin-bottom: 2px;
+    font-size: 14px;
+    text-transform: uppercase;
+  }
 
   .message-textarea {
     width: 100%;
@@ -282,20 +306,6 @@ export default {
   }
   .sector-body {
     padding: 1rem 2rem;
-    h3 {
-      text-align: center;
-      font-size: 1.4rem;
-      text-transform: uppercase;
-      font-weight: bold;
-      margin-bottom: 1.5rem;
-      color: #2e3757;
-    }
-    label {
-      color: #6a6e7b;
-      margin-bottom: 2px;
-      font-size: 17px;
-      font-weight: bold;
-    }
     textarea {
       border-radius: 2px;
       border: 1px solid #b9bec3;
@@ -315,21 +325,6 @@ export default {
   .cell-body,
   .village-body {
     padding: 1rem 2rem;
-    h3 {
-      text-align: center;
-      font-size: 1.4rem;
-      text-transform: uppercase;
-      font-weight: bold;
-      margin-bottom: 1rem;
-      color: #2e3757;
-    }
-    label {
-      color: #6a6e7b;
-      margin-bottom: 0px;
-      font-size: 15px;
-      font-weight: bold;
-      text-transform: lowercase;
-    }
     textarea,
     select {
       border-radius: 2px;

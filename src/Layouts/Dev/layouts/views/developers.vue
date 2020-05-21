@@ -30,7 +30,7 @@
     <div class="account-table">
       <header class="secondary-font custom-header">
         <h5>Developers Accounts</h5>
-        <div class="add">
+        <div class="add" @click="state.show.createAccount_modal=true">
           <i class="fa fa-plus" />
         </div>
         <div class="refresh" @click="getData">
@@ -86,6 +86,11 @@
         >
           <update-account :account="selectedAccount" v-if="selectedAccount" @updated="closeModal" />
         </b-modal>
+        <create-account
+          v-if="state.show.createAccount_modal"
+          @close="state.show.createAccount_modal=false"
+          @created="closeModal"
+        />
       </div>
     </div>
   </div>
@@ -93,15 +98,18 @@
 
 <script>
 import updateAccount from "../../components/updateDev-account";
+import createAccount from "../../components/createDevAccount";
 export default {
   name: "developers-dashboard",
   components: {
-    "update-account": updateAccount
+    "update-account": updateAccount,
+    createAccount
   },
   data() {
     return {
       state: {
-        loading: false
+        loading: false,
+        show: { createAccount_modal: true }
       },
       selectedAccount: null,
       menuOptions: [{ slug: "update", name: "Update account" }],
@@ -205,6 +213,7 @@ export default {
       this.getData();
       this.selectedAccount = null;
       this.$refs["dev-updateAccount-modal"].hide();
+      this.state.show.createAccount_modal = false;
     }
   }
 };

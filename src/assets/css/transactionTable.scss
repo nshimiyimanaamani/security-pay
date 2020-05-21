@@ -1,1 +1,101 @@
-.container{padding:1rem;table tbody{.table-name{text-transform:uppercase}}}.totals{height:150px;background:#017db3;width:100%;padding:15px}.container .pulse{margin:25px auto;&::after{display:block;content:"  Please wait ...";font-weight:700}}table thead th{font-size:14px}tbody td{vertical-align:initial!important}.mtn{width:50%;border-radius:3px;min-width:fit-content;background:white;padding:5px 0;box-shadow:1px 1px 2px #9a9797;text-align:center;user-select:none;margin:auto;cursor:text;span{font-size:15px;text-transform:uppercase;font-weight:700;padding:0 5px;color:#f9b004}}.airtel{width:50%;margin:auto;min-width:fit-content;border-radius:3px;background:#f93d3d;box-shadow:1px 1px 2px #9a9797;padding:5px 0;user-select:none;cursor:text;text-align:center;span{font-size:12px;text-transform:uppercase;font-weight:700;padding:0 5px;color:white}}.bk{width:50%;min-width:fit-content;border-radius:3px;background:white;box-shadow:1px 1px 2px #9a9797;height:fit-content;text-align:center;margin:auto;padding:5px 0;cursor:text;user-select:none;span{color:#3d3d65;font-size:15px;letter-spacing:1px;text-transform:uppercase;padding:0 5px;font-weight:700}}
+.transaction-page {
+  .transaction-table {
+    padding: 2rem;
+    .table-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      h3 {
+        font-size: 1.4rem;
+        text-transform: uppercase;
+        margin: 0;
+      }
+    }
+    .table-loader {
+      padding: 4rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      i {
+        font-size: 2rem;
+        margin-right: 0.5rem;
+      }
+      p {
+        font-size: 1.2rem;
+        margin-bottom: 0 !important;
+      }
+    }
+    .table-empty {
+      padding: 3rem;
+      text-align: center;
+      width: 100%;
+      font-size: 1.2rem;
+      text-transform: capitalize;
+      letter-spacing: 1px;
+    }
+  }
+
+  .totals {
+    height: 150px;
+    background: #017db3;
+    width: 100%;
+    padding: 15px;
+  }
+  .container .pulse {
+    margin: 25px auto;
+    &::after {
+      display: block;
+      content: "  Please wait ...";
+      font-weight: 700;
+    }
+  }
+  table thead th {
+    font-size: 14px;
+  }
+  tbody td {
+    vertical-align: initial !important;
+  }
+  .mtn {
+    width: auto;
+    background: white;
+    text-align: center;
+    user-select: none;
+    margin: auto;
+    cursor: text;
+    box-shadow: 0 0.6px 3px 0 rgba(32, 33, 36, 0.25);
+
+    span {
+      text-transform: uppercase;
+      padding: 0 0.5rem;
+      color: #f9b004;
+    }
+  }
+  .airtel {
+    background: #f93d3d;
+    width: auto;
+    text-align: center;
+    user-select: none;
+    margin: auto;
+    cursor: text;
+    box-shadow: 0 0.6px 3px 0 rgba(32, 33, 36, 0.25);
+    span {
+      text-transform: uppercase;
+      padding: 0 0.5rem;
+      color: white;
+    }
+  }
+  .bk {
+    background: white;
+    width: auto;
+    text-align: center;
+    user-select: none;
+    margin: auto;
+    cursor: text;
+    box-shadow: 0 0.6px 3px 0 rgba(32, 33, 36, 0.25);
+    span {
+      color: #3d3d65;
+      text-transform: uppercase;
+      padding: 0 0.5rem;
+    }
+  }
+}
