@@ -13,11 +13,17 @@
         <router-link to="/dev/developers" exact-active-class="selected">
           <li>Developers</li>
         </router-link>
+        <router-link to="/dev/admins" exact-active-class="selected">
+          <li>Admins</li>
+        </router-link>
+        <router-link to="/dev/managers" exact-active-class="selected">
+          <li>Managers</li>
+        </router-link>
       </ul>
       <b-button class="custom-button" @click="logout">Logout</b-button>
     </nav>
     <div class="dev-body">
-      <b-container >
+      <b-container>
         <router-view />
       </b-container>
     </div>
@@ -41,6 +47,7 @@ export default {
   width: 100%;
   display: grid;
   grid-template-rows: 60px minmax(calc(100vh - 60px), auto);
+  min-width: 880px;
 
   nav {
     height: 60px;
@@ -69,7 +76,7 @@ export default {
     }
 
     .dev-links {
-      margin: 0;
+      margin: 0 2rem;
       padding: 0;
       display: flex;
       flex-direction: row;

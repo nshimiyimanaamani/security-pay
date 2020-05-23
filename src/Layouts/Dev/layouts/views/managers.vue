@@ -1,35 +1,41 @@
 <template>
-  <div class="dev-wrapper">
+  <div class="managers-wrapper">
     <div class="stats">
-      <header class="secondary-font">Developers in Numbers</header>
-      <div class="custom-loader" v-if="state.loading">
-        <i class="fa fa-spinner fa-spin" />
-        <p class="secondary-font">Loading...</p>
-      </div>
+      <header class="secondary-font">Managers in Numbers</header>
+      <vue-load v-if="state.loading" class="custom-load" />
       <div class="cards" v-else>
         <div class="custom-card">
           <div class="card-content">
-            <h3>{{Number(developersTotal).toLocaleString()}}</h3>
-            <h4>Developers</h4>
+            <h3>{{managersTotal | number}}</h3>
+            <h4>Managers</h4>
           </div>
           <div class="icon">
-            <i class="fa fa-laptop-code" />
+            <i class="fa fa-id-card" />
           </div>
         </div>
         <div class="custom-card">
           <div class="card-content">
-            <h3>{{Number(assigneAccounts).toLocaleString()}}</h3>
+            <h3>{{accountsTotal | number}}</h3>
             <h4>Assigned Accounts</h4>
           </div>
           <div class="icon">
-            <i class="fa fa-address-card" />
+            <i class="fa fa-id-card-alt" />
+          </div>
+        </div>
+        <div class="custom-card">
+          <div class="card-content">
+            <h3>{{cellsTotal | number}}</h3>
+            <h4>Assigned Cells</h4>
+          </div>
+          <div class="icon">
+            <i class="fa fa-hotel" />
           </div>
         </div>
       </div>
     </div>
     <div class="account-table">
       <header class="secondary-font custom-header">
-        <h5>Developers Accounts</h5>
+        <h5>Managers Accounts</h5>
         <div class="add" @click="state.show.createAccount_modal=true">
           <i class="fa fa-plus" />
         </div>
@@ -46,50 +52,43 @@
           :fields="fields"
           :busy="state.loading"
           head-variant="light"
-          thead-class="table-header"
-          tbody-tr-class="table-row"
+          thead-class="table-header text-truncate"
+          tbody-tr-class="table-row text-truncate"
           table-class="secondary-font"
         >
           <template v-slot:cell(updated_at)="data">
             <div class="d-flex align-items-center position-relative">
-              <div class="edited-cell">{{data.value | dateFormatter}}</div>
+              <div class="edited-cell">{{data.value | date}}</div>
               <i
                 class="fa fa-ellipsis-v more-icon"
                 @click.prevent.stop="showMenu($event,data.item)"
               />
             </div>
           </template>
-          <template v-slot:cell(created_at)="data">{{data.value | dateFormatter}}</template>
+          <template v-slot:cell(created_at)="data">{{data.value | date}}</template>
           <template v-slot:empty>
             <p class="custom-data">No accounts available to display at the moment!</p>
           </template>
           <template v-slot:table-busy>
-            <div class="custom-loader">
-              <i class="fa fa-spinner fa-spin" />
-              <p class="secondary-font">Loading...</p>
-            </div>
+            <vue-load class="custom-load" />
           </template>
         </b-table>
         <vue-menu
-          elementId="dev-left-menu"
-          ref="devLeftMenu"
+          elementId="devManagers-left-menu"
+          ref="devManagersLeftMenu"
           :options="menuOptions"
           @option-clicked="optionClicked"
         />
-        <b-modal
-          ref="dev-updateAccount-modal"
-          hide-footer
-          title="Update Account"
-          content-class="secondary-font"
-          centered
-          @hide="modalClosed"
-        >
-          <update-account :account="selectedAccount" v-if="selectedAccount" @updated="closeModal" />
-        </b-modal>
+        <update-account
+          v-if="state.show.updateModal && accountToUpdate"
+          :account="accountToUpdate"
+          @close="closeModal"
+          @updated="getData"
+        />
         <create-account
           v-if="state.show.createAccount_modal"
           @close="state.show.createAccount_modal=false"
-          @created="closeModal"
+          @created="getData"
         />
       </div>
     </div>
@@ -97,22 +96,23 @@
 </template>
 
 <script>
-import updateAccount from "../../components/updateDev-account";
-import createAccount from "../../components/createDevAccount";
+import updateAccount from "../../components/update-managerAccount";
+import createAccount from "../../components/create-managerAccount";
 export default {
-  name: "developers-dashboard",
+  name: "devAdmins",
   components: {
-    "update-account": updateAccount,
+    updateAccount,
     createAccount
   },
   data() {
     return {
       state: {
         loading: false,
-        show: { createAccount_modal: false }
+        show: { createAccount_modal: false, updateModal: false }
       },
-      selectedAccount: null,
       menuOptions: [{ slug: "update", name: "Update account" }],
+      accountToUpdate: null,
+      items: [],
       fields: [
         {
           key: "email",
@@ -125,10 +125,15 @@ export default {
           sortable: true
         },
         {
+          key: "cell",
+          label: "cell",
+          sortable: true
+        },
+        {
           key: "role",
           label: "account type",
           sortable: true,
-          tdClass: "text-center text-capitalize"
+          tdClass: "text-capitalize"
         },
         {
           key: "created_at",
@@ -140,89 +145,82 @@ export default {
           label: "Last Updated at",
           sortable: true
         }
-      ],
-      items: []
+      ]
     };
   },
   computed: {
-    developersTotal() {
-      if (this.items < 1) return 0;
+    managersTotal() {
+      if (this.items.length < 1) return 0;
       return this.items.length;
     },
-    assigneAccounts() {
-      if (this.items < 1) return 0;
-      return [...new Set(this.items.map(item => item.account))].length;
+    accountsTotal() {
+      if (this.items.length < 1) return 0;
+      try {
+        const accounts = this.items.map(item => item.account);
+        return accounts.filter((item, i) => accounts.indexOf(item) == i).length;
+      } catch {
+        return 0;
+      }
+    },
+    cellsTotal() {
+      if (this.items.length < 1) return 0;
+      try {
+        const cells = this.items.map(item => item.account);
+        return cells.filter((item, i) => cells.indexOf(item) == i).length;
+      } catch {
+        return 0;
+      }
     }
   },
-  filters: {
-    dateFormatter: date => {
-      if (!date) return "";
-      return new Date(date).toLocaleDateString("en-EN", {
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-      });
-    }
-  },
-  mounted() {
-    this.getData();
-  },
-  destroyed() {
+  beforeMount() {
     this.state.loading = false;
-    delete this.state.items;
+    this.getData();
   },
   methods: {
     async getData() {
       this.state.loading = true;
-      const limit = await this.getTotal(
-        "/accounts/developers?offset=0&limit=0"
-      );
-      return this.axios
-        .get("/accounts/developers?offset=0&limit=" + limit)
+      const Total = await this.getTotal("/accounts/managers?offset=0&limit=0");
+      this.axios
+        .get("/accounts/managers?offset=0&limit=" + Total)
         .then(res => {
+          this.items = res.data.Managers;
           this.state.loading = false;
-          this.items = res.data.Developers;
         })
         .catch(err => {
           console.log(err, err.response);
           this.state.loading = false;
         });
     },
-    getTotal(endpoint) {
+    getTotal(url) {
       return this.axios
-        .get(endpoint)
+        .get(url)
         .then(res => res.data.Total)
         .catch(err => 0);
     },
     showMenu(event, data) {
-      this.$refs.devLeftMenu.showMenu(event, data);
+      this.$refs.devManagersLeftMenu.showMenu(event, data);
     },
     async optionClicked(data) {
       if (!data) return;
       if (data.option.slug == "update") {
-        this.selectedAccount = data.item;
-        await this.selectedAccount;
-        this.$refs["dev-updateAccount-modal"].show();
-        console.log(data.item);
+        this.accountToUpdate = data.item;
+        await this.accountToUpdate;
+        this.state.show.updateModal = true;
       }
     },
-    modalClosed() {
-      this.selectedAccount = null;
-    },
     closeModal() {
-      this.getData();
-      this.selectedAccount = null;
-      this.$refs["dev-updateAccount-modal"].hide();
-      this.state.show.createAccount_modal = false;
+      this.state.show.updateModal = false;
+      this.accountToUpdate = null;
     }
   }
 };
 </script>
 
 <style lang="scss">
-.dev-wrapper {
+.managers-wrapper {
   display: grid;
   grid-template-rows: auto auto;
+  grid-template-columns: 100%;
   width: 100%;
   padding: 15px 0;
   header {
@@ -260,29 +258,24 @@ export default {
       }
     }
   }
-
+  .custom-load {
+    background: ghostwhite;
+  }
   .cards {
-    display: flex;
-    flex-wrap: wrap;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    grid-gap: 20px;
     .custom-card {
-      min-width: 270px;
       height: fit-content;
-      max-width: 300px;
-      background: white;
-      box-shadow: 0 1px 6px 0 rgba(32, 33, 36, 0.28);
       padding: 2rem;
       border-radius: 5px;
       display: flex;
       justify-content: center;
       align-items: center;
-      flex-basis: calc(100% / 3 - 1rem);
       flex-wrap: nowrap;
       background: #0382b9;
 
-      &:not(:last-child) {
-        margin-right: 1.5rem;
-        margin-bottom: 1rem;
-      }
       .card-content {
         flex: 1;
         display: flex;
@@ -319,27 +312,7 @@ export default {
       }
     }
   }
-  .custom-loader {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 4rem;
-    user-select: none;
-    background: ghostwhite;
-    animation-name: fade;
-    animation-duration: 500ms;
-    animation-iteration-count: 1;
 
-    i {
-      font-size: 2rem;
-      margin-right: 0.5rem;
-    }
-    p {
-      margin-bottom: 0 !important;
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-  }
   .account-table {
     margin-top: 2rem;
 
@@ -417,4 +390,5 @@ export default {
     }
   }
 }
+</style>
 </style>

@@ -37,6 +37,14 @@ const dev_accounts = () =>
   import(
     /* webpackChunkName: "developers" */ "./Layouts/Dev/layouts/views/accounts.vue"
   );
+const dev_admins = () =>
+  import(
+    /* webpackChunkName: "developers" */ "./Layouts/Dev/layouts/views/admins.vue"
+  );
+const dev_managers = () =>
+  import(
+    /* webpackChunkName: "developers" */ "./Layouts/Dev/layouts/views/managers.vue"
+  );
 const notFound = () =>
   import(/* webpackChunkName: "404-page" */ "./pages/404.vue");
 const message = () =>
@@ -190,6 +198,24 @@ let router = new Router({
           path: "developers",
           name: "developers",
           component: developers,
+          meta: {
+            requireAuth: true,
+            forDev: true
+          }
+        },
+        {
+          path: "admins",
+          name: "devAdmins",
+          component: dev_admins,
+          meta: {
+            requireAuth: true,
+            forDev: true
+          }
+        },
+        {
+          path: "managers",
+          name: "devManagers",
+          component: dev_managers,
           meta: {
             requireAuth: true,
             forDev: true
