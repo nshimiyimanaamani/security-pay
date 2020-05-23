@@ -1,16 +1,13 @@
 <template>
-  <div class="dev-wrapper">
+  <div class="admins-wrapper">
     <div class="stats">
-      <header class="secondary-font">Developers in Numbers</header>
-      <div class="custom-loader" v-if="state.loading">
-        <i class="fa fa-spinner fa-spin" />
-        <p class="secondary-font">Loading...</p>
-      </div>
+      <header class="secondary-font">Managers in Numbers</header>
+      <vue-load v-if="state.loading" />
       <div class="cards" v-else>
         <div class="custom-card">
           <div class="card-content">
-            <h3>{{Number(developersTotal).toLocaleString()}}</h3>
-            <h4>Developers</h4>
+            <h3>{{managersTotal | number}}</h3>
+            <h4>Managerss</h4>
           </div>
           <div class="icon">
             <i class="fa fa-laptop-code" />
@@ -18,8 +15,17 @@
         </div>
         <div class="custom-card">
           <div class="card-content">
-            <h3>{{Number(assigneAccounts).toLocaleString()}}</h3>
+            <h3>{{accountsTotal | number}}</h3>
             <h4>Assigned Accounts</h4>
+          </div>
+          <div class="icon">
+            <i class="fa fa-address-card" />
+          </div>
+        </div>
+        <div class="custom-card">
+          <div class="card-content">
+            <h3>{{cellsTotal | number}}</h3>
+            <h4>Assigned Cells</h4>
           </div>
           <div class="icon">
             <i class="fa fa-address-card" />
@@ -29,7 +35,7 @@
     </div>
     <div class="account-table">
       <header class="secondary-font custom-header">
-        <h5>Developers Accounts</h5>
+        <h5>Managers Accounts</h5>
         <div class="add" @click="state.show.createAccount_modal=true">
           <i class="fa fa-plus" />
         </div>
@@ -52,14 +58,14 @@
         >
           <template v-slot:cell(updated_at)="data">
             <div class="d-flex align-items-center position-relative">
-              <div class="edited-cell">{{data.value | dateFormatter}}</div>
+              <div class="edited-cell">{{data.value | date}}</div>
               <i
                 class="fa fa-ellipsis-v more-icon"
                 @click.prevent.stop="showMenu($event,data.item)"
               />
             </div>
           </template>
-          <template v-slot:cell(created_at)="data">{{data.value | dateFormatter}}</template>
+          <template v-slot:cell(created_at)="data">{{data.value | date}}</template>
           <template v-slot:empty>
             <p class="custom-data">No accounts available to display at the moment!</p>
           </template>
@@ -71,12 +77,12 @@
           </template>
         </b-table>
         <vue-menu
-          elementId="dev-left-menu"
-          ref="devLeftMenu"
+          elementId="devManagers-left-menu"
+          ref="devManagersLeftMenu"
           :options="menuOptions"
           @option-clicked="optionClicked"
         />
-        <b-modal
+        <!-- <b-modal
           ref="dev-updateAccount-modal"
           hide-footer
           title="Update Account"
@@ -90,29 +96,23 @@
           v-if="state.show.createAccount_modal"
           @close="state.show.createAccount_modal=false"
           @created="closeModal"
-        />
+        />-->
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import updateAccount from "../../components/updateDev-account";
-import createAccount from "../../components/createDevAccount";
 export default {
-  name: "developers-dashboard",
-  components: {
-    "update-account": updateAccount,
-    createAccount
-  },
+  name: "devAdmins",
   data() {
     return {
       state: {
         loading: false,
         show: { createAccount_modal: false }
       },
-      selectedAccount: null,
       menuOptions: [{ slug: "update", name: "Update account" }],
+      items: [],
       fields: [
         {
           key: "email",
@@ -122,6 +122,11 @@ export default {
         {
           key: "account",
           label: "assigned account",
+          sortable: true
+        },
+        {
+          key: "cell",
+          label: "assigned cell",
           sortable: true
         },
         {
@@ -140,62 +145,26 @@ export default {
           label: "Last Updated at",
           sortable: true
         }
-      ],
-      items: []
+      ]
     };
   },
   computed: {
-    developersTotal() {
-      if (this.items < 1) return 0;
-      return this.items.length;
+    managersTotal() {
+      return 0;
     },
-    assigneAccounts() {
-      if (this.items < 1) return 0;
-      return [...new Set(this.items.map(item => item.account))].length;
+    accountsTotal() {
+      return 0;
+    },
+    cellsTotal() {
+      return 0;
     }
-  },
-  filters: {
-    dateFormatter: date => {
-      if (!date) return "";
-      return new Date(date).toLocaleDateString("en-EN", {
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-      });
-    }
-  },
-  mounted() {
-    this.getData();
-  },
-  destroyed() {
-    this.state.loading = false;
-    delete this.state.items;
   },
   methods: {
-    async getData() {
-      this.state.loading = true;
-      const limit = await this.getTotal(
-        "/accounts/developers?offset=0&limit=0"
-      );
-      return this.axios
-        .get("/accounts/developers?offset=0&limit=" + limit)
-        .then(res => {
-          this.state.loading = false;
-          this.items = res.data.Developers;
-        })
-        .catch(err => {
-          console.log(err, err.response);
-          this.state.loading = false;
-        });
-    },
-    getTotal(endpoint) {
-      return this.axios
-        .get(endpoint)
-        .then(res => res.data.Total)
-        .catch(err => 0);
+    getData() {
+      return 0;
     },
     showMenu(event, data) {
-      this.$refs.devLeftMenu.showMenu(event, data);
+      this.$refs.devManagersLeftMenu.showMenu(event, data);
     },
     async optionClicked(data) {
       if (!data) return;
@@ -205,22 +174,13 @@ export default {
         this.$refs["dev-updateAccount-modal"].show();
         console.log(data.item);
       }
-    },
-    modalClosed() {
-      this.selectedAccount = null;
-    },
-    closeModal() {
-      this.getData();
-      this.selectedAccount = null;
-      this.$refs["dev-updateAccount-modal"].hide();
-      this.state.show.createAccount_modal = false;
     }
   }
 };
 </script>
 
 <style lang="scss">
-.dev-wrapper {
+.admins-wrapper {
   display: grid;
   grid-template-rows: auto auto;
   width: 100%;
@@ -300,13 +260,12 @@ export default {
           margin: 0;
           color: white;
           font-weight: 100;
-          white-space: nowrap;
         }
       }
       .icon {
         border: 2px solid whitesmoke;
         border-radius: 50%;
-        min-width: 5rem;
+        width: 5rem;
         height: 5rem;
         display: flex;
         justify-content: center;
@@ -319,27 +278,7 @@ export default {
       }
     }
   }
-  .custom-loader {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 4rem;
-    user-select: none;
-    background: ghostwhite;
-    animation-name: fade;
-    animation-duration: 500ms;
-    animation-iteration-count: 1;
 
-    i {
-      font-size: 2rem;
-      margin-right: 0.5rem;
-    }
-    p {
-      margin-bottom: 0 !important;
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-  }
   .account-table {
     margin-top: 2rem;
 
@@ -417,4 +356,5 @@ export default {
     }
   }
 }
+</style>
 </style>

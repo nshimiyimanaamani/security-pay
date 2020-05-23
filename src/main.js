@@ -2,31 +2,32 @@
 /* eslint-disable semi */
 /* eslint-disable quotes */
 import Vue from "vue";
+import axios from "axios";
 import App from "./App.vue";
 import router from "./router";
-import PortalVue from "portal-vue";
+import "./assets/css/main.css";
 import { store } from "./store";
-import Snotify, { SnotifyPosition } from "vue-snotify";
-import axios from "axios";
 import VueAxios from "vue-axios";
+import PortalVue from "portal-vue";
+import vueBoostrap from "bootstrap-vue";
+import VueSlider from "vue-slider-component";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "vue-slider-component/theme/default.css";
+import "bootstrap-vue/dist/bootstrap-vue.min.css";
 import titleComponent from "./components/title.vue";
+import Snotify, { SnotifyPosition } from "vue-snotify";
 import loadingComponent from "./components/loading.vue";
 import VueSimpleContextMenu from "./scripts/simplecontextMenu";
-import VueSlider from "vue-slider-component";
-import "vue-slider-component/theme/default.css";
-import vueBoostrap from "bootstrap-vue";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-vue/dist/bootstrap-vue.min.css";
-import "./assets/css/main.css";
+const Rwanda = require("rwanda");
 
-Vue.use(vueBoostrap);
 Vue.component("VueSlider", VueSlider);
 Vue.component("vue-title", titleComponent);
-Vue.component("vue-menu", VueSimpleContextMenu);
 Vue.component("vue-load", loadingComponent);
+Vue.component("vue-menu", VueSimpleContextMenu);
 
-Vue.use(VueAxios, axios);
 Vue.use(PortalVue);
+Vue.use(vueBoostrap);
+Vue.use(VueAxios, axios);
 Vue.use(Snotify, {
   toast: {
     timeout: 3000,
@@ -37,6 +38,43 @@ Vue.use(Snotify, {
 });
 
 Vue.config.productionTip = false;
+Vue.filter("number", value => {
+  if (!value) return 0;
+  return Number(value).toLocaleString();
+});
+Vue.filter("date", date => {
+  if (!date) return "";
+  return new Date(date).toLocaleDateString("en-EN", {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+});
+Vue.prototype.$getTotal = url => {
+  return axios
+    .get(url)
+    .then(res => res.data.Total)
+    .catch(err => 0);
+};
+Vue.prototype.$provinces = () => {
+  return Rwanda.Provinces();
+};
+Vue.prototype.$districts = province => {
+  if (!province) return Rwanda.Districts();
+  return Rwanda.District(province);
+};
+Vue.prototype.$sectors = (province, district) => {
+  if (!province && !district) return Rwanda.Sectors();
+  return Rwanda.Sector(province, district);
+};
+Vue.prototype.$cells = (province, district, sector) => {
+  if (!province && !district && !sector) return Rwanda.Cells();
+  return Rwanda.Cell(province, district, sector);
+};
+Vue.prototype.$villages = (province, district, sector, cell) => {
+  if ((!province, !district, !sector, !cell)) return Rwanda.Villages();
+  return Rwanda.Village(province, district, sector, cell);
+};
 
 new Vue({
   router,
