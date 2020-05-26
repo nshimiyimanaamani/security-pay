@@ -19,7 +19,7 @@ func TestSaveAccount(t *testing.T) {
 
 	const op errors.Op = "store/postgres.accountRepository.Save"
 
-	id := "gasabo.gisozi"
+	id := "kigali.gasabo.gisozi"
 
 	cases := []struct {
 		desc    string
@@ -67,7 +67,7 @@ func TestUpdateAccount(t *testing.T) {
 
 	const op errors.Op = "store/postgres.accountRepository.Update"
 
-	id := "paypack.developers"
+	id := "kigali.gasabo.gisozi"
 
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -104,7 +104,7 @@ func TestRetrieveAccount(t *testing.T) {
 
 	const op errors.Op = "store/postgres.accountRepository.Retrieve"
 
-	id := "paypack.developers"
+	id := "kigali.gasabo.gisozi"
 
 	account := accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 
@@ -152,8 +152,8 @@ func TestListAccounts(t *testing.T) {
 	}{
 		{id: "paypack.test", name: "test", accountType: accounts.Devs},
 		{id: "paypack.developers", name: "developers", accountType: accounts.Devs},
-		{id: "gasabo.remera", name: "remera", accountType: accounts.Bens},
-		{id: "gasabo.kimironko", name: "kimironko", accountType: accounts.Bens},
+		{id: "kigali.gasabo.gisozi", name: "gisozi", accountType: accounts.Bens},
+		{id: "kigali.nyarugenge.gitega", name: "gitega", accountType: accounts.Bens},
 	}
 
 	n := uint64(4)
