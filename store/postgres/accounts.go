@@ -21,32 +21,61 @@ func NewAccountRepository(db *sql.DB) accounts.Repository {
 func (repo *accountRepository) Save(ctx context.Context, acc accounts.Account) (accounts.Account, error) {
 	const op errors.Op = "store/postgres.accountRepository.Save"
 
-	q := `
+	q := `INSERT INTO sectors(sector) VALUES($1) RETURNING sector`
+
+	empty := accounts.Account{}
+
+	tx, err := repo.BeginTx(ctx, &sql.TxOptions{
+		Isolation: sql.LevelDefault,
+	})
+
+	if err != nil {
+		return empty, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	err = tx.QueryRow(q, acc.ID).Scan(&acc.ID)
+
+	pqErr, ok := err.(*pq.Error)
+	if ok {
+		switch pqErr.Code.Name() {
+		case errDuplicate:
+			tx.Rollback()
+			return empty, errors.E(op, err, "account already exists", errors.KindAlreadyExists)
+		case errInvalid, errTruncation:
+			tx.Rollback()
+			return empty, errors.E(op, err, "invalid data input data", errors.KindBadRequest)
+		default:
+			tx.Rollback()
+			return empty, errors.E(op, err, errors.KindUnexpected)
+		}
+	}
+
+	q = `
 		INSERT INTO accounts (
 			id, 
 			name, 
 			type, 
-			seats
+			seats 
 		) VALUES ($1, $2, $3, $4) RETURNING created_at, updated_at;`
 
-	empty := accounts.Account{}
-
-	err := repo.QueryRow(q, acc.ID, acc.Name, acc.Type, acc.NumberOfSeats).Scan(&acc.CreatedAt, &acc.UpdatedAt)
+	err = tx.QueryRow(q, acc.ID, acc.Name, acc.Type, acc.NumberOfSeats).Scan(&acc.CreatedAt, &acc.UpdatedAt)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
 			switch pqErr.Code.Name() {
-			case errDuplicate:
-				return empty, errors.E(op, err, "account already exists", errors.KindAlreadyExists)
 			case errFK:
+				tx.Rollback()
 				return empty, errors.E(op, err, "invalid input data: sector not found", errors.KindNotFound)
 			case errInvalid, errTruncation:
+				tx.Rollback()
 				return empty, errors.E(op, err, "invalid input data ", errors.KindBadRequest)
 			}
 		}
+		tx.Rollback()
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
+	tx.Commit()
 	return acc, nil
 }
 
