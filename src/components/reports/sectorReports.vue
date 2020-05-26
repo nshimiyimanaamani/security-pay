@@ -1,71 +1,78 @@
 <template>
-  <div class="px-4">
-    <header class="d-flex justify-content-center font-19 text-uppercase">Sector Report</header>
-    <hr class="m-0 mb-3" />
-    <b-row class="justify-content-between">
+  <div class="sector-reports">
+    <header>Sector Report</header>
+    <b-row class="justify-content-center flex-column m-0 pb-4">
       <selector
         :object="config"
         :title="'Generate '+activeSector+' Report'"
         v-on:ok="generateAction"
+        class="w-auto m-auto date-selector"
       />
-      <div v-show="state.generating" class="w-auto px-3 align-self-center">
-        <strong class="font-14">Generating&nbsp;</strong>
-        <b-spinner small />
-      </div>
+      <vue-load v-if="state.generating" label="Generating..." />
     </b-row>
-    <b-row>
+    <b-row class="m-0" v-show="!state.generating">
       <b-collapse id="sectorreport-collapse" class="w-100" v-model="state.showReport">
-        <b-card class="text-capitalize" v-if="!state.error">
-          <b-card-title class="font-19 text-uppercase">Sector</b-card-title>
+        <b-card class="reports-card" v-if="!state.error" no-body>
+          <b-card-title>Sector Reports</b-card-title>
           <hr />
-          <b-table
-            id="sector-reports"
-            :items="generate"
-            :fields="table.fields"
-            :busy="table.busy"
-            :key="'sector-'+table.key"
-            v-if="state.generate"
-            small
-            bordered
-            responsive
-            show-empty
-          >
-            <template v-slot:cell(unpayedAmount)="data">
-              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
-            </template>
-            <template v-slot:cell(payedAmount)="data">
-              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
-            </template>
-          </b-table>
-          <b-card-title class="font-19 text-uppercase">cells</b-card-title>
+          <div class="card--body">
+            <b-table
+              id="sector-reports"
+              :items="generate"
+              :fields="table.fields"
+              :busy="table.busy"
+              :key="'sector-'+table.key"
+              v-if="state.generate"
+              head-row-variant="secondary"
+              small
+              bordered
+              hover
+              responsive
+              show-empty
+            >
+              <template v-slot:cell(unpayedAmount)="data">
+                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+              </template>
+              <template v-slot:cell(payedAmount)="data">
+                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+              </template>
+            </b-table>
+          </div>
+        </b-card>
+        <b-card class="reports-card" v-if="!state.error" no-body>
+          <b-card-title>cells Reports</b-card-title>
           <hr />
-          <b-table
-            id="sector-cell-reports"
-            :items="generateCell"
-            :fields="cellTable.fields"
-            :busy="cellTable.busy"
-            :key="'cell-'+cellTable.key"
-            v-if="state.generate"
-            small
-            bordered
-            responsive
-            show-empty
-          >
-            <template v-slot:cell(unpayedAmount)="data">
-              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
-            </template>
-            <template v-slot:cell(payedAmount)="data">
-              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
-            </template>
-          </b-table>
+          <div class="card--body">
+            <b-table
+              id="sector-cell-reports"
+              :items="generateCell"
+              :fields="cellTable.fields"
+              :busy="cellTable.busy"
+              :key="'cell-'+cellTable.key"
+              v-if="state.generate"
+              head-row-variant="secondary"
+              small
+              bordered
+              hover
+              responsive
+              show-empty
+            >
+              <template v-slot:cell(unpayedAmount)="data">
+                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+              </template>
+              <template v-slot:cell(payedAmount)="data">
+                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+              </template>
+            </b-table>
+          </div>
         </b-card>
         <b-card v-if="state.error">
           <b-card-text>{{state.errorMessage}}</b-card-text>
         </b-card>
       </b-collapse>
     </b-row>
-    <b-row v-if="!state.error && sectorData && cellData " class="my-3 justify-content-end">
-      <b-button @click="downloadReport" size="sm" class="app-color">Download Report</b-button>
+    <b-row v-if="!state.error && sectorData && cellData " class="m-0 py-3 justify-content-end">
+      <b-button @click="downloadReport" variant="info" class="downloadBtn">Download Report</b-button>
     </b-row>
   </div>
 </template>
@@ -104,25 +111,25 @@ export default {
           },
           {
             key: "payed",
-            label: "No of Payed Houses",
+            label: "No of Paid Houses",
             tdClass: "text-center",
             thClass: "text-center text-uppercase"
           },
           {
             key: "payedAmount",
-            label: "Payed Amount",
+            label: "Paid Amount",
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           },
           {
             key: "pending",
-            label: "No of unpayed Houses",
+            label: "No of unpaid Houses",
             tdClass: "text-center",
             thClass: "text-center text-uppercase"
           },
           {
             key: "unpayedAmount",
-            label: "unPayed Amount",
+            label: "unpaid Amount",
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           }
@@ -146,25 +153,25 @@ export default {
           },
           {
             key: "payed",
-            label: "No of Payed Houses",
+            label: "No of Paid Houses",
             tdClass: "text-center",
             thClass: "text-center text-uppercase"
           },
           {
             key: "payedAmount",
-            label: "Payed Amount",
+            label: "Paid Amount",
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           },
           {
             key: "pending",
-            label: "No of unpayed Houses",
+            label: "No of unpaid Houses",
             tdClass: "text-center",
             thClass: "text-center text-uppercase"
           },
           {
             key: "unpayedAmount",
-            label: "unPayed Amount",
+            label: "unpaid Amount",
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           }
@@ -175,7 +182,6 @@ export default {
     };
   },
   computed: {
-    
     activeSector() {
       return this.$store.getters.getActiveSector;
     },
@@ -199,12 +205,10 @@ export default {
       const year = this.config.year;
       const month = this.config.month;
       const first = this.axios.get(
-        
-          `/metrics/ratios/sectors/${this.activeSector}?year=${year}&month=${month}`
+        `/metrics/ratios/sectors/${this.activeSector}?year=${year}&month=${month}`
       );
       const second = this.axios.get(
-        
-          `/metrics/balance/sectors/${this.activeSector}?year=${year}&month=${month}`
+        `/metrics/balance/sectors/${this.activeSector}?year=${year}&month=${month}`
       );
       const promise = this.axios.all([first, second]);
       return promise
@@ -244,12 +248,10 @@ export default {
       const year = this.config.year;
       const month = this.config.month;
       const first = this.axios.get(
-        
-          `/metrics/ratios/sectors/all/${this.activeSector}?year=${year}&month=${month}`
+        `/metrics/ratios/sectors/all/${this.activeSector}?year=${year}&month=${month}`
       );
       const second = this.axios.get(
-        
-          `/metrics/balance/sectors/all/${this.activeSector}?year=${year}&month=${month}`
+        `/metrics/balance/sectors/all/${this.activeSector}?year=${year}&month=${month}`
       );
       const promise = this.axios.all([first, second]);
       return promise
@@ -314,5 +316,39 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+.sector-reports {
+  header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #384950;
+  }
+  .date-selector {
+    & > button {
+      border-radius: 3px;
+      padding: 1rem;
+    }
+  }
+  .reports-card {
+    margin: 1rem 0;
+    h4 {
+      font-size: 1.2rem;
+      margin: 0;
+      text-align: center;
+      padding: 0.8rem 1rem;
+    }
+    hr {
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+    .card--body {
+      padding: 0 0.5rem;
+    }
+  }
+  .downloadBtn{
+    border-radius: 2px
+  }
+}
 </style>
