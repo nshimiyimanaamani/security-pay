@@ -541,6 +541,12 @@ func migrateDB(db *sql.DB) error {
 					`,
 				},
 			},
+			{
+				Id: "009_drop_accounts_sector_fk_contraint",
+				Up: []string{
+					`ALTER TABLE accounts DROP CONSTRAINT accounts_id_fkey;`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

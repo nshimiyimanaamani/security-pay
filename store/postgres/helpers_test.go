@@ -198,7 +198,10 @@ func CleanDB(t *testing.T, db *sql.DB) {
 			admins, 
 			developers,
 			users,
-			accounts
+			accounts,
+			villages,
+			cells,
+			sectors
 	`
 
 	_, err := db.Exec(q)
