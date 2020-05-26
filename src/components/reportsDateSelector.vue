@@ -1,16 +1,16 @@
 <template>
   <b-dropdown
-    menu-class="bg-light w-100 font-13"
+    menu-class="bg-light w-100"
     size="sm"
     :id="'report-dropdown-form_'+random"
     ref="configureReports"
     no-caret
     :disabled.sync="disabled"
-    dropright
-    toggle-class="height-fit-content border-0 my-2 py-2 app-color"
+    dropbottom
+    toggle-class="height-fit-content border-0 app-color"
   >
     <template v-slot:button-content>
-      <p class="m-0 font-13">{{title}}</p>
+      <p class="m-0">{{title}}</p>
     </template>
     <b-dropdown-form form-class="p-2">
       <b-form-group label="Year" :label-for="'dropdown-year_'+random" @submit.stop.prevent>

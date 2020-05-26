@@ -1,14 +1,23 @@
 <template>
-  <b-container class="max-width py-3" style="min-width:500px">
+  <b-container class="reports-page" fluid>
     <vue-title title="Paypack | Reports" />
     <b-card no-body>
-      <b-tabs pills card vertical lazy class="font-13 text-uppercase">
-        <b-tab title="PAYMENT REPORTS" active>
+      <b-tabs
+        pills
+        card
+        vertical
+        lazy
+        class="reports-tabs text-uppercase flex-nowrap"
+        content-class="secondary-font overflow-auto"
+        active-nav-item-class="app-color text-white"
+        nav-class="report-navs"
+      >
+        <b-tab title="PAYMENT REPORTS">
           <payment-reports />
         </b-tab>
         <b-tab
           v-if="user.role.toLowerCase() =='admin' || user.role.toLowerCase() =='dev'"
-          title="SECTOR REPORTS"
+          title="SECTOR REPORTS" active
         >
           <sector-reports />
         </b-tab>
@@ -57,11 +66,23 @@ export default {
 };
 </script>
 
-<style>
-.nav-pills .nav-link.active {
-  background-color: #017db3 !important;
-}
-a {
-  color: #017db3;
+<style lang="scss">
+.reports-page {
+  min-width: 500px;
+  padding: 2rem 1rem 1rem;
+
+  .report-navs {
+    a.nav-link {
+      color: #017db3;
+      margin: 1px 0;
+      transition-duration: 200ms;
+      transition-timing-function: ease-in-out;
+      &:hover {
+        color: #fff;
+        background-color: #0382b9;
+      }
+    }
+  }
+  
 }
 </style>
