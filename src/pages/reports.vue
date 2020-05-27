@@ -1,14 +1,14 @@
 <template>
-  <b-container class="reports-page" fluid>
+  <b-container class="reports-page h-100" fluid>
     <vue-title title="Paypack | Reports" />
-    <b-card no-body>
+    <b-card no-body class="mh-100">
       <b-tabs
         pills
         card
         vertical
         lazy
-        class="reports-tabs text-uppercase flex-nowrap"
-        content-class="secondary-font overflow-auto"
+        class="reports-tabs text-uppercase flex-nowrap mh-100 overflow-auto"
+        content-class="secondary-font overflow-auto reports-content"
         active-nav-item-class="app-color text-white"
         nav-class="report-navs"
       >
@@ -17,7 +17,8 @@
         </b-tab>
         <b-tab
           v-if="user.role.toLowerCase() =='admin' || user.role.toLowerCase() =='dev'"
-          title="SECTOR REPORTS" active
+          title="SECTOR REPORTS"
+          active
         >
           <sector-reports />
         </b-tab>
@@ -83,6 +84,11 @@ export default {
       }
     }
   }
-  
+
+  .reports-content {
+    .active {
+      transition: all 500ms;
+    }
+  }
 }
 </style>

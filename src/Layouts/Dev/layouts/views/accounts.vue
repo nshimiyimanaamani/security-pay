@@ -2,14 +2,11 @@
   <div class="dev-accounts-wrapper">
     <div class="stats">
       <header class="secondary-font">Accounts in Numbers</header>
-      <div class="cards-loader secondary-font" v-if="state.loading">
-        <i class="fa fa-spinner fa-spin" />
-        <p>Loading...</p>
-      </div>
+      <vue-load label="Loading..." v-if="state.loading" />
       <div class="cards" v-else>
         <div class="custom-card">
           <div class="card-content">
-            <h3>{{Number(activeAccounts).toLocaleString()}}</h3>
+            <h3>{{activeAccounts | number}}</h3>
             <h4>Active Accounts</h4>
           </div>
           <div class="icon">
@@ -18,7 +15,7 @@
         </div>
         <div class="custom-card">
           <div class="card-content">
-            <h3>{{Number(inactiveAccounts).toLocaleString()}}</h3>
+            <h3>{{inactiveAccounts | number}}</h3>
             <h4>Inactive Accounts</h4>
           </div>
           <div class="icon">
@@ -52,7 +49,7 @@
         >
           <template v-slot:cell(updated_at)="data">
             <div class="d-flex align-items-center position-relative">
-              <div class="edited-cell">{{data.value | dateFormatter}}</div>
+              <div class="edited-cell">{{data.value | date}}</div>
               <i
                 class="fa fa-ellipsis-v more-icon"
                 @click.prevent.stop="showMenu($event,data.item)"
@@ -60,13 +57,10 @@
             </div>
           </template>
           <template v-slot:cell(created_at)="data">
-            <div class="edited-cell">{{data.value | dateFormatter}}</div>
+            <div class="edited-cell">{{data.value | date}}</div>
           </template>
           <template v-slot:table-busy>
-            <div class="table-loading">
-              <i class="fa fa-spinner fa-spin" />
-              <p>Loading...</p>
-            </div>
+            <vue-load label="Loading..." />
           </template>
           <template v-slot:empty>
             <div class="table-empty">
@@ -163,16 +157,6 @@ export default {
     inactiveAccounts() {
       if (this.items.length < 1) return 0;
       return this.items.filter(item => item.active === false).length;
-    }
-  },
-  filters: {
-    dateFormatter: date => {
-      if (!date) return "";
-      return new Date(date).toLocaleDateString("en-EN", {
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-      });
     }
   },
   methods: {
@@ -323,26 +307,6 @@ export default {
       }
     }
   }
-  .cards-loader {
-    padding: 4rem;
-    display: flex;
-    justify-content: center;
-    background-color: ghostwhite;
-    align-items: center;
-    user-select: none;
-    animation-name: fade;
-    animation-duration: 500ms;
-    animation-iteration-count: 1;
-    i {
-      font-size: 2rem;
-      margin-right: 0.5rem;
-    }
-    p {
-      font-size: 1.2rem;
-      margin-bottom: 0 !important;
-      font-weight: bold;
-    }
-  }
   .account-table {
     margin-top: 2rem;
 
@@ -395,24 +359,7 @@ export default {
       table.b-table[aria-busy="true"] {
         opacity: 0.8;
       }
-      .table-loading {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 2.5rem;
-        user-select: none;
-        background-color: ghostwhite;
 
-        i {
-          font-size: 2rem;
-          margin-right: 0.5rem;
-        }
-        p {
-          font-size: 1.2rem;
-          margin-bottom: 0 !important;
-          font-weight: bold;
-        }
-      }
       .table-empty {
         padding: 3rem;
         text-align: center;

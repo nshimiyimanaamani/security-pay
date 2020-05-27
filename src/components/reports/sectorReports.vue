@@ -328,7 +328,7 @@ export default {
   .date-selector {
     & > button {
       border-radius: 3px;
-      padding: 1rem;
+      padding: 0.7rem 1rem;
     }
   }
   .reports-card {
@@ -346,9 +346,12 @@ export default {
     .card--body {
       padding: 0 0.5rem;
     }
+    .table-responsive > table {
+      min-width: max-content;
+    }
   }
-  .downloadBtn{
-    border-radius: 2px
+  .downloadBtn {
+    border-radius: 2px;
   }
 }
 </style>
