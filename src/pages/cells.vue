@@ -1,16 +1,17 @@
 <template>
-  <b-container class="mw-100 sector-dashboard">
+  <b-container class="cells-page h-100 p-3" fluid>
     <vue-title title="Paypack | Cells" />
-    <b-row align-v="start" class="m-auto p-0 w-100 top">
-      <b-col class="column position-relative">
-        <b-card-body>
-          <b-card-header class="align-items-center p-2 px-3" style="height: 40px">
-            <i class="fa fa-th-large"></i>
-            <h1 class="text-center">{{activeCell}} COLLECTING ACCOUNT</h1>
-            <i class="fa fa-cog"></i>
-          </b-card-header>
-          <div style="height:calc(100% - 40px)">
-            <div class="position-relative canvas">
+    <div class="charts">
+      <b-row class="has-columns">
+        <!-- first chart -->
+        <div class="chart-container">
+          <header class="chart-header">
+            <i class="fa fa-th-large" />
+            <h1 class>{{activeCell || 'CELL'}} COLLECTING ACCOUNT</h1>
+            <i class="fa fa-cog" />
+          </header>
+          <div class="chart-body">
+            <div class="h-100">
               <bar-chart
                 v-if="chart1Data"
                 :chart-data="chart1Data"
@@ -19,93 +20,66 @@
               />
             </div>
           </div>
-        </b-card-body>
-        <!-- end of chart 1 -->
-      </b-col>
-      <b-col class="column position-relative">
-        <b-card-body class="chart-2">
-          <b-card-header class="align-items-center p-2 px-3" style="height: 40px">
+        </div>
+        <!-- second chart -->
+        <div class="chart-container">
+          <header class="chart-header">
             <i
               class="fa fa-refresh cursor-pointer"
               @click="loadData2"
               :class="{'fa-spin':chart2.state.loading}"
             />
-            <h1 class="text-center">{{activeCell}} TOTAL COLLECTED</h1>
+            <h1>{{activeCell||'CELL'}} TOTAL COLLECTED</h1>
             <selector :object="config" v-on:ok="updated" />
-          </b-card-header>
-          <div class="chart position-relative" style="height:calc(100% - 40px)">
-            <div v-if="!chart2.state.loading" class="position-relative canvas">
+          </header>
+          <div class="chart-body px-5">
+            <div v-if="!chart2.state.loading" class="h-100">
               <doughnut-chart
                 :chart-data="chart2.data"
                 v-if="chart2.data"
                 :options="options.chart2"
                 :style="style"
               />
-              <div
-                class="center-text justify-content-center align-items-center w-100 h-100 d-flex position-absolute"
-                v-if="!chart2.state.error"
-              >{{chart2.percentage}}%</div>
+              <div class="chart-center-text" v-if="!chart2.state.error">{{chart2.percentage}}%</div>
             </div>
-
-            <b-card
-              no-body
-              class="position-absolute bg-transparent border-0 chartLoader align-items-center"
-              v-if="chart2.state.loading"
-            >
-              <loader />
-            </b-card>
-            <b-card
-              no-body
-              class="position-absolute bg-transparent border-0 chartLoader align-items-center text-uppercase"
+            <vue-load v-if="chart2.state.loading" class="secondary-font chart-loader" />
+            <div
+              class="chart-error"
               v-if="chart2.state.error"
-            >
-              <p>{{chart2.state.errorMessage}}</p>
-            </b-card>
+            >{{chart2.state.errorMessage||'No data available to display at this moment!'}}</div>
           </div>
-        </b-card-body>
-      </b-col>
-    </b-row>
-    <b-row align-v="end" class="m-auto p-0 w-100 h-50">
-      <b-col class="column">
-        <b-card-body class="chart-3">
-          <b-card-header class="align-items-center p-2 px-3" style="height: 40px">
+        </div>
+      </b-row>
+      <b-row class="mb-3">
+        <div class="chart-container">
+          <header class="chart-header">
             <i
               class="fa fa-refresh cursor-pointer"
               @click="loadData3"
               :class="{'fa-spin':chart3.state.loading}"
             />
-            <h1 class="text-center">{{activeCell}} CELL</h1>
+            <h1>{{activeCell||""}} CELL</h1>
             <selector :object="config" v-on:ok="updated" />
-          </b-card-header>
-          <div style="height:calc(100% - 40px)">
-            <div v-if="!chart3.state.loading" class="h-100 position-relative canvas">
+          </header>
+          <div class="chart-body">
+            <div v-if="!chart3.state.loading" class="h-100">
               <line-chart
                 v-if="chart3.data"
                 :chart-data="chart3.data"
-                :style="style"
                 :tooltipData="chart3AdditionalData"
                 :options="options.chart3"
+                :style="style"
               />
             </div>
-
-            <b-card
-              no-body
-              class="position-absolute bg-transparent border-0 chartLoader align-items-center"
-              v-if="chart3.state.loading"
-            >
-              <loader />
-            </b-card>
-            <b-card
-              no-body
-              class="position-absolute bg-transparent border-0 chartLoader align-items-center text-uppercase"
+            <vue-load v-if="chart3.state.loading" class="secondary-font chart-loader" />
+            <div
+              class="chart-error"
               v-if="chart3.state.error"
-            >
-              <p>{{chart3.state.errorMessage}}</p>
-            </b-card>
+            >{{chart3.state.errorMessage||'No data available to display at this moment!'}}</div>
           </div>
-        </b-card-body>
-      </b-col>
-    </b-row>
+        </div>
+      </b-row>
+    </div>
   </b-container>
 </template>
 
@@ -278,7 +252,7 @@ export default {
             };
           } else {
             this.chart3.state.error = true;
-            this.chart3.state.errorMessage = "NO DATA FOUND FOR THIS SECTOR";
+            this.chart3.state.errorMessage = "NO DATA FOUND FOR THIS CELL";
           }
         })
         .catch(err => {
@@ -355,6 +329,6 @@ export default {
 };
 </script>
 
-<style lang="scss" >
+<style lang="scss">
 @import "../assets/css/dashboard.scss";
 </style>

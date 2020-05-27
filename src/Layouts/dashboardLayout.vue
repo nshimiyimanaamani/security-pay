@@ -70,19 +70,16 @@
         <strong>Quarks Group.</strong>
       </p>
     </div>
-    <div class="admin-content" :class="{'active' : active}">
+    <div class="admin-content">
       <nav
         class="navbar navbar-expand-lg navbar-light bg-light border-bottom d-flex justify-content-between flex-nowrap"
       >
         <div class="d-flex align-items-center">
           <h1 class="mb-0">P A Y P A C K</h1>
-          <b-button size="sm" variant="info" class="h-100 ml-5" @click="active=!active">
-            <i class="fa fa-align-left"></i>
-          </b-button>
         </div>
         <b-button class="btn-info py-1 font-14 ml-2" @click.prevent="logout">Logout</b-button>
       </nav>
-      <div class="admin-body" :class="{'active':active}">
+      <div class="admin-body">
         <transition name="fade" :duration="250" mode="out-in">
           <router-view />
         </transition>
@@ -112,15 +109,6 @@ export default {
     user() {
       return this.$store.getters.userDetails;
     }
-  },
-  mounted() {
-    window.onresize = () => {
-      if (window.innerWidth < 770) {
-        this.active = true;
-      } else if (window.innerWidth > 770) {
-        this.active = false;
-      }
-    };
   },
   methods: {
     update(res) {
