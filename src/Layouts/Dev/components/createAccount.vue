@@ -149,8 +149,13 @@ export default {
     createAccount() {
       if (this.disabled === false) {
         this.state.loading = true;
-        const id = `${this.province}.${this.district}.${this.sector}`;
-        if (this.type == "dev") id = "paypack." + this.id;
+        let id;
+        if (this.type == "ben")
+          id = String(
+            `${this.province}.${this.district}.${this.sector}`
+          ).toLowerCase();
+        if (this.type == "dev") id = String(`paypack.${this.id}`).toLowerCase();
+        if (!id) return;
         const data = {
           id: id,
           name: this.name,
@@ -162,6 +167,7 @@ export default {
           .then(res => {
             console.log(res.data);
             this.state.loading = false;
+            this.$snotify.success("Account created Successfully");
             this.$emit("created");
           })
           .catch(err => {
