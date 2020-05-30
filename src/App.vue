@@ -1,13 +1,7 @@
 <template>
   <div id="app">
-    <vue-snotify class="text-capitalize font-13"></vue-snotify>
-    <b-alert
-      :show="offline"
-      variant="danger"
-      class="text-center offline-indicator font-13 w-auto mx-3"
-      style="z-index: 10001"
-      dismissible
-    >
+    <vue-snotify class="text-capitalize secondary-font font-13"></vue-snotify>
+    <b-alert :show="offline" variant="danger" class="offline-indicator secondary-font" dismissible>
       <b>OFFLINE!</b> Please check your internet connection...
     </b-alert>
     <router-view />
@@ -50,5 +44,13 @@ export default {
   z-index: 1001;
   user-select: none;
   cursor: text;
+}
+.offline-indicator {
+  z-index: 10001;
+  position: absolute;
+  width: fit-content;
+  margin: auto;
+  box-shadow: 0 1px 6px 0 rgba(32, 33, 36, 0.28);
+  background-color: #f8d7da54;
 }
 </style>

@@ -1,105 +1,118 @@
 <template>
-  <b-container class="table-container px-5 py-3 mw-100">
+  <b-container class="table-container px-5 py-3" fluid>
     <vue-title title="Paypack | Properties" />
-    <h4 class="title d-flex justify-content-between flex-nowrap">
-      List of properties in {{selected}}
-      <b-button class="add-property mb-1 font-14" variant="info" @click="addProperty.show = true">
-        <i class="fa fa-plus-circle"></i> Property
+    <header>
+      <h4 class="secondary-font">List of properties in {{selected}}</h4>
+      <b-button class="br-2 secondary-font" variant="info" @click="addProperty.show = true">
+        <i class="fa fa-plus-circle mr-1" />Property
       </b-button>
-    </h4>
-    <hr />
+    </header>
+    <hr class="my-1" />
 
     <!-- filters -->
-    <b-row class="my-1 align-items-end px-3 flex-nowrap">
+    <b-row class="mt-3 mb-2 m-0 flex-nowrap">
       <b-dropdown
         id="dropdown-dropright"
-        dropright
         variant="info"
         ref="dropdown"
-        class="filter-dropdown mr-auto"
+        toggle-class="br-2 secondary-font"
+        class="filter-dropdown mr-auto secondary-font"
+        text="Filter By"
       >
-        <template slot="button-content">
-          <p class="font-14 d-inline">Filter By</p>
-        </template>
         <b-dropdown-form>
-          <b-card-body class="p-2">
-            <b-form-group label="cell">
-              <b-form-select v-model="select.cell" :options="cellOptions">
+          <!-- location Filters -->
+          <b-form-group label="Location Filters" class="flex-grow-1 px-2">
+            <b-form-group label="Sector" label-class="text-muted p-0" class="mb-3">
+              <b-form-select
+                size="sm"
+                v-model="select.sector"
+                :options="sectorOptions"
+                :disabled="sectorOptions.length < 1"
+              >
+                <template v-slot:first>
+                  <option :value="null" disabled>Select Sector</option>
+                </template>
+              </b-form-select>
+            </b-form-group>
+            <b-form-group label="Cell" label-class="text-muted p-0" class="mb-3">
+              <b-form-select
+                size="sm"
+                v-model="select.cell"
+                :options="cellOptions"
+                :disabled="cellOptions.length < 1"
+              >
                 <template v-slot:first>
                   <option :value="null" disabled>Select cell</option>
                 </template>
               </b-form-select>
             </b-form-group>
-            <b-form-group label="village" v-if="select.cell">
-              <b-form-select v-model="select.village" :options="villageOptions">
+            <b-form-group label="Village" label-class="text-muted p-0">
+              <b-form-select
+                size="sm"
+                v-model="select.village"
+                :options="villageOptions"
+                :disabled="villageOptions.length < 1"
+              >
                 <template v-slot:first>
                   <option :value="null" disabled>Select village</option>
                 </template>
               </b-form-select>
             </b-form-group>
-          </b-card-body>
-          <b-card-body class="p-2">
-            <b-form-group>
-              <template v-slot:label>
-                <b>Choose columns to display:</b>
-              </template>
-              <b-form-checkbox-group
-                id="columns"
-                v-model="select.postColumns"
-                :options="columns"
-                size="sm"
-                name="columns"
-                stacked
-              ></b-form-checkbox-group>
-            </b-form-group>
-          </b-card-body>
+          </b-form-group>
+          <b-form-group label="Columns Filters" class="flex-grow-1 px-2">
+            <b-form-checkbox-group
+              id="columns"
+              v-model="select.postColumns"
+              :options="columns"
+              size="sm"
+              name="columns"
+              stacked
+            ></b-form-checkbox-group>
+          </b-form-group>
         </b-dropdown-form>
-        <b-button variant="primary" size="sm" @click.prevent="disableColumns">Ok</b-button>
-        <b-button variant="danger" size="sm" @click.prevent="clearFilter">Clear</b-button>
+        <b-button variant="info" class="br-2" @click.prevent="filterByLocation">Filter</b-button>
+        <b-button variant="danger" class="br-2" @click.prevent="clearFilter">Reset</b-button>
       </b-dropdown>
 
-      <div>
+      <div class="ml-2">
         <b-form-input
           placeholder="search user..."
-          class="rounded-2 font-14"
+          class="br-2 secondary-font"
           type="search"
-          size="sm"
           v-model="search.name"
-          list="search-user-id"
         ></b-form-input>
-        <datalist id="search-user-id">
-          <option v-for="name in search.datalist" :key="name">{{ name }}</option>
-        </datalist>
       </div>
-      <b-button size="sm" variant="info" class="ml-1" @click="loadData">
+      <b-button variant="info" class="ml-2 br-2" @click="loadData">
         <i class="fa fa-sync-alt" :class="{'fa-spin':loading.request}"></i>
       </b-button>
       <b-button
         @click="downloadList"
-        :disabled="filteredItems.length ? false:true"
+        :disabled="filteredData.length ? false:true"
         variant="info"
-        size="sm"
-        class="ml-1 font-14"
-      >Download</b-button>
+        class="ml-2 br-2 secondary-font"
+      >
+        Download
+        <i class="fa fa-download" />
+      </b-button>
     </b-row>
     <!-- end of filters -->
 
     <b-table
-      id="data-table"
-      bordered
-      striped
       hover
       small
+      bordered
       responsive
-      :key="key"
-      :items="shownItems"
+      id="data-table"
       :fields="fields"
-      :busy="loading.request"
+      :items="filteredData"
+      head-variant="light"
       :sort-by.sync="sortBy"
-      :show-empty="!loading.request"
-      :current-page="pagination.currentPage"
-      :per-page="pagination.perPage"
+      :busy="loading.request"
       @row-contextmenu="editHouse"
+      thead-class="secondary-font"
+      :show-empty="!loading.request"
+      :per-page="pagination.perPage"
+      :current-page="pagination.currentPage"
     >
       <template v-slot:cell(due)="data">{{Number(data.item.due).toLocaleString()}} Rwf</template>
       <template v-slot:cell(owner)="data">{{data.item.owner.fname +" "+ data.item.owner.lname}}</template>
@@ -112,15 +125,12 @@
         <article class="text-center">{{data.index + 1}}</article>
       </template>
       <template v-slot:table-busy>
-        <div class="text-center my-2 p-3">
-          <b-spinner small class="align-middle" />&nbsp;
-          <strong>Loading...</strong>
-        </div>
+        <vue-load />
       </template>
       <template v-slot:empty>
-        <h5
-          class="text-center font-14 my-4"
-        >{{search.name ? search.name+' "is not in the list"':'No Property Found!'}}</h5>
+        <h6
+          class="text-center font-weight-bold p-5 w-100 secondary-font"
+        >{{search.name ? search.name +' "is not available in this property list"':'There are no properties available to show at the moment!'}}</h6>
       </template>
       <template v-slot:custom-foot v-if="!loading.request">
         <b-tr v-if="select.shownColumn.includes('Amount')">
@@ -132,20 +142,19 @@
               <strong>Total:</strong>
             </div>
             <div v-if="i===select.shownColumn.length-1">
-              <strong>{{totals()}} Rwf</strong>
+              <strong>{{totals | number}} Rwf</strong>
             </div>
           </b-td>
         </b-tr>
       </template>
     </b-table>
     <b-pagination
-      size="sm"
+      pills
       align="center"
       v-model="pagination.currentPage"
       :total-rows="pagination.totalRows"
       :per-page="pagination.perPage"
       class="my-0"
-      pills
       v-if="!loading.request && pagination.totalRows/pagination.perPage > 1"
     ></b-pagination>
     <add-property
@@ -181,10 +190,9 @@
 const download = import(
   /* webpackChunkName: "downloadScript" */ "../components/download scripts/downloadProperties"
 );
-import { Village } from "rwanda";
-import { isPhoneNumber } from "rwa-validator";
+
 export default {
-  name: "reports",
+  name: "properties",
   components: {
     "update-house": () =>
       import(
@@ -199,13 +207,15 @@ export default {
   },
   data() {
     return {
-      addProperty: {
-        show: false
+      originalData: [],
+      filteredData: [],
+      addProperty: { show: false },
+      state: {
+        changedLocation: false
       },
       selected: null,
       width: 0,
       options: [],
-      color: "#333333bd",
       loading: {
         progress: false,
         request: false
@@ -226,39 +236,14 @@ export default {
         sendTo: [],
         show: false
       },
-      modal: {
-        show: false,
-        switch: false,
-        loading: false,
-        title: "Search House Owner",
-        btnContent: "Search",
-        form: {
-          fname: null,
-          lname: null,
-          phone: null,
-          id: null,
-          due: "500"
-        },
-        select: {
-          cell: null,
-          village: null
-        }
-      },
-      search: {
-        name: "",
-        datalist: []
-      },
+      search: { name: "" },
       select: {
-        sector: "Remera",
+        sector: null,
         cell: null,
         village: null,
-        sectorOptions: [],
-        cellOptions: [],
-        villageOptions: [],
         shownColumn: [],
         postColumns: []
       },
-      size: "5px",
       sortBy: "owner",
       sortDesc: false,
       fields: [
@@ -272,10 +257,8 @@ export default {
         { key: "occupied", label: "Rented", sortable: true },
         { key: "due", label: "Amount" }
       ],
-      items: [],
-      key: 1,
       pagination: {
-        perPage: 15,
+        perPage: 30,
         currentPage: 1,
         totalRows: 1,
         show: false
@@ -284,56 +267,23 @@ export default {
   },
   computed: {
     sectorOptions() {
-      return [this.activeSector];
-    },
-    filteredItems() {
-      const sector = this.activeSector.trim().toLowerCase();
-      const cell = this.select.cell || "";
-      const village = this.select.village || "";
-      this.selected = village || cell || sector;
-      return this.items.filter(item => {
-        if (sector && cell && village) {
-          return (
-            item.address.sector.toLowerCase().trim() == sector &&
-            item.address.cell.toLowerCase().trim() == cell.toLowerCase() &&
-            item.address.village.toLowerCase().trim() == village.toLowerCase()
-          );
-        }
-        if (sector && cell && !village) {
-          return (
-            item.address.sector.toLowerCase().trim() == sector &&
-            item.address.cell.toLowerCase().trim() == cell.toLowerCase()
-          );
-        }
-        if (sector && !cell && !village) {
-          return item.address.sector.toLowerCase().trim() == sector;
-        }
-      });
-    },
-    shownItems() {
-      if (this.items) {
-        this.pagination.currentPage = 1;
-        this.pagination.totalRows = this.filteredItems.length;
-        while (this.search.datalist.length > 7) {
-          this.search.datalist.pop();
-        }
-        return this.filteredItems.filter(item => {
-          return (item.owner.fname + " " + item.owner.lname)
-            .toLowerCase()
-            .includes(this.search.name.toLowerCase());
-        });
-      } else [];
+      return [this.activeSector] || [];
     },
     cellOptions() {
-      return this.$store.getters.getCellsArray;
+      if (this.select.sector)
+        return this.$cells("Kigali", "Gasabo", this.select.sector);
+      return [];
     },
     villageOptions() {
-      const cell = this.select.cell;
-      if (cell) {
-        return Village("Kigali", "Gasabo", "Remera", cell);
-      } else {
-        return [];
-      }
+      if (this.select.cell)
+        return this.$villages(
+          "Kigali",
+          "Gasabo",
+          this.select.sector,
+          this.select.cell
+        );
+
+      return [];
     },
     activeSector() {
       return this.capitalize(this.$store.getters.getActiveSector);
@@ -344,10 +294,13 @@ export default {
     columns() {
       return this.fields.map(i => i.label);
     },
-    checkNumber() {
-      return this.modal.form.phone
-        ? isPhoneNumber(this.modal.form.phone)
-        : null;
+    totals() {
+      if (this.filteredData.length > 0) {
+        let total = 0;
+        this.filteredData.forEach(i => (total += Number(i.due)));
+        return total;
+      }
+      return 0;
     },
     user() {
       return this.$store.getters.userDetails;
@@ -363,16 +316,59 @@ export default {
       this.selected = this.activeSector;
     }
   },
+  watch: {
+    "search.name"() {
+      handler: {
+        this.filteredData = this.filterByName(this.search.name);
+      }
+    },
+    filteredData() {
+      handler: {
+        this.pagination.totalRows = this.filteredData.length;
+        this.pagination.currentPage = 1;
+      }
+    },
+    "select.sector"() {
+      handler: {
+        this.state.changedLocation = true;
+        this.select.cell = null;
+      }
+    },
+    "select.cell"() {
+      handler: {
+        this.state.changedLocation = true;
+        this.select.village = null;
+      }
+    },
+    "select.village"() {
+      handler: {
+        this.state.changedLocation = true;
+      }
+    }
+  },
   methods: {
     async loadData() {
       this.loading.request = true;
+      // const properties = JSON.parse(localStorage.getItem("Properties"));
+      // if (properties && properties.length > 0) {
+      //   this.filteredData = properties;
+      //   this.originalData = Object.freeze(properties);
+      //   this.loading.request = false;
+      //   return;
+      // }
+
       var promise = await this.getUrl();
       var total = await this.getTotal();
-      // total = (total / 10).toFixed();
       this.axios
         .get(promise + `${total}`)
         .then(res => {
-          this.items = [...res.data.Properties];
+          this.filteredData = res.data.Properties;
+          this.originalData = Object.freeze(res.data.Properties);
+          // localStorage.clear();
+          // localStorage.setItem(
+          //   "Properties",
+          //   JSON.stringify(res.data.Properties)
+          // );
           this.pagination.totalRows = total;
         })
         .catch(err => {
@@ -390,10 +386,54 @@ export default {
       return this.axios
         .get(`${promise}0`)
         .then(res => res.data.Total)
-        .catch(err => null);
+        .catch(err => 0);
     },
+    filterByName(name) {
+      if (!name) return this.originalData;
+      return this.originalData.filter(item =>
+        `${item.owner.fname} ${item.owner.lname}`
+          .toLowerCase()
+          .includes(name.toLowerCase())
+      );
+    },
+    async filterByLocation() {
+      if (this.$refs.dropdown) await this.$refs.dropdown.hide(true);
+      this.disableColumns();
+      if (this.state.changedLocation === false) return;
+      this.selected =
+        this.select.village ||
+        this.select.cell ||
+        this.select.sector ||
+        this.activeSector ||
+        this.activeCell;
+      const sector = this.select.sector || "";
+      const cell = this.select.cell || "";
+      const village = this.select.village || "";
+      console.log(sector, cell, village);
+      if (!sector && !cell && !village) return this.filteredData;
+      this.filteredData = this.originalData.filter(
+        item =>
+          item.address.sector.toLowerCase().endsWith(sector.toLowerCase()) &&
+          item.address.cell.toLowerCase().endsWith(cell.toLowerCase()) &&
+          item.address.village.toLowerCase().endsWith(village.toLowerCase())
+      );
+    },
+    disableColumns() {
+      //disabling unsellected columns by applying the display class on both thead and td
+      this.select.shownColumn = this.select.postColumns;
+      this.fields.map(value => {
+        if (!this.select.shownColumn.includes(value.label)) {
+          value.tdClass = "d-none";
+          value.thClass = "d-none";
+        } else {
+          delete value.tdClass;
+          delete value.thClass;
+        }
+      });
+    },
+
     downloadList() {
-      download(this.filteredItems, this.selected);
+      // download(this.filteredItems, this.selected);
     },
     editHouse(house, index, evt) {
       evt.preventDefault();
@@ -460,50 +500,19 @@ export default {
       this.message.show = false;
       this.message.sendTo = [];
     },
-    totals() {
-      if (this.filteredItems) {
-        let total = 0;
-        this.filteredItems.forEach(element => {
-          total += Number(element.due);
-        });
-        return total.toLocaleString();
-      }
-    },
-    disableColumns() {
-      //disabling some of the columns
-      this.loading.request = true;
-      if (this.$refs.dropdown) this.$refs.dropdown.hide(true);
-      this.select.shownColumn = this.select.postColumns;
-      this.fields.map(value => {
-        if (!this.select.shownColumn.includes(value.label)) {
-          value.tdClass = "d-none";
-          value.thClass = "d-none";
-        } else {
-          delete value.tdClass;
-          delete value.thClass;
-        }
-      });
-      this.key++;
-      this.loading.request = false;
-    },
-    clearFilter() {
-      this.select.cell = null;
+
+    async clearFilter() {
+      await this.$refs.dropdown.hide(true);
       this.select.village = null;
+      this.select.sector = null;
+      this.select.cell = null;
       this.select.shownColumn = this.columns;
-      this.key = 1;
-      if (this.user.role.toLowerCase() == "basic") {
-        this.selected = this.activeCell;
-      } else {
-        this.selected = this.activeSector;
-      }
-      this.$refs.dropdown.hide(true);
+      this.select.postColumns = this.columns;
+      this.filterByLocation();
     },
     capitalize(string) {
       string.toLowerCase();
       return string.charAt(0).toUpperCase() + string.slice(1);
-    },
-    lc(a) {
-      return a.toLowerCase();
     },
     getUrl() {
       if (this.user.role.toLowerCase() == "basic") {

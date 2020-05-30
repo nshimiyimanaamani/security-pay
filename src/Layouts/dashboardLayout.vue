@@ -1,7 +1,9 @@
 <template>
   <div class="admin-wrapper d-flex">
     <div class="admin-sidebar" :class="{'active' : active}">
-      <h1 class="text-white p-1 m-0 d-flex justify-content-center align-items-center"></h1>
+      <h1
+        class="text-white m-0 w-100 d-flex justify-content-center align-items-center"
+      >P A Y P A C K</h1>
       <hr class="m-0" />
       <ul class="sidebar-links font-14 p-0 mt-5">
         <router-link v-if="user.role.toLowerCase() !='basic'" to="/dashboard">
@@ -72,12 +74,12 @@
     </div>
     <div class="admin-content">
       <nav
-        class="navbar navbar-expand-lg navbar-light bg-light border-bottom d-flex justify-content-between flex-nowrap"
+        class="navbar navbar-expand-lg navbar-light bg-light border-bottom d-flex justify-content-end flex-nowrap"
       >
-        <div class="d-flex align-items-center">
-          <h1 class="mb-0">P A Y P A C K</h1>
-        </div>
-        <b-button class="btn-info py-1 font-14 ml-2" @click.prevent="logout">Logout</b-button>
+        <b-button class="ml-2 secondary-font br-2" variant="info" @click.prevent="logout">
+          Logout
+          <i class="fa fa-sign-out-alt" />
+        </b-button>
       </nav>
       <div class="admin-body">
         <transition name="fade" :duration="250" mode="out-in">
