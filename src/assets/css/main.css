@@ -25,7 +25,7 @@ body {
   padding: 6px 35px;
   margin: auto;
 }
-button:disabled{
+button:disabled {
   cursor: not-allowed;
 }
 p {
@@ -95,6 +95,9 @@ form input {
 }
 .width-fit-content {
   width: fit-content !important;
+}
+.br-2 {
+  border-radius: 2px !important;
 }
 .vue-menu {
   position: fixed !important;

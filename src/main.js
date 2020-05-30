@@ -75,6 +75,20 @@ Vue.prototype.$villages = (province, district, sector, cell) => {
   if ((!province, !district, !sector, !cell)) return Rwanda.Villages();
   return Rwanda.Village(province, district, sector, cell);
 };
+Vue.prototype.$isPhoneNumber = number => {
+  const errors = {
+    format: false
+  };
+  if (typeof number !== "string") {
+    throw new Error("Input should be string");
+  }
+
+  const re = /^(\+?25)?(078|075|073|072)\d{7}$/;
+  if (!re.test(number)) {
+    return errors.format;
+  }
+  return true;
+};
 
 new Vue({
   router,

@@ -1,37 +1,40 @@
 <template>
-  <div class="add-property-modal" v-show="show">
+  <div class="add-property-modal secondary-font" v-show="show">
     <!-- Modal content -->
-    <b-card class="mb-2 modal-body">
-      <h5 class="text-center mb-1">ADD PROPERTY</h5>
-      <hr />
-      <b-form @submit.prevent="search_user" @reset="resetModal">
+    <b-card class="mb-2 modal-content p-0" no-body>
+      <header class="modal-header">
+        <h5 class="text-center mb-1">ADD PROPERTY</h5>
+        <i class="fa fa-times" @click="$emit('closeModal')" />
+      </header>
+      <b-form @submit.prevent="search_user" @reset="resetModal" class="modal-body p-4">
         <b-form-group
           id="input-group-1"
-          class="mb-2"
           label="First Name:"
           label-for="input-1"
           description="Amazina ya nyiri inzu (*Ntabwo ari ukodesheje)"
         >
           <b-form-input
             id="input-1"
-            v-model="form.fname"
-            size="sm"
             required
+            v-model="form.fname"
             placeholder="First name"
             :disabled="state.switch"
-          ></b-form-input>
+            class="br-2"
+            trim
+          />
         </b-form-group>
-        <b-form-group id="input-group-2" class="mb-2" label="Last Name:" label-for="input-2">
+        <b-form-group id="input-group-2" label="Last Name" label-for="input-2">
           <b-form-input
             id="input-2"
             v-model="form.lname"
             :disabled="state.switch"
             required
-            size="sm"
+            trim
+            class="br-2"
             placeholder="Last name"
           ></b-form-input>
         </b-form-group>
-        <b-form-group id="input-group-3" class="mb-2" label="Phone Number:" label-for="input-3">
+        <b-form-group id="input-group-3" label="Phone Number" label-for="input-3">
           <b-form-input
             id="input-3"
             v-model="form.phone"
@@ -39,43 +42,40 @@
             :disabled="state.switch"
             required
             type="number"
-            size="sm"
+            class="br-2"
             placeholder="Phone number"
           ></b-form-input>
           <b-form-invalid-feedback :state="checkNumber">Please use a valid Phone number!</b-form-invalid-feedback>
         </b-form-group>
-        <b-form-group id="input-group-4" label-for="range-1" v-show="state.switch" class="mb-4">
+        <!-- second Modal -->
+        <b-form-group id="input-group-4" label-for="range-1" v-show="state.switch" class>
           <template v-slot:label>
-            <b-row class="m-o align-items-center px-3">
+            <b-row class="m-0 align-items-center">
               Due:
               <b-input
                 v-model="form.due"
                 required
                 step="500"
                 min="500"
-                size="sm"
                 type="number"
                 class="w-auto mx-1"
               />Rwf
             </b-row>
           </template>
-          <div>
-            <vue-slider
-              v-model="form.due"
-              :marks="slider.marks"
-              :interval="500"
-              :process="true"
-              :tooltip="'none'"
-              :min="500"
-              :max="50000"
-            >
-              <template v-slot:label="{ active, value }">
-                <div
-                  :class="['vue-slider-mark-label', 'custom-label', { active }]"
-                >{{ value/1000 }}K</div>
-              </template>
-            </vue-slider>
-          </div>
+          <vue-slider
+            v-model="form.due"
+            :marks="slider.marks"
+            :interval="500"
+            :process="true"
+            :tooltip="'none'"
+            :min="500"
+            :max="50000"
+            class="pt-2 pr-2 pb-4"
+          >
+            <template v-slot:label="{ active, value }">
+              <div :class="['vue-slider-mark-label', 'custom-label', { active }]">{{ value/1000 }}K</div>
+            </template>
+          </vue-slider>
         </b-form-group>
         <b-form-group label="Inzu ituwemo?" v-if="state.switch">
           <b-form-radio-group
@@ -85,14 +85,8 @@
             :state="occupied?true:false"
           ></b-form-radio-group>
         </b-form-group>
-        <b-form-group
-          id="input-group-5"
-          class="mb-2"
-          label="Cell:"
-          label-for="input-4"
-          v-show="state.switch"
-        >
-          <b-form-select v-model="address.cell" size="sm" :options="cellOptions" class="mb-0">
+        <b-form-group id="input-group-5" label="Cell:" label-for="input-4" v-show="state.switch">
+          <b-form-select v-model="address.cell" :options="cellOptions" class="br-2">
             <template v-slot:first>
               <option :value="null" disabled>select a cell</option>
             </template>
@@ -105,31 +99,29 @@
           v-show="state.switch"
           class="mb-3"
         >
-          <b-form-select v-model="address.village" size="sm" :options="villageOptions" class="mb-0">
+          <b-form-select v-model="address.village" :options="villageOptions" class="br-2">
             <template v-slot:first>
               <option :value="null" disabled>select a village</option>
             </template>
           </b-form-select>
         </b-form-group>
-        <b-button
-          :disabled="!clickable"
-          size="sm"
-          type="submit"
-          variant="primary"
-          class="font-14 app-color"
-        >
-          {{state.adding ? btnContent+'ing' : btnContent}}
-          <b-spinner v-show="state.adding" small type="grow"></b-spinner>
-        </b-button>
-        <b-button type="reset" size="sm" class="font-14" variant="danger">cancel</b-button>
+        <b-form-group class="mb-0 mt-4">
+          <b-button :disabled="!clickable" type="submit" variant="info" class="br-2">
+            {{state.adding ? btnContent+'ing' : btnContent}}
+            <i
+              v-if="state.adding"
+              class="fa fa-spinner fa-spin"
+            />
+            <i v-if="!state.adding" class="fa fa-search" />
+          </b-button>
+          <b-button type="reset" class="br-2" variant="danger">cancel</b-button>
+        </b-form-group>
       </b-form>
     </b-card>
   </div>
 </template>
 
 <script>
-const { isPhoneNumber } = require("rwa-validator");
-const { Village } = require("rwanda");
 export default {
   name: "addPropertModal",
   props: {
@@ -166,7 +158,6 @@ export default {
     };
   },
   computed: {
-    
     sectorOptions() {
       return [this.activeSector];
     },
@@ -178,15 +169,11 @@ export default {
     },
     villageOptions() {
       const cell = this.address.cell;
-      if (cell) {
-        return Village("Kigali", "Gasabo", "Remera", cell);
-      } else {
-        return [];
-      }
+      if (cell) return this.$villages("Kigali", "Gasabo", "Remera", cell);
+      return [];
     },
     checkNumber() {
-      const n = this.form.phone;
-      return n ? isPhoneNumber(n) : null;
+      return this.form.phone ? this.$isPhoneNumber(this.form.phone) : null;
     },
     userDetails() {
       return this.$store.getters.userDetails;
@@ -334,13 +321,13 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 .add-property-modal {
   position: fixed;
-  top: 55px;
-  width: calc(100% - 210px);
-  height: calc(100% - 55px);
-  left: 210px;
+  top: 50px;
+  width: calc(100% - 230px);
+  height: calc(100% - 50px);
+  left: 230px;
   right: 0;
   margin: auto;
   background: #000000cc;
@@ -348,21 +335,30 @@ export default {
   z-index: 1000;
   overflow-x: hidden;
   overflow-y: auto;
-}
 
-.add-property-modal .modal-body {
-  position: absolute;
-  padding: 0;
-  width: 45%;
-  top: 1rem;
-  left: 0;
-  right: 0;
-  margin: auto;
-}
+  .modal-content {
+    position: absolute;
+    width: auto;
+    top: 2rem;
+    left: 0;
+    right: 0;
+    margin: auto;
+    min-width: 300px;
+    max-width: 500px;
 
-.modal-body form button {
-  float: right;
-  margin-left: 10px;
-  padding: 3px 15px;
+    .modal-header {
+      width: 100%;
+      height: 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 1rem;
+    }
+
+    form button {
+      float: right;
+      margin-left: 10px;
+    }
+  }
 }
 </style>
