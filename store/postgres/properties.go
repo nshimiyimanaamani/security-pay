@@ -6,6 +6,7 @@ import (
 
 	//"github.com/lib/pq"
 	"github.com/lib/pq"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
@@ -33,13 +34,24 @@ func (repo *propertiesStore) Save(ctx context.Context, pro properties.Property) 
 			cell, 
 			village, 
 			recorded_by, 
-			occupied
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING created_at, updated_at`
+			occupied,
+			namespace
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING created_at, updated_at`
 
 	empty := properties.Property{}
 
-	err := repo.QueryRow(q, pro.ID, pro.Owner.ID, pro.Due, pro.Address.Sector,
-		pro.Address.Cell, pro.Address.Village, pro.RecordedBy, pro.Occupied).Scan(&pro.CreatedAt, &pro.UpdatedAt)
+	err := repo.QueryRow(q,
+		pro.ID,
+		pro.Owner.ID,
+		pro.Due,
+		pro.Address.Sector,
+		pro.Address.Cell,
+		pro.Address.Village,
+		pro.RecordedBy,
+		pro.Occupied,
+		pro.Namespace,
+	).Scan(&pro.CreatedAt, &pro.UpdatedAt)
+
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -59,10 +71,23 @@ func (repo *propertiesStore) Save(ctx context.Context, pro properties.Property) 
 func (repo *propertiesStore) Update(ctx context.Context, pro properties.Property) error {
 	const op errors.Op = "store/postgres/propertiesStore.Update"
 
-	q := `UPDATE properties SET owner=$1, due=$2, sector=$3, cell=$4, village=$5, occupied=$6, for_rent=$7 WHERE id=$8;`
+	q := `
+		UPDATE properties SET 
+			owner=$1, due=$2, sector=$3, 
+			cell=$4, village=$5, occupied=$6, 
+			for_rent=$7, namespace=$8
+		WHERE id=$9;
+	`
 
-	res, err := repo.Exec(q, pro.Owner.ID, pro.Due,
-		pro.Address.Sector, pro.Address.Cell, pro.Address.Village, pro.ForRent, pro.Occupied, pro.ID,
+	res, err := repo.Exec(q,
+		pro.Owner.ID,
+		pro.Due,
+		pro.Address.Sector,
+		pro.Address.Cell,
+		pro.Address.Village,
+		pro.ForRent,
+		pro.Occupied,
+		pro.Namespace, pro.ID,
 	)
 
 	if err != nil {
@@ -110,10 +135,21 @@ func (repo *propertiesStore) RetrieveByID(ctx context.Context, id string) (prope
 
 	q := `
 		SELECT 
-			properties.id, properties.sector, properties.cell,  
-			properties.village, properties.due, properties.recorded_by,
-			properties.occupied, properties.for_rent, properties.created_at, 
-			properties.updated_at, owners.id, owners.fname, owners.lname, owners.phone
+			properties.id, 
+			properties.sector, 
+			properties.cell,  
+			properties.village, 
+			properties.due, 
+			properties.recorded_by,
+			properties.occupied, 
+			properties.for_rent, 
+			properties.created_at, 
+			properties.updated_at, 
+			properties.namespace,
+			owners.id, 
+			owners.fname, 
+			owners.lname, 
+			owners.phone
 		FROM 
 			properties
 		INNER JOIN 
@@ -123,11 +159,24 @@ func (repo *propertiesStore) RetrieveByID(ctx context.Context, id string) (prope
 
 	var prt = properties.Property{}
 
-	if err := repo.QueryRow(q, id).Scan(
-		&prt.ID, &prt.Address.Sector, &prt.Address.Cell, &prt.Address.Village,
-		&prt.Due, &prt.RecordedBy, &prt.Occupied, &prt.ForRent, &prt.CreatedAt, &prt.UpdatedAt,
-		&prt.Owner.ID, &prt.Owner.Fname, &prt.Owner.Lname, &prt.Owner.Phone,
-	); err != nil {
+	err := repo.QueryRow(q, id).Scan(
+		&prt.ID,
+		&prt.Address.Sector,
+		&prt.Address.Cell,
+		&prt.Address.Village,
+		&prt.Due,
+		&prt.RecordedBy,
+		&prt.Occupied,
+		&prt.ForRent,
+		&prt.CreatedAt,
+		&prt.UpdatedAt,
+		&prt.Namespace,
+		&prt.Owner.ID,
+		&prt.Owner.Fname,
+		&prt.Owner.Lname,
+		&prt.Owner.Phone,
+	)
+	if err != nil {
 		empty := properties.Property{}
 
 		pqErr, ok := err.(*pq.Error)
@@ -144,38 +193,66 @@ func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, 
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveByOwner"
 
 	q := `SELECT 
-			properties.id, properties.sector, properties.cell, 
-			properties.village, properties.due, properties.recorded_by,
-			properties.occupied, properties.for_rent, properties.created_at,
-			properties.updated_at, owners.id, owners.fname, owners.lname, owners.phone
+			properties.id, 
+			properties.sector, 
+			properties.cell, 
+			properties.village, 
+			properties.due, 
+			properties.recorded_by,
+			properties.occupied, 
+			properties.for_rent, 
+			properties.created_at,
+			properties.updated_at,
+			properties.namespace,
+			owners.id, 
+			owners.fname, 
+			owners.lname, 
+			owners.phone
 		FROM 
 			properties
 		INNER JOIN
 			owners ON properties.owner=owners.id
 		WHERE 
-			properties.owner = $1 ORDER BY properties.id LIMIT $2 OFFSET $3
+			properties.owner = $1 AND properties.namespace=$2
+		ORDER BY properties.id LIMIT $3 OFFSET $4
+		
 	`
+
+	creds := auth.CredentialsFromContext(ctx)
 
 	var items = []properties.Property{}
 
-	rows, err := repo.Query(q, owner, limit, offset)
+	rows, err := repo.Query(q, owner, creds.Account, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		c := properties.Property{}
+		row := properties.Property{}
 
-		if err := rows.Scan(
-			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
-			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent, &c.CreatedAt, &c.UpdatedAt,
-			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
-		); err != nil {
+		err := rows.Scan(
+			&row.ID,
+			&row.Address.Sector,
+			&row.Address.Cell,
+			&row.Address.Village,
+			&row.Due,
+			&row.RecordedBy,
+			&row.Occupied,
+			&row.ForRent,
+			&row.CreatedAt,
+			&row.UpdatedAt,
+			&row.Namespace,
+			&row.Owner.ID,
+			&row.Owner.Fname,
+			&row.Owner.Lname,
+			&row.Owner.Phone,
+		)
+		if err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
 
-		items = append(items, c)
+		items = append(items, row)
 	}
 
 	q = `SELECT COUNT(*) FROM properties WHERE owner = $1`
@@ -201,38 +278,66 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 
 	q := `
 		SELECT 
-			properties.id, properties.sector, properties.cell, 
-			properties.village, properties.due, properties.recorded_by, 
-			properties.occupied, properties.for_rent, properties.created_at,
-			properties.updated_at, owners.id, owners.fname, owners.lname, owners.phone
+			properties.id, 
+			properties.sector, 
+			properties.cell, 
+			properties.village, 
+			properties.due, 
+			properties.recorded_by, 
+			properties.occupied, 
+			properties.for_rent, 
+			properties.created_at,
+			properties.updated_at, 
+			properties.namespace,
+			owners.id, 
+			owners.fname, 
+			owners.lname, 
+			owners.phone
 		FROM 
 			properties
 		INNER JOIN
 			owners ON properties.owner=owners.id 
 		WHERE 
-			properties.sector = $1 ORDER BY  properties.id LIMIT $2 OFFSET $3
+			properties.sector = $1 AND properties.namespace=$2
+		ORDER BY  properties.id LIMIT $3 OFFSET $4
 	`
+
+	creds := auth.CredentialsFromContext(ctx)
 
 	var items = []properties.Property{}
 
-	rows, err := repo.Query(q, sector, limit, offset)
+	rows, err := repo.Query(q, sector, creds.Account, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		c := properties.Property{}
+		row := properties.Property{}
 
-		if err := rows.Scan(
-			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
-			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent, &c.CreatedAt, &c.UpdatedAt,
-			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
-		); err != nil {
+		err := rows.Scan(
+			&row.ID,
+			&row.Address.Sector,
+			&row.Address.Cell,
+			&row.Address.Village,
+			&row.Due,
+			&row.RecordedBy,
+			&row.Occupied,
+			&row.ForRent,
+			&row.CreatedAt,
+			&row.UpdatedAt,
+			&row.Namespace,
+			&row.Owner.ID,
+			&row.Owner.Fname,
+			&row.Owner.Lname,
+			&row.Owner.Phone,
+		)
+
+		if err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
 
-		items = append(items, c)
+		items = append(items, row)
 	}
 
 	q = `SELECT COUNT(*) FROM properties WHERE sector = $1`
@@ -258,37 +363,62 @@ func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, of
 
 	q := `
 		SELECT 
-			properties.id, properties.sector, properties.cell, 
-			properties.village, properties.due, properties.recorded_by, 
-			properties.occupied, properties.for_rent, properties.created_at,
-			properties.updated_at, owners.id, owners.fname, owners.lname, owners.phone
+			properties.id, 
+			properties.sector, 
+			properties.cell, 
+			properties.village, 
+			properties.due, 
+			properties.recorded_by, 
+			properties.occupied, 
+			properties.for_rent, 
+			properties.created_at,
+			properties.updated_at, 
+			properties.namespace,
+			owners.id, 
+			owners.fname, 
+			owners.lname, 
+			owners.phone
 		FROM 
 			properties
 		INNER JOIN
 			owners ON properties.owner=owners.id 	
-		WHERE properties.cell = $1 ORDER BY properties.id LIMIT $2 OFFSET $3
+		WHERE 
+			properties.cell = $1 AND properties.namespace=$2
+		ORDER BY properties.id LIMIT $3 OFFSET $4
 	`
 
 	var items = []properties.Property{}
 
-	rows, err := repo.Query(q, cell, limit, offset)
+	creds := auth.CredentialsFromContext(ctx)
+
+	rows, err := repo.Query(q, cell, creds.Account, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		c := properties.Property{}
+		row := properties.Property{}
 
 		if err := rows.Scan(
-			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
-			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent, &c.CreatedAt, &c.UpdatedAt,
-			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
+			&row.ID,
+			&row.Address.Sector,
+			&row.Address.Cell,
+			&row.Address.Village,
+			&row.Due,
+			&row.RecordedBy,
+			&row.Occupied,
+			&row.ForRent,
+			&row.CreatedAt,
+			&row.UpdatedAt,
+			&row.Namespace,
+			&row.Owner.ID,
+			&row.Owner.Fname, &row.Owner.Lname, &row.Owner.Phone,
 		); err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
 
-		items = append(items, c)
+		items = append(items, row)
 	}
 
 	q = `SELECT COUNT(*) FROM properties WHERE cell = $1`
@@ -314,37 +444,65 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 
 	q := `
 		SELECT 
-			properties.id, properties.sector, properties.cell, 
-			properties.village, properties.due, properties.recorded_by, 
-			properties.occupied, properties.for_rent, properties.created_at,
-			properties.updated_at, owners.id, owners.fname, owners.lname, owners.phone
+			properties.id, 
+			properties.sector, 
+			properties.cell, 
+			properties.village, 
+			properties.due, 
+			properties.recorded_by, 
+			properties.occupied, 
+			properties.for_rent, 
+			properties.created_at,
+			properties.updated_at,
+			properties.namespace, 
+			owners.id, 
+			owners.fname, 
+			owners.lname, 
+			owners.phone
 		FROM 
 			properties
 		INNER JOIN
 			owners ON properties.owner=owners.id 
-		WHERE properties.village = $1 ORDER BY properties.id LIMIT $2 OFFSET $3
+		WHERE 
+			properties.village = $1 AND properties.namespace=$2 
+		ORDER BY properties.id LIMIT $3 OFFSET $4
 	`
 
 	var items = []properties.Property{}
 
-	rows, err := repo.Query(q, village, limit, offset)
+	creds := auth.CredentialsFromContext(ctx)
+
+	rows, err := repo.Query(q, village, creds.Account, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		c := properties.Property{}
+		row := properties.Property{}
 
-		if err := rows.Scan(
-			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
-			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent, &c.CreatedAt, &c.UpdatedAt,
-			&c.Owner.ID, &c.Owner.Fname, &c.Owner.Lname, &c.Owner.Phone,
-		); err != nil {
+		err := rows.Scan(
+			&row.ID,
+			&row.Address.Sector,
+			&row.Address.Cell,
+			&row.Address.Village,
+			&row.Due,
+			&row.RecordedBy,
+			&row.Occupied,
+			&row.ForRent,
+			&row.CreatedAt,
+			&row.UpdatedAt,
+			&row.Namespace,
+			&row.Owner.ID,
+			&row.Owner.Fname,
+			&row.Owner.Lname,
+			&row.Owner.Phone,
+		)
+		if err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
 
-		items = append(items, c)
+		items = append(items, row)
 	}
 
 	q = `SELECT COUNT(*) FROM properties WHERE village = $1`
@@ -370,37 +528,65 @@ func (repo *propertiesStore) RetrieveByRecorder(ctx context.Context, user string
 
 	q := `
 		SELECT 
-			properties.id, properties.sector, properties.cell, 
-			properties.village, properties.due, properties.recorded_by, 
-			properties.occupied, properties.for_rent, properties.created_at,
-			properties.updated_at, owners.id, owners.fname, owners.lname, owners.phone
+			properties.id, 
+			properties.sector, 
+			properties.cell, 
+			properties.village, 
+			properties.due, 
+			properties.recorded_by, 
+			properties.occupied, 
+			properties.for_rent, 
+			properties.created_at,
+			properties.updated_at,
+			properties.namespace,
+			owners.id, 
+			owners.fname, 
+			owners.lname, 
+			owners.phone
 		FROM 
 			properties
 		INNER JOIN
 			owners ON properties.owner=owners.id 
-		WHERE properties.recorded_by = $1 ORDER BY properties.id LIMIT $2 OFFSET $3
+		WHERE 
+			properties.recorded_by = $1 AND properties.namespace=$2
+		ORDER BY properties.id LIMIT $3 OFFSET $4
 	`
 
 	var items = []properties.Property{}
 
-	rows, err := repo.Query(q, user, limit, offset)
+	creds := auth.CredentialsFromContext(ctx)
+
+	rows, err := repo.Query(q, user, creds.Account, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		c := properties.Property{}
+		row := properties.Property{}
 
-		if err := rows.Scan(
-			&c.ID, &c.Address.Sector, &c.Address.Cell, &c.Address.Village,
-			&c.Due, &c.RecordedBy, &c.Occupied, &c.ForRent, &c.CreatedAt, &c.UpdatedAt,
-			&c.Owner.ID, &c.Owner.Lname, &c.Owner.Lname, &c.Owner.Phone,
-		); err != nil {
+		err := rows.Scan(
+			&row.ID,
+			&row.Address.Sector,
+			&row.Address.Cell,
+			&row.Address.Village,
+			&row.Due,
+			&row.RecordedBy,
+			&row.Occupied,
+			&row.ForRent,
+			&row.CreatedAt,
+			&row.UpdatedAt,
+			&row.Namespace,
+			&row.Owner.ID,
+			&row.Owner.Lname,
+			&row.Owner.Lname,
+			&row.Owner.Phone,
+		)
+		if err != nil {
 			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
 
-		items = append(items, c)
+		items = append(items, row)
 	}
 
 	q = `SELECT COUNT(*) FROM properties WHERE recorded_by = $1`

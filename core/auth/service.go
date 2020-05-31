@@ -18,8 +18,8 @@ type Service interface {
 	// identified by the non-nil error values in the response.
 	Login(ctx context.Context, user Credentials) (string, error)
 
-	// Identify validates user's token. If token is valid, user's id
-	// is returned. If token is invalid, or invocation failed for some
+	// Identify validates user's token. If token is valid, user's credentials
+	// are returned. If token is invalid, or invocation failed for some
 	// other reason, non-nil error values are returned in response.
 	Identify(ctx context.Context, token string) (Credentials, error)
 }

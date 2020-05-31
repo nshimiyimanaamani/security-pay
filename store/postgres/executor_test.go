@@ -22,7 +22,12 @@ func TestAuditFunc(t *testing.T) {
 
 	defer CleanDB(t, db)
 
-	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{
+		ID:            "paypack.developers",
+		Name:          "remera",
+		NumberOfSeats: 10,
+		Type:          accounts.Devs,
+	}
 
 	account = saveAccount(t, db, account)
 
@@ -39,12 +44,19 @@ func TestAuditFunc(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	saved := saveOwner(t, db, owner)
 
 	sector := "Kigomna"
 	cell := "Kigeme"
 	village := "Tetero"
+
+	begin := tools.BeginningOfMonth()
 
 	n := uint64(20)
 
@@ -57,8 +69,9 @@ func TestAuditFunc(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
-			CreatedAt:  tools.LastMonth(),
-			UpdatedAt:  tools.LastMonth(),
+			Namespace:  account.ID,
+			CreatedAt:  tools.AddMonth(begin, -1),
+			UpdatedAt:  tools.AddMonth(begin, -1),
 			Due:        float64(1000),
 			RecordedBy: agent.Telephone,
 			Occupied:   true,
