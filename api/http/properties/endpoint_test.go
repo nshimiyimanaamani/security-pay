@@ -95,6 +95,7 @@ func TestRegister(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  "kigali.gasabo.remera",
 		Due:        float64(1000),
 		RecordedBy: uuid.New().ID(),
 	}
@@ -193,6 +194,7 @@ func TestUpdate(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  "kigali.gasabo.remera",
 		Due:        float64(1000),
 		RecordedBy: uuid.New().ID(),
 		Occupied:   true,
@@ -202,15 +204,16 @@ func TestUpdate(t *testing.T) {
 	saved, err := svc.Register(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
-	res := Property{
+	res := properties.Property{
 		ID:    saved.ID,
-		Owner: Owner{ID: saved.Owner.ID},
+		Owner: owner,
 		Due:   saved.Due,
-		Address: Address{
+		Address: properties.Address{
 			Sector:  saved.Address.Sector,
 			Cell:    saved.Address.Cell,
 			Village: saved.Address.Village,
 		},
+		Namespace:  saved.Namespace,
 		RecordedBy: saved.RecordedBy,
 		Occupied:   saved.Occupied,
 	}
@@ -313,6 +316,7 @@ func TestRetrieve(t *testing.T) {
 			Village: "Ingabo",
 		},
 		Due:        float64(1000),
+		Namespace:  "kigali.gasabo.remera",
 		RecordedBy: uuid.New().ID(),
 		Occupied:   true,
 		CreatedAt:  now,
@@ -323,15 +327,16 @@ func TestRetrieve(t *testing.T) {
 	saved, err := svc.Register(ctx, property)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
-	res := Property{
+	res := properties.Property{
 		ID:    saved.ID,
-		Owner: Owner{ID: saved.Owner.ID},
+		Owner: properties.Owner{ID: saved.Owner.ID},
 		Due:   saved.Due,
-		Address: Address{
+		Address: properties.Address{
 			Sector:  saved.Address.Sector,
 			Cell:    saved.Address.Cell,
 			Village: saved.Address.Village,
 		},
+		Namespace:  saved.Namespace,
 		RecordedBy: saved.RecordedBy,
 		Occupied:   saved.Occupied,
 		CreatedAt:  saved.CreatedAt,
@@ -347,14 +352,14 @@ func TestRetrieve(t *testing.T) {
 		res         string
 	}{
 		{
-			desc: "view existing owner",
+			desc: "view existing property",
 			id:   saved.ID,
 
 			status: http.StatusOK,
 			res:    toJSON(res),
 		},
 		{
-			desc: "view non-existent owner",
+			desc: "view non-existent property",
 			id:   strconv.FormatUint(wrongID, 10),
 
 			status: http.StatusNotFound,
@@ -404,6 +409,7 @@ func TestDelete(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  "kigali.gasabo.remera",
 		Due:        float64(1000),
 		RecordedBy: uuid.New().ID(),
 		Occupied:   true,
@@ -478,27 +484,29 @@ func TestListByOwner(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  "kigali.gasabo.remera",
 		Due:        float64(1000),
 		RecordedBy: uuid.New().ID(),
 		Occupied:   true,
 	}
 
-	data := []Property{}
+	data := []properties.Property{}
 
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
 		saved, err := svc.Register(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
-		res := Property{
+		res := properties.Property{
 			ID:    saved.ID,
-			Owner: Owner{ID: saved.Owner.ID},
+			Owner: saved.Owner,
 			Due:   saved.Due,
-			Address: Address{
+			Address: properties.Address{
 				Sector:  saved.Address.Sector,
 				Cell:    saved.Address.Cell,
 				Village: saved.Address.Village,
 			},
+			Namespace:  saved.Namespace,
 			RecordedBy: saved.RecordedBy,
 			Occupied:   saved.Occupied,
 		}
@@ -513,7 +521,7 @@ func TestListByOwner(t *testing.T) {
 
 		status int
 		url    string
-		res    []Property
+		res    []properties.Property
 	}{
 		{
 			desc: "get a list of properties",
@@ -547,7 +555,7 @@ func TestListByOwner(t *testing.T) {
 
 		res, err := req.make()
 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
-		var data Properties
+		var data properties.PropertyPage
 		err = json.NewDecoder(res.Body).Decode(&data)
 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
@@ -571,27 +579,29 @@ func TestListByCell(t *testing.T) {
 			Cell:    cell,
 			Village: "Ingabo",
 		},
+		Namespace:  "kigali.gasabo.remera",
 		Due:        float64(1000),
 		RecordedBy: uuid.New().ID(),
 		Occupied:   true,
 	}
 
-	data := []Property{}
+	data := []properties.Property{}
 
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
 		saved, err := svc.Register(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
-		res := Property{
+		res := properties.Property{
 			ID:    saved.ID,
-			Owner: Owner{ID: saved.Owner.ID},
+			Owner: owner,
 			Due:   saved.Due,
-			Address: Address{
+			Address: properties.Address{
 				Sector:  saved.Address.Sector,
 				Cell:    saved.Address.Cell,
 				Village: saved.Address.Village,
 			},
+			Namespace:  saved.Namespace,
 			RecordedBy: saved.RecordedBy,
 			Occupied:   saved.Occupied,
 		}
@@ -606,7 +616,7 @@ func TestListByCell(t *testing.T) {
 
 		status int
 		url    string
-		res    []Property
+		res    []properties.Property
 	}{
 		{
 			desc: "get a list of properties",
@@ -640,7 +650,7 @@ func TestListByCell(t *testing.T) {
 
 		res, err := req.make()
 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
-		var data Properties
+		var data properties.PropertyPage
 		json.NewDecoder(res.Body).Decode(&data)
 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
 		assert.ElementsMatch(t, tc.res, data.Properties, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Properties))
@@ -663,27 +673,29 @@ func TestListBySector(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  "kigali.gasabo.remera",
 		Due:        float64(1000),
 		RecordedBy: uuid.New().ID(),
 		Occupied:   true,
 	}
 
-	data := []Property{}
+	data := []properties.Property{}
 
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
 		saved, err := svc.Register(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
-		res := Property{
+		res := properties.Property{
 			ID:    saved.ID,
-			Owner: Owner{ID: saved.Owner.ID},
+			Owner: owner,
 			Due:   saved.Due,
-			Address: Address{
+			Address: properties.Address{
 				Sector:  saved.Address.Sector,
 				Cell:    saved.Address.Cell,
 				Village: saved.Address.Village,
 			},
+			Namespace:  saved.Namespace,
 			RecordedBy: saved.RecordedBy,
 			Occupied:   saved.Occupied,
 		}
@@ -698,7 +710,7 @@ func TestListBySector(t *testing.T) {
 
 		status int
 		url    string
-		res    []Property
+		res    []properties.Property
 	}{
 		{
 			desc: "get a list of properties",
@@ -732,7 +744,7 @@ func TestListBySector(t *testing.T) {
 
 		res, err := req.make()
 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
-		var data Properties
+		var data properties.PropertyPage
 		json.NewDecoder(res.Body).Decode(&data)
 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
 		assert.ElementsMatch(t, tc.res, data.Properties, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Properties))
@@ -756,27 +768,29 @@ func TestListByVillage(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: village,
 		},
+		Namespace:  "kigali.gasabo.remera",
 		Due:        float64(1000),
 		RecordedBy: uuid.New().ID(),
 		Occupied:   true,
 	}
 
-	data := []Property{}
+	data := []properties.Property{}
 
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
 		saved, err := svc.Register(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
-		res := Property{
+		res := properties.Property{
 			ID:    saved.ID,
-			Owner: Owner{ID: saved.Owner.ID},
+			Owner: owner,
 			Due:   saved.Due,
-			Address: Address{
+			Address: properties.Address{
 				Sector:  saved.Address.Sector,
 				Cell:    saved.Address.Cell,
 				Village: saved.Address.Village,
 			},
+			Namespace:  saved.Namespace,
 			RecordedBy: saved.RecordedBy,
 			Occupied:   saved.Occupied,
 		}
@@ -790,7 +804,7 @@ func TestListByVillage(t *testing.T) {
 		desc   string
 		status int
 		url    string
-		res    []Property
+		res    []properties.Property
 	}{
 		{
 			desc:   "get a list of properties",
@@ -821,7 +835,7 @@ func TestListByVillage(t *testing.T) {
 
 		res, err := req.make()
 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
-		var data Properties
+		var data properties.PropertyPage
 		json.NewDecoder(res.Body).Decode(&data)
 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
 		assert.ElementsMatch(t, tc.res, data.Properties, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Properties))
@@ -845,27 +859,29 @@ func TestListByRecorder(t *testing.T) {
 			Cell:    "cell",
 			Village: "village",
 		},
+		Namespace:  "kigali.gasabo.remera",
 		Due:        float64(1000),
 		RecordedBy: user,
 		Occupied:   true,
 	}
 
-	data := []Property{}
+	data := []properties.Property{}
 
 	for i := 0; i < 100; i++ {
 		ctx := context.Background()
 		saved, err := svc.Register(ctx, property)
 		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
-		res := Property{
+		res := properties.Property{
 			ID:    saved.ID,
-			Owner: Owner{ID: saved.Owner.ID},
+			Owner: owner,
 			Due:   saved.Due,
-			Address: Address{
+			Address: properties.Address{
 				Sector:  saved.Address.Sector,
 				Cell:    saved.Address.Cell,
 				Village: saved.Address.Village,
 			},
+			Namespace:  saved.Namespace,
 			RecordedBy: saved.RecordedBy,
 			Occupied:   saved.Occupied,
 		}
@@ -879,7 +895,7 @@ func TestListByRecorder(t *testing.T) {
 		desc   string
 		status int
 		url    string
-		res    []Property
+		res    []properties.Property
 	}{
 		{
 			desc:   "get a list of properties",
@@ -910,44 +926,9 @@ func TestListByRecorder(t *testing.T) {
 
 		res, err := req.make()
 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
-		var data Properties
+		var data properties.PropertyPage
 		json.NewDecoder(res.Body).Decode(&data)
 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
 		assert.ElementsMatch(t, tc.res, data.Properties, fmt.Sprintf("%s: expected body %v got %v", tc.desc, tc.res, data.Properties))
 	}
-}
-
-type Property struct {
-	ID         string    `json:"id,omitempty"`
-	Due        float64   `json:"due,string,omitempty"`
-	Owner      Owner     `json:"owner,omitempty"`
-	Address    Address   `json:"address,omitempty"`
-	Occupied   bool      `json:"occupied,omitempty"`
-	RecordedBy string    `json:"recorded_by,omitempty"`
-	CreatedAt  time.Time `json:"created_at,omitempty"`
-	UpdatedAt  time.Time `json:"updated_at,omitempty"`
-}
-
-type Address struct {
-	Sector  string `json:"sector,omitempty"`
-	Cell    string `json:"cell,omitempty"`
-	Village string `json:"village,omitempty"`
-}
-
-type Owner struct {
-	ID    string `json:"id,omitempty"`
-	Fname string `json:"fname,omitempty"`
-	Lname string `json:"lname,omitempty"`
-	Phone string `json:"phone,omitempty"`
-}
-
-type Properties struct {
-	Properties []Property `json:"properties"`
-	Total      uint64     `json:"total"`
-	Offset     uint64     `json:"offset"`
-	Limit      uint64     `json:"limit"`
-}
-
-type Error struct {
-	Message string `json:"message"`
 }

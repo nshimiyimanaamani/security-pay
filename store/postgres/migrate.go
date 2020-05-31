@@ -547,6 +547,16 @@ func migrateDB(db *sql.DB) error {
 					`ALTER TABLE accounts DROP CONSTRAINT accounts_id_fkey;`,
 				},
 			},
+			{
+				Id: "010_alter_all_add_namespace",
+				Up: []string{
+					`ALTER TABLE properties 
+						ADD COLUMN namespace VARCHAR(254) NOT NULL default 'kigali.gasabo.remera';`,
+
+					`ALTER TABLE properties
+						ADD FOREIGN KEY(namespace) REFERENCES accounts(id) ON UPDATE CASCADE ON DELETE CASCADE;`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

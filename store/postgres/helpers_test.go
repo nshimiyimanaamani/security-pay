@@ -102,11 +102,12 @@ func saveProperty(t *testing.T, db *sql.DB, pp properties.Property) properties.P
 			cell, 
 			village, 
 			recorded_by, 
-			occupied
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING  created_at, updated_at`
+			occupied,
+			namespace
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING  created_at, updated_at`
 
 	err := db.QueryRow(q, pp.ID, pp.Owner.ID, pp.Due, pp.Address.Sector,
-		pp.Address.Cell, pp.Address.Village, pp.RecordedBy, pp.Occupied).Scan(&pp.CreatedAt, &pp.UpdatedAt)
+		pp.Address.Cell, pp.Address.Village, pp.RecordedBy, pp.Occupied, pp.Namespace).Scan(&pp.CreatedAt, &pp.UpdatedAt)
 
 	if err != nil {
 		t.Fatalf("err:%v", err)
@@ -135,7 +136,7 @@ func saveInvoice(t *testing.T, db *sql.DB, inv invoices.Invoice) invoices.Invoic
 	return inv
 }
 
-func savePropertyOn(t *testing.T, db *sql.DB, p properties.Property) properties.Property {
+func savePropertyOn(t *testing.T, db *sql.DB, pro properties.Property) properties.Property {
 	t.Helper()
 
 	q := `
@@ -148,18 +149,29 @@ func savePropertyOn(t *testing.T, db *sql.DB, p properties.Property) properties.
 			village, 
 			recorded_by, 
 			occupied,
+			namespace,
 			created_at,
 			updated_at
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 
-	_, err := db.Exec(q, p.ID, p.Owner.ID, p.Due, p.Address.Sector, p.Address.Cell,
-		p.Address.Village, p.RecordedBy, p.Occupied, p.CreatedAt, p.UpdatedAt,
+	_, err := db.Exec(q,
+		pro.ID,
+		pro.Owner.ID,
+		pro.Due,
+		pro.Address.Sector,
+		pro.Address.Cell,
+		pro.Address.Village,
+		pro.RecordedBy,
+		pro.Occupied,
+		pro.Namespace,
+		pro.CreatedAt,
+		pro.UpdatedAt,
 	)
 
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
-	return p
+	return pro
 }
 
 func retrieveInvoice(t *testing.T, db *sql.DB, id string) invoices.Invoice {

@@ -46,6 +46,8 @@ func TestCountAuditable(t *testing.T) {
 	cell := "Kigeme"
 	village := "Tetero"
 
+	begin := tools.BeginningOfMonth()
+
 	n := uint64(10)
 
 	for i := uint64(0); i < n; i++ {
@@ -57,11 +59,12 @@ func TestCountAuditable(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
+			Namespace:  account.ID,
 			Due:        float64(1000),
 			RecordedBy: agent.Telephone,
 			Occupied:   true,
-			CreatedAt:  tools.LastMonth(),
-			UpdatedAt:  tools.LastMonth(),
+			CreatedAt:  tools.AddMonth(begin, -1),
+			UpdatedAt:  tools.AddMonth(begin, -1),
 		}
 		savePropertyOn(t, db, p)
 	}
