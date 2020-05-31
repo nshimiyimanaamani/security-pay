@@ -3,7 +3,7 @@
     <vue-title title="Paypack | Feedbacks" />
     <header>
       <h4 class="mb-0">FEEDBACKS</h4>
-      <b-button @click="loadData" variant="info" class="app-color">
+      <b-button @click="loadData" variant="info" class="secondary-font br-2">
         Refresh
         <i class="fa fa-sync-alt" :class="{'fa-spin': state.loading}" />
       </b-button>
@@ -12,14 +12,14 @@
     <div class="feedbacks" v-if="!state.loading">
       <feedback v-for="(feedback,index) in feedbacks" :key="index" :feedback="feedback" />
     </div>
-    <b-card v-if="!state.loading && !feedbacks" class="empty-feedbacks">
-      <p>No feedbacks Available at the moment!</p>
+    <b-card v-if="!state.loading && feedbacks.length < 1" class="empty-feedbacks" no-body>
+      <p>No feedbacks available to display at the moment!</p>
+      <p>Make sure you have internet connectivity and try refreshing!</p>
     </b-card>
   </b-container>
 </template>
 
 <script>
-// import addFeedback from "../components/feedbacks/addFeedback.vue";
 import feedbackCard from "../components/feedbacks/feedbackCard.vue";
 export default {
   name: "feedbacks",
@@ -31,7 +31,7 @@ export default {
       state: {
         loading: true
       },
-      feedbacks: null
+      feedbacks: []
     };
   },
 
@@ -45,12 +45,13 @@ export default {
       this.axios
         .get("/feedback?offset=0&limit=" + Total)
         .then(res => {
-          this.feedback = res.data.Messages.sort((a, b) => {
+          console.log(res.data);
+          this.feedbacks = res.data.Messages.sort((a, b) => {
             return new Date(b.update_at) - new Date(a.update_at);
           });
         })
         .catch(err => {
-          this.feedbacks = null;
+          this.feedbacks = [];
           const error = err.response
             ? err.response.data.error || err.response.data
             : null;
@@ -73,7 +74,7 @@ export default {
 <style lang="scss">
 .feedback-page {
   min-width: 500px;
-  header {
+  & > header {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
@@ -83,14 +84,17 @@ export default {
       letter-spacing: 1.5px;
     }
   }
+  .feedbacks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-gap: 1rem;
+  }
   .empty-feedbacks {
     text-align: center;
     padding: 3rem;
     border-radius: 2px;
     p {
-      margin: 0 !important;
       font-size: 1.2rem;
-      text-transform: capitalize;
     }
   }
 }

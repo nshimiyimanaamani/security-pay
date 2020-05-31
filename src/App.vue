@@ -50,6 +50,7 @@ export default {
   position: absolute;
   width: fit-content;
   margin: auto;
+  text-align: center;
   box-shadow: 0 1px 6px 0 rgba(32, 33, 36, 0.28);
   background-color: #f8d7da54;
 }

@@ -1,48 +1,54 @@
-<template>
-  <b-card no-body class="feedback-card my-2 p-3">
-    <b-card-title class="text-capitalize">{{feedback.title}}</b-card-title>
-    <b-card-sub-title>
-      <b-row class="px-3 justify-content-between font-13 text-uppercase">
-        By {{feedback.display_name}} [{{feedback.creator}}]
-        <span class="text-capitalize">{{date}}</span>
-      </b-row>
-    </b-card-sub-title>
-    <hr />
-    <b-card-text class="font-14 text-capitalize">{{feedback.body}}</b-card-text>
+<template functional>
+  <b-card no-body class="feedback-card">
+    <header>
+      <h5 class="text-capitalize">
+        <p class="m-0 feedback-title">{{props.feedback.title}}</p>
+        <p class="text-muted m-0 feedback-date">{{props.feedback.update_at | date}}</p>
+      </h5>
+      <div
+        class="text-muted text-truncate"
+      >From {{props.feedback.display_name}} | {{props.feedback.creator}}</div>
+    </header>
+    <div class="feedback-body secondary-font">{{props.feedback.body}}</div>
   </b-card>
 </template>
+<style lang="scss">
+.feedback-card {
+  box-shadow: 0 1px 6px -2px rgba(32, 33, 36, 0.103);
+  border-radius: 3px;
 
-<script>
-export default {
-  name: "feedback-card",
-  props: {
-    feedback: Object
-  },
-  data() {
-    return {
-      state: {
-        loading: false
+  header {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.7rem 0.5rem 0.3rem;
+    align-items: flex-start;
+    background: #f8f9fa;
+
+    h5 {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.2rem;
+
+      .feedback-title {
+        font-size: 1.25rem;
       }
-    };
-  },
-  computed: {
-    date() {
-      const options = { year: "numeric", month: "long", day: "numeric" };
-      return new Date(this.feedback.update_at).toLocaleDateString(
-        "en-EN",
-        options
-      );
+
+      .feedback-date {
+        width: fit-content;
+        white-space: nowrap;
+        padding-left: 0.5rem;
+      }
     }
   }
-};
-</script>
-
-<style>
-.feedback-card .card-title {
-  font-size: 17px;
-  font-weight: bold;
-}
-.feedback-card .card-text {
-  font-size: 15px;
+  .feedback-body {
+    padding: 1rem 0.5rem;
+    max-height: 150px;
+    overflow: auto;
+    min-height: 80px;
+  }
 }
 </style>
