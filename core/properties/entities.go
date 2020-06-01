@@ -74,10 +74,11 @@ func (prt *Property) Validate() error {
 
 //Owner defines a property owner
 type Owner struct {
-	ID    string `json:"id,omitempty"`
-	Fname string `json:"fname,omitempty"`
-	Lname string `json:"lname,omitempty"`
-	Phone string `json:"phone,omitempty"`
+	ID        string `json:"id,omitempty"`
+	Fname     string `json:"fname,omitempty"`
+	Lname     string `json:"lname,omitempty"`
+	Phone     string `json:"phone,omitempty"`
+	Namespace string `json:"namespace,omitempty"`
 }
 
 //OwnerPage ist of owners

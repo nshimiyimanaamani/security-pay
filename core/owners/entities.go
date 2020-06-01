@@ -15,10 +15,11 @@ var (
 
 //Owner defines a property owner
 type Owner struct {
-	ID    string `json:"id"`
-	Fname string `json:"fname,omitempty"`
-	Lname string `json:"lname,omitempty"`
-	Phone string `json:"phone,omitempty"`
+	ID        string `json:"id"`
+	Fname     string `json:"fname,omitempty"`
+	Lname     string `json:"lname,omitempty"`
+	Phone     string `json:"phone,omitempty"`
+	Namespace string `json:"namespace,omitempty"`
 }
 
 //OwnerPage ist of owners
@@ -36,7 +37,7 @@ type PageMetadata struct {
 
 // Validate validates owner instance fields
 func (own *Owner) Validate() error {
-	if own.Fname == "" || own.Lname == "" || own.Phone == "" {
+	if own.Fname == "" || own.Lname == "" || own.Phone == "" || own.Namespace == "" {
 		return ErrInvalidEntity
 	}
 

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/rugwirobaker/paypack-backend/core/accounts"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/users"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
@@ -147,6 +148,8 @@ func TestListAdmins(t *testing.T) {
 
 	user := users.Administrator{Account: account.ID, Role: users.Admin}
 
+	creds := &auth.Credentials{Account: account.ID}
+
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
 		ctx := context.Background()
@@ -179,6 +182,7 @@ func TestListAdmins(t *testing.T) {
 
 	for desc, tc := range cases {
 		ctx := context.Background()
+		ctx = auth.SetECredetialsInContext(ctx, creds)
 		page, err := repo.ListAdmins(ctx, tc.offset, tc.limit)
 		size := uint64(len(page.Administrators))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
