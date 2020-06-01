@@ -557,6 +557,12 @@ func migrateDB(db *sql.DB) error {
 						ADD FOREIGN KEY(namespace) REFERENCES accounts(id) ON UPDATE CASCADE ON DELETE CASCADE;`,
 				},
 			},
+			{
+				Id: "011_alter_users_password_from_varch_to_text",
+				Up: []string{
+					`ALTER TABLE users ALTER COLUMN password TYPE TEXT;`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
