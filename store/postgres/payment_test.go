@@ -40,7 +40,13 @@ func TestSaveTransaction(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -116,7 +122,13 @@ func TestRetrieveProperty(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	sown := saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -185,7 +197,13 @@ func TestOldestInvoice(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{

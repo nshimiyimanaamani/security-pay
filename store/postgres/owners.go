@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/lib/pq"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/owners"
 )
 
@@ -21,9 +22,22 @@ func NewOwnerRepo(db *sql.DB) owners.Repository {
 }
 
 func (str *ownerRepo) Save(ctx context.Context, owner owners.Owner) (owners.Owner, error) {
-	q := `INSERT INTO owners (id, fname, lname, phone) VALUES ($1, $2, $3, $4) RETURNING id;`
+	q := `INSERT INTO owners (
+			id, 
+			fname, 
+			lname, 
+			phone,
+			namespace
+		) VALUES ($1, $2, $3, $4, $5) RETURNING id;`
 
-	_, err := str.db.Exec(q, &owner.ID, &owner.Fname, &owner.Lname, &owner.Phone)
+	_, err := str.db.Exec(q,
+		&owner.ID,
+		&owner.Fname,
+		&owner.Lname,
+		&owner.Phone,
+		&owner.Namespace,
+	)
+
 	if err != nil {
 		empty := owners.Owner{}
 
@@ -100,11 +114,23 @@ func (str *ownerRepo) Search(ctx context.Context, owner owners.Owner) (owners.Ow
 }
 
 func (str *ownerRepo) RetrieveAll(ctx context.Context, offset, limit uint64) (owners.OwnerPage, error) {
-	q := `SELECT id, fname, lname, phone FROM owners ORDER BY id LIMIT $1 OFFSET $2;`
+	q := `
+		SELECT 
+			id, 
+			fname, 
+			lname, 
+			phone 
+		FROM 
+			owners 
+		WHERE
+			namespace=$1
+		ORDER BY id LIMIT $2 OFFSET $3;`
 
 	var items = []owners.Owner{}
 
-	rows, err := str.db.Query(q, limit, offset)
+	creds := auth.CredentialsFromContext(ctx)
+
+	rows, err := str.db.Query(q, creds.Account, limit, offset)
 	if err != nil {
 		return owners.OwnerPage{}, err
 	}
@@ -138,7 +164,17 @@ func (str *ownerRepo) RetrieveAll(ctx context.Context, offset, limit uint64) (ow
 }
 
 func (str *ownerRepo) RetrieveByPhone(ctx context.Context, phone string) (owners.Owner, error) {
-	q := `SELECT id, fname, lname, phone FROM owners WHERE phone = $1`
+	q := `
+		SELECT 
+			id, 
+			fname, 
+			lname, 
+			phone 
+		FROM 
+			owners 
+		WHERE 
+			phone = $1`
+
 	var owner owners.Owner
 
 	if err := str.db.QueryRow(q, phone).Scan(&owner.ID, &owner.Fname, &owner.Lname, &owner.Phone); err != nil {

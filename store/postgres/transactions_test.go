@@ -46,7 +46,13 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -126,8 +132,13 @@ func TestRetrieveAll(t *testing.T) {
 		Account:   account.ID,
 	}
 	agent = saveAgent(t, db, agent)
-
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	n := uint64(10)
@@ -211,10 +222,11 @@ func TestRetrieveByProperty(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:    uuid.New().ID(),
-		Fname: "rugwiro",
-		Lname: "james",
-		Phone: "0784677882",
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -323,10 +335,11 @@ func TestRetrieveByPropertyR(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:    uuid.New().ID(),
-		Fname: "rugwiro",
-		Lname: "james",
-		Phone: "0784677882",
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
 	}
 
 	owner = saveOwner(t, db, owner)
@@ -415,7 +428,13 @@ func TestRetrieveByMethod(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	n := uint64(10)

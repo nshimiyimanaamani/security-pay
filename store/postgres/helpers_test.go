@@ -16,9 +16,23 @@ import (
 func saveOwner(t *testing.T, db *sql.DB, owner properties.Owner) properties.Owner {
 	t.Helper()
 
-	q := `INSERT INTO owners (id, fname, lname, phone) VALUES ($1, $2, $3, $4) RETURNING id;`
+	q := `
+		INSERT INTO owners (
+			id, 
+			fname, 
+			lname, 
+			phone,
+			namespace
+		) VALUES ($1, $2, $3, $4, $5) RETURNING id;`
 
-	_, err := db.Exec(q, &owner.ID, &owner.Fname, &owner.Lname, &owner.Phone)
+	_, err := db.Exec(q,
+		&owner.ID,
+		&owner.Fname,
+		&owner.Lname,
+		&owner.Phone,
+		&owner.Namespace,
+	)
+
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}

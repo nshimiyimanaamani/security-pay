@@ -39,7 +39,13 @@ func TestListAll(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	//save owner
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	//save property
@@ -118,7 +124,14 @@ func TestListPending(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	//save owner
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
+
 	owner = saveOwner(t, db, owner)
 
 	//save property
@@ -197,7 +210,14 @@ func TestListPayed(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	//save owner
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
+
 	owner = saveOwner(t, db, owner)
 
 	//save property

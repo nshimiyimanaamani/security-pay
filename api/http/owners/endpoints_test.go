@@ -79,7 +79,7 @@ func TestRegister(t *testing.T) {
 	defer srv.Close()
 	client := srv.Client()
 
-	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882", Namespace: "namespace"}
 	data := toJSON(owner)
 
 	res := toJSON(Owner{ID: "1"})
@@ -167,7 +167,7 @@ func TestRetrieve(t *testing.T) {
 	defer srv.Close()
 	client := srv.Client()
 
-	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882", Namespace: "namespace"}
 
 	ctx := context.Background()
 
@@ -243,7 +243,7 @@ func TestUpdate(t *testing.T) {
 	defer srv.Close()
 	client := srv.Client()
 
-	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882", Namespace: "namespace"}
 
 	ctx := context.Background()
 
@@ -251,9 +251,10 @@ func TestUpdate(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	data := toJSON(Owner{
-		Fname: saved.Fname,
-		Lname: saved.Lname,
-		Phone: saved.Phone,
+		Fname:     saved.Fname,
+		Lname:     saved.Lname,
+		Phone:     saved.Phone,
+		Namespace: saved.Namespace,
 	})
 
 	notFoundMessage := toJSON(Error{"owner entity not found"})
@@ -345,7 +346,7 @@ func TestList(t *testing.T) {
 	defer srv.Close()
 	client := srv.Client()
 
-	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882", Namespace: "namespace"}
 
 	data := []Owner{}
 
@@ -356,10 +357,11 @@ func TestList(t *testing.T) {
 		require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 		ow := Owner{
-			ID:    saved.ID,
-			Fname: saved.Fname,
-			Lname: saved.Lname,
-			Phone: saved.Phone,
+			ID:        saved.ID,
+			Fname:     saved.Fname,
+			Lname:     saved.Lname,
+			Phone:     saved.Phone,
+			Namespace: saved.Namespace,
 		}
 
 		data = append(data, ow)
@@ -405,17 +407,18 @@ func TestSearch(t *testing.T) {
 	defer ts.Close()
 	client := ts.Client()
 
-	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882", Namespace: "namespace"}
 
 	ctx := context.Background()
 	saved, err := svc.Register(ctx, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	res := Owner{
-		ID:    saved.ID,
-		Fname: owner.Fname,
-		Lname: owner.Lname,
-		Phone: owner.Phone,
+		ID:        saved.ID,
+		Fname:     saved.Fname,
+		Lname:     saved.Lname,
+		Phone:     saved.Phone,
+		Namespace: saved.Namespace,
 	}
 
 	data := toJSON(res)
@@ -479,17 +482,18 @@ func TestRetrieveByPhone(t *testing.T) {
 	defer ts.Close()
 	client := ts.Client()
 
-	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
+	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882", Namespace: "namespace"}
 
 	ctx := context.Background()
 	saved, err := svc.Register(ctx, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	res := Owner{
-		ID:    saved.ID,
-		Fname: owner.Fname,
-		Lname: owner.Lname,
-		Phone: owner.Phone,
+		ID:        saved.ID,
+		Fname:     saved.Fname,
+		Lname:     saved.Lname,
+		Phone:     saved.Phone,
+		Namespace: saved.Namespace,
 	}
 
 	data := toJSON(res)
@@ -535,10 +539,11 @@ func TestRetrieveByPhone(t *testing.T) {
 }
 
 type Owner struct {
-	ID    string `json:"id,omitempty"`
-	Fname string `json:"fname,omitempty"`
-	Lname string `json:"lname,omitempty"`
-	Phone string `json:"phone,omitempty"`
+	ID        string `json:"id,omitempty"`
+	Fname     string `json:"fname,omitempty"`
+	Lname     string `json:"lname,omitempty"`
+	Phone     string `json:"phone,omitempty"`
+	Namespace string `json:"namespace,omitempty"`
 }
 
 type OwnersPage struct {

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/lib/pq"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/users"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
@@ -120,13 +121,16 @@ func (repo *userRepository) ListManagers(ctx context.Context, offset, limit uint
 		INNER JOIN 
 			managers ON users.username=managers.email
 		WHERE 
-			users.role='basic' 
-		ORDER BY username LIMIT $1 OFFSET $2;
+			users.role='basic' and account=$1
+		ORDER 
+			BY username LIMIT $2 OFFSET $3;
 	`
 
 	var items = []users.Manager{}
 
-	rows, err := repo.Query(q, limit, offset)
+	creds := auth.CredentialsFromContext(ctx)
+
+	rows, err := repo.Query(q, creds.Account, limit, offset)
 	if err != nil {
 		return users.ManagerPage{}, errors.E(op, err, errors.KindUnexpected)
 	}

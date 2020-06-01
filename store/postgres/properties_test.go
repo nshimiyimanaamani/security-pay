@@ -26,13 +26,6 @@ func TestSaveProperty(t *testing.T) {
 
 	account = saveAccount(t, db, account)
 
-	creds := &auth.Credentials{
-		Username: "username",
-		Password: "password",
-		Role:     auth.Dev,
-		Account:  account.ID,
-	}
-
 	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
@@ -46,7 +39,13 @@ func TestSaveProperty(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	new := properties.Property{
@@ -96,7 +95,6 @@ func TestSaveProperty(t *testing.T) {
 	}
 	for _, tc := range cases {
 		ctx := context.Background()
-		auth.SetECredetialsInContext(ctx, creds)
 		_, err := props.Save(ctx, tc.property)
 		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
@@ -122,11 +120,15 @@ func TestUpdate(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -221,7 +223,13 @@ func TestDelete(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -289,7 +297,13 @@ func TestRetrieveByID(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -370,7 +384,13 @@ func TestRetrieveByOwner(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	sector := "Nyarugenge"
@@ -470,7 +490,13 @@ func TestRetrieveBySector(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	sector := "Gasabo"
@@ -569,7 +595,13 @@ func TestRetrieveByCell(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	sector := "Gasate"
@@ -669,7 +701,13 @@ func TestRetrieveByVillage(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	sector := "Kigomna"
@@ -770,7 +808,13 @@ func TestRetrieveByRecorder(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	sector := "Kigomna"

@@ -563,6 +563,16 @@ func migrateDB(db *sql.DB) error {
 					`ALTER TABLE users ALTER COLUMN password TYPE TEXT;`,
 				},
 			},
+			{
+				Id: "012_alter_table_owners_add_namespace",
+				Up: []string{
+					`ALTER TABLE owners 
+						ADD COLUMN namespace VARCHAR(254) NOT NULL default 'kigali.gasabo.remera';`,
+
+					`ALTER TABLE owners
+						ADD FOREIGN KEY(namespace) REFERENCES accounts(id) ON UPDATE CASCADE ON DELETE CASCADE;`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

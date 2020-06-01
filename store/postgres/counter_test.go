@@ -39,7 +39,13 @@ func TestCountAuditable(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:        uuid.New().ID(),
+		Fname:     "rugwiro",
+		Lname:     "james",
+		Phone:     "0784677882",
+		Namespace: account.ID,
+	}
 	owner = saveOwner(t, db, owner)
 
 	sector := "Kigomna"
