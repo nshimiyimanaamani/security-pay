@@ -6,6 +6,11 @@ package encrypt
 type none struct {
 }
 
+// None returns a dummy encrypter
+func None() Encrypter {
+	return &none{}
+}
+
 func (*none) Encrypt(plaintext string) ([]byte, error) {
 	return []byte(plaintext), nil
 }

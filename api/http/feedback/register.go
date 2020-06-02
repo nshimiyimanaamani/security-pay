@@ -4,8 +4,22 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rugwirobaker/paypack-backend/api/http/middleware"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
+	"github.com/rugwirobaker/paypack-backend/core/feedback"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
+
+// ProtocolHandler adapts the feedback service into an http.handler
+type ProtocolHandler func(lgger log.Entry, svc feedback.Service) http.Handler
+
+// HandlerOpts are the generic options
+// for a ProtocolHandler
+type HandlerOpts struct {
+	Logger        *log.Logger
+	Service       feedback.Service
+	Authenticator auth.Service
+}
 
 // LogEntryHandler pulls a log entry from the request context. Thanks to the
 // LogEntryMiddleware, we should have a log entry stored in the context for each
@@ -27,10 +41,13 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		panic("absolutely unacceptable handler opts")
 	}
 
+	authenticator := middleware.Authenticate(opts.Logger, opts.Authenticator)
+
 	r.Handle(RecodeRoute, LogEntryHandler(Recode, opts)).Methods(http.MethodPost)
 	r.Handle(RetrieveRoute, LogEntryHandler(Retrieve, opts)).Methods(http.MethodGet)
 	r.Handle(DeleteRoute, LogEntryHandler(Delete, opts)).Methods(http.MethodDelete)
 	r.Handle(UpdateRoute, LogEntryHandler(Update, opts)).Methods(http.MethodPut)
-	r.Handle(ListRoute, LogEntryHandler(List, opts)).Methods(http.MethodGet).
+	r.Handle(ListRoute, authenticator(LogEntryHandler(List, opts))).
+		Methods(http.MethodGet).
 		Queries("offset", "{offset}", "limit", "{limit}")
 }

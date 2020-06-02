@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rugwirobaker/paypack-backend/api/http/middleware"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/metrics"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
@@ -14,8 +16,9 @@ type ProtocolHandler func(logger log.Entry, svc metrics.Service) http.Handler
 // HandlerOpts are the generic options
 // for a ProtocolHandler
 type HandlerOpts struct {
-	Logger  *log.Logger
-	Service metrics.Service
+	Logger        *log.Logger
+	Service       metrics.Service
+	Authenticator auth.Service
 }
 
 // LogEntryHandler pulls a log entry from the request context. Thanks to the
@@ -38,28 +41,44 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		panic("absolutely unacceptable handler opts")
 	}
 
+	authenticator := middleware.Authenticate(opts.Logger, opts.Authenticator)
+
 	//ratios
-	r.Handle(SectorRatioRoute, LogEntryHandler(SectorPayRatio, opts)).Methods(http.MethodGet).
+	r.Handle(SectorRatioRoute, authenticator(LogEntryHandler(SectorPayRatio, opts))).
+		Methods(http.MethodGet).
 		Queries("year", "{year}", "month", "{month}")
-	r.Handle(CellRatioRoute, LogEntryHandler(CellPayRatio, opts)).Methods(http.MethodGet).
+
+	r.Handle(CellRatioRoute, authenticator(LogEntryHandler(CellPayRatio, opts))).
+		Methods(http.MethodGet).
 		Queries("year", "{year}", "month", "{month}")
-	r.Handle(VillageRatioRoute, LogEntryHandler(VillagePayRatio, opts)).Methods(http.MethodGet).
+
+	r.Handle(VillageRatioRoute, authenticator(LogEntryHandler(VillagePayRatio, opts))).
+		Methods(http.MethodGet).
 		Queries("year", "{year}", "month", "{month}")
-	r.Handle(ListAllCellRatiosRoute, LogEntryHandler(ListAllCellRatios, opts)).Methods(http.MethodGet).
+
+	r.Handle(ListAllCellRatiosRoute, authenticator(LogEntryHandler(ListAllCellRatios, opts))).
+		Methods(http.MethodGet).
 		Queries("year", "{year}", "month", "{month}")
-	r.Handle(ListAllSectorRatiosRoute, LogEntryHandler(ListAllSectorRatios, opts)).Methods(http.MethodGet).
+	r.Handle(ListAllSectorRatiosRoute, authenticator(LogEntryHandler(ListAllSectorRatios, opts))).
+		Methods(http.MethodGet).
 		Queries("year", "{year}", "month", "{month}")
 
 	// balance
-	r.Handle(SectorBalanceRoute, LogEntryHandler(SectorBalance, opts)).Methods(http.MethodGet).
+	r.Handle(SectorBalanceRoute, authenticator(LogEntryHandler(SectorBalance, opts))).
+		Methods(http.MethodGet).
 		Queries("year", "{year}", "month", "{month}")
-	r.Handle(CellBalanceRoute, LogEntryHandler(CellBalance, opts)).Methods(http.MethodGet).
+
+	r.Handle(CellBalanceRoute, authenticator(LogEntryHandler(CellBalance, opts))).
+		Methods(http.MethodGet).
 		Queries("year", "{year}", "month", "{month}")
-	r.Handle(VillageBalanceRoute, LogEntryHandler(VillageBalance, opts)).Methods(http.MethodGet).
+	r.Handle(VillageBalanceRoute, authenticator(LogEntryHandler(VillageBalance, opts))).
+		Methods(http.MethodGet).
 		Queries("year", "{year}", "month", "{month}")
-	r.Handle(ListAllSectorBalancesRoute, LogEntryHandler(ListAllSectorBalances, opts)).Methods(http.MethodGet).
+	r.Handle(ListAllSectorBalancesRoute, authenticator(LogEntryHandler(ListAllSectorBalances, opts))).
+		Methods(http.MethodGet).
 		Queries("year", "{year}", "month", "{month}")
-	r.Handle(ListAllCellBalancesRoute, LogEntryHandler(ListAllCellBalances, opts)).Methods(http.MethodGet).
+	r.Handle(ListAllCellBalancesRoute, authenticator(LogEntryHandler(ListAllCellBalances, opts))).
+		Methods(http.MethodGet).
 		Queries("year", "{year}", "month", "{month}")
 
 }

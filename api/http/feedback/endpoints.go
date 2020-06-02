@@ -11,16 +11,6 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/feedback"
 )
 
-// ProtocolHandler adapts the feedback service into an http.handler
-type ProtocolHandler func(lgger log.Entry, svc feedback.Service) http.Handler
-
-// HandlerOpts are the generic options
-// for a ProtocolHandler
-type HandlerOpts struct {
-	Service feedback.Service
-	Logger  *log.Logger
-}
-
 // Recode handlers new feedback message submission
 func Recode(lgger log.Entry, svc feedback.Service) http.Handler {
 	const op errors.Op = "api/http/feedback/Record"

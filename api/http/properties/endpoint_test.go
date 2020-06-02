@@ -15,9 +15,12 @@ import (
 
 	"github.com/gorilla/mux"
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/properties"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
+	authmocks "github.com/rugwirobaker/paypack-backend/core/auth/mocks"
 	"github.com/rugwirobaker/paypack-backend/core/identity/uuid"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/core/properties/mocks"
+	"github.com/rugwirobaker/paypack-backend/pkg/encrypt"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -28,6 +31,7 @@ const (
 	wrongID     = 0
 	email       = "user@example.com"
 	wrongValue  = "wrong"
+	token       = "rugwiro.account.dev"
 )
 
 type testRequest struct {
@@ -53,6 +57,22 @@ func (tr testRequest) make() (*http.Response, error) {
 	return tr.client.Do(req)
 }
 
+func newAuthenticator() auth.Service {
+	user := auth.Credentials{
+		Username: "username",
+		Password: "password",
+		Role:     auth.Dev,
+		Account:  "account",
+	}
+	opts := &auth.Options{
+		Hasher:    authmocks.NewHasher(),
+		Encrypter: encrypt.None(),
+		Repo:      authmocks.NewRepository(user),
+		JWT:       authmocks.NewJWTProvider(),
+	}
+	return auth.New(opts)
+}
+
 func newService(owners map[string]properties.Owner) properties.Service {
 	idp := mocks.NewIdentityProvider()
 	props := mocks.NewRepository(owners)
@@ -62,8 +82,9 @@ func newService(owners map[string]properties.Owner) properties.Service {
 func newServer(svc properties.Service) *httptest.Server {
 	mux := mux.NewRouter()
 	opts := &endpoints.HandlerOpts{
-		Service: svc,
-		Logger:  log.NoOpLogger(),
+		Service:       svc,
+		Logger:        log.NoOpLogger(),
+		Authenticator: newAuthenticator(),
 	}
 	endpoints.RegisterHandlers(mux, opts)
 	return httptest.NewServer(mux)
@@ -116,6 +137,7 @@ func TestRegister(t *testing.T) {
 	}{
 		{
 			desc:        "add a valid property",
+			token:       token,
 			req:         data,
 			contentType: contentType,
 			status:      http.StatusCreated,
@@ -123,6 +145,7 @@ func TestRegister(t *testing.T) {
 		},
 		{
 			desc:        "add property with invalid data",
+			token:       token,
 			req:         invalidData,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
@@ -130,6 +153,7 @@ func TestRegister(t *testing.T) {
 		},
 		{
 			desc:        "add property with invalid request format",
+			token:       token,
 			req:         "{",
 			contentType: contentType,
 			status:      http.StatusBadRequest,
@@ -137,6 +161,7 @@ func TestRegister(t *testing.T) {
 		},
 		{
 			desc:        "add property with empty JSON request",
+			token:       token,
 			req:         "{}",
 			contentType: contentType,
 			status:      http.StatusBadRequest,
@@ -144,6 +169,7 @@ func TestRegister(t *testing.T) {
 		},
 		{
 			desc:        "add property with empty request",
+			token:       token,
 			req:         "",
 			contentType: contentType,
 			status:      http.StatusBadRequest,
@@ -151,10 +177,27 @@ func TestRegister(t *testing.T) {
 		},
 		{
 			desc:        "add property with missing content type",
+			token:       token,
 			req:         toJSON(property),
 			contentType: "",
 			status:      http.StatusUnsupportedMediaType,
 			res:         toJSON(map[string]string{"error": "invalid request: invalid content type"}),
+		},
+		{
+			desc:        "add property with empty token",
+			req:         data,
+			contentType: contentType,
+			status:      http.StatusUnauthorized,
+			res:         toJSON(map[string]string{"error": "access denied: missing authorization token"}),
+		},
+
+		{
+			desc:        "add property with invalid token",
+			req:         data,
+			token:       "invalid",
+			contentType: contentType,
+			status:      http.StatusUnauthorized,
+			res:         toJSON(map[string]string{"error": "access denied: invalid token"}),
 		},
 	}
 
@@ -230,6 +273,7 @@ func TestUpdate(t *testing.T) {
 		{
 			desc:        "update existing property",
 			req:         toJSON(res),
+			token:       token,
 			id:          saved.ID,
 			contentType: contentType,
 			status:      http.StatusOK,
@@ -238,6 +282,7 @@ func TestUpdate(t *testing.T) {
 		{
 			desc:        "update non-existent property",
 			req:         toJSON(res),
+			token:       token,
 			id:          strconv.FormatUint(wrongID, 10),
 			contentType: contentType,
 			status:      http.StatusNotFound,
@@ -246,6 +291,7 @@ func TestUpdate(t *testing.T) {
 		{
 			desc:        "update property with invalid id",
 			req:         toJSON(res),
+			token:       token,
 			id:          "invalid",
 			contentType: contentType,
 			status:      http.StatusNotFound,
@@ -254,6 +300,7 @@ func TestUpdate(t *testing.T) {
 		{
 			desc:        "update property with invalid data format",
 			req:         "{",
+			token:       token,
 			id:          saved.ID,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
@@ -262,6 +309,7 @@ func TestUpdate(t *testing.T) {
 		{
 			desc:        "update property with empty request",
 			req:         "",
+			token:       token,
 			id:          saved.ID,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
@@ -270,10 +318,29 @@ func TestUpdate(t *testing.T) {
 		{
 			desc:        "update thing without content type",
 			req:         toJSON(res),
+			token:       token,
 			id:          saved.ID,
 			contentType: "",
 			status:      http.StatusUnsupportedMediaType,
 			res:         toJSON(map[string]string{"error": "invalid request: invalid content type"}),
+		},
+		{
+			desc:        "update property with empty token",
+			req:         toJSON(res),
+			id:          saved.ID,
+			contentType: contentType,
+			status:      http.StatusUnauthorized,
+			res:         toJSON(map[string]string{"error": "access denied: missing authorization token"}),
+		},
+
+		{
+			desc:        "update property with invalid token",
+			req:         toJSON(res),
+			token:       "invalid",
+			id:          saved.ID,
+			contentType: contentType,
+			status:      http.StatusUnauthorized,
+			res:         toJSON(map[string]string{"error": "access denied: invalid token"}),
 		},
 	}
 
@@ -352,25 +419,38 @@ func TestRetrieve(t *testing.T) {
 		res         string
 	}{
 		{
-			desc: "view existing property",
-			id:   saved.ID,
-
+			desc:   "view existing property",
+			id:     saved.ID,
+			token:  token,
 			status: http.StatusOK,
 			res:    toJSON(res),
 		},
 		{
-			desc: "view non-existent property",
-			id:   strconv.FormatUint(wrongID, 10),
-
+			desc:   "view non-existent property",
+			id:     strconv.FormatUint(wrongID, 10),
+			token:  token,
 			status: http.StatusNotFound,
 			res:    toJSON(map[string]string{"error": "property not found"}),
 		},
 		{
-			desc: "view property by passing invalid id",
-			id:   "invalid",
-
+			desc:   "view property by passing invalid id",
+			id:     "invalid",
+			token:  token,
 			status: http.StatusNotFound,
 			res:    toJSON(map[string]string{"error": "property not found"}),
+		},
+		{
+			desc:   "view property with emtpy token",
+			id:     saved.ID,
+			status: http.StatusUnauthorized,
+			res:    toJSON(map[string]string{"error": "access denied: missing authorization token"}),
+		},
+		{
+			desc:   "view property with invalid token",
+			id:     saved.ID,
+			token:  "invalid",
+			status: http.StatusUnauthorized,
+			res:    toJSON(map[string]string{"error": "access denied: invalid token"}),
 		},
 	}
 
@@ -430,25 +510,38 @@ func TestDelete(t *testing.T) {
 		res         string
 	}{
 		{
-			desc: "delete existing property",
-			id:   saved.ID,
-
+			desc:   "delete existing property",
+			id:     saved.ID,
+			token:  token,
 			status: http.StatusOK,
 			res:    toJSON(map[string]string{"message": "property deleted"}),
 		},
 		{
-			desc: "delete non-existent property",
-			id:   strconv.FormatUint(wrongID, 10),
-
+			desc:   "delete non-existent property",
+			id:     strconv.FormatUint(wrongID, 10),
+			token:  token,
 			status: http.StatusNotFound,
 			res:    toJSON(map[string]string{"error": "property not found"}),
 		},
 		{
-			desc: "delete property by passing invalid id",
-			id:   "invalid",
-
+			desc:   "delete property by passing invalid id",
+			id:     "invalid",
+			token:  token,
 			status: http.StatusNotFound,
 			res:    toJSON(map[string]string{"error": "property not found"}),
+		},
+		{
+			desc:   "delete property with empty token",
+			id:     saved.ID,
+			status: http.StatusUnauthorized,
+			res:    toJSON(map[string]string{"error": "access denied: missing authorization token"}),
+		},
+		{
+			desc:   "delete existing property",
+			id:     saved.ID,
+			token:  "invalid",
+			status: http.StatusUnauthorized,
+			res:    toJSON(map[string]string{"error": "access denied: invalid token"}),
 		},
 	}
 
@@ -517,31 +610,44 @@ func TestListByOwner(t *testing.T) {
 	propertiesURL := fmt.Sprintf("%s/properties", ts.URL)
 
 	cases := []struct {
-		desc string
-
+		desc   string
+		token  string
 		status int
 		url    string
 		res    []properties.Property
 	}{
 		{
-			desc: "get a list of properties",
-
+			desc:   "get a list of properties",
+			token:  token,
 			status: http.StatusOK,
 			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", propertiesURL, owner.ID, 0, 5),
 			res:    data[0:5],
 		},
 		{
-			desc: "get a list of properties with negative offset",
-
+			desc:   "get a list of properties with negative offset",
+			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", propertiesURL, owner.ID, -1, 5),
 			res:    nil,
 		},
 		{
-			desc: "get a list of properties with negative limit",
-
+			desc:   "get a list of properties with negative limit",
+			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", propertiesURL, owner.ID, 1, -5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of properties with empty token",
+			status: http.StatusUnauthorized,
+			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", propertiesURL, owner.ID, 0, 5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of properties with invalid token",
+			token:  "invalid",
+			status: http.StatusUnauthorized,
+			url:    fmt.Sprintf("%s?owner=%s&offset=%d&limit=%d", propertiesURL, owner.ID, 0, 5),
 			res:    nil,
 		},
 	}
@@ -550,6 +656,7 @@ func TestListByOwner(t *testing.T) {
 		req := testRequest{
 			client: client,
 			method: http.MethodGet,
+			token:  tc.token,
 			url:    tc.url,
 		}
 
@@ -612,31 +719,44 @@ func TestListByCell(t *testing.T) {
 	transactionURL := fmt.Sprintf("%s/properties", ts.URL)
 
 	cases := []struct {
-		desc string
-
+		desc   string
+		token  string
 		status int
 		url    string
 		res    []properties.Property
 	}{
 		{
-			desc: "get a list of properties",
-
+			desc:   "get a list of properties",
+			token:  token,
 			status: http.StatusOK,
 			url:    fmt.Sprintf("%s?cell=%s&offset=%d&limit=%d", transactionURL, cell, 0, 5),
 			res:    data[0:5],
 		},
 		{
-			desc: "get a list of properties with negative offset",
-
+			desc:   "get a list of properties with negative offset",
+			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?cell=%s&offset=%d&limit=%d", transactionURL, cell, -1, 5),
 			res:    nil,
 		},
 		{
-			desc: "get a list of properties with negative limit",
-
+			desc:   "get a list of properties with negative limit",
+			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?cell=%s&offset=%d&limit=%d", transactionURL, cell, 1, -5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of properties with empty token",
+			status: http.StatusUnauthorized,
+			url:    fmt.Sprintf("%s?cell=%s&offset=%d&limit=%d", transactionURL, cell, 0, 5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of properties with invalid token",
+			token:  "invalid",
+			status: http.StatusUnauthorized,
+			url:    fmt.Sprintf("%s?cell=%s&offset=%d&limit=%d", transactionURL, cell, 0, 5),
 			res:    nil,
 		},
 	}
@@ -644,6 +764,7 @@ func TestListByCell(t *testing.T) {
 	for _, tc := range cases {
 		req := testRequest{
 			client: client,
+			token:  tc.token,
 			method: http.MethodGet,
 			url:    tc.url,
 		}
@@ -706,31 +827,44 @@ func TestListBySector(t *testing.T) {
 	transactionURL := fmt.Sprintf("%s/properties", ts.URL)
 
 	cases := []struct {
-		desc string
-
+		desc   string
+		token  string
 		status int
 		url    string
 		res    []properties.Property
 	}{
 		{
-			desc: "get a list of properties",
-
+			desc:   "get a list of properties",
+			token:  token,
 			status: http.StatusOK,
 			url:    fmt.Sprintf("%s?sector=%s&offset=%d&limit=%d", transactionURL, sector, 0, 5),
 			res:    data[0:5],
 		},
 		{
-			desc: "get a list of properties with negative offset",
-
+			desc:   "get a list of properties with negative offset",
+			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?sector=%s&offset=%d&limit=%d", transactionURL, sector, -1, 5),
 			res:    nil,
 		},
 		{
-			desc: "get a list of properties with negative limit",
-
+			desc:   "get a list of properties with negative limit",
+			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?sector=%s&offset=%d&limit=%d", transactionURL, sector, 1, -5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of properties with empty token",
+			status: http.StatusUnauthorized,
+			url:    fmt.Sprintf("%s?sector=%s&offset=%d&limit=%d", transactionURL, sector, 0, 5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of properties with invalid token",
+			token:  "invalid",
+			status: http.StatusUnauthorized,
+			url:    fmt.Sprintf("%s?sector=%s&offset=%d&limit=%d", transactionURL, sector, 0, 5),
 			res:    nil,
 		},
 	}
@@ -739,6 +873,7 @@ func TestListBySector(t *testing.T) {
 		req := testRequest{
 			client: client,
 			method: http.MethodGet,
+			token:  tc.token,
 			url:    tc.url,
 		}
 
@@ -802,26 +937,43 @@ func TestListByVillage(t *testing.T) {
 
 	cases := []struct {
 		desc   string
+		token  string
 		status int
 		url    string
 		res    []properties.Property
 	}{
 		{
 			desc:   "get a list of properties",
+			token:  token,
 			status: http.StatusOK,
 			url:    fmt.Sprintf("%s?village=%s&offset=%d&limit=%d", transactionURL, village, 0, 5),
 			res:    data[0:5],
 		},
 		{
 			desc:   "get a list of properties with negative offset",
+			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?village=%s&offset=%d&limit=%d", transactionURL, village, -1, 5),
 			res:    nil,
 		},
 		{
 			desc:   "get a list of properties with negative limit",
+			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?village=%s&offset=%d&limit=%d", transactionURL, village, 1, -5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of properties with empty token",
+			status: http.StatusUnauthorized,
+			url:    fmt.Sprintf("%s?village=%s&offset=%d&limit=%d", transactionURL, village, 0, 5),
+			res:    nil,
+		},
+		{
+			desc:   "get a list of properties with invalid token",
+			token:  "invalid",
+			status: http.StatusUnauthorized,
+			url:    fmt.Sprintf("%s?village=%s&offset=%d&limit=%d", transactionURL, village, 0, 5),
 			res:    nil,
 		},
 	}
@@ -830,6 +982,7 @@ func TestListByVillage(t *testing.T) {
 		req := testRequest{
 			client: client,
 			method: http.MethodGet,
+			token:  tc.token,
 			url:    tc.url,
 		}
 
@@ -893,24 +1046,28 @@ func TestListByRecorder(t *testing.T) {
 
 	cases := []struct {
 		desc   string
+		token  string
 		status int
 		url    string
 		res    []properties.Property
 	}{
 		{
 			desc:   "get a list of properties",
+			token:  token,
 			status: http.StatusOK,
 			url:    fmt.Sprintf("%s?user=%s&offset=%d&limit=%d", transactionURL, user, 0, 5),
 			res:    data[0:5],
 		},
 		{
 			desc:   "get a list of properties with negative offset",
+			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?user=%s&offset=%d&limit=%d", transactionURL, user, -1, 5),
 			res:    nil,
 		},
 		{
 			desc:   "get a list of properties with negative limit",
+			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?user=%s&offset=%d&limit=%d", transactionURL, user, 1, -5),
 			res:    nil,
@@ -921,6 +1078,7 @@ func TestListByRecorder(t *testing.T) {
 		req := testRequest{
 			client: client,
 			method: http.MethodGet,
+			token:  tc.token,
 			url:    tc.url,
 		}
 
