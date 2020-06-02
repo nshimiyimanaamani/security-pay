@@ -146,10 +146,10 @@ func (repo *userRepository) ListManagers(ctx context.Context, offset, limit uint
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM users WHERE role='basic';`
+	q = `SELECT COUNT(*) FROM users WHERE role='basic' AND account=$1;`
 
 	var total uint64
-	if err := repo.QueryRow(q).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, creds.Account).Scan(&total); err != nil {
 		return users.ManagerPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 

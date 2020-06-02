@@ -156,10 +156,10 @@ func (repo *userRepository) ListAgents(ctx context.Context, offset, limit uint64
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM users WHERE role='min';`
+	q = `SELECT COUNT(*) FROM users WHERE role='min' AND account=$1;`
 
 	var total uint64
-	if err := repo.QueryRow(q).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, creds.Account).Scan(&total); err != nil {
 		return users.AgentPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 

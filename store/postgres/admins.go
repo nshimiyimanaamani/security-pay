@@ -128,10 +128,10 @@ func (repo *userRepository) ListAdmins(ctx context.Context, offset, limit uint64
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM users WHERE role='admin';`
+	q = `SELECT COUNT(*) FROM users WHERE role='admin' AND account=$1;`
 
 	var total uint64
-	if err := repo.QueryRow(q).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, creds.Account).Scan(&total); err != nil {
 		return users.AdministratorPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
