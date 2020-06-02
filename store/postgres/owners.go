@@ -145,10 +145,10 @@ func (str *ownerRepo) RetrieveAll(ctx context.Context, offset, limit uint64) (ow
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM owners;`
+	q = `SELECT COUNT(*) FROM owners WHERE namespace=$1;`
 
 	var total uint64
-	if err := str.db.QueryRow(q).Scan(&total); err != nil {
+	if err := str.db.QueryRow(q, creds.Account).Scan(&total); err != nil {
 		return owners.OwnerPage{}, err
 	}
 

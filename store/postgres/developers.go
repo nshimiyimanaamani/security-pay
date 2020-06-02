@@ -129,10 +129,10 @@ func (repo *userRepository) ListDevelopers(ctx context.Context, offset, limit ui
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM users WHERE role='dev';`
+	q = `SELECT COUNT(*) FROM users WHERE role='dev' AND account=$1;`
 
 	var total uint64
-	if err := repo.QueryRow(q).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, creds.Account).Scan(&total); err != nil {
 		return users.DeveloperPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
