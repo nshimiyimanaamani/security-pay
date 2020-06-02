@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rugwirobaker/paypack-backend/api/http/middleware"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/transactions"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
@@ -14,8 +16,9 @@ type ProtocolHandler func(logger log.Entry, svc transactions.Service) http.Handl
 // HandlerOpts are the generic options
 // for a ProtocolHandler
 type HandlerOpts struct {
-	Logger  *log.Logger
-	Service transactions.Service
+	Logger        *log.Logger
+	Service       transactions.Service
+	Authenticator auth.Service
 }
 
 // LogEntryHandler pulls a log entry from the request context. Thanks to the
@@ -38,17 +41,24 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		panic("absolutely unacceptable handler opts")
 	}
 
-	r.Handle(RecordTransactionRoute, LogEntryHandler(Record, opts)).Methods(http.MethodPost)
+	authenticator := middleware.Authenticate(opts.Logger, opts.Authenticator)
 
-	r.Handle(RetrieveTransactionRoute, LogEntryHandler(Retrieve, opts)).Methods(http.MethodGet)
+	r.Handle(RecordTransactionRoute, authenticator(LogEntryHandler(Record, opts))).
+		Methods(http.MethodPost)
 
-	r.Handle(ListTransactionsRoute, LogEntryHandler(ListByProperty, opts)).Methods(http.MethodGet).
+	r.Handle(RetrieveTransactionRoute, authenticator(LogEntryHandler(Retrieve, opts))).
+		Methods(http.MethodGet)
+
+	r.Handle(ListTransactionsRoute, authenticator(LogEntryHandler(ListByProperty, opts))).
+		Methods(http.MethodGet).
 		Queries("property", "{property}", "offset", "{offset}", "limit", "{limit}")
 
-	r.Handle(ListTransactionsRoute, LogEntryHandler(ListByMethod, opts)).Methods(http.MethodGet).
+	r.Handle(ListTransactionsRoute, authenticator(LogEntryHandler(ListByMethod, opts))).
+		Methods(http.MethodGet).
 		Queries("method", "{method}", "offset", "{offset}", "limit", "{limit}")
 
-	r.Handle(ListTransactionsRoute, LogEntryHandler(List, opts)).Methods(http.MethodGet).
+	r.Handle(ListTransactionsRoute, authenticator(LogEntryHandler(List, opts))).
+		Methods(http.MethodGet).
 		Queries("offset", "{offset}", "limit", "{limit}")
 
 	r.Handle(MListTransactionsRoute, LogEntryHandler(MListByProperty, opts)).Methods(http.MethodGet).

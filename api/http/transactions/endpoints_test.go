@@ -14,8 +14,11 @@ import (
 
 	"github.com/gorilla/mux"
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/transactions"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
+	authmocks "github.com/rugwirobaker/paypack-backend/core/auth/mocks"
 	"github.com/rugwirobaker/paypack-backend/core/transactions"
 	"github.com/rugwirobaker/paypack-backend/core/transactions/mocks"
+	"github.com/rugwirobaker/paypack-backend/pkg/encrypt"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -23,7 +26,7 @@ import (
 
 const (
 	email   = "user@gmail.com"
-	token   = "token"
+	token   = "rugwiro.account.dev"
 	wrong   = "wrong"
 	wrongID = 0
 )
@@ -56,6 +59,22 @@ func (tr testRequest) make() (*http.Response, error) {
 	return tr.client.Do(req)
 }
 
+func newAuthenticator() auth.Service {
+	user := auth.Credentials{
+		Username: "username",
+		Password: "password",
+		Role:     auth.Dev,
+		Account:  "account",
+	}
+	opts := &auth.Options{
+		Hasher:    authmocks.NewHasher(),
+		Encrypter: encrypt.None(),
+		Repo:      authmocks.NewRepository(user),
+		JWT:       authmocks.NewJWTProvider(),
+	}
+	return auth.New(opts)
+}
+
 func newService(tokens map[string]string) transactions.Service {
 	repo := mocks.NewRepository()
 	idp := mocks.NewIdentityProvider()
@@ -69,8 +88,9 @@ func newService(tokens map[string]string) transactions.Service {
 func newServer(svc transactions.Service) *httptest.Server {
 	mux := mux.NewRouter()
 	opts := &endpoints.HandlerOpts{
-		Service: svc,
-		Logger:  log.NoOpLogger(),
+		Service:       svc,
+		Logger:        log.NoOpLogger(),
+		Authenticator: newAuthenticator(),
 	}
 	endpoints.RegisterHandlers(mux, opts)
 	return httptest.NewServer(mux)
@@ -93,49 +113,50 @@ func TestRecord(t *testing.T) {
 	cases := []struct {
 		desc        string
 		req         string
-		contentType string
 		token       string
+		contentType string
 		status      int
 	}{
 		{
 			desc:        "record a valid transaction",
 			req:         toJSON(transactions.Transaction{ID: id, Amount: 100, Method: "bk", MadeFor: "1000", OwnerID: "1000"}),
-			contentType: contentType,
 			token:       token,
+			contentType: contentType,
 			status:      http.StatusCreated,
 		},
 		{
 			desc:        "record transaction with invalid property",
 			req:         toJSON(transactions.Transaction{Amount: 1000.00, Method: "BK"}),
+			token:       token,
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 		},
 		{
 			desc:        "record transaction with invalid request format",
 			req:         "{",
-			contentType: contentType,
 			token:       token,
+			contentType: contentType,
 			status:      http.StatusBadRequest,
 		},
 		{
 			desc:        "record transaction with empty JSON request",
 			req:         "{}",
-			contentType: contentType,
 			token:       token,
+			contentType: contentType,
 			status:      http.StatusBadRequest,
 		},
 		{
 			desc:        "record transaction with empty request",
 			req:         "",
-			contentType: contentType,
 			token:       token,
+			contentType: contentType,
 			status:      http.StatusBadRequest,
 		},
 		{
 			desc:        "record transaction with missing content type",
 			req:         toJSON(transactions.Transaction{ID: id, Amount: 100, Method: "bk", MadeFor: "1000", OwnerID: "1000"}),
-			contentType: "",
 			token:       token,
+			contentType: "",
 			status:      http.StatusUnsupportedMediaType,
 		},
 	}

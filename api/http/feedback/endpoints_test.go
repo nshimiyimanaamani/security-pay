@@ -14,8 +14,11 @@ import (
 
 	"github.com/gorilla/mux"
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/feedback"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
+	authmocks "github.com/rugwirobaker/paypack-backend/core/auth/mocks"
 	"github.com/rugwirobaker/paypack-backend/core/feedback"
 	"github.com/rugwirobaker/paypack-backend/core/feedback/mocks"
+	"github.com/rugwirobaker/paypack-backend/pkg/encrypt"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -23,6 +26,7 @@ import (
 
 const (
 	contentType = "application/json"
+	token       = "rugwiro.account.dev"
 	wrongID     = 10
 	wrongValue  = "wrong"
 )
@@ -50,6 +54,22 @@ func (tr testRequest) make() (*http.Response, error) {
 	return tr.client.Do(req)
 }
 
+func newAuthenticator() auth.Service {
+	user := auth.Credentials{
+		Username: "username",
+		Password: "password",
+		Role:     auth.Dev,
+		Account:  "account",
+	}
+	opts := &auth.Options{
+		Hasher:    authmocks.NewHasher(),
+		Encrypter: encrypt.None(),
+		Repo:      authmocks.NewRepository(user),
+		JWT:       authmocks.NewJWTProvider(),
+	}
+	return auth.New(opts)
+}
+
 func newService() feedback.Service {
 	opts := &feedback.Options{
 		Idp:  mocks.NewIdentityProvider(),
@@ -61,8 +81,9 @@ func newService() feedback.Service {
 func newServer(svc feedback.Service) *httptest.Server {
 	mux := mux.NewRouter()
 	opts := &endpoints.HandlerOpts{
-		Service: svc,
-		Logger:  log.NoOpLogger(),
+		Service:       svc,
+		Logger:        log.NoOpLogger(),
+		Authenticator: newAuthenticator(),
 	}
 	endpoints.RegisterHandlers(mux, opts)
 	return httptest.NewServer(mux)
@@ -394,24 +415,28 @@ func TestList(t *testing.T) {
 
 	cases := []struct {
 		desc   string
+		token  string
 		status int
 		url    string
 		res    []feedback.Message
 	}{
 		{
 			desc:   "get a list of messages",
+			token:  token,
 			status: http.StatusOK,
 			url:    fmt.Sprintf("%s?offset=%d&limit=%d", messagesURL, 0, 5),
 			res:    data[0:5],
 		},
 		{
 			desc:   "get a list of messages with negative offset",
+			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?offset=%d&limit=%d", messagesURL, -1, 5),
 			res:    nil,
 		},
 		{
 			desc:   "get a list of messages with negative limit",
+			token:  token,
 			status: http.StatusBadRequest,
 			url:    fmt.Sprintf("%s?offset=%d&limit=%d", messagesURL, 1, -5),
 			res:    nil,
@@ -421,6 +446,7 @@ func TestList(t *testing.T) {
 	for _, tc := range cases {
 		req := testRequest{
 			client: client,
+			token:  tc.token,
 			method: http.MethodGet,
 			url:    tc.url,
 		}

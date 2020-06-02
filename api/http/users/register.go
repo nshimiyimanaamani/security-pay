@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rugwirobaker/paypack-backend/api/http/middleware"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/users"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
@@ -14,8 +16,9 @@ type ProtocolHandler func(lgger log.Entry, svc users.Service) http.Handler
 // HandlerOpts are the generic options
 // for a ProtocolHandler
 type HandlerOpts struct {
-	Logger  *log.Logger
-	Service users.Service
+	Logger        *log.Logger
+	Service       users.Service
+	Authenticator auth.Service
 }
 
 // LogEntryHandler pulls a log entry from the request context. Thanks to the
@@ -38,29 +41,68 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		panic("absolutely unacceptable handler opts")
 	}
 
-	r.Handle(RegisterAdminRoute, LogEntryHandler(RegisterAdmin, opts)).Methods(http.MethodPost)
-	r.Handle(RetrieveAdminRoute, LogEntryHandler(RetrieveAdmin, opts)).Methods(http.MethodGet)
-	r.Handle(UpdateAdminCredsRoute, LogEntryHandler(UpdateAdminCreds, opts)).Methods(http.MethodPut)
+	authenticator := middleware.Authenticate(opts.Logger, opts.Authenticator)
 
-	r.Handle(RegisterAgentRoute, LogEntryHandler(RegisterAgent, opts)).Methods(http.MethodPost)
-	r.Handle(RetrieveAgentRoute, LogEntryHandler(RetrieveAgent, opts)).Methods(http.MethodGet)
-	r.Handle(DeleteAgentRoute, LogEntryHandler(DeleteAgent, opts)).Methods(http.MethodDelete)
-	r.Handle(UpdateAgentRoute, LogEntryHandler(UpdateAgentDetails, opts)).Methods(http.MethodPut)
-	r.Handle(UpdateAgentCredsRoute, LogEntryHandler(UpdateAgentsCreds, opts)).Methods(http.MethodPut)
-	r.Handle(ListAgentsRoute, LogEntryHandler(ListAgents, opts)).Methods(http.MethodGet).
+	// admins
+	r.Handle(RegisterAdminRoute, authenticator(LogEntryHandler(RegisterAdmin, opts))).
+		Methods(http.MethodPost)
+
+	r.Handle(RetrieveAdminRoute, authenticator(LogEntryHandler(RetrieveAdmin, opts))).
+		Methods(http.MethodGet)
+
+	r.Handle(UpdateAdminCredsRoute, authenticator(LogEntryHandler(UpdateAdminCreds, opts))).
+		Methods(http.MethodPut)
+
+	r.Handle(RegisterAgentRoute, authenticator(LogEntryHandler(RegisterAgent, opts))).
+		Methods(http.MethodPost)
+
+	r.Handle(RetrieveAgentRoute, authenticator(LogEntryHandler(RetrieveAgent, opts))).
+		Methods(http.MethodGet)
+
+	//agents
+	r.Handle(DeleteAgentRoute, authenticator(LogEntryHandler(DeleteAgent, opts))).
+		Methods(http.MethodDelete)
+
+	r.Handle(UpdateAgentRoute, authenticator(LogEntryHandler(UpdateAgentDetails, opts))).
+		Methods(http.MethodPut)
+
+	r.Handle(UpdateAgentCredsRoute, authenticator(LogEntryHandler(UpdateAgentsCreds, opts))).
+		Methods(http.MethodPut)
+
+	r.Handle(ListAgentsRoute, authenticator(LogEntryHandler(ListAgents, opts))).
+		Methods(http.MethodGet).
 		Queries("offset", "{offset}", "limit", "{limit}")
 
-	r.Handle(RegisterDeveloperRoute, LogEntryHandler(RegisterDeveloper, opts)).Methods(http.MethodPost)
-	r.Handle(RetrieveDeveloperRoute, LogEntryHandler(RetrieveDeveloper, opts)).Methods(http.MethodGet)
-	r.Handle(DeleteDeveloperRoute, LogEntryHandler(DeleteDeveloper, opts)).Methods(http.MethodDelete)
-	r.Handle(UpdateDeveloperCredsRoute, LogEntryHandler(UpdateDeveloperCreds, opts)).Methods(http.MethodPut)
-	r.Handle(ListDevelopersRoute, LogEntryHandler(ListDevelopers, opts)).Methods(http.MethodGet).
+	// developers
+	r.Handle(RegisterDeveloperRoute, authenticator(LogEntryHandler(RegisterDeveloper, opts))).
+		Methods(http.MethodPost)
+
+	r.Handle(RetrieveDeveloperRoute, authenticator(LogEntryHandler(RetrieveDeveloper, opts))).
+		Methods(http.MethodGet)
+
+	r.Handle(DeleteDeveloperRoute, authenticator(LogEntryHandler(DeleteDeveloper, opts))).
+		Methods(http.MethodDelete)
+
+	r.Handle(UpdateDeveloperCredsRoute, authenticator(LogEntryHandler(UpdateDeveloperCreds, opts))).
+		Methods(http.MethodPut)
+
+	r.Handle(ListDevelopersRoute, authenticator(LogEntryHandler(ListDevelopers, opts))).
+		Methods(http.MethodGet).
 		Queries("offset", "{offset}", "limit", "{limit}")
 
-	r.Handle(RegisterManagerRoute, LogEntryHandler(RegisterManager, opts)).Methods(http.MethodPost)
-	r.Handle(RetrieveManagerRoute, LogEntryHandler(RetrieveManager, opts)).Methods(http.MethodGet)
-	r.Handle(DeleteManagerRoute, LogEntryHandler(DeleteManager, opts)).Methods(http.MethodDelete)
-	r.Handle(UpdateManagerCredsRoute, LogEntryHandler(UpdateManagerCreds, opts)).Methods(http.MethodPut)
-	r.Handle(ListManagersRoute, LogEntryHandler(ListManagers, opts)).Methods(http.MethodGet).
+	//managers
+	r.Handle(RegisterManagerRoute, authenticator(LogEntryHandler(RegisterManager, opts))).
+		Methods(http.MethodPost)
+
+	r.Handle(RetrieveManagerRoute, authenticator(LogEntryHandler(RetrieveManager, opts))).
+		Methods(http.MethodGet)
+
+	r.Handle(DeleteManagerRoute, authenticator(LogEntryHandler(DeleteManager, opts))).
+		Methods(http.MethodDelete)
+
+	r.Handle(UpdateManagerCredsRoute, authenticator(LogEntryHandler(UpdateManagerCreds, opts))).
+		Methods(http.MethodPut)
+	r.Handle(ListManagersRoute, authenticator(LogEntryHandler(ListManagers, opts))).
+		Methods(http.MethodGet).
 		Queries("offset", "{offset}", "limit", "{limit}")
 }

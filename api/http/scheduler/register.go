@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rugwirobaker/paypack-backend/api/http/middleware"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/scheduler"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
@@ -27,8 +29,9 @@ type ProtocolHandler func(logger log.Entry, svc scheduler.Service) http.Handler
 // HandlerOpts are the generic options
 // for a ProtocolHandler
 type HandlerOpts struct {
-	Logger  *log.Logger
-	Service scheduler.Service
+	Logger        *log.Logger
+	Service       scheduler.Service
+	Authenticator auth.Service
 }
 
 // RegisterHandlers ...
@@ -37,5 +40,9 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 	if opts == nil || opts.Service == nil || opts.Logger == nil {
 		panic("absolutely unacceptable handler opts")
 	}
-	r.Handle(TasksRoute, LogEntryHandler(Schedule, opts)).Methods(http.MethodGet)
+
+	authenticator := middleware.Authenticate(opts.Logger, opts.Authenticator)
+
+	r.Handle(TasksRoute, authenticator(LogEntryHandler(Schedule, opts))).
+		Methods(http.MethodGet)
 }

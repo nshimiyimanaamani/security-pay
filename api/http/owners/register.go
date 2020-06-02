@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rugwirobaker/paypack-backend/api/http/middleware"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/owners"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
@@ -14,8 +16,9 @@ type ProtocolHandler func(lgger log.Entry, svc owners.Service) http.Handler
 // HandlerOpts are the generic options
 // for a ProtocolHandler
 type HandlerOpts struct {
-	Service owners.Service
-	Logger  *log.Logger
+	Logger        *log.Logger
+	Service       owners.Service
+	Authenticator auth.Service
 }
 
 // LogEntryHandler pulls a log entry from the request context. Thanks to the
@@ -38,18 +41,27 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		panic("absolutely unacceptable handler opts")
 	}
 
-	r.Handle(RegisterOwnerRoute, LogEntryHandler(Register, opts)).Methods(http.MethodPost)
+	authenticator := middleware.Authenticate(opts.Logger, opts.Authenticator)
 
-	r.Handle(RetrieveByPhoneRoute, LogEntryHandler(RetrieveByPhone, opts)).Methods(http.MethodGet).
+	r.Handle(RegisterOwnerRoute, authenticator(LogEntryHandler(Register, opts))).
+		Methods(http.MethodPost)
+
+	r.Handle(RetrieveByPhoneRoute, authenticator(LogEntryHandler(RetrieveByPhone, opts))).
+		Methods(http.MethodGet).
 		Queries("phone", "{phone}")
 
-	r.Handle(SearchOwnerRoute, LogEntryHandler(Search, opts)).Methods(http.MethodGet).
+	r.Handle(SearchOwnerRoute, authenticator(LogEntryHandler(Search, opts))).
+		Methods(http.MethodGet).
 		Queries("fname", "{fname}", "lname", "{lname}", "phone", "{phone}")
 
-	r.Handle(RetrieveOwnerRoute, LogEntryHandler(Retrieve, opts)).Methods(http.MethodGet)
-	r.Handle(UpdateOwnerRoute, LogEntryHandler(Update, opts)).Methods(http.MethodPut)
+	r.Handle(RetrieveOwnerRoute, authenticator(LogEntryHandler(Retrieve, opts))).
+		Methods(http.MethodGet)
 
-	r.Handle(ListOwnersRoute, LogEntryHandler(List, opts)).Methods(http.MethodGet).
+	r.Handle(UpdateOwnerRoute, authenticator(LogEntryHandler(Update, opts))).
+		Methods(http.MethodPut)
+
+	r.Handle(ListOwnersRoute, authenticator(LogEntryHandler(List, opts))).
+		Methods(http.MethodGet).
 		Queries("offset", "{offset}", "limit", "{limit}")
 
 }

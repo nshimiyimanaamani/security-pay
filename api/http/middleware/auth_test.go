@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/auth/mocks"
+	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -38,7 +39,7 @@ func TestAuthenticate(t *testing.T) {
 	r := mux.NewRouter()
 	r.HandleFunc("/test", h)
 
-	r.Use(Authenticate(svc))
+	r.Use(Authenticate(log.NoOpLogger(), svc))
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/test", nil)

@@ -24,7 +24,7 @@ var creation = time.Now()
 var property = "1"
 
 var invs = map[string]invoices.Invoice{
-	property: invoices.Invoice{ID: 1, Amount: 1000, CreatedAt: creation, UpdatedAt: creation},
+	property: {ID: 1, Amount: 1000, CreatedAt: creation, UpdatedAt: creation},
 }
 
 type testRequest struct {
