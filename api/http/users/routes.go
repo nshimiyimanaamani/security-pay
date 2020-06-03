@@ -3,6 +3,7 @@ package users
 // admin routes
 const (
 	RegisterAdminRoute    = "/accounts/admin"
+	ListAdminsRoute       = "/accounts/admins"
 	RetrieveAdminRoute    = "/accounts/admin/{email}"
 	UpdateAdminCredsRoute = "/accounts/admin/creds/{email}"
 )
