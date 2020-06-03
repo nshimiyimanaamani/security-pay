@@ -33,9 +33,9 @@ func Authenticate(lgger log.Entry, svc auth.Service) mux.MiddlewareFunc {
 				return
 			}
 
-			lgger.Debugf("username:%s | account:%s role:%s",
-				creds.Username, creds.Account, creds.Role,
-			)
+			// lgger.Warnf("username:%s | account:%s role:%s\n",
+			// 	creds.Username, creds.Account, creds.Role,
+			// )
 
 			ctx := auth.SetECredetialsInContext(r.Context(), &creds)
 			r = r.WithContext(ctx)

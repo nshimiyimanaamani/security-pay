@@ -206,6 +206,12 @@ func ListBySector(lgger log.Entry, svc properties.Service) http.Handler {
 			return
 		}
 
+		// creds := auth.CredentialsFromContext(ctx)
+
+		// lgger.Warnf("username:%s | account:%s | role:%s",
+		// 	creds.Username, creds.Account, creds.Role,
+		// )
+
 		res, err := svc.ListBySector(ctx, vars["sector"], offset, limit)
 		if err != nil {
 			err = parseErr(op, err)
