@@ -2,9 +2,10 @@
   <div class="message-container px-5 py-3">
     <div class="tabs-wrapper">
       <b-tabs
-        :no-fade="false"
-        content-class="mt-3"
+        content-class="secondary-font"
         justified
+        card
+        pills
         active-nav-item-class="app-color text-white"
         nav-class="message-nav"
         @activate-tab="clear"
@@ -27,7 +28,10 @@
             <div class="w-100 d-flex mt-2">
               <b-button variant="info" :disabled="message ?false:true" class @click="sendToSector">
                 {{state.sending ? 'Sending ':'Send '}}
-                <b-spinner v-if="state.sending" variant="black" small />
+                <i
+                  v-if="state.sending"
+                  class="fa fa-spinner fa-spin"
+                />
                 <i v-else class="fa fa-paper-plane" />
               </b-button>
             </div>
@@ -42,7 +46,7 @@
               <label class="message-label" for="select">Select a cell:</label>
               <b-select v-model="select.cell" :options="cellOptions">
                 <template v-slot:first>
-                  <option :value="null" disabled>-- select cell --</option>
+                  <option :value="null" disabled>select cell</option>
                 </template>
               </b-select>
             </div>
@@ -80,7 +84,7 @@
                 <label class="message-label" for="select">Select a cell:</label>
                 <b-select v-model="select.cell" :options="cellOptions">
                   <template v-slot:first>
-                    <option :value="null" disabled>-- select cell --</option>
+                    <option :value="null" disabled>select cell</option>
                   </template>
                 </b-select>
               </div>
@@ -92,7 +96,7 @@
                   :options="villageOptions"
                 >
                   <template v-slot:first>
-                    <option :value="null" disabled>-- select village --</option>
+                    <option :value="null" disabled>select village</option>
                   </template>
                 </b-select>
               </div>
@@ -111,11 +115,13 @@
               <b-button
                 variant="info"
                 :disabled="message && select.village?false:true"
-                class
                 @click="sendToVillage"
               >
                 {{state.sending ? 'Sending ':'Send '}}
-                <b-spinner v-if="state.sending" variant="black" small />
+                <i
+                  v-if="state.sending"
+                  class="fa fa-spinner fa-spin"
+                />
                 <i v-else class="fa fa-paper-plane" />
               </b-button>
             </div>
@@ -143,18 +149,23 @@ export default {
   },
   computed: {
     cellOptions() {
-      return this.$store.getters.getCellsArray;
+      const { province, district } = this.location;
+      return this.$cells(province, district, this.activeSector);
     },
     villageOptions() {
       const cell = this.select.cell;
+      const { province, district } = this.location;
       if (cell) {
-        return Village("Kigali", "Gasabo", this.activeSector, cell);
+        return this.$villages(province, district, this.activeSector, cell);
       } else {
         return [];
       }
     },
     activeSector() {
       return this.$store.getters.getActiveSector;
+    },
+    location() {
+      return this.$store.getters.location;
     }
   },
   watch: {
@@ -249,16 +260,10 @@ export default {
       }
     },
     async getPhoneArray(request) {
-      let total = await this.getTotal(request + "0");
+      let total = await this.$getTotal(request + "0");
       return this.axios
         .get(request + `${total}`)
         .then(res => res.data.Properties.map(item => item.owner.phone))
-        .catch(err => null);
-    },
-    getTotal(request) {
-      return this.axios
-        .get(request)
-        .then(res => res.data.Total)
         .catch(err => null);
     },
     clear() {
@@ -278,7 +283,19 @@ export default {
   width: 100%;
   margin-top: 3rem;
   .message-nav {
-    background: #efefef;
+    .nav-item {
+      margin: 0 5px;
+
+      .nav-link {
+        border-radius: 2px;
+        color: #017db3;
+        font-size: 14px;
+        &:hover {
+          color: white !important;
+          background-color: #017db3 !important;
+        }
+      }
+    }
   }
   .message-title {
     text-align: center;
@@ -305,7 +322,7 @@ export default {
     -webkit-box-align: center;
   }
   .sector-body {
-    padding: 1rem 2rem;
+    padding: 0 2rem;
     textarea {
       border-radius: 2px;
       border: 1px solid #b9bec3;
@@ -317,14 +334,13 @@ export default {
       border-radius: 2px;
       width: 120px;
       margin-left: auto;
-      font-size: 16px !important;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
   }
   .cell-body,
   .village-body {
-    padding: 1rem 2rem;
+    padding: 0 2rem;
     textarea,
     select {
       border-radius: 2px;
@@ -337,7 +353,6 @@ export default {
       border-radius: 2px;
       width: 120px;
       margin-left: auto;
-      font-size: 16px !important;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
@@ -357,5 +372,4 @@ export default {
     }
   }
 }
-// @import "../assets/css/messages.scss";
 </style>

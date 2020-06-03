@@ -14,7 +14,7 @@
               <b-input
                 type="search"
                 size="sm"
-                class="font-13 app-font left"
+                class="left br-2 secondary-font"
                 placeholder="search user..."
                 v-model="search.name"
               />
@@ -39,14 +39,10 @@
         </b-card-group>
       </b-card>
       <section class="error" v-show="!houses.length">
-        <article>
-          <center>
-            <div v-if="!state.loading">
-              <label for="error" class="font-14">No House found in {{activeVillage}} village</label>
-            </div>
-            <loader :loading="state.loading" />
-          </center>
-        </article>
+        <div v-if="state.loading" class="village-empty">
+          <p class="secondary-font">No House found in {{activeVillage}} village</p>
+        </div>
+        <vue-load v-if="!state.loading" class="secondary-font" />
       </section>
     </div>
   </div>
@@ -54,12 +50,10 @@
 
 <script>
 import userCard from "../components/usercard.vue";
-import loader from "../components/loader.vue";
 export default {
   name: "village",
   components: {
-    "user-card": userCard,
-    loader
+    "user-card": userCard
   },
   data() {
     return {
@@ -108,7 +102,7 @@ export default {
     }
   },
   mounted() {
-    this.loadData();
+    // this.loadData();
   },
   methods: {
     async loadData() {

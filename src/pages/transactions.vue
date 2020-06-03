@@ -141,12 +141,13 @@ export default {
     this.requestItems();
   },
   methods: {
-    requestItems() {
+    async requestItems() {
       this.loading = true;
+      const total = await this.$getTotal("/transactions?offset=0&limit=0");
       this.axios
-        .get("/transactions?offset=0&limit=1000")
+        .get("/transactions?offset=0&limit=" + total)
         .then(res => {
-          if (this.user.role.toLowerCase() == "basic") {
+          if (this.user.role === "basic") {
             this.table.items = res.data.Transactions.filter(
               item => item.cell == this.activeCell
             );
@@ -171,7 +172,6 @@ export default {
       this.table.items.forEach(element => {
         total += element.amount;
       });
-      console.log(total);
       return total;
     },
     mtnTotal() {

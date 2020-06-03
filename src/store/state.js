@@ -1,6 +1,8 @@
 const state = {
   user: null,
-  active_sector: "Remera",
+  province: null,
+  district: null,
+  active_sector: null,
   active_cell: null,
   cells_array: null,
   active_village: null,

@@ -82,7 +82,7 @@
         }
         .chart-error {
           padding: 4rem;
-          top: 0;
+          top: -20%;
           width: 100%;
           left: 0;
           right: 0;
@@ -93,8 +93,8 @@
           display: flex;
           justify-content: center;
           align-items: center;
-          font-size: 1.3rem;
-          text-transform: capitalize;
+          font-size: 1rem;
+          text-transform: uppercase;
           position: absolute;
         }
       }

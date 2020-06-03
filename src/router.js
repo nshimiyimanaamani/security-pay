@@ -78,8 +78,7 @@ let router = new Router({
           component: dashboard,
           meta: {
             requireAuth: true,
-            forAdmin: true,
-            forDev: true
+            forAdmin: true
           }
         },
         {
@@ -89,7 +88,6 @@ let router = new Router({
           meta: {
             requireAuth: true,
             forAdmin: true,
-            forDev: true,
             forManager: true
           }
         },
@@ -100,7 +98,6 @@ let router = new Router({
           meta: {
             requireAuth: true,
             forAdmin: true,
-            forDev: true,
             forManager: true
           }
         },
@@ -111,7 +108,6 @@ let router = new Router({
           meta: {
             requireAuth: true,
             forAdmin: true,
-            forDev: true,
             forManager: true
           }
         },
@@ -122,7 +118,6 @@ let router = new Router({
           meta: {
             requireAuth: true,
             forAdmin: true,
-            forDev: true,
             forManager: true
           }
         },
@@ -133,7 +128,6 @@ let router = new Router({
           meta: {
             requireAuth: true,
             forAdmin: true,
-            forDev: true,
             forManager: true
           }
         },
@@ -143,9 +137,8 @@ let router = new Router({
           component: accounts,
           meta: {
             requireAuth: true,
-            forDev: true,
             forAdmin: true,
-            forDev: true
+            forManager: true
           }
         },
         {
@@ -155,7 +148,6 @@ let router = new Router({
           meta: {
             requireAuth: true,
             forAdmin: true,
-            forDev: true,
             forManager: true
           }
         },
@@ -166,7 +158,6 @@ let router = new Router({
           meta: {
             requireAuth: true,
             forAdmin: true,
-            forDev: true,
             forManager: true
           }
         }
@@ -236,12 +227,10 @@ let router = new Router({
 
 router.beforeEach((to, from, next) => {
   const decoded = decode(sessionStorage.token);
-
   if (to.matched.some(record => record.meta.requireAuth)) {
     if (decoded) {
-      next();
-      axios.defaults.headers.common["Authorization"] = sessionStorage.token;
       store.state.user = decoded;
+      next();
       checkRoute(to, next, decoded.role);
     } else {
       next({ path: "/" });
@@ -284,7 +273,7 @@ function checkRoute(to, next, role) {
     if (to.matched.some(record => record.meta.forDev)) {
       next();
     } else {
-      next({ name: "dashboard" });
+      next({ path: "/dev" });
     }
   }
   if (role == "basic") {

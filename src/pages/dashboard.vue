@@ -39,7 +39,7 @@
             </div>
             <vue-load v-if="chart2.state.loading" class="secondary-font chart-loader" />
             <div
-              class="chart-error"
+              class="chart-error secondary-font"
               v-if="chart2.state.error"
             >{{chart2.state.errorMessage||'No data available to display at this moment!'}}</div>
           </div>
@@ -68,7 +68,7 @@
             </div>
             <vue-load v-if="chart3.state.loading" class="secondary-font chart-loader" />
             <div
-              class="chart-error"
+              class="chart-error secondary-font"
               v-if="chart3.state.error"
             >{{chart3.state.errorMessage||'No data available to display at this moment!'}}</div>
           </div>

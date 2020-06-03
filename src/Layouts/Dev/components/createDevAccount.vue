@@ -100,7 +100,14 @@ export default {
           this.$emit("created");
         })
         .catch(err => {
-          console.log(err, err - response);
+          console.log(err, err.response);
+          try {
+            this.$snotify.error(err.response.data.error);
+          } catch {
+            this.$snotify.error(
+              "Oops! can't create account at this moment, try again later!"
+            );
+          }
           this.loading = false;
         });
     },
@@ -110,11 +117,12 @@ export default {
       this.axios
         .get("/accounts?offset=0&limit=" + Total)
         .then(async res => {
+          console.log(res);
           this.accounts = res.data.Accounts.map(item => item.id);
           await this.accounts;
           this.loadingAccounts = false;
         })
-        .catch(er => {
+        .catch(err => {
           console.log(err, err.response);
           this.loadingAccounts = false;
         });

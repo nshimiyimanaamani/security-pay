@@ -7,29 +7,28 @@
             id="input-1"
             type="email"
             v-model="form.email"
-            size="sm"
+            class="br-2"
             required
             placeholder="Enter Email address..."
           />
         </b-form-group>
         <b-form-group id="input-group-2" label="Cell:" label-for="input-2">
-          <b-form-select id="input-2" v-model="form.cell" :options="cellOptions" size="sm">
+          <b-form-select id="input-2" v-model="form.cell" :options="cellOptions" class="br-2">
             <template v-slot:first>
-              <option :value="null" disabled>Please select cell</option>
+              <option :value="null" disabled>select cell</option>
             </template>
           </b-form-select>
         </b-form-group>
 
-        <b-form-group class="m-0">
+        <b-form-group class="mb-0">
           <b-button
             variant="info"
-            class="float-right font-14"
-            :disabled="(form.cell&&form.email)?false:true"
-            size="sm"
+            class="float-right br-2"
+            :disabled="(form.cell && form.email) ? false : true"
             type="submit"
           >
             {{state.creating ? 'Creating' : "Create"}}
-            <b-spinner v-show="state.creating" small type="grow"></b-spinner>
+            <i v-if="state.creating" />
           </b-button>
         </b-form-group>
       </b-form>
@@ -38,11 +37,12 @@
       <b-table
         id="Dev-table"
         bordered
-        striped
         responsive
         hover
         small
         show-empty
+        head-variant="light"
+        thead-class="text-uppercase"
         :items="loadData"
         :fields="table.fields"
         :busy.sync="state.tableLoad"
@@ -50,7 +50,7 @@
       >
         <template v-slot:table-busy>
           <div class="text-center my-2">
-            <loader />
+            <vue-load />
           </div>
         </template>
       </b-table>
@@ -104,12 +104,8 @@
 </template>
 
 <script>
-import loader from "../loader";
 export default {
   name: "add-agent",
-  components: {
-    loader
-  },
   data() {
     return {
       form: {
@@ -271,15 +267,14 @@ export default {
 };
 </script>
 
-<style>
-.addManager .nav-link.active {
-  background-color: white !important;
-}
-.addManager .accountForm {
-  width: auto;
-  border: 1px solid #dee2e6;
-  border-radius: 5px;
-  padding: 1rem;
-  margin: 1rem;
+<style lang="scss">
+.addManager {
+  .accountForm {
+    width: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 1rem;
+    margin: 1rem;
+  }
 }
 </style>

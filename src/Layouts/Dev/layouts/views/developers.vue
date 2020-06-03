@@ -180,6 +180,7 @@ export default {
       return this.axios
         .get("/accounts/developers?offset=0&limit=" + limit)
         .then(res => {
+          console.log(res);
           this.state.loading = false;
           this.items = res.data.Developers;
         })

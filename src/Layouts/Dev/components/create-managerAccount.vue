@@ -31,7 +31,7 @@
                 :value="account"
               >{{account}}</b-form-select-option>
             </b-form-select>
-            <b-button variant="outline-secondary" class="ml-2" @click="getAccounts">
+            <b-button variant="outline-info" class="ml-2" @click="getAccounts">
               <i class="fa fa-sync-alt" :class="{'fa-spin': state.loadingAccounts}" />
             </b-button>
           </section>
@@ -158,7 +158,8 @@ export default {
           this.$bvModal
             .msgBoxOk(`Password: ${res.data.password}`, {
               title: "Account created successfully!",
-              headerClass: "pt-5 pb-1 border-bottom-0 justify-content-center secondary-font",
+              headerClass:
+                "pt-5 pb-1 border-bottom-0 justify-content-center secondary-font",
               contentClass: "text-center p-0 pb-5 secondary-font",
               footerClass: "d-none",
               centered: true
@@ -187,6 +188,11 @@ export default {
         })
         .catch(err => {
           console.log(err, err.response);
+          try {
+            this.$snotify(err.data.error);
+          } catch {
+            this.$snotify.error("Error! can't create account");
+          }
           this.state.loadingAccounts = false;
         });
     }

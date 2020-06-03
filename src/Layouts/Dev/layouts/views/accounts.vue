@@ -2,7 +2,7 @@
   <div class="dev-accounts-wrapper">
     <div class="stats">
       <header class="secondary-font">Accounts in Numbers</header>
-      <vue-load label="Loading..." v-if="state.loading" />
+      <vue-load label="Loading..." class="secondary-font" v-if="state.loading" />
       <div class="cards" v-else>
         <div class="custom-card">
           <div class="card-content">

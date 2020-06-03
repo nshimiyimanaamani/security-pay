@@ -25,9 +25,10 @@
             <b-form-group label="Sector" label-class="text-muted p-0" class="mb-3">
               <b-form-select
                 size="sm"
+                class="br-2"
                 v-model="select.sector"
                 :options="sectorOptions"
-                :disabled="sectorOptions.length < 1"
+                :disabled="sectorOptions.length < 1 || isManager"
               >
                 <template v-slot:first>
                   <option :value="null" disabled>Select Sector</option>
@@ -37,9 +38,10 @@
             <b-form-group label="Cell" label-class="text-muted p-0" class="mb-3">
               <b-form-select
                 size="sm"
+                class="br-2"
                 v-model="select.cell"
                 :options="cellOptions"
-                :disabled="cellOptions.length < 1"
+                :disabled="cellOptions.length < 1 || isManager"
               >
                 <template v-slot:first>
                   <option :value="null" disabled>Select cell</option>
@@ -49,6 +51,7 @@
             <b-form-group label="Village" label-class="text-muted p-0">
               <b-form-select
                 size="sm"
+                class="br-2"
                 v-model="select.village"
                 :options="villageOptions"
                 :disabled="villageOptions.length < 1"
@@ -275,21 +278,21 @@ export default {
       return [];
     },
     villageOptions() {
+      const { province, district } = this.location;
       if (this.select.cell)
         return this.$villages(
-          "Kigali",
-          "Gasabo",
+          province,
+          district,
           this.select.sector,
           this.select.cell
         );
-
       return [];
     },
     activeSector() {
-      return this.capitalize(this.$store.getters.getActiveSector);
+      return this.$capitalize(this.$store.getters.getActiveSector);
     },
     activeCell() {
-      return this.capitalize(this.$store.getters.getActiveCell);
+      return this.$capitalize(this.$store.getters.getActiveCell);
     },
     columns() {
       return this.fields.map(i => i.label);
@@ -304,14 +307,25 @@ export default {
     },
     user() {
       return this.$store.getters.userDetails;
+    },
+    location() {
+      return this.$store.getters.location;
+    },
+    role() {
+      return this.user.role;
+    },
+    isManager() {
+      return this.user.role === "basic";
     }
   },
   mounted() {
     this.loadData();
     this.select.postColumns = this.columns;
     this.select.shownColumn = this.columns;
-    if (this.user.role.toLowerCase() == "basic") {
+    if (this.isManager) {
       this.selected = this.activeCell;
+      this.select.sector = this.activeSector;
+      this.select.cell = this.activeCell;
     } else {
       this.selected = this.activeSector;
     }
@@ -331,7 +345,7 @@ export default {
     "select.sector"() {
       handler: {
         this.state.changedLocation = true;
-        this.select.cell = null;
+        this.select.cell = this.activeCell;
       }
     },
     "select.cell"() {
@@ -354,6 +368,7 @@ export default {
       //   this.filteredData = properties;
       //   this.originalData = Object.freeze(properties);
       //   this.loading.request = false;
+      //   this.filterByLocation();
       //   return;
       // }
 
@@ -370,6 +385,7 @@ export default {
           //   JSON.stringify(res.data.Properties)
           // );
           this.pagination.totalRows = total;
+          this.filterByLocation();
         })
         .catch(err => {
           const error = err.response
@@ -409,7 +425,6 @@ export default {
       const sector = this.select.sector || "";
       const cell = this.select.cell || "";
       const village = this.select.village || "";
-      console.log(sector, cell, village);
       if (!sector && !cell && !village) return this.filteredData;
       this.filteredData = this.originalData.filter(
         item =>
@@ -504,22 +519,21 @@ export default {
     async clearFilter() {
       await this.$refs.dropdown.hide(true);
       this.select.village = null;
-      this.select.sector = null;
-      this.select.cell = null;
       this.select.shownColumn = this.columns;
       this.select.postColumns = this.columns;
+      if (this.isManager) {
+        this.select.sector = this.activeSector;
+        this.select.cell = this.activeCell;
+      } else {
+        this.select.sector = this.activeSector;
+        this.select.cell = null;
+      }
       this.filterByLocation();
     },
-    capitalize(string) {
-      string.toLowerCase();
-      return string.charAt(0).toUpperCase() + string.slice(1);
-    },
     getUrl() {
-      if (this.user.role.toLowerCase() == "basic") {
+      if (this.isManager)
         return `/properties?cell=${this.activeCell}&offset=0&limit=`;
-      } else {
-        return `/properties?sector=${this.activeSector}&offset=0&limit=`;
-      }
+      return `/properties?sector=${this.activeSector}&offset=0&limit=`;
     },
     confirm(message) {
       return this.$bvModal.msgBoxConfirm(message, {
