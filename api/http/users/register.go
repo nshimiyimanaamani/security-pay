@@ -53,13 +53,17 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 	r.Handle(UpdateAdminCredsRoute, authenticator(LogEntryHandler(UpdateAdminCreds, opts))).
 		Methods(http.MethodPut)
 
+	r.Handle(ListAdminsRoute, authenticator(LogEntryHandler(ListAdmins, opts))).
+		Methods(http.MethodGet).
+		Queries("offset", "{offset}", "limit", "{limit}")
+
+	//agents
 	r.Handle(RegisterAgentRoute, authenticator(LogEntryHandler(RegisterAgent, opts))).
 		Methods(http.MethodPost)
 
 	r.Handle(RetrieveAgentRoute, authenticator(LogEntryHandler(RetrieveAgent, opts))).
 		Methods(http.MethodGet)
 
-	//agents
 	r.Handle(DeleteAgentRoute, authenticator(LogEntryHandler(DeleteAgent, opts))).
 		Methods(http.MethodDelete)
 
