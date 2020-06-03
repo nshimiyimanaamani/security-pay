@@ -1,5 +1,5 @@
 .village-wrapper {
-    height: calc( 100% - 1rem);
+  height: calc(100% - 1rem);
   .card-columns {
     column-count: 2 !important;
   }
@@ -11,7 +11,7 @@
     height: calc(100vh - 55px - 1rem);
     .village-body {
       overflow-y: scroll;
-      height: calc(100% - 45px );
+      height: calc(100% - 45px);
     }
     .card {
       border: 1px solid lightgray;
@@ -87,16 +87,14 @@
       margin-bottom: 20px;
       background: transparent;
       padding-top: 1px;
-      article {
-        width: fit-content;
-        margin: 30px auto;
-        i {
-          font-size: 70px;
-          color: #e6d828;
-        }
-        label {
-          margin: 15px;
-          display: block;
+
+      .village-empty {
+        padding: 4rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        p {
+          font-size: 1.2rem;
         }
       }
     }
@@ -119,7 +117,7 @@
     }
     h1 {
       color: #fff;
-      font-size: 14px;
+      font-size: 17px;
       letter-spacing: 1.3px;
       margin: auto;
       text-transform: uppercase;

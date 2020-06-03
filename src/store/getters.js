@@ -7,7 +7,16 @@ const getters = {
   getVillageArray: state => state.village_array,
   getActiveSector: state => state.active_sector,
   userDetails: state => state.user,
-  getMonths: state => state.months
-}
+  getMonths: state => state.months,
+  location: state => {
+    return {
+      province: state.province,
+      district: state.district,
+      sector: state.active_sector,
+      cell: state.active_cell,
+      village: state.active_village
+    };
+  }
+};
 
-export default getters
+export default getters;

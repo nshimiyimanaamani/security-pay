@@ -20,7 +20,7 @@
           <li>Managers</li>
         </router-link>
       </ul>
-      <b-button class="custom-button" @click="logout">Logout</b-button>
+      <b-button class="custom-button secondary-font" @click="logout">Logout</b-button>
     </nav>
     <div class="dev-body">
       <b-container>
@@ -36,7 +36,6 @@ export default {
   methods: {
     logout() {
       this.$store.dispatch("logout");
-      this.$destroy;
     }
   }
 };

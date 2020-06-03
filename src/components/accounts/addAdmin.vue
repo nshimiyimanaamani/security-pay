@@ -7,22 +7,24 @@
             id="input-1"
             type="email"
             v-model="form.email"
-            size="sm"
+            class="br-2"
             required
             placeholder="Enter Email address..."
           />
         </b-form-group>
 
-        <b-form-group class="m-0">
+        <b-form-group>
           <b-button
             :disabled="form.email?false: true"
             variant="info"
-            class="float-right font-14"
+            class="w-100 br-2"
             type="submit"
-            size="sm"
           >
             {{state.creating ? 'Creating' : "Create"}}
-            <b-spinner v-show="state.creating" small type="grow"></b-spinner>
+            <i
+              v-show="state.creating"
+              class="fa fa-spinner fa-spin"
+            />
           </b-button>
         </b-form-group>
       </b-form>
@@ -31,20 +33,19 @@
       <b-table
         id="Dev-table"
         bordered
-        striped
         hover
         small
         responsive
         show-empty
+        head-variant="light"
+        thead-class="text-uppercase"
         :items="loadData"
         :fields="table.fields"
         :busy.sync="state.tableLoad"
         @row-contextmenu="menu"
       >
         <template v-slot:table-busy>
-          <div class="text-center my-2">
-            <loader />
-          </div>
+          <vue-load />
         </template>
       </b-table>
     </b-tab>
@@ -61,20 +62,22 @@
             id="input-1"
             required
             v-model="form.newPwd"
-            size="sm"
+            class="br-2"
             placeholder="New Password..."
           ></b-form-input>
         </b-form-group>
-        <b-form-group class="m-0">
+        <b-form-group class="mb-0">
           <b-button
             variant="info"
-            class="float-right"
-            size="sm"
+            class="float-right br-2"
             :disabled="form.newPwd?false:true"
             type="submit"
           >
             {{state.changing ? 'changing' : "change"}}
-            <b-spinner v-show="state.changing" small type="grow"></b-spinner>
+            <i
+              v-if="state.changing"
+              class="fa fa-spinner fa-spin"
+            />
           </b-button>
         </b-form-group>
       </b-form>
@@ -83,12 +86,8 @@
 </template>
 
 <script>
-import loader from "../loader";
 export default {
   name: "add-agent",
-  components: {
-    loader
-  },
   data() {
     return {
       form: {
@@ -97,7 +96,7 @@ export default {
       },
       table: {
         fields: [
-          { key: "email", label: "Email" },
+          { key: "email", label: "Email", tdClass: "text-normal" },
           { key: "cell", label: "cell" },
           { key: "role", label: "Role" }
         ]
@@ -145,22 +144,26 @@ export default {
               footerClass: "p-2 border-top-0",
               centered: true
             })
-            .then(res => console.log(""));
+            .then(res => {
+              this.state.creating = false;
+              this.form = { email: null, password: null };
+            });
         })
         .catch(err => {
           const error = err.response
             ? err.response.data.error || err.response.data
             : null;
           if (error) this.$snotify.error(error);
-        })
-        .finally(() => {
           this.state.creating = false;
           this.form = { email: null, password: null };
         });
     },
-    loadData() {
+    async loadData() {
       this.state.tableLoad = true;
-      const promise = this.axios.get("/accounts/managers?offset=0&limit=1000");
+      const total = await this.$getTotal("/accounts/managers?offset=0&limit=0");
+      const promise = this.axios.get(
+        "/accounts/managers?offset=0&limit=" + total
+      );
       return promise
         .then(res => {
           return res.data.Managers;
@@ -208,24 +211,24 @@ export default {
           this.state.changing = false;
           this.change_pswd_modal.show = false;
         });
-    },
-    toCapital(string) {
-      string.toLowerCase();
-      return string.charAt(0).toUpperCase() + string.slice(1);
     }
   }
 };
 </script>
 
-<style>
-.addAdmin .nav-link.active {
-  background-color: white !important;
-}
-.addAdmin .accountForm {
-  width: auto;
-  border: 1px solid #dee2e6;
-  border-radius: 5px;
-  padding: 1rem;
-  margin: 1rem;
+<style lang="scss">
+.addAdmin {
+  .accountForm {
+    width: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 1rem;
+
+    & > .form-group {
+      max-width: 300px;
+      margin: auto;
+      margin-bottom: 1rem;
+    }
+  }
 }
 </style>

@@ -2,7 +2,7 @@
   <div class="managers-wrapper">
     <div class="stats">
       <header class="secondary-font">Managers in Numbers</header>
-      <vue-load v-if="state.loading" class="custom-load" />
+      <vue-load v-if="state.loading" class="custom-load secondary-font" />
       <div class="cards" v-else>
         <div class="custom-card">
           <div class="card-content">

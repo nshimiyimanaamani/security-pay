@@ -168,8 +168,9 @@ export default {
       return this.$store.getters.getCellsArray;
     },
     villageOptions() {
+      const { province, district, sector } = this.location;
       const cell = this.address.cell;
-      if (cell) return this.$villages("Kigali", "Gasabo", "Remera", cell);
+      if (cell) return this.$villages(province, district, sector, cell);
       return [];
     },
     checkNumber() {
@@ -180,6 +181,9 @@ export default {
     },
     occupied() {
       return Boolean(this.form.occupied !== null);
+    },
+    location() {
+      return this.$store.getters.location;
     },
     clickable() {
       const { fname, lname, phone, id, due, occupied } = this.form;
@@ -207,8 +211,8 @@ export default {
   methods: {
     search_user() {
       if (!this.state.switch) {
-        const fname = this.capitalize(this.form.fname.trim());
-        const lname = this.capitalize(this.form.lname.trim());
+        const fname = this.$capitalize(this.form.fname.trim());
+        const lname = this.$capitalize(this.form.lname.trim());
         const phone = this.form.phone.trim();
         this.state.adding = true;
         this.axios

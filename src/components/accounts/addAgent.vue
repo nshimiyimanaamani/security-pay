@@ -7,10 +7,10 @@
             <b-form-group id="input-group-1" label="First name:" label-for="input-1">
               <b-form-input
                 id="input-1"
-                size="sm"
                 required
                 v-model="form.fname"
                 placeholder="First name..."
+                class="br-2"
               ></b-form-input>
             </b-form-group>
           </b-col>
@@ -18,10 +18,10 @@
             <b-form-group id="input-group-2" label="Last name:" label-for="input-2">
               <b-form-input
                 id="input-2"
-                size="sm"
                 required
                 v-model="form.lname"
                 placeholder="Last name..."
+                class="br-2"
               ></b-form-input>
             </b-form-group>
           </b-col>
@@ -31,40 +31,57 @@
             id="input-3"
             type="number"
             v-model="form.phone"
+            class="br-2"
             required
-            size="sm"
             placeholder="Enter Phone number..."
           ></b-form-input>
         </b-form-group>
 
         <b-form-group id="input-group-4" label="Sector:" label-for="input-4">
-          <b-form-select size="sm" id="input-4" v-model="form.select.sector">
+          <b-form-select
+            class="br-2"
+            id="input-4"
+            v-model="form.select.sector"
+            :options="sectorOptions"
+          >
             <template v-slot:first>
-              <option :value="null" disabled>-- Please select sector --</option>
+              <option :value="null" disabled>select sector</option>
             </template>
-            <option value="Remera">Remera</option>
           </b-form-select>
         </b-form-group>
 
         <b-form-group id="input-group-5" label="Cell:" label-for="input-5">
-          <b-form-select id="input-5" v-model="form.select.cell" :options="cellOptions" size="sm">
+          <b-form-select
+            id="input-5"
+            class="br-2"
+            v-model="form.select.cell"
+            :options="cellOptions"
+          >
             <template v-slot:first>
-              <option :value="null" disabled>-- Please select cell --</option>
+              <option :value="null" disabled>select cell</option>
             </template>
           </b-form-select>
         </b-form-group>
 
-        <b-form-group id="input-group-5" label="Village:" label-for="input-5">
-          <b-select id="input-6" v-model="form.select.village" :options="villageOptions" size="sm">
+        <b-form-group id="input-group-5" label="Village:" label-for="input-6">
+          <b-select
+            id="input-6"
+            v-model="form.select.village"
+            :options="villageOptions"
+            class="br-2"
+          >
             <template v-slot:first>
-              <option :value="null" disabled>-- Please select village --</option>
+              <option :value="null" disabled>select village</option>
             </template>
           </b-select>
         </b-form-group>
-        <b-form-group class="m-0">
-          <b-button variant="info" size="sm" class="float-right" type="submit">
+        <b-form-group class="mb-0">
+          <b-button variant="info" class="float-right" type="submit">
             {{state.creating ? 'Creating' : "Create"}}
-            <b-spinner v-show="state.creating" small type="grow"></b-spinner>
+            <i
+              class="fa fa-spinner fa-spin"
+              v-if="state.creating"
+            />
           </b-button>
         </b-form-group>
       </b-form>
@@ -77,6 +94,8 @@
         hover
         small
         responsive
+        head-variant="light"
+        thead-class="text-uppercase"
         show-empty
         :items="loadData"
         :fields="table.fields"
@@ -85,9 +104,7 @@
       >
         <template v-slot:cell(first_name)="data">{{data.item.first_name+" "+data.item.last_name}}</template>
         <template v-slot:table-busy>
-          <div class="text-center my-2">
-            <loader />
-          </div>
+          <vue-load />
         </template>
       </b-table>
     </b-tab>
@@ -127,13 +144,8 @@
 </template>
 
 <script>
-const { Village } = require("rwanda");
-import loader from "../loader";
 export default {
   name: "add-agent",
-  components: {
-    loader
-  },
   data() {
     return {
       form: {
@@ -171,17 +183,29 @@ export default {
     };
   },
   computed: {
+    sectorOptions() {
+      return [this.activeSector];
+    },
     cellOptions() {
       const sector = this.form.select.sector;
       if (sector) {
-        return this.$store.getters.getCellsArray;
+        return this.$cells(
+          this.location.province,
+          this.location.district,
+          sector
+        );
       }
     },
     villageOptions() {
       const sector = this.form.select.sector;
       const cell = this.form.select.cell;
       if (sector && cell) {
-        return Village("Kigali", "Gasabo", sector, cell).sort();
+        return this.$villages(
+          this.location.province,
+          this.location.district,
+          sector,
+          cell
+        ).sort();
       } else {
         return [];
       }
@@ -195,6 +219,25 @@ export default {
     },
     user() {
       return this.$store.getters.userDetails;
+    },
+    activeSector() {
+      return this.$store.getters.getActiveSector;
+    },
+    location() {
+      return this.$store.getters.location;
+    }
+  },
+  watch: {
+    "form.select.sector"() {
+      handler: {
+        this.form.select.cell = null;
+        this.form.select.village = null;
+      }
+    },
+    "form.select.cell"() {
+      handler: {
+        this.form.select.village = null;
+      }
     }
   },
   methods: {
@@ -238,11 +281,15 @@ export default {
           this.state.creating = false;
         });
     },
-    loadData() {
+    async loadData() {
       this.state.tableLoad = true;
-      const promise = this.axios.get("/accounts/agents?offset=0&limit=1000");
+      const total = await this.$getTotal("/accounts/agents?offset=0&limit=0");
+      const promise = this.axios.get(
+        "/accounts/agents?offset=0&limit=" + total
+      );
       return promise
         .then(res => {
+          console.log(res)
           return res.data.Agents;
         })
         .catch(err => {

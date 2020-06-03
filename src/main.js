@@ -19,6 +19,7 @@ import Snotify, { SnotifyPosition } from "vue-snotify";
 import loadingComponent from "./components/loading.vue";
 import VueSimpleContextMenu from "./scripts/simplecontextMenu";
 const Rwanda = require("rwanda");
+import { decode } from "jsonwebtoken";
 
 Vue.component("VueSlider", VueSlider);
 Vue.component("vue-title", titleComponent);
@@ -27,7 +28,7 @@ Vue.component("vue-menu", VueSimpleContextMenu);
 
 Vue.use(PortalVue);
 Vue.use(vueBoostrap);
-Vue.use(VueAxios, axios);
+
 Vue.use(Snotify, {
   toast: {
     timeout: 3000,
@@ -50,12 +51,6 @@ Vue.filter("date", date => {
     day: "numeric"
   });
 });
-Vue.prototype.$getTotal = url => {
-  return axios
-    .get(url)
-    .then(res => res.data.Total)
-    .catch(err => 0);
-};
 Vue.prototype.$provinces = () => {
   return Rwanda.Provinces();
 };
@@ -89,7 +84,49 @@ Vue.prototype.$isPhoneNumber = number => {
   }
   return true;
 };
+Vue.prototype.$capitalize = string =>
+  string.replace(/^./, string[0].toUpperCase());
+Vue.prototype.$decode = token => {
+  return decode(token);
+};
+Vue.prototype.$getTotal = url => {
+  return axiosInstance
+    .get(url)
+    .then(res => res.data.Total)
+    .catch(err => 0);
+};
+// axios configs
+// -----------------------------------------------------------------------------
+const axiosInstance = axios.create({
+  baseURL: process.env.VUE_APP_PAYPACK_API
+});
+axiosInstance.interceptors.request.use(
+  config => {
+    if (sessionStorage.getItem("token"))
+      axiosInstance.defaults.headers.common["Authorization"] =
+        "Bearer " + sessionStorage.getItem("token");
+    return config;
+  },
 
+  error => {
+    if (navigator.onLine === false)
+      Vue.prototype.$snotify.error("Please check internet connectivity!");
+    return Promise.reject(error);
+  }
+);
+
+axiosInstance.interceptors.response.use(
+  response => {
+    return Promise.resolve(response);
+  },
+  error => {
+    if (error.response && error.response.status === 401)
+      store.dispatch("logout");
+
+    return Promise.reject(error);
+  }
+);
+Vue.use(VueAxios, axiosInstance);
 new Vue({
   router,
   store,

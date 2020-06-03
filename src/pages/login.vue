@@ -70,14 +70,19 @@ export default {
       this.loading = true;
       const user = {
         username: this.form.email.trim(),
-        key: this.form.password.trim()
+        password: this.form.password.trim()
       };
-      this.$store
-        .dispatch("login", user)
-        .then(() => {
+      this.axios
+        .post("/accounts/login", user)
+        .then(res => {
+          sessionStorage.setItem("token", res.data.token);
           location.reload();
         })
-        .finally(() => {
+        .catch(err => {
+          sessionStorage.removeItem("token");
+          console.log(err);
+          const message = err.response.data.error || err.response.data;
+          if (message) this.$snotify.error(message);
           this.loading = false;
         });
     }

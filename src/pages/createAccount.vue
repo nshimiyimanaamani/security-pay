@@ -1,20 +1,26 @@
 <template>
-  <b-container class="max-width py-3" style="min-width:500px">
+  <b-container class="accounts-page">
     <vue-title title="Paypack | create accounts" />
-    <h3 class="d-flex justify-content-center mb-3">ACCOUNT REGISTRATION</h3>
-    <b-card no-body class="nav-controls font-13">
-      <b-tabs pills card vertical lazy class="text-uppercase" content-class="text-capitalize">
-        <b-tab title="Agents" active>
+    <header class="secondary-font">ACCOUNT REGISTRATION</header>
+    <b-card no-body class="nav-controls">
+      <b-tabs
+        pills
+        card
+        vertical
+        lazy
+        class="text-uppercase secondary-font"
+        content-class="text-capitalize secondary-font"
+        nav-wrapper-class="accounts-nav"
+        active-nav-item-class="app-color text-white"
+      >
+        <b-tab title="Agents Accounts" active>
           <add-agent />
         </b-tab>
-        <b-tab v-if="user.role.toLowerCase() != 'admin'" title="Admins">
+        <b-tab title="Admins Accounts">
           <add-admin />
         </b-tab>
-        <b-tab title="Managers">
+        <b-tab title="Managers Accounts">
           <add-manager />
-        </b-tab>
-        <b-tab v-if="user.role.toLowerCase() == 'dev'" title="Developers">
-          <add-dev />
         </b-tab>
       </b-tabs>
     </b-card>
@@ -23,15 +29,12 @@
 
 <script>
 import addAgent from "../components/accounts/addAgent.vue";
-import addDev from "../components/accounts/addDev.vue";
 import addManager from "../components/accounts/addManager.vue";
 import addAdmin from "../components/accounts/addAdmin.vue";
-import { Cell, Village } from "rwanda";
 export default {
   name: "createAccount",
   components: {
     "add-agent": addAgent,
-    "add-dev": addDev,
     "add-manager": addManager,
     "add-admin": addAdmin
   },
@@ -50,31 +53,83 @@ export default {
   computed: {
     cellOptions() {
       const sector = this.form.select.sector;
-      if (sector) {
-        return this.$store.getters.getCellsArray;
-      }
+      if (sector)
+        return this.$cells(
+          this.location.province,
+          this.location.district,
+          sector
+        ).sort();
     },
     villageOptions() {
       const sector = this.form.select.sector;
       const cell = this.form.select.cell;
-      if (sector && cell) {
-        return Village("Kigali", "Gasabo", sector, cell).sort();
+      if (cell) {
+        return this.$villages(
+          this.location.province,
+          this.location.district,
+          sector,
+          cell
+        ).sort();
       } else {
         return [];
       }
     },
     user() {
       return this.$store.getters.userDetails;
+    },
+    location() {
+      return this.$store.getters.location;
     }
   }
 };
 </script>
 
-<style>
-.nav-controls .nav-link.active {
-  background-color: #017db3;
-}
-.nav-controls a {
-  color: #017db3;
+<style lang="scss">
+.accounts-page {
+  header {
+    font-size: 1.25rem;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 2rem;
+    margin-top: 0.5rem;
+    font-weight: 700;
+  }
+  .accounts-nav {
+    .nav-item {
+      margin: 5px 0;
+
+      .nav-link {
+        border-radius: 2px;
+        color: #017db3;
+        font-size: 14px;
+        &:hover {
+          color: white !important;
+          background-color: #017db3 !important;
+        }
+      }
+    }
+  }
+  .tab-content {
+    .nav {
+      background: #f8f9fa;
+      .nav-item {
+        margin: 0;
+
+        .nav-link {
+          border-radius: 2px;
+          color: #017db3;
+          font-size: 15px;
+          &.active {
+            background-color: #017db3 !important;
+            color: white;
+          }
+          &:hover {
+            color: white !important;
+            background-color: #017db3 !important;
+          }
+        }
+      }
+    }
+  }
 }
 </style>

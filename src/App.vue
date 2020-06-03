@@ -25,8 +25,8 @@ export default {
     window.addEventListener("offline", e => (this.offline = true));
     window.addEventListener("online", e => (this.offline = false));
     this.axios.get("/version").then(res => {
-      this.version = res.data.version;
-      this.showVersion = true;
+      this.version = res.data.version || "";
+      this.showVersion = res.data.version ? true : false;
     });
   }
 };
