@@ -39,10 +39,10 @@
         </b-card-group>
       </b-card>
       <section class="error" v-show="!houses.length">
-        <div v-if="state.loading" class="village-empty">
+        <div v-if="!state.loading" class="village-empty">
           <p class="secondary-font">No House found in {{activeVillage}} village</p>
         </div>
-        <vue-load v-if="!state.loading" class="secondary-font" />
+        <vue-load v-if="state.loading" class="secondary-font" />
       </section>
     </div>
   </div>
@@ -102,7 +102,7 @@ export default {
     }
   },
   mounted() {
-    // this.loadData();
+    this.loadData();
   },
   methods: {
     async loadData() {
