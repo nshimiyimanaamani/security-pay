@@ -38,11 +38,10 @@ func TestRetrieveSectorPayRatio(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -128,11 +127,10 @@ func TestRetrieveCellPayRatio(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -219,11 +217,10 @@ func TestRetrieveVillagePayRatio(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -312,11 +309,10 @@ func TestListSectorRatios(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -390,11 +386,10 @@ func TestListCellRatios(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -465,11 +460,10 @@ func TestRetrieveSectorBalance(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 
 	owner = saveOwner(t, db, owner)
@@ -557,11 +551,10 @@ func TestRetrieveCellBalance(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -647,11 +640,10 @@ func TestRetrieveVillageBalance(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -740,11 +732,10 @@ func TestListSectorBalances(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -817,11 +808,10 @@ func TestListCellBalances(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 

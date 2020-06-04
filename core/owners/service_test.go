@@ -33,7 +33,7 @@ func TestRegisterOwner(t *testing.T) {
 	}{
 		{
 			desc:  "add valid owner",
-			owner: owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882", Namespace: "namespace"},
+			owner: owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"},
 			err:   nil,
 		},
 		{
@@ -43,17 +43,17 @@ func TestRegisterOwner(t *testing.T) {
 		},
 		{
 			desc:  "add owner with empty fname field",
-			owner: owners.Owner{Lname: "Torredo", Phone: "0784677882", Namespace: "namespace"},
+			owner: owners.Owner{Lname: "Torredo", Phone: "0784677882"},
 			err:   owners.ErrInvalidEntity,
 		},
 		{
 			desc:  "add owner with empty lname field",
-			owner: owners.Owner{Fname: "James", Phone: "0784677882", Namespace: "namespace"},
+			owner: owners.Owner{Fname: "James", Phone: "0784677882"},
 			err:   owners.ErrInvalidEntity,
 		},
 		{
 			desc:  "add owner with invalid phone number",
-			owner: owners.Owner{Fname: "James", Lname: "Torredo", Phone: "77878333", Namespace: "namespace"},
+			owner: owners.Owner{Fname: "James", Lname: "Torredo", Phone: "77878333"},
 			err:   owners.ErrInvalidEntity,
 		},
 	}
@@ -70,7 +70,7 @@ func TestUpdateOwner(t *testing.T) {
 
 	ctx := context.Background()
 
-	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882", Namespace: "namespace"}
+	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
 	owner, err := svc.Register(ctx, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
@@ -96,7 +96,7 @@ func TestUpdateOwner(t *testing.T) {
 		},
 		{
 			desc:  "update non-existant owner",
-			owner: owners.Owner{Fname: "james", Lname: "Torredo", Phone: "0784677882", Namespace: "namespace"},
+			owner: owners.Owner{Fname: "james", Lname: "Torredo", Phone: "0784677882"},
 			err:   owners.ErrNotFound,
 		},
 	}
@@ -113,7 +113,7 @@ func TestRetrieveOwner(t *testing.T) {
 
 	ctx := context.Background()
 
-	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882", Namespace: "namespace"}
+	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
 	owner, err := svc.Register(ctx, owner)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
@@ -148,7 +148,7 @@ func TestRetrieveOwner(t *testing.T) {
 func TestListOwners(t *testing.T) {
 	svc := newService()
 
-	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882", Namespace: "namespace"}
+	owner := owners.Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"}
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
 		ctx := context.Background()
@@ -210,7 +210,7 @@ func TestSearch(t *testing.T) {
 	lname := "torredo"
 	phone := "0784677882"
 
-	owner := owners.Owner{Fname: fname, Lname: lname, Phone: phone, Namespace: "namespace"}
+	owner := owners.Owner{Fname: fname, Lname: lname, Phone: phone}
 
 	ctx := context.Background()
 	saved, err := svc.Register(ctx, owner)
@@ -256,7 +256,7 @@ func TestRetrieveByPhone(t *testing.T) {
 	lname := "torredo"
 	phone := "0784677882"
 
-	owner := owners.Owner{Fname: fname, Lname: lname, Phone: phone, Namespace: "namespace"}
+	owner := owners.Owner{Fname: fname, Lname: lname, Phone: phone}
 
 	ctx := context.Background()
 	_, err := svc.Register(ctx, owner)
