@@ -12,7 +12,8 @@ import (
 
 // Authenticate ...
 func Authenticate(lgger log.Entry, svc auth.Service) mux.MiddlewareFunc {
-	const op errors.Op = "api/http/Authenticate"
+	const op errors.Op = "api/http/middleware/Authenticate"
+
 	return func(h http.Handler) http.Handler {
 		f := func(w http.ResponseWriter, r *http.Request) {
 			token := r.Header.Get("Authorization")
