@@ -128,6 +128,7 @@ func Register(mux *mux.Router, opts *HandlerOptions) {
 
 	mux.HandleFunc("/healthz", health.Health).Methods(http.MethodGet)
 	mux.HandleFunc("/version", version.Build).Methods(http.MethodGet)
+	mux.HandleFunc("/panic", health.Panic).Methods(http.MethodGet)
 
 	users.RegisterHandlers(mux, opts.UsersOptions)
 
