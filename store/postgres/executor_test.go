@@ -45,11 +45,10 @@ func TestAuditFunc(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 
 	saved := saveOwner(t, db, owner)

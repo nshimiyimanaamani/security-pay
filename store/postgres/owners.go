@@ -5,7 +5,6 @@ import (
 	"database/sql"
 
 	"github.com/lib/pq"
-	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/owners"
 )
 
@@ -26,16 +25,14 @@ func (str *ownerRepo) Save(ctx context.Context, owner owners.Owner) (owners.Owne
 			id, 
 			fname, 
 			lname, 
-			phone,
-			namespace
-		) VALUES ($1, $2, $3, $4, $5) RETURNING id;`
+			phone
+		) VALUES ($1, $2, $3, $4) RETURNING id;`
 
 	_, err := str.db.Exec(q,
 		&owner.ID,
 		&owner.Fname,
 		&owner.Lname,
 		&owner.Phone,
-		&owner.Namespace,
 	)
 
 	if err != nil {
@@ -122,15 +119,11 @@ func (str *ownerRepo) RetrieveAll(ctx context.Context, offset, limit uint64) (ow
 			phone 
 		FROM 
 			owners 
-		WHERE
-			namespace=$1
-		ORDER BY id LIMIT $2 OFFSET $3;`
+		ORDER BY id LIMIT $1 OFFSET $2;`
 
 	var items = []owners.Owner{}
 
-	creds := auth.CredentialsFromContext(ctx)
-
-	rows, err := str.db.Query(q, creds.Account, limit, offset)
+	rows, err := str.db.Query(q, limit, offset)
 	if err != nil {
 		return owners.OwnerPage{}, err
 	}
@@ -145,10 +138,10 @@ func (str *ownerRepo) RetrieveAll(ctx context.Context, offset, limit uint64) (ow
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM owners WHERE namespace=$1;`
+	q = `SELECT COUNT(*) FROM owners;`
 
 	var total uint64
-	if err := str.db.QueryRow(q, creds.Account).Scan(&total); err != nil {
+	if err := str.db.QueryRow(q).Scan(&total); err != nil {
 		return owners.OwnerPage{}, err
 	}
 

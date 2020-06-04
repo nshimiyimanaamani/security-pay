@@ -21,16 +21,14 @@ func saveOwner(t *testing.T, db *sql.DB, owner properties.Owner) properties.Owne
 			id, 
 			fname, 
 			lname, 
-			phone,
-			namespace
-		) VALUES ($1, $2, $3, $4, $5) RETURNING id;`
+			phone
+		) VALUES ($1, $2, $3, $4) RETURNING id;`
 
 	_, err := db.Exec(q,
 		&owner.ID,
 		&owner.Fname,
 		&owner.Lname,
 		&owner.Phone,
-		&owner.Namespace,
 	)
 
 	if err != nil {

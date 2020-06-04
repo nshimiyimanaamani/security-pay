@@ -16,27 +16,22 @@ func TestValidateOwner(t *testing.T) {
 	}{
 		{
 			desc:  "validate with a valid owner entity",
-			owner: Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882", Namespace: "namespace"},
+			owner: Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"},
 			err:   nil,
 		},
 		{
 			desc:  "validate with empty fname field",
-			owner: Owner{Lname: "Torredo", Phone: "0784677882", Namespace: "namespace"},
+			owner: Owner{Lname: "Torredo", Phone: "0784677882"},
 			err:   ErrInvalidEntity,
 		},
 		{
 			desc:  "validate with empty lname field",
-			owner: Owner{Fname: "James", Phone: "0784677882", Namespace: "namespace"},
+			owner: Owner{Fname: "James", Phone: "0784677882"},
 			err:   ErrInvalidEntity,
 		},
 		{
 			desc:  "validate with invalid phone number",
-			owner: Owner{Fname: "James", Lname: "Torredo", Phone: "77878333", Namespace: "namespace"},
-			err:   ErrInvalidEntity,
-		},
-		{
-			desc:  "validate with invalid namespace",
-			owner: Owner{Fname: "James", Lname: "Torredo", Phone: "0784677882"},
+			owner: Owner{Fname: "James", Lname: "Torredo", Phone: "77878333"},
 			err:   ErrInvalidEntity,
 		},
 	}

@@ -47,11 +47,10 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -133,11 +132,10 @@ func TestRetrieveAll(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -222,11 +220,10 @@ func TestRetrieveByProperty(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -335,11 +332,10 @@ func TestRetrieveByPropertyR(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 
 	owner = saveOwner(t, db, owner)
@@ -429,11 +425,10 @@ func TestRetrieveByMethod(t *testing.T) {
 	agent = saveAgent(t, db, agent)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 

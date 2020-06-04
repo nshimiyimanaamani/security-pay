@@ -573,6 +573,13 @@ func migrateDB(db *sql.DB) error {
 						ADD FOREIGN KEY(namespace) REFERENCES accounts(id) ON UPDATE CASCADE ON DELETE CASCADE;`,
 				},
 			},
+			{
+				Id: "013_alter_table_owners_drop_namespace",
+				Up: []string{
+					`ALTER TABLE owners DROP  CONSTRAINT owners_namespace_fkey`,
+					`ALTER TABLE owners DROP COLUMN namespace`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

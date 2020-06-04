@@ -29,11 +29,10 @@ func TestSaveMessage(t *testing.T) {
 	account = saveAccount(t, db, account)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -85,11 +84,10 @@ func TestUpdateMessage(t *testing.T) {
 	account = saveAccount(t, db, account)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -144,11 +142,10 @@ func TestRetrieveMessage(t *testing.T) {
 	account = saveAccount(t, db, account)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -209,11 +206,10 @@ func TestDeleteMessage(t *testing.T) {
 	account = saveAccount(t, db, account)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
@@ -274,11 +270,10 @@ func TestRetrieveAllMessages(t *testing.T) {
 	account = saveAccount(t, db, account)
 
 	owner := properties.Owner{
-		ID:        uuid.New().ID(),
-		Fname:     "rugwiro",
-		Lname:     "james",
-		Phone:     "0784677882",
-		Namespace: account.ID,
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
 	}
 	owner = saveOwner(t, db, owner)
 
