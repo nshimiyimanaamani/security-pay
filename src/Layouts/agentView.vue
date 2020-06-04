@@ -28,7 +28,7 @@
           @click="ok()"
         >
           OK
-          <b-spinner v-show="state.changing" small type="grow" />
+          <i v-if="state.changing" class="fa fa-spinner fa-spin" />
         </b-button>
       </template>
       <b-row>
@@ -44,13 +44,11 @@
 
 <script>
 import home from "../components/agents/home.vue";
-import loader from "../components/loader";
 
 export default {
   name: "agentsView",
   components: {
-    "agent-home": home,
-    loader
+    "agent-home": home
   },
   data() {
     return {
