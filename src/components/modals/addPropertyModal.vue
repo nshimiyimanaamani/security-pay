@@ -177,6 +177,7 @@ export default {
       return this.form.phone ? this.$isPhoneNumber(this.form.phone) : null;
     },
     userDetails() {
+      console.log(this.$store.getters.userDetails);
       return this.$store.getters.userDetails;
     },
     occupied() {
@@ -273,6 +274,7 @@ export default {
               village: this.address.village,
               sector: this.activeSector
             },
+            namespace: this.userDetails.account,
             due: this.form.due.toString(),
             occupied: this.form.occupied.toString(),
             recorded_by: this.userDetails.username

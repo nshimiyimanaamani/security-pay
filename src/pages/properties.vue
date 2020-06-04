@@ -210,6 +210,7 @@ export default {
   },
   data() {
     return {
+      development: false,
       originalData: [],
       filteredData: [],
       addProperty: { show: false },
@@ -363,14 +364,17 @@ export default {
   methods: {
     async loadData() {
       this.loading.request = true;
-      // const properties = JSON.parse(localStorage.getItem("Properties"));
-      // if (properties && properties.length > 0) {
-      //   this.filteredData = properties;
-      //   this.originalData = Object.freeze(properties);
-      //   this.loading.request = false;
-      //   this.filterByLocation();
-      //   return;
-      // }
+
+      if (this.development) {
+        const properties = JSON.parse(localStorage.getItem("Properties"));
+        if (properties && properties.length > 0) {
+          this.filteredData = properties;
+          this.originalData = Object.freeze(properties);
+          this.loading.request = false;
+          this.filterByLocation();
+          return;
+        }
+      }
 
       var promise = await this.getUrl();
       const total = await this.$getTotal(`${promise}0`);
@@ -379,13 +383,16 @@ export default {
         .then(res => {
           this.filteredData = res.data.Properties;
           this.originalData = Object.freeze(res.data.Properties);
-          // localStorage.clear();
-          // localStorage.setItem(
-          //   "Properties",
-          //   JSON.stringify(res.data.Properties)
-          // );
           this.pagination.totalRows = total;
           this.filterByLocation();
+
+          if (this.development) {
+            localStorage.clear();
+            localStorage.setItem(
+              "Properties",
+              JSON.stringify(res.data.Properties)
+            );
+          }
         })
         .catch(err => {
           const error = err.response

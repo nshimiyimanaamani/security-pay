@@ -160,13 +160,13 @@ export default {
     },
     async loadData() {
       this.state.tableLoad = true;
-      const total = await this.$getTotal("/accounts/managers?offset=0&limit=0");
+      const total = await this.$getTotal("/accounts/admins?offset=0&limit=0");
       const promise = this.axios.get(
-        "/accounts/managers?offset=0&limit=" + total
+        "/accounts/admins?offset=0&limit=" + total
       );
       return promise
         .then(res => {
-          return res.data.Managers;
+          return res.data.Administrators;
         })
         .catch(err => {
           return [];

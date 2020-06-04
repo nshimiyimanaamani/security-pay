@@ -150,6 +150,7 @@ export default {
               village: this.user.village,
               sector: this.user.sector
             },
+            namespace: this.userDetails.account,
             due: this.form.due.toString(),
             occupied: this.form.occupied,
             recorded_by: this.userDetails.username
