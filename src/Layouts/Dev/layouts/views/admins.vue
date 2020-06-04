@@ -1,13 +1,13 @@
 <template>
   <div class="admins-wrapper">
     <div class="stats">
-      <header class="secondary-font">Managers in Numbers</header>
-      <vue-load v-if="state.loading" />
+      <header class="secondary-font">Administrators in Numbers</header>
+      <vue-load class="bg-light secondary-font" v-if="state.loading" />
       <div class="cards" v-else>
         <div class="custom-card">
           <div class="card-content">
-            <h3>{{managersTotal | number}}</h3>
-            <h4>Managerss</h4>
+            <h3>{{adminsTotal | number}}</h3>
+            <h4>Administrators</h4>
           </div>
           <div class="icon">
             <i class="fa fa-laptop-code" />
@@ -24,8 +24,8 @@
         </div>
         <div class="custom-card">
           <div class="card-content">
-            <h3>{{cellsTotal | number}}</h3>
-            <h4>Assigned Cells</h4>
+            <h3>{{sectorsTotal | number}}</h3>
+            <h4>Assigned Sectors</h4>
           </div>
           <div class="icon">
             <i class="fa fa-address-card" />
@@ -35,7 +35,7 @@
     </div>
     <div class="account-table">
       <header class="secondary-font custom-header">
-        <h5>Managers Accounts</h5>
+        <h5>Administrators Accounts</h5>
         <div class="add" @click="state.show.createAccount_modal=true">
           <i class="fa fa-plus" />
         </div>
@@ -50,7 +50,7 @@
           responsive
           :items="items"
           :fields="fields"
-          :busy="state.loading"
+          :busy.sync="state.loading"
           head-variant="light"
           thead-class="table-header"
           tbody-tr-class="table-row"
@@ -70,10 +70,7 @@
             <p class="custom-data">No accounts available to display at the moment!</p>
           </template>
           <template v-slot:table-busy>
-            <div class="custom-loader">
-              <i class="fa fa-spinner fa-spin" />
-              <p class="secondary-font">Loading...</p>
-            </div>
+            <vue-load />
           </template>
         </b-table>
         <vue-menu
@@ -91,20 +88,24 @@
           @hide="modalClosed"
         >
           <update-account :account="selectedAccount" v-if="selectedAccount" @updated="closeModal" />
-        </b-modal>
+        </b-modal>-->
         <create-account
           v-if="state.show.createAccount_modal"
-          @close="state.show.createAccount_modal=false"
-          @created="closeModal"
-        />-->
+          @close="closeModal"
+          @created="getData"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import createAccount from "../../components/create-adminAccount";
 export default {
   name: "devAdmins",
+  components: {
+    createAccount
+  },
   data() {
     return {
       state: {
@@ -149,19 +150,40 @@ export default {
     };
   },
   computed: {
-    managersTotal() {
+    adminsTotal() {
       return 0;
     },
     accountsTotal() {
       return 0;
     },
-    cellsTotal() {
+    sectorsTotal() {
       return 0;
     }
   },
+  mounted() {
+    this.getData();
+  },
   methods: {
-    getData() {
-      return 0;
+    async getData() {
+      this.state.loading = true;
+      const total = await this.$getTotal("/accounts/admins?offset=0&limit=0");
+
+      this.axios
+        .get("/accounts/admins?offset=0&limit=" + total)
+        .then(res => {
+          this.items = res.data.Administrators;
+          this.state.loading = false;
+          console.log(res);
+        })
+        .catch(err => {
+          console.log(err, err.response, err.request);
+          try {
+            this.$snotify.error(err.response.data.error);
+          } catch {
+            this.$snotify.error("Error! can't retrieve accounts");
+          }
+          this.state.loading = false;
+        });
     },
     showMenu(event, data) {
       this.$refs.devManagersLeftMenu.showMenu(event, data);
@@ -174,6 +196,9 @@ export default {
         this.$refs["dev-updateAccount-modal"].show();
         console.log(data.item);
       }
+    },
+    closeModal() {
+      this.state.show.createAccount_modal = false;
     }
   }
 };

@@ -81,7 +81,6 @@
 import BarChart from "../components/BarChart.vue";
 import DoughnutChart from "../components/DaughnutChart.vue";
 import LineChart from "../components/MixedCharts.vue";
-import loader from "../components/loader";
 import yearSelectorVue from "../components/yearSelector.vue";
 import options from "../components/scripts/chartOptions";
 export default {
@@ -90,7 +89,6 @@ export default {
     BarChart,
     DoughnutChart,
     LineChart,
-    loader,
     selector: yearSelectorVue
   },
   data() {
@@ -133,7 +131,12 @@ export default {
       return this.$store.getters.getActiveSector;
     },
     cellArray() {
-      return this.$store.getters.getCellsArray;
+      const { province, district, sector } = this.location;
+      console.log(province, district, sector);
+      return this.$cells(province, district, sector) || [];
+    },
+    location() {
+      return this.$store.getters.location;
     },
     percentage() {
       const data = this.chart2Data.datasets[0].data;
@@ -153,10 +156,11 @@ export default {
       };
     }
   },
-  beforeMount() {
+  mounted() {
     this.loadData2();
     this.loadData3();
     this.fetchData();
+    console.log(this.cellArray);
   },
   methods: {
     updated() {

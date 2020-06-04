@@ -31,7 +31,7 @@ const mutations = {
   on_startup(state) {
     if (sessionStorage.getItem("token")) {
       const user = Vue.prototype.$decode(sessionStorage.getItem("token"));
-      if (user && user.role == "basic") {
+      if (user && (user.role == "basic" || user.role === "admin" || user.role === 'min')) {
         const account = user.account.toString().split(".");
 
         state.province = Vue.prototype.$capitalize(account[0]);

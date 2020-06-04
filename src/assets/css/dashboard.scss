@@ -82,7 +82,6 @@
         }
         .chart-error {
           padding: 4rem;
-          top: -20%;
           width: 100%;
           left: 0;
           right: 0;
@@ -92,7 +91,7 @@
           vertical-align: middle;
           display: flex;
           justify-content: center;
-          align-items: center;
+          align-items: baseline;
           font-size: 1rem;
           text-transform: uppercase;
           position: absolute;
