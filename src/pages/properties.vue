@@ -373,7 +373,7 @@ export default {
       // }
 
       var promise = await this.getUrl();
-      var total = await this.getTotal();
+      const total = await this.$getTotal(`${promise}0`);
       this.axios
         .get(promise + `${total}`)
         .then(res => {
@@ -397,13 +397,6 @@ export default {
           this.loading.request = false;
         });
     },
-    async getTotal() {
-      var promise = await this.getUrl();
-      return this.axios
-        .get(`${promise}0`)
-        .then(res => res.data.Total)
-        .catch(err => 0);
-    },
     filterByName(name) {
       if (!name) return this.originalData;
       return this.originalData.filter(item =>
@@ -415,7 +408,7 @@ export default {
     async filterByLocation() {
       if (this.$refs.dropdown) await this.$refs.dropdown.hide(true);
       this.disableColumns();
-      if (this.state.changedLocation === false) return;
+      if (this.originalData.length === this.filteredData.length) return;
       this.selected =
         this.select.village ||
         this.select.cell ||
@@ -435,6 +428,7 @@ export default {
     },
     disableColumns() {
       //disabling unsellected columns by applying the display class on both thead and td
+      if (this.select.postColumns.length === this.fields.length) return;
       this.select.shownColumn = this.select.postColumns;
       this.fields.map(value => {
         if (!this.select.shownColumn.includes(value.label)) {

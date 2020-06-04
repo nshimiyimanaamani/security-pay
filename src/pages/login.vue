@@ -80,7 +80,7 @@ export default {
         })
         .catch(err => {
           sessionStorage.removeItem("token");
-          console.log(err);
+          console.log(err,err.response);
           const message = err.response.data.error || err.response.data;
           if (message) this.$snotify.error(message);
           this.loading = false;

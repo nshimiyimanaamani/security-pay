@@ -56,7 +56,7 @@
           <li class="hover-color">Feedbacks</li>
         </router-link>
 
-        <router-link to="/create" v-if="!isAdmin">
+        <router-link to="/create" v-if="isAdmin">
           <li class="hover-color">Accounts</li>
         </router-link>
 

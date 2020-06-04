@@ -132,7 +132,7 @@ export default {
         .then(res => {
           this.state.creating = false;
           this.form = { email: null, password: null };
-          this.$snotify.info("Admin successfully created...");
+          this.$snotify.info("Admin account created successfully!");
           const message = `Password For ${res.data.email} is: ${res.data.password}`;
           this.$bvModal
             .msgBoxOk(message, {
