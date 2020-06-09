@@ -31,9 +31,9 @@
         <b-tab title="HOUSE REPORTS">
           <house-reports />
         </b-tab>
-        <b-tab title="DAILY REPORTS">
+        <!-- <b-tab title="DAILY REPORTS">
           <daily-reports />
-        </b-tab>
+        </b-tab>-->
       </b-tabs>
     </b-card>
   </b-container>

@@ -31,7 +31,7 @@
                 :disabled="sectorOptions.length < 1 || isManager"
               >
                 <template v-slot:first>
-                  <option :value="null" disabled>Select Sector</option>
+                  <option :value="null">All</option>
                 </template>
               </b-form-select>
             </b-form-group>
@@ -44,7 +44,7 @@
                 :disabled="cellOptions.length < 1 || isManager"
               >
                 <template v-slot:first>
-                  <option :value="null" disabled>Select cell</option>
+                  <option :value="null">All</option>
                 </template>
               </b-form-select>
             </b-form-group>
@@ -57,7 +57,7 @@
                 :disabled="villageOptions.length < 1"
               >
                 <template v-slot:first>
-                  <option :value="null" disabled>Select village</option>
+                  <option :value="null">All</option>
                 </template>
               </b-form-select>
             </b-form-group>
@@ -210,7 +210,7 @@ export default {
   },
   data() {
     return {
-      development: false,
+      development: true,
       originalData: [],
       filteredData: [],
       addProperty: { show: false },
@@ -346,7 +346,8 @@ export default {
     "select.sector"() {
       handler: {
         this.state.changedLocation = true;
-        this.select.cell = this.activeCell;
+        if (this.isManager) this.select.cell = this.activeCell;
+        else this.select.cell = null;
       }
     },
     "select.cell"() {
@@ -415,22 +416,21 @@ export default {
     async filterByLocation() {
       if (this.$refs.dropdown) await this.$refs.dropdown.hide(true);
       this.disableColumns();
-      if (this.originalData.length === this.filteredData.length) return;
+      const { sector, cell, village } = this.select;
+      if (!sector && !cell && !village) return this.originalData;
       this.selected =
-        this.select.village ||
-        this.select.cell ||
-        this.select.sector ||
-        this.activeSector ||
-        this.activeCell;
-      const sector = this.select.sector || "";
-      const cell = this.select.cell || "";
-      const village = this.select.village || "";
-      if (!sector && !cell && !village) return this.filteredData;
+        village || cell || sector || this.activeSector || this.activeCell;
       this.filteredData = this.originalData.filter(
         item =>
-          item.address.sector.toLowerCase().endsWith(sector.toLowerCase()) &&
-          item.address.cell.toLowerCase().endsWith(cell.toLowerCase()) &&
-          item.address.village.toLowerCase().endsWith(village.toLowerCase())
+          item.address.sector
+            .toLowerCase()
+            .endsWith(String(sector || "").toLowerCase()) &&
+          item.address.cell
+            .toLowerCase()
+            .endsWith(String(cell || "").toLowerCase()) &&
+          item.address.village
+            .toLowerCase()
+            .endsWith(String(village || "").toLowerCase())
       );
     },
     disableColumns() {
@@ -526,7 +526,7 @@ export default {
         this.select.sector = this.activeSector;
         this.select.cell = this.activeCell;
       } else {
-        this.select.sector = this.activeSector;
+        this.select.sector = null;
         this.select.cell = null;
       }
       this.filterByLocation();

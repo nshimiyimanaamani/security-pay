@@ -7,7 +7,7 @@
     no-caret
     :disabled.sync="disabled"
     dropbottom
-    toggle-class="height-fit-content border-0 app-color"
+    variant="info"
   >
     <template v-slot:button-content>
       <p class="m-0">{{title}}</p>
@@ -38,7 +38,7 @@
           <option v-for="i in 12" :value="i" :key="id+''+i">{{months[i-1]}}</option>
         </b-form-select>
       </b-form-group>
-      <b-button variant="primary" class="w-100 app-color" size="sm" @click="handleOk">OK</b-button>
+      <b-button variant="primary" class="w-100 app-color" size="sm" @click="handleOk">Generate</b-button>
     </b-dropdown-form>
   </b-dropdown>
 </template>
@@ -102,9 +102,4 @@ export default {
 </script>
 
 <style>
-#config-dropdown-form > button {
-  padding: 0;
-  background: transparent !important;
-  border: 0;
-}
 </style>

@@ -1,15 +1,11 @@
 <template>
-  <div class="px-4">
-    <header class="d-flex justify-content-center font-19 text-uppercase">Payment Reports</header>
-    <hr class="m-0 mb-3" />
-    <b-row class="px-3">
-      <b-button variant="info" class="font-13 border-0 my-2 py-2 mr-3">Generate All House Report</b-button>
-    </b-row>
-    <b-row class="px-3">
-      <b-button variant="info" class="font-13 border-0 my-2 py-2 mr-3">Generate Payed House Report</b-button>
-    </b-row>
-    <b-row class="px-3">
-      <b-button variant="info" class="font-13 border-0 my-2 mr-3 py-2">Generate Unpayed House Report</b-button>
+  <div id="payment-reports">
+    <header>Payment Reports</header>
+    <hr class="m-0 mt-1 mb-4" />
+    <b-row class="m-0 buttons">
+      <b-button variant="info">Generate All House Report</b-button>
+      <b-button variant="info">Generate Paid House Report</b-button>
+      <b-button variant="info">Generate Unpaid House Report</b-button>
     </b-row>
   </div>
 </template>
@@ -23,5 +19,22 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+#payment-reports {
+  & > header {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #384950;
+  }
+  .buttons {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+    & > button {
+      padding: 0.7rem 1rem;
+    }
+  }
+}
 </style>

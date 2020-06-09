@@ -25,6 +25,7 @@ export default {
   align-items: center;
   padding: 4rem;
   user-select: none;
+  background-color: #f8f9fa;
 
   i {
     font-size: 2rem;

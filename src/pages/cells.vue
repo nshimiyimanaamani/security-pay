@@ -266,7 +266,7 @@ export default {
     fetchData() {
       window.Chart.defaults.global.defaultFontSize = 13.5;
       this.chart1Data = this.fillData(["BK", "MTN", "AIRTEL"]);
-      this.chart2Data = this.fill2Data(["payed", "NotPayed"]);
+      this.chart2Data = this.fill2Data(["Paid", "unPaid"]);
       this.chart3Data = this.fillData(this.cellArray);
       this.chart3Data.datasets.push({
         label: "Data",

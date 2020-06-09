@@ -17,10 +17,10 @@ function download(data, village) {
           body: [
             [
               { text: "No of Houses", style: "tableHeader" },
-              { text: "No of Payed Houses", style: "tableHeader" },
-              { text: "Payed Amount", style: "tableHeader" },
-              { text: "No of unpayed Houses", style: "tableHeader" },
-              { text: "UnPayed Amount", style: "tableHeader" }
+              { text: "No of Paid Houses", style: "tableHeader" },
+              { text: "Paid Amount", style: "tableHeader" },
+              { text: "No of unPaid Houses", style: "tableHeader" },
+              { text: "unPaid Amount", style: "tableHeader" }
             ],
             [
               { text: data.total, style: "tableHeader" },
