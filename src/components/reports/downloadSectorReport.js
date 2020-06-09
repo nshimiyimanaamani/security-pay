@@ -21,19 +21,19 @@ function download(sector, cell, sectorName) {
                 style: "tableHeader"
               },
               {
-                text: "Payed Houses",
+                text: "Paid Houses",
                 style: "tableHeader"
               },
               {
-                text: "Payed Amount",
+                text: "Paid Amount",
                 style: "tableHeader"
               },
               {
-                text: "unpayed Houses",
+                text: "unPaid Houses",
                 style: "tableHeader"
               },
               {
-                text: "UnPayed Amount",
+                text: "unPaid Amount",
                 style: "tableHeader"
               }
             ],
@@ -115,19 +115,19 @@ function getData(items) {
       style: "tableHeader"
     },
     {
-      text: "Payed Houses",
+      text: "Paid Houses",
       style: "tableHeader"
     },
     {
-      text: "Payed Amount",
+      text: "Paid Amount",
       style: "tableHeader"
     },
     {
-      text: "unpayed Houses",
+      text: "unPaid Houses",
       style: "tableHeader"
     },
     {
-      text: "UnPayed Amount",
+      text: "unPaid Amount",
       style: "tableHeader"
     }
   ]);

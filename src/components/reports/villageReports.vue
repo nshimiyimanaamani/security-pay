@@ -1,25 +1,14 @@
 <template>
-  <div>
-    <header class="d-flex justify-content-center font-19 text-uppercase">village Report</header>
-    <hr class="m-0 mb-3" />
-    <b-row class="px-3 align-items-center justify-content-between">
-      <b-select
-        id="input-1"
-        v-model="cell"
-        :options="cellOptions"
-        class="w-auto mr-2 flex-grow-1"
-        v-if="user.role.toLowerCase() !='basic'"
-      >
+  <div id="village-reports">
+    <header>village Report</header>
+    <hr class="m-0 mt-1 mb-4" />
+    <b-row class="m-0 controls">
+      <b-select id="input-1" v-model="cell" :options="cellOptions" v-if="!isManager">
         <template v-slot:first>
           <option :value="null" disabled>Please select cell</option>
         </template>
       </b-select>
-      <b-select
-        id="input-1"
-        v-model="village"
-        :options="villageOptions"
-        class="w-auto mr-2 flex-grow-1"
-      >
+      <b-select id="input-1" v-model="village" :options="villageOptions">
         <template v-slot:first>
           <option :value="null" disabled>Please select village</option>
         </template>
@@ -29,11 +18,9 @@
         :object="config"
         :title="'Generate ' + title +' Report'"
         v-on:ok="generateAction"
+        class="date-selector"
       />
-      <div v-show="state.generating" class="w-100">
-        <strong class="font-14">Generating&nbsp;</strong>
-        <b-spinner small />
-      </div>
+      <Vue-load v-if="state.generating" label="Generating..." />
     </b-row>
     <b-row>
       <b-collapse id="sector-report-collapse" class="w-100 m-3" v-model="state.showReport">
@@ -53,10 +40,10 @@
             show-empty
           >
             <template v-slot:cell(unpayedAmount)="data">
-              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
+              <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
             </template>
             <template v-slot:cell(payedAmount)="data">
-              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
+              <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
             </template>
           </b-table>
         </b-card>
@@ -104,25 +91,25 @@ export default {
           },
           {
             key: "payed",
-            label: "No of Payed Houses",
+            label: "No of Paid Houses",
             tdClass: "text-center",
             thClass: "text-center text-uppercase"
           },
           {
             key: "payedAmount",
-            label: "Payed Amount",
+            label: "Paid Amount",
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           },
           {
             key: "pending",
-            label: "No of unpayed Houses",
+            label: "No of unPayed Houses",
             tdClass: "text-center",
             thClass: "text-center text-uppercase"
           },
           {
             key: "unpayedAmount",
-            label: "unPayed Amount",
+            label: "unPaid Amount",
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           }
@@ -138,14 +125,20 @@ export default {
       return this.$store.getters.getActiveSector;
     },
     cellOptions() {
-      return this.$store.getters.getCellsArray;
+      const { province, district, sector } = this.location;
+      return this.$cells(province, district, this.activeSector);
     },
     villageOptions() {
-      if (this.cell) {
-        return Village("Kigali", "Gasabo", this.activeSector, this.cell).sort();
-      } else {
-        return [];
-      }
+      const { province, district, sector } = this.location;
+      if (this.cell)
+        return this.$villages(
+          province,
+          district,
+          this.activeSector,
+          this.cell
+        ).sort();
+
+      return [];
     },
     currentYear() {
       return new Date().getFullYear();
@@ -161,6 +154,12 @@ export default {
     },
     title() {
       return this.village ? this.village : "Village";
+    },
+    isManager() {
+      return this.user.role.toLowerCase() === "basic";
+    },
+    location() {
+      return this.$store.getters.location;
     }
   },
   watch: {
@@ -171,7 +170,7 @@ export default {
     }
   },
   mounted() {
-    if (this.user.role.toLowerCase() == "basic") {
+    if (this.isManager) {
       this.cell = this.activeCell;
     }
   },
@@ -192,21 +191,18 @@ export default {
       const second = this.axios.get(
         `/metrics/balance/villages/${this.village}?year=${year}&month=${month}`
       );
-      const promise = this.axios.all([first, second]);
-      return promise
-        .then(
-          this.axios.spread((...res) => {
-            const items = {};
-            items.total = res[0].data.data.payed + res[0].data.data.pending;
-            items.payed = res[0].data.data.payed;
-            items.pending = res[0].data.data.pending;
-            items.payedAmount = res[1].data.data.payed;
-            items.unpayedAmount = res[1].data.data.pending;
-            this.state.showReport = true;
-            this.downloadData = items;
-            return [items];
-          })
-        )
+      return Promise.all([first, second])
+        .then(res => {
+          const items = {};
+          items.total = res[0].data.data.payed + res[0].data.data.pending;
+          items.payed = res[0].data.data.payed;
+          items.pending = res[0].data.data.pending;
+          items.payedAmount = res[1].data.data.payed;
+          items.unpayedAmount = res[1].data.data.pending;
+          this.state.showReport = true;
+          this.downloadData = items;
+          return [items];
+        })
         .catch(err => {
           this.state.error = true;
           this.state.showReport = true;
@@ -237,5 +233,27 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+#village-reports {
+  & > header {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #384950;
+  }
+  .controls {
+    display: flex;
+    flex-direction: column;
+
+    select {
+      max-width: 500px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .date-selector > button {
+      max-width: 500px;
+      margin: auto;
+    }
+  }
+}
 </style>

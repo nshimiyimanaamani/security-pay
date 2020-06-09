@@ -97,7 +97,6 @@ export default {
       table: {
         fields: [
           { key: "email", label: "Email", tdClass: "text-normal" },
-          { key: "cell", label: "cell" },
           { key: "role", label: "Role" }
         ]
       },

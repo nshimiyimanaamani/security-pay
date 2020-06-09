@@ -1,26 +1,19 @@
 <template>
-  <div>
-    <header class="d-flex justify-content-center font-19 text-uppercase">House Report</header>
-    <hr class="m-0 mb-3" />
-    <b-row class="px-3 align-items-center justify-content-between">
-      <b-input
-        v-model="houseId"
-        placeholder="Enter House ID..."
-        class="w-auto mr-3 flex-grow-1 text-uppercase font-13"
-      ></b-input>
+  <div id="house-report">
+    <header>House Report</header>
+    <hr class="m-0 mt-1 mb-4" />
+    <b-row class="controls">
+      <b-input v-model="houseId" placeholder="Enter House ID..." class="text-uppercase mt-3" />
       <b-button
         variant="info"
         :disabled="houseId?false:true"
-        class="font-14 border-0 my-3"
+        class="my-4"
         @click="generate"
       >Generate House Report</b-button>
     </b-row>
-    <b-row class="justify-content-center text-capitalize">
-      <div v-show="state.generating" class="w-100 px-3">
-        <strong class="font-14">Generating&nbsp;</strong>
-        <b-spinner small />
-      </div>
-      <b-collapse id="housereport-collapse" class="flex-grow-1 mx-3" v-model="state.showReport">
+    <b-row class="m-0 justify-content-center text-capitalize">
+      <vue-load v-if="state.generating" label="Generating..." />
+      <b-collapse id="housereport-collapse" v-model="state.showReport">
         <b-table-simple hover bordered small caption-top responsive v-if="userDetails">
           <caption>Details of {{userDetails.owner.fname+' '+userDetails.owner.lname}}:</caption>
           <b-tbody>
@@ -42,7 +35,7 @@
             </b-tr>
             <b-tr>
               <b-th>Amount</b-th>
-              <b-td>{{Number(userDetails.due).toLocaleString()}} Rwf</b-td>
+              <b-td>{{userDetails.due | number}} Rwf</b-td>
             </b-tr>
             <b-tr>
               <b-th>For Rent</b-th>
@@ -54,17 +47,14 @@
             </b-tr>
             <b-tr>
               <b-th>Registered on</b-th>
-              <b-td>{{new Date(userDetails.created_at).toLocaleString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' })}}</b-td>
+              <b-td>{{userDetails.created_at | date}}</b-td>
             </b-tr>
           </b-tbody>
         </b-table-simple>
       </b-collapse>
     </b-row>
     <b-row class="justify-content-center text-capitalize">
-      <div v-show="state.generatingP" class="w-100 px-3">
-        <strong class="font-14">Generating&nbsp;</strong>
-        <b-spinner small />
-      </div>
+      <vue-load v-if="state.generatingP" label="Generating..." />
       <b-collapse id="PaymentReport-collapse" class="flex-grow-1 mx-3" v-model="state.showPayment">
         <b-table-simple hover bordered small caption-top responsive v-if="paymentDetails">
           <caption>Payment History of {{userDetails.owner.fname+' '+userDetails.owner.lname}}:</caption>
@@ -74,8 +64,8 @@
               <b-td>Status</b-td>
             </b-tr>
             <b-tr v-for="(item,index) in paymentDetails" :key="index">
-              <b-th>{{new Date(item.created_at).toLocaleString('en-EN', { month: 'long'})}}</b-th>
-              <b-td>{{item.status=="pending"?'Not Payed':'Payed'}}</b-td>
+              <b-th>{{item.created_at | date}}</b-th>
+              <b-td>{{item.status=="pending"?'Not Paid':'Paid'}}</b-td>
             </b-tr>
           </b-tbody>
         </b-table-simple>
@@ -167,5 +157,19 @@ export default {
 };
 </script>
 
-<style>
+<style lang='scss'>
+#house-report {
+  & > header {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #384950;
+  }
+  .controls {
+    display: flex;
+    flex-direction: column;
+    max-width: 500px;
+    margin: auto;
+  }
+}
 </style>

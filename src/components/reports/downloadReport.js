@@ -170,7 +170,7 @@ function BodyData(items) {
         style: "tableData"
       },
       {
-        text: item.status == "pending" ? "Not Payed" : "Payed",
+        text: item.status == "pending" ? "Not Paid" : "Paid",
         style: "tableData"
       }
     ]);

@@ -1,6 +1,7 @@
 <template>
   <div class="sector-reports">
     <header>Sector Report</header>
+    <hr class="m-0 mt-1 mb-4" />
     <b-row class="justify-content-center flex-column m-0 pb-4">
       <selector
         :object="config"
@@ -210,21 +211,18 @@ export default {
       const second = this.axios.get(
         `/metrics/balance/sectors/${this.activeSector}?year=${year}&month=${month}`
       );
-      const promise = this.axios.all([first, second]);
-      return promise
-        .then(
-          this.axios.spread((...res) => {
-            const items = {};
-            items.total = res[0].data.data.payed + res[0].data.data.pending;
-            items.payed = res[0].data.data.payed;
-            items.pending = res[0].data.data.pending;
-            items.payedAmount = res[1].data.data.payed;
-            items.unpayedAmount = res[1].data.data.pending;
-            this.state.showReport = true;
-            this.sectorData = items;
-            return [items];
-          })
-        )
+      return Promise.all([first, second])
+        .then(res => {
+          const items = {};
+          items.total = res[0].data.data.payed + res[0].data.data.pending;
+          items.payed = res[0].data.data.payed;
+          items.pending = res[0].data.data.pending;
+          items.payedAmount = res[1].data.data.payed;
+          items.unpayedAmount = res[1].data.data.pending;
+          this.state.showReport = true;
+          this.sectorData = items;
+          return [items];
+        })
         .catch(err => {
           this.state.error = true;
           this.state.errorMessage = err.response.data.error
@@ -253,30 +251,27 @@ export default {
       const second = this.axios.get(
         `/metrics/balance/sectors/all/${this.activeSector}?year=${year}&month=${month}`
       );
-      const promise = this.axios.all([first, second]);
-      return promise
-        .then(
-          this.axios.spread((...res) => {
-            var items = [];
-            res[0].data.forEach(item => {
-              res[1].data.forEach(element => {
-                if (element.label == item.label) {
-                  items.push({
-                    name: item.label || element.label,
-                    total: item.data.payed + item.data.pending,
-                    payed: item.data.payed,
-                    pending: item.data.pending,
-                    unpayedAmount: element.data.pending,
-                    payedAmount: element.data.payed
-                  });
-                }
-              });
+      return Promise.all([first, second])
+        .then(res => {
+          var items = [];
+          res[0].data.forEach(item => {
+            res[1].data.forEach(element => {
+              if (element.label == item.label) {
+                items.push({
+                  name: item.label || element.label,
+                  total: item.data.payed + item.data.pending,
+                  payed: item.data.payed,
+                  pending: item.data.pending,
+                  unpayedAmount: element.data.pending,
+                  payedAmount: element.data.payed
+                });
+              }
             });
-            this.state.showReport = true;
-            this.cellData = items;
-            return items;
-          })
-        )
+          });
+          this.state.showReport = true;
+          this.cellData = items;
+          return items;
+        })
         .catch(err => {
           this.state.error = true;
           this.state.errorMessage = err.response.data.error
@@ -319,7 +314,6 @@ export default {
 <style lang="scss">
 .sector-reports {
   header {
-    margin-bottom: 1.5rem;
     text-align: center;
     font-size: 1.3rem;
     font-weight: bold;

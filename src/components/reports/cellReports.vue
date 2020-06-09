@@ -1,14 +1,14 @@
 <template>
-  <div class="px-4">
-    <header class="d-flex justify-content-center font-19 text-uppercase">Cell Report</header>
-    <hr class="m-0 mb-3" />
-    <b-row class="px-3 align-items-center justify-content-between">
+  <div class="px-4 cell-reports">
+    <header>Cell Report</header>
+    <hr class="m-0 mt-1 mb-4" />
+    <b-row class="controls m-0">
       <b-select
         id="input-1"
         v-model="cell"
         :options="cellOptions"
-        class="w-auto mr-3 flex-grow-1"
-        v-if="user.role.toLowerCase() !='basic'"
+        class="w-100 mb-5"
+        v-if="!isManager"
       >
         <template v-slot:first>
           <option :value="null" disabled>Please select cell</option>
@@ -20,12 +20,9 @@
         :disabled="cell?false:true"
         v-on:ok="generateAction"
       />
-      <div v-show="state.generating" class="w-100">
-        <strong class="font-14">Generating&nbsp;</strong>
-        <b-spinner small />
-      </div>
+      <vue-load v-if="state.generating" class="w-100 bg-light mt-2" label="Generating..." />
     </b-row>
-    <b-row>
+    <b-row class="m-0">
       <b-collapse id="sector-report-collapse" class="w-100 m-3" v-model="state.showReport">
         <b-card class="text-capitalize" v-if="!state.error">
           <b-card-title class="font-19 text-uppercase">{{cell}} cell</b-card-title>
@@ -117,25 +114,25 @@ export default {
           },
           {
             key: "payed",
-            label: "No of Payed Houses",
+            label: "No of Paid Houses",
             tdClass: "text-center",
             thClass: "text-center text-uppercase"
           },
           {
             key: "payedAmount",
-            label: "Payed Amount",
+            label: "Paid Amount",
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           },
           {
             key: "pending",
-            label: "No of unpayed Houses",
+            label: "No of unpaid Houses",
             tdClass: "text-center",
             thClass: "text-center text-uppercase"
           },
           {
             key: "unpayedAmount",
-            label: "unPayed Amount",
+            label: "unPaid Amount",
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           }
@@ -159,25 +156,25 @@ export default {
           },
           {
             key: "payed",
-            label: "No of Payed Houses",
+            label: "No of Paid Houses",
             tdClass: "text-center",
             thClass: "text-center text-uppercase"
           },
           {
             key: "payedAmount",
-            label: "Payed Amount",
+            label: "Paid Amount",
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           },
           {
             key: "pending",
-            label: "No of unpayed Houses",
+            label: "No of unPaid Houses",
             tdClass: "text-center",
             thClass: "text-center text-uppercase"
           },
           {
             key: "unpayedAmount",
-            label: "unPayed Amount",
+            label: "unPaid Amount",
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           }
@@ -189,7 +186,8 @@ export default {
   },
   computed: {
     cellOptions() {
-      return this.$store.getters.getCellsArray;
+      const { province, district, sector } = this.location;
+      return this.$cells(province, district, sector);
     },
     currentYear() {
       return new Date().getFullYear();
@@ -205,6 +203,12 @@ export default {
     },
     title() {
       return this.cell ? this.cell : "Cell";
+    },
+    location() {
+      return this.$store.getters.location;
+    },
+    isManager() {
+      return this.user.role.toLowerCase() === "basic";
     }
   },
   watch: {
@@ -215,7 +219,7 @@ export default {
     }
   },
   mounted() {
-    if (this.user.role.toLowerCase() == "basic") {
+    if (this.isManager) {
       this.cell = this.activeCell;
     }
   },
@@ -237,21 +241,18 @@ export default {
       const second = this.axios.get(
         `/metrics/balance/cells/${this.cell}?year=${year}&month=${month}`
       );
-      const promise = this.axios.all([first, second]);
-      return promise
-        .then(
-          this.axios.spread((...res) => {
-            const items = {};
-            items.total = res[0].data.data.payed + res[0].data.data.pending;
-            items.payed = res[0].data.data.payed;
-            items.pending = res[0].data.data.pending;
-            items.payedAmount = res[1].data.data.payed;
-            items.unpayedAmount = res[1].data.data.pending;
-            this.state.showReport = true;
-            this.cellData = items;
-            return [items];
-          })
-        )
+      return Promise.all([first, second])
+        .then(res => {
+          const items = {};
+          items.total = res[0].data.data.payed + res[0].data.data.pending;
+          items.payed = res[0].data.data.payed;
+          items.pending = res[0].data.data.pending;
+          items.payedAmount = res[1].data.data.payed;
+          items.unpayedAmount = res[1].data.data.pending;
+          this.state.showReport = true;
+          this.cellData = items;
+          return [items];
+        })
         .catch(err => {
           this.state.error = true;
           this.state.errorMessage = err.response.data.error
@@ -278,30 +279,27 @@ export default {
       const second = this.axios.get(
         `/metrics/balance/cells/all/${this.cell}?year=${year}&month=${month}`
       );
-      const promise = this.axios.all([first, second]);
-      return promise
-        .then(
-          this.axios.spread((...res) => {
-            var items = [];
-            res[0].data.forEach(item => {
-              res[1].data.forEach(element => {
-                if (element.label == item.label) {
-                  items.push({
-                    name: item.label || element.label,
-                    total: item.data.payed + item.data.pending,
-                    payed: item.data.payed,
-                    pending: item.data.pending,
-                    unpayedAmount: element.data.pending,
-                    payedAmount: element.data.payed
-                  });
-                }
-              });
+      return Promise.all([first, second])
+        .then(res => {
+          var items = [];
+          res[0].data.forEach(item => {
+            res[1].data.forEach(element => {
+              if (element.label == item.label) {
+                items.push({
+                  name: item.label || element.label,
+                  total: item.data.payed + item.data.pending,
+                  payed: item.data.payed,
+                  pending: item.data.pending,
+                  unpayedAmount: element.data.pending,
+                  payedAmount: element.data.payed
+                });
+              }
             });
-            this.state.showReport = true;
-            this.villageData = items;
-            return items;
-          })
-        )
+          });
+          this.state.showReport = true;
+          this.villageData = items;
+          return items;
+        })
         .catch(err => {
           this.state.error = true;
           this.state.errorMessage = err.response.data.error
@@ -339,5 +337,22 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+.cell-reports {
+  & > header {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #384950;
+  }
+  .controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+  }
+  .dropdown > button {
+    padding: 0.7rem 1.5rem;
+  }
+}
 </style>
