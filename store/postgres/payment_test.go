@@ -24,7 +24,12 @@ func TestSaveTransaction(t *testing.T) {
 
 	const op errors.Op = "store/postgres/paymentRepo.Save"
 
-	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{
+		ID:            "paypack.developers",
+		Name:          "remera",
+		NumberOfSeats: 10,
+		Type:          accounts.Devs,
+	}
 	account = saveAccount(t, db, account)
 
 	agent := users.Agent{

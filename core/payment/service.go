@@ -66,11 +66,11 @@ func (svc service) Initilize(ctx context.Context, tx Transaction) (Status, error
 		return failed, errors.E(op, "amount doesn't match invoice", errors.KindBadRequest)
 	}
 
-	identity := func() {
+	func() {
 		tx.Invoice = invoice.ID
 		tx.ID = svc.idp.ID()
-	}
-	identity()
+	}()
+	//identity()
 
 	status, err := svc.backend.Pull(ctx, tx)
 	if err != nil {

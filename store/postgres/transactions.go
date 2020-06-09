@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/lib/pq"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/transactions"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
@@ -30,11 +31,20 @@ func (repo *txRepository) Save(ctx context.Context, tx transactions.Transaction)
 			madeby, 
 			amount, 
 			method,
-			invoice
-		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING created_at
+			invoice,
+			namespace
+		) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING created_at
 	`
 
-	err := repo.QueryRow(q, tx.ID, tx.MadeFor, tx.OwnerID, tx.Amount, tx.Method).Scan(&tx.DateRecorded)
+	err := repo.QueryRow(q,
+		tx.ID,
+		tx.MadeFor,
+		tx.OwnerID,
+		tx.Amount,
+		tx.Method,
+		tx.Namespace,
+	).Scan(&tx.DateRecorded)
+
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -56,9 +66,18 @@ func (repo *txRepository) RetrieveByID(ctx context.Context, id string) (transact
 
 	q := `
 		SELECT 
-			transactions.id, transactions.amount, transactions.method, transactions.madefor,
-			transactions.invoice, transactions.created_at, properties.sector, properties.cell, 
-			properties.village, owners.id, owners.fname, owners.lname
+			transactions.id, 
+			transactions.amount, 
+			transactions.method, 
+			transactions.madefor,
+			transactions.invoice,
+			transactions.created_at, 
+			properties.sector, 
+			properties.cell, 
+			properties.village, 
+			owners.id, 
+			owners.fname, 
+			owners.lname
 		FROM 
 			transactions
 		INNER JOIN 
@@ -71,8 +90,19 @@ func (repo *txRepository) RetrieveByID(ctx context.Context, id string) (transact
 	var tx = transactions.Transaction{}
 
 	err := repo.QueryRow(q, id).Scan(
-		&tx.ID, &tx.Amount, &tx.Method, &tx.MadeFor, &tx.Invoice, &tx.DateRecorded,
-		&tx.Sector, &tx.Cell, &tx.Village, &tx.OwnerID, &tx.OwneFname, &tx.OwnerLname,
+		&tx.ID,
+		&tx.Amount,
+		&tx.Method,
+		&tx.MadeFor,
+		&tx.Invoice,
+		// &tx.Namespace,
+		&tx.DateRecorded,
+		&tx.Sector,
+		&tx.Cell,
+		&tx.Village,
+		&tx.OwnerID,
+		&tx.OwneFname,
+		&tx.OwnerLname,
 	)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
@@ -101,13 +131,17 @@ func (repo *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit 
 		properties ON transactions.madefor=properties.id
 	INNER JOIN 
 		owners ON transactions.madeby=owners.id 
-	ORDER BY transactions.id LIMIT $1 OFFSET $2
+	WHERE
+		transactions.namespace=$1
+	ORDER BY transactions.id LIMIT $2 OFFSET $3
 	`
 	empty := transactions.TransactionPage{}
 
 	var items = []transactions.Transaction{}
 
-	rows, err := repo.Query(q, limit, offset)
+	creds := auth.CredentialsFromContext(ctx)
+
+	rows, err := repo.Query(q, creds.Account, limit, offset)
 	if err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -126,10 +160,10 @@ func (repo *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit 
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM transactions`
+	q = `SELECT COUNT(*) FROM transactions WHERE namespace=$1`
 
 	var total uint64
-	if err := repo.QueryRow(q).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, creds.Account).Scan(&total); err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -159,15 +193,18 @@ func (repo *txRepository) RetrieveByProperty(ctx context.Context, property strin
 	INNER JOIN 
 		owners ON transactions.madeby=owners.id 
 	WHERE 
-		transactions.madefor = $1 
-	ORDER BY transactions.id LIMIT $2 OFFSET $3
+		transactions.madefor = $1 AND transactions.namespace=$2
+	ORDER BY 
+		transactions.id LIMIT $3 OFFSET $4
 	`
 
 	empty := transactions.TransactionPage{}
 
 	var items = []transactions.Transaction{}
 
-	rows, err := repo.Query(q, property, limit, offset)
+	creds := auth.CredentialsFromContext(ctx)
+
+	rows, err := repo.Query(q, property, creds.Account, limit, offset)
 	if err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -185,10 +222,10 @@ func (repo *txRepository) RetrieveByProperty(ctx context.Context, property strin
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM transactions WHERE madefor = $1`
+	q = `SELECT COUNT(*) FROM transactions WHERE madefor = $1 AND namespace=$2`
 
 	var total uint64
-	if err := repo.QueryRow(q, property).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, property, creds.Account).Scan(&total); err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -208,9 +245,17 @@ func (repo *txRepository) RetrieveByMethod(ctx context.Context, method string, o
 
 	q := `
 		SELECT 
-			transactions.id,transactions.amount, transactions.method, transactions.madefor,
-			transactions.created_at, properties.sector, properties.cell, 
-			properties.village, owners.id, owners.fname, owners.lname
+			transactions.id,
+			transactions.amount, 
+			transactions.method, 
+			transactions.madefor,
+			transactions.created_at, 
+			properties.sector, 
+			properties.cell, 
+			properties.village, 
+			owners.id, 
+			owners.fname, 
+			owners.lname
 		FROM 
 			transactions
 		INNER JOIN 
@@ -218,14 +263,17 @@ func (repo *txRepository) RetrieveByMethod(ctx context.Context, method string, o
 		INNER JOIN 
 			owners ON transactions.madeby=owners.id
 		WHERE 
-			transactions.method = $1 
-		ORDER BY transactions.id LIMIT $2 OFFSET $3
+			transactions.method = $1 AND transactions.namespace
+		ORDER BY 
+			transactions.id LIMIT $2 OFFSET $3
 	`
 	empty := transactions.TransactionPage{}
 
 	var items = []transactions.Transaction{}
 
-	rows, err := repo.Query(q, method, limit, offset)
+	creds := auth.CredentialsFromContext(ctx)
+
+	rows, err := repo.Query(q, method, creds.Account, limit, offset)
 	if err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -235,18 +283,28 @@ func (repo *txRepository) RetrieveByMethod(ctx context.Context, method string, o
 		c := transactions.Transaction{}
 
 		if err := rows.Scan(
-			&c.ID, &c.Amount, &c.Method, &c.MadeFor, &c.DateRecorded,
-			&c.Sector, &c.Cell, &c.Village, &c.OwnerID, &c.OwneFname, &c.OwnerLname,
+			&c.ID,
+			&c.Amount,
+			&c.Method,
+			&c.MadeFor,
+			&c.DateRecorded,
+			&c.Sector,
+			&c.Cell,
+			&c.Village,
+			&c.OwnerID,
+			&c.OwneFname,
+			&c.OwnerLname,
 		); err != nil {
 			return empty, errors.E(op, err, errors.KindUnexpected)
 		}
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM transactions WHERE method = $1`
+	q = `SELECT COUNT(*) FROM transactions WHERE method = $1 AND namespace=$2`
 
 	var total uint64
-	if err := repo.QueryRow(q, method).Scan(&total); err != nil {
+
+	if err := repo.QueryRow(q, method, creds.Account).Scan(&total); err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -266,9 +324,18 @@ func (repo *txRepository) RetrieveByPropertyR(ctx context.Context, property stri
 
 	q := `
 	SELECT 
-		transactions.id, transactions.amount, transactions.method, transactions.madefor, 
-		transactions.invoice, transactions.created_at, properties.sector, properties.cell, 
-		properties.village, owners.id, owners.fname, owners.lname
+		transactions.id, 
+		transactions.amount, 
+		transactions.method, 
+		transactions.madefor, 
+		transactions.invoice, 
+		transactions.created_at, 
+		properties.sector, 
+		properties.cell, 
+		properties.village, 
+		owners.id, 
+		owners.fname,
+		owners.lname
 	FROM 
 		transactions
 	INNER JOIN 
@@ -276,7 +343,7 @@ func (repo *txRepository) RetrieveByPropertyR(ctx context.Context, property stri
 	INNER JOIN 
 		owners ON transactions.madeby=owners.id 
 	WHERE 
-		transactions.madefor = $1 
+		transactions.madefor = $1 AND transactions.namespace=$2
 	ORDER BY transactions.id
 `
 
@@ -284,7 +351,9 @@ func (repo *txRepository) RetrieveByPropertyR(ctx context.Context, property stri
 
 	var items = []transactions.Transaction{}
 
-	rows, err := repo.Query(q, property)
+	creds := auth.CredentialsFromContext(ctx)
+
+	rows, err := repo.Query(q, property, creds.Account)
 	if err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -302,10 +371,10 @@ func (repo *txRepository) RetrieveByPropertyR(ctx context.Context, property stri
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM transactions WHERE madefor = $1`
+	q = `SELECT COUNT(*) FROM transactions WHERE madefor = $1 AND namespace=$2`
 
 	var total uint64
-	if err := repo.QueryRow(q, property).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, property, creds.Account).Scan(&total); err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 

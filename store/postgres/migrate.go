@@ -580,6 +580,16 @@ func migrateDB(db *sql.DB) error {
 					`ALTER TABLE owners DROP COLUMN namespace`,
 				},
 			},
+			{
+				Id: "014_alter_table_transactions_add_namespace",
+				Up: []string{
+					`ALTER TABLE transactions 
+						ADD COLUMN namespace VARCHAR(254) NOT NULL default 'kigali.gasabo.remera';`,
+
+					`ALTER TABLE transactions
+						ADD FOREIGN KEY(namespace) REFERENCES accounts(id) ON UPDATE CASCADE ON DELETE CASCADE;`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

@@ -28,8 +28,17 @@ func (repo *paymentRepo) Save(ctx context.Context, tx payment.Transaction) error
 			amount, 
 			method, 
 			invoice,
-			madeby
-		) VALUES ($1, $2, $3, $4, $5, (select owner from properties where id=$6)) RETURNING created_at`
+			madeby,
+			namespace
+		) VALUES (
+			$1, 
+			$2, 
+			$3, 
+			$4, 
+			$5, 
+			(select owner from properties where id=$6),
+			(select namespace from properties where id=$6)
+		) RETURNING created_at`
 
 	err := repo.QueryRow(q, tx.ID, tx.Code, tx.Amount, tx.Method, tx.Invoice, tx.Code).Scan(&tx.RecordedAt)
 	if err != nil {

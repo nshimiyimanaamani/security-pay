@@ -47,11 +47,21 @@ func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) transactions.
 			madeby, 
 			amount,
 			method, 
-			invoice
-		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING created_at;
+			invoice,
+			namespace
+		) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING created_at;
 	`
 
-	err := db.QueryRow(q, tx.ID, tx.MadeFor, tx.OwnerID, tx.Amount, tx.Method, tx.Invoice).Scan(&tx.DateRecorded)
+	err := db.QueryRow(q,
+		tx.ID,
+		tx.MadeFor,
+		tx.OwnerID,
+		tx.Amount,
+		tx.Method,
+		tx.Invoice,
+		tx.Namespace,
+	).Scan(&tx.DateRecorded)
+
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}

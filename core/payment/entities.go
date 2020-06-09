@@ -77,6 +77,7 @@ type Transaction struct {
 	Phone      string    `json:"phone,omitempty"`
 	Invoice    uint64    `json:"invoce_id,omitempty"`
 	Method     string    `json:"payment_method,omitempty"`
+	Namespace  string    `json:"namespace,omitempty"`
 	RecordedAt time.Time `json:"recorded_at,omitempty"`
 }
 
