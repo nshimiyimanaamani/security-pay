@@ -31,7 +31,7 @@ require (
 	github.com/hashicorp/raft v1.1.2 // indirect
 	github.com/hibiken/asynq v0.7.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/lib/pq v1.6.0
+	github.com/lib/pq v1.7.0
 	github.com/matoous/go-nanoid v1.3.0
 	github.com/matryer/is v1.3.0
 	github.com/mitchellh/copystructure v1.0.0 // indirect
