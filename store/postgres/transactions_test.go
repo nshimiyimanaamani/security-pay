@@ -406,8 +406,8 @@ func TestRetrieveByPropertyR(t *testing.T) {
 
 	for desc, tc := range cases {
 		ctx := context.Background()
-		creds := &auth.Credentials{Account: account.ID}
-		ctx = auth.SetECredetialsInContext(ctx, creds)
+		// creds := &auth.Credentials{Account: account.ID}
+		// ctx = auth.SetECredetialsInContext(ctx, creds)
 		page, err := repo.RetrieveByPropertyR(ctx, tc.property)
 		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got '%v'\n", desc, err))
 		size := uint64(len(page.Transactions))
