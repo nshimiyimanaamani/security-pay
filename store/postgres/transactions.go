@@ -343,7 +343,7 @@ func (repo *txRepository) RetrieveByPropertyR(ctx context.Context, property stri
 	INNER JOIN 
 		owners ON transactions.madeby=owners.id 
 	WHERE 
-		transactions.madefor = $1 AND transactions.namespace=$2
+		transactions.madefor=$1
 	ORDER BY transactions.id
 `
 
@@ -351,9 +351,9 @@ func (repo *txRepository) RetrieveByPropertyR(ctx context.Context, property stri
 
 	var items = []transactions.Transaction{}
 
-	creds := auth.CredentialsFromContext(ctx)
+	// creds := auth.CredentialsFromContext(ctx)
 
-	rows, err := repo.Query(q, property, creds.Account)
+	rows, err := repo.Query(q, property)
 	if err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -371,10 +371,10 @@ func (repo *txRepository) RetrieveByPropertyR(ctx context.Context, property stri
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM transactions WHERE madefor = $1 AND namespace=$2`
+	q = `SELECT COUNT(*) FROM transactions WHERE madefor=$1`
 
 	var total uint64
-	if err := repo.QueryRow(q, property, creds.Account).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, property).Scan(&total); err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
