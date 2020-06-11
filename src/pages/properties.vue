@@ -210,7 +210,7 @@ export default {
   },
   data() {
     return {
-      development: true,
+      development: false,
       originalData: [],
       filteredData: [],
       addProperty: { show: false },
