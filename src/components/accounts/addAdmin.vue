@@ -220,7 +220,7 @@ export default {
   .accountForm {
     width: auto;
     border: 1px solid #dee2e6;
-    border-radius: 5px;
+    border-radius: 2px;
     padding: 1rem;
 
     & > .form-group {

@@ -7,6 +7,7 @@ const state = {
   cells_array: null,
   active_village: null,
   village_array: null,
+  appLoading: false,
   months: [
     "January",
     "February",

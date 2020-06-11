@@ -2,7 +2,10 @@ const actions = {
   //startup logic
   // -------------------------------------------
   startup_function({ commit }) {
-    commit("on_startup");
+    return new Promise(async (resolve, reject) => {
+      await commit("on_startup");
+      resolve();
+    });
   },
   updatePlace({ commit }, res) {
     commit("updatePlace", res);

@@ -5,7 +5,7 @@
         class="text-white secondary-font m-0 w-100 d-flex justify-content-center align-items-center"
       >P A Y P A C K</h1>
       <hr class="m-0" />
-      <ul class="sidebar-links font-14 p-0 mt-5">
+      <ul class="sidebar-links secondary-font p-0 mt-5">
         <router-link v-if="isAdmin" to="/dashboard">
           <li class="hover-color">SECTOR</li>
         </router-link>
@@ -64,7 +64,7 @@
           <li class="hover-color">Messages</li>
         </router-link>
       </ul>
-      <p class="text-center powered m-0 pb-1 app-color text-white" for="powered">
+      <p class="powered secondary-font">
         Powered By
         <strong>Quarks Group.</strong>
       </p>
@@ -74,8 +74,8 @@
         class="navbar navbar-expand-lg navbar-light bg-light border-bottom d-flex justify-content-end flex-nowrap"
       >
         <b-button class="ml-2 secondary-font br-2" variant="info" @click.prevent="logout">
-          Logout
           <i class="fa fa-sign-out-alt" />
+          Logout
         </b-button>
       </nav>
       <div class="admin-body">

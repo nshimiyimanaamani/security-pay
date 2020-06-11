@@ -137,7 +137,11 @@ export default {
   },
   computed: {
     cellOptions() {
-      return this.$store.getters.getCellsArray;
+      const { province, district, sector } = this.location;
+      return this.$cells(province, district, sector);
+    },
+    location() {
+      return this.$store.getters.location;
     },
     currentData() {
       if (this.change_pswd_modal.data) {
@@ -160,12 +164,14 @@ export default {
     create() {
       this.state.creating = true;
       const account = this.user.account;
+      const data = {
+        account: this.user.account,
+        email: this.form.email,
+        cell: this.form.cell
+      };
+      console.log(data);
       this.axios
-        .post("/accounts/managers", {
-          account: account,
-          email: this.form.email,
-          cell: this.form.cell
-        })
+        .post("/accounts/managers", data)
         .then(res => {
           this.$snotify.info("Manager successfully created...");
           const message = `Password For ${res.data.email} is: ${res.data.password}`;
@@ -272,9 +278,8 @@ export default {
   .accountForm {
     width: auto;
     border: 1px solid #dee2e6;
-    border-radius: 5px;
+    border-radius: 2px;
     padding: 1rem;
-    margin: 1rem;
   }
 }
 </style>
