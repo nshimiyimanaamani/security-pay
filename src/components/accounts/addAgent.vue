@@ -289,7 +289,7 @@ export default {
       );
       return promise
         .then(res => {
-          console.log(res)
+          console.log(res);
           return res.data.Agents;
         })
         .catch(err => {
@@ -357,14 +357,16 @@ export default {
 };
 </script>
 
-<style>
-.addAgent .nav-link.active {
-  background-color: white !important;
-}
-.addAgent .accountForm {
-  width: auto;
-  border: 1px solid #dee2e6;
-  border-radius: 5px;
-  padding: 1rem;
+<style lang="scss">
+.addAgent {
+  .nav-link.active {
+    background-color: white !important;
+  }
+  .accountForm {
+    width: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+    padding: 1rem;
+  }
 }
 </style>

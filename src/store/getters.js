@@ -16,7 +16,8 @@ const getters = {
       cell: state.active_cell,
       village: state.active_village
     };
-  }
+  },
+  appLoading: state => state.appLoading
 };
 
 export default getters;

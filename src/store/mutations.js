@@ -1,5 +1,5 @@
-import { Cell, Village } from "rwanda";
 import Vue from "vue";
+var that = Vue.prototype;
 const mutations = {
   reset_state(state) {
     state = {
@@ -28,34 +28,54 @@ const mutations = {
       ]
     };
   },
-  on_startup(state) {
+  async on_startup(state) {
+    state.appLoading = true;
     if (sessionStorage.getItem("token")) {
-      const user = Vue.prototype.$decode(sessionStorage.getItem("token"));
-      if (user && (user.role == "basic" || user.role === "admin" || user.role === 'min')) {
-        const account = user.account.toString().split(".");
-
+      const user = await Vue.prototype.$decode(sessionStorage.getItem("token"));
+      if (
+        user &&
+        (user.role == "basic" || user.role === "admin" || user.role === "min")
+      ) {
+        const account = await user.account.toString().split(".");
+        console.log(user, account);
         state.province = Vue.prototype.$capitalize(account[0]);
         state.district = Vue.prototype.$capitalize(account[1]);
         state.active_sector = Vue.prototype.$capitalize(account[2]);
 
-        state.cells_array = Vue.prototype.$cells(
+        state.cells_array = await Vue.prototype.$cells(
           state.province,
           state.district,
           state.active_sector
         );
 
-        state.active_cell = state.cells_array[0];
+        if (user.role === "basic") {
+          const fullUser = await that.axios
+            .get("accounts/managers/" + user.username, {
+              headers: {
+                Authorization: "Bearer " + sessionStorage.getItem("token")
+              }
+            })
+            .then(res => res.data)
+            .catch(err => {
+              state.appLoading = false;
+              that.$snotify.error("Cant retrieve user details");
+            });
+          state.active_cell = await fullUser.cell;
+        } else {
+          state.active_cell = await state.cells_array[0];
+        }
 
-        state.village_array = Vue.prototype.$villages(
+        state.village_array = await Vue.prototype.$villages(
           state.province,
           state.district,
           state.active_sector,
           state.active_cell
         );
 
-        state.active_village = state.village_array[0];
+        state.active_village = await state.village_array[0];
       }
     }
+    state.appLoading = false;
   },
   updatePlace(state, res) {
     if (res.toUpdate == "cell") {

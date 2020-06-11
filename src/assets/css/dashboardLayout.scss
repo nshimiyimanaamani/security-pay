@@ -36,9 +36,14 @@
       }
     }
     .powered {
-      position: absolute;
-      width: inherit;
       bottom: 0;
+      margin: 0;
+      width: inherit;
+      color: white;
+      font-size: 14px;
+      text-align: center;
+      position: absolute;
+      background-color: transparent;
     }
   }
   .admin-content {

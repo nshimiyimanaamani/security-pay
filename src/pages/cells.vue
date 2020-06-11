@@ -138,6 +138,7 @@ export default {
       return this.$store.getters.getActiveCell;
     },
     cellArray() {
+      console.log(this.$store.getters.location);
       return this.$store.getters.getCellsArray;
     },
     style() {
@@ -163,19 +164,16 @@ export default {
   watch: {
     activeCell() {
       handler: {
-        this.fetchData();
-        this.loadData2();
-        this.loadData3();
+        this.updated();
       }
     }
   },
-  beforeMount() {
-    this.fetchData();
-    this.loadData2();
-    this.loadData3();
+  mounted() {
+    this.updated();
   },
   methods: {
     updated() {
+      this.clear();
       this.fetchData();
       this.loadData2();
       this.loadData3();
@@ -324,6 +322,15 @@ export default {
         array.push(percentage);
       });
       return array;
+    },
+    clear() {
+      this.config.configuring = false;
+      this.config.year = new Date().getFullYear();
+      this.config.month = new Date().getMonth() + 1;
+      this.chart2.state.error = false;
+      this.chart2.state.errorMessage = null;
+      this.chart3.state.error = false;
+      this.chart3.state.errorMessage = null;
     }
   }
 };
