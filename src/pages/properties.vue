@@ -128,7 +128,7 @@
         <article class="text-center">{{data.index + 1}}</article>
       </template>
       <template v-slot:table-busy>
-        <vue-load />
+        <vue-load class="secondary-font" />
       </template>
       <template v-slot:empty>
         <h6
@@ -190,10 +190,7 @@
   </b-container>
 </template>
 <script>
-const download = import(
-  /* webpackChunkName: "downloadScript" */ "../components/download scripts/downloadProperties"
-);
-
+import download from "../components/download scripts/downloadProperties";
 export default {
   name: "properties",
   components: {
@@ -210,7 +207,7 @@ export default {
   },
   data() {
     return {
-      development: false,
+      development: true,
       originalData: [],
       filteredData: [],
       addProperty: { show: false },
@@ -384,7 +381,7 @@ export default {
         .then(res => {
           this.filteredData = res.data.Properties;
           this.originalData = Object.freeze(res.data.Properties);
-          this.pagination.totalRows = total;
+          this.pagination.totalRows = this.originalData.length;
           this.filterByLocation();
 
           if (this.development) {
@@ -449,7 +446,7 @@ export default {
     },
 
     downloadList() {
-      // download(this.filteredItems, this.selected);
+      download(this.filteredData, this.selected);
     },
     editHouse(house, index, evt) {
       evt.preventDefault();

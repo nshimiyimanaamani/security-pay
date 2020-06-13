@@ -1,80 +1,87 @@
 <template>
   <div class="sector-reports">
-    <header>Sector Report</header>
-    <hr class="m-0 mt-1 mb-4" />
-    <b-row class="justify-content-center flex-column m-0 pb-4">
-      <selector
-        :object="config"
-        :title="'Generate '+activeSector+' Report'"
-        v-on:ok="generateAction"
-        class="w-auto m-auto date-selector"
-      />
-      <vue-load v-if="state.generating" label="Generating..." />
-    </b-row>
-    <b-row class="m-0" v-show="!state.generating">
-      <b-collapse id="sectorreport-collapse" class="w-100" v-model="state.showReport">
-        <b-card class="reports-card" v-if="!state.error" no-body>
-          <b-card-title>Sector Reports</b-card-title>
-          <hr />
-          <div class="card--body">
-            <b-table
-              id="sector-reports"
-              :items="generate"
-              :fields="table.fields"
-              :busy="table.busy"
-              :key="'sector-'+table.key"
-              v-if="state.generate"
-              head-row-variant="secondary"
-              small
-              bordered
-              hover
-              responsive
-              show-empty
-            >
-              <template v-slot:cell(unpayedAmount)="data">
-                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
-              </template>
-              <template v-slot:cell(payedAmount)="data">
-                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
-              </template>
-            </b-table>
+    <header class="tabTitle">Sector Report</header>
+    <div class="tabBody">
+      <b-row class="justify-content-center flex-column m-0">
+        <selector
+          :object="config"
+          :title="'Generate '+activeSector+' Report'"
+          v-on:ok="generateAction"
+          class="w-auto m-auto date-selector pb-3"
+        />
+
+        <vue-load v-if="state.generating" label="Generating..." />
+      </b-row>
+
+      <b-row class="m-0" v-show="!state.generating">
+        <b-collapse id="sectorreport-collapse" class="w-100" v-model="state.showReport">
+          <div class="reports-card" v-if="!state.error">
+            <b-row no-gutters class="mb-2 justify-content-end">
+              <b-badge
+                variant="secondary"
+                class="p-2 font-13"
+              >Report Date: &nbsp; {{state.reportsDate}}</b-badge>
+            </b-row>
+            <h5 class="bg-dark">Sector Reports</h5>
+            <div class="card--body">
+              <b-table
+                id="sector-reports"
+                :items="generate"
+                :fields="table.fields"
+                :busy="table.busy"
+                :key="'sector-'+table.key"
+                v-if="state.generate"
+                head-row-variant="secondary"
+                small
+                bordered
+                hover
+                responsive
+                show-empty
+              >
+                <template v-slot:cell(unpayedAmount)="data">
+                  <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+                </template>
+                <template v-slot:cell(payedAmount)="data">
+                  <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+                </template>
+              </b-table>
+            </div>
           </div>
-        </b-card>
-        <b-card class="reports-card" v-if="!state.error" no-body>
-          <b-card-title>cells Reports</b-card-title>
-          <hr />
-          <div class="card--body">
-            <b-table
-              id="sector-cell-reports"
-              :items="generateCell"
-              :fields="cellTable.fields"
-              :busy="cellTable.busy"
-              :key="'cell-'+cellTable.key"
-              v-if="state.generate"
-              head-row-variant="secondary"
-              small
-              bordered
-              hover
-              responsive
-              show-empty
-            >
-              <template v-slot:cell(unpayedAmount)="data">
-                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
-              </template>
-              <template v-slot:cell(payedAmount)="data">
-                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
-              </template>
-            </b-table>
+          <div class="reports-card" v-if="!state.error">
+            <h5 class="bg-dark">cells Reports</h5>
+            <div class="card--body">
+              <b-table
+                id="sector-cell-reports"
+                :items="generateCell"
+                :fields="cellTable.fields"
+                :busy="cellTable.busy"
+                :key="'cell-'+cellTable.key"
+                v-if="state.generate"
+                head-row-variant="secondary"
+                small
+                bordered
+                hover
+                responsive
+                show-empty
+              >
+                <template v-slot:cell(unpayedAmount)="data">
+                  <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+                </template>
+                <template v-slot:cell(payedAmount)="data">
+                  <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+                </template>
+              </b-table>
+            </div>
           </div>
-        </b-card>
-        <b-card v-if="state.error">
-          <b-card-text>{{state.errorMessage}}</b-card-text>
-        </b-card>
-      </b-collapse>
-    </b-row>
-    <b-row v-if="!state.error && sectorData && cellData " class="m-0 py-3 justify-content-end">
-      <b-button @click="downloadReport" variant="info" class="downloadBtn">Download Report</b-button>
-    </b-row>
+          <b-card v-if="state.error">
+            <b-card-text>{{state.errorMessage}}</b-card-text>
+          </b-card>
+        </b-collapse>
+      </b-row>
+      <b-row v-if="!state.error && sectorData && cellData " class="m-0 py-3 justify-content-end">
+        <b-button @click="downloadReport" variant="info" class="downloadBtn">Download Report</b-button>
+      </b-row>
+    </div>
   </div>
 </template>
 
@@ -93,7 +100,8 @@ export default {
         generate: false,
         showReport: false,
         error: false,
-        errorMessage: null
+        errorMessage: null,
+        reportsDate: null
       },
       config: {
         configuring: false,
@@ -186,11 +194,8 @@ export default {
     activeSector() {
       return this.$store.getters.getActiveSector;
     },
-    currentYear() {
-      return new Date().getFullYear();
-    },
-    currentMonth() {
-      return new Date().getMonth() + 1;
+    months() {
+      return this.$store.getters.getMonths;
     }
   },
   methods: {
@@ -205,6 +210,7 @@ export default {
       this.state.generating = true;
       const year = this.config.year;
       const month = this.config.month;
+      this.state.reportsDate = `${this.months[month - 1]}, ${year}`;
       const first = this.axios.get(
         `/metrics/ratios/sectors/${this.activeSector}?year=${year}&month=${month}`
       );
@@ -245,6 +251,7 @@ export default {
       this.state.generating = true;
       const year = this.config.year;
       const month = this.config.month;
+      this.state.reportsDate = `${this.months[month - 1]}, ${year}`;
       const first = this.axios.get(
         `/metrics/ratios/sectors/all/${this.activeSector}?year=${year}&month=${month}`
       );
@@ -295,7 +302,12 @@ export default {
         this.sectorData != null &&
         this.cellData != null
       ) {
-        download(this.sectorData, this.cellData, this.activeSector);
+        download(
+          this.sectorData,
+          this.cellData,
+          this.activeSector,
+          this.state.reportsDate
+        );
       }
     },
     clear() {
@@ -306,6 +318,7 @@ export default {
       this.state.errorMessage = null;
       this.cellData = null;
       this.cellData = null;
+      this.state.reportsDate = null;
     }
   }
 };
@@ -313,12 +326,6 @@ export default {
 
 <style lang="scss">
 .sector-reports {
-  header {
-    text-align: center;
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #384950;
-  }
   .date-selector {
     & > button {
       border-radius: 3px;
@@ -336,9 +343,6 @@ export default {
     hr {
       margin-top: 0;
       margin-bottom: 1rem;
-    }
-    .card--body {
-      padding: 0 0.5rem;
     }
     .table-responsive > table {
       min-width: max-content;

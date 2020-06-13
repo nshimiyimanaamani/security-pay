@@ -1,12 +1,13 @@
 <template>
   <div id="payment-reports">
-    <header>Payment Reports</header>
-    <hr class="m-0 mt-1 mb-4" />
-    <b-row class="m-0 buttons">
-      <b-button variant="info">Generate All House Report</b-button>
-      <b-button variant="info">Generate Paid House Report</b-button>
-      <b-button variant="info">Generate Unpaid House Report</b-button>
-    </b-row>
+    <header class="tabTitle">Payment Reports</header>
+    <div class="tabBody">
+      <b-row class="m-0 buttons">
+        <b-button variant="info">Generate All House Report</b-button>
+        <b-button variant="info">Generate Paid House Report</b-button>
+        <b-button variant="info">Generate Unpaid House Report</b-button>
+      </b-row>
+    </div>
   </div>
 </template>
 
@@ -30,7 +31,7 @@ export default {
   .buttons {
     display: grid;
     grid-gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
 
     & > button {
       padding: 0.7rem 1rem;

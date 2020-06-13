@@ -1,81 +1,91 @@
 <template>
-  <div class="px-4 cell-reports">
-    <header>Cell Report</header>
-    <hr class="m-0 mt-1 mb-4" />
-    <b-row class="controls m-0">
-      <b-select
-        id="input-1"
-        v-model="cell"
-        :options="cellOptions"
-        class="w-100 mb-5"
-        v-if="!isManager"
-      >
-        <template v-slot:first>
-          <option :value="null" disabled>Please select cell</option>
-        </template>
-      </b-select>
-      <selector
-        :title="'Generate '+title+' Report'"
-        :object="config"
-        :disabled="cell?false:true"
-        v-on:ok="generateAction"
-      />
-      <vue-load v-if="state.generating" class="w-100 bg-light mt-2" label="Generating..." />
-    </b-row>
-    <b-row class="m-0">
-      <b-collapse id="sector-report-collapse" class="w-100 m-3" v-model="state.showReport">
-        <b-card class="text-capitalize" v-if="!state.error">
-          <b-card-title class="font-19 text-uppercase">{{cell}} cell</b-card-title>
-          <hr />
-          <b-table
-            id="cell-reports"
-            :items="generate"
-            :fields="table.fields"
-            :busy.sync="state.generating"
-            :key="'cell-'+table.key"
-            v-if="state.generate"
-            small
-            bordered
-            responsive
-            show-empty
-          >
-            <template v-slot:cell(unpayedAmount)="data">
-              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
-            </template>
-            <template v-slot:cell(payedAmount)="data">
-              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
-            </template>
-          </b-table>
-          <b-card-title class="font-19 text-uppercase">villages</b-card-title>
-          <hr />
-          <b-table
-            id="cell-village-reports"
-            :items="generateVillage"
-            :fields="villageTable.fields"
-            :busy.sync="state.generating"
-            :key="'village-'+villageTable.key"
-            v-if="state.generate"
-            small
-            bordered
-            responsive
-            show-empty
-          >
-            <template v-slot:cell(unpayedAmount)="data">
-              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
-            </template>
-            <template v-slot:cell(payedAmount)="data">
-              <b-card-text class="text-normal">{{Number(data.value).toLocaleString()}} Rwf</b-card-text>
-            </template>
-          </b-table>
-        </b-card>
-        <b-card v-if="state.error">
-          <b-card-text>{{state.errorMessage}}</b-card-text>
-        </b-card>
-      </b-collapse>
-    </b-row>
-    <b-row v-if="!state.error && villageData && cellData" class="my-3 mr-1 justify-content-end">
-      <b-button @click="downloadReport" size="sm" class="app-color">Download Report</b-button>
-    </b-row>
+  <div class="cell-reports">
+    <header class="tabTitle">Cell Report</header>
+    <div class="tabBody">
+      <b-row class="controls m-0">
+        <b-select
+          id="input-1"
+          v-model="cell"
+          :options="cellOptions"
+          class="w-100 mb-4"
+          v-if="!isManager"
+        >
+          <template v-slot:first>
+            <option :value="null" disabled>select cell</option>
+          </template>
+        </b-select>
+        <selector
+          :title="`Generate ${title || ''} Report`"
+          :object="config"
+          :disabled="cell?false:true"
+          v-on:ok="generateAction"
+          class="mb-3"
+        />
+        <vue-load v-if="state.generating" label="Generating..." />
+      </b-row>
+      <b-row class="m-0" v-show="!state.generating">
+        <b-collapse id="sector-report-collapse" class="w-100" v-model="state.showReport">
+          <div class="reports-card" v-if="!state.error">
+            <b-row no-gutters class="mb-2 justify-content-end">
+              <b-badge
+                variant="secondary"
+                class="p-2 font-13"
+              >Report Date: &nbsp; {{state.reportsDate}}</b-badge>
+            </b-row>
+            <h5 class="text-uppercase bg-dark">{{cell}} cell</h5>
+            <b-table
+              id="cell-reports"
+              :items="generate"
+              :fields="table.fields"
+              :busy.sync="state.generating"
+              :key="'cell-'+table.key"
+              v-if="state.generate"
+              head-variant="secondary"
+              small
+              bordered
+              responsive
+              show-empty
+            >
+              <template v-slot:cell(unpayedAmount)="data">
+                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+              </template>
+              <template v-slot:cell(payedAmount)="data">
+                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+              </template>
+            </b-table>
+          </div>
+          <div class="reports-card">
+            <h5 class="text-uppercase bg-dark">villages</h5>
+            <b-table
+              id="cell-village-reports"
+              :items="generateVillage"
+              :fields="villageTable.fields"
+              :busy.sync="state.generating"
+              :key="'village-'+villageTable.key"
+              v-if="state.generate"
+              head-variant="secondary"
+              small
+              bordered
+              responsive
+              show-empty
+            >
+              <template v-slot:cell(unpayedAmount)="data">
+                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+              </template>
+              <template v-slot:cell(payedAmount)="data">
+                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+              </template>
+            </b-table>
+          </div>
+          <b-card v-if="state.error">
+            <b-card-text>{{state.errorMessage}}</b-card-text>
+          </b-card>
+        </b-collapse>
+      </b-row>
+      <b-row v-if="canDownload" class="m-0 justify-content-end">
+        <b-button @click="downloadReport" variant="info" class="br-2">Download Report</b-button>
+      </b-row>
+    </div>
   </div>
 </template>
 
@@ -95,7 +105,8 @@ export default {
         generate: false,
         showReport: false,
         error: false,
-        errorMessage: null
+        errorMessage: null,
+        reportsDate: null
       },
       config: {
         configuring: false,
@@ -209,6 +220,13 @@ export default {
     },
     isManager() {
       return this.user.role.toLowerCase() === "basic";
+    },
+    canDownload() {
+      if (!this.state.error && this.villageData && this.cellData) return true;
+      return false;
+    },
+    months() {
+      return this.$store.getters.getMonths;
     }
   },
   watch: {
@@ -235,6 +253,7 @@ export default {
       this.state.generating = true;
       const year = this.config.year;
       const month = this.config.month;
+      this.state.reportsDate = `${this.months[month - 1]}, ${year}`;
       const first = this.axios.get(
         `/metrics/ratios/cells/${this.cell}?year=${year}&month=${month}`
       );
@@ -273,6 +292,7 @@ export default {
       this.state.generating = true;
       const year = this.config.year;
       const month = this.config.month;
+      this.state.reportsDate = `${this.months[month - 1]}, ${year}`;
       const first = this.axios.get(
         `/metrics/ratios/cells/all/${this.cell}?year=${year}&month=${month}`
       );
@@ -321,7 +341,12 @@ export default {
         this.cellData != null &&
         this.villageData != null
       ) {
-        download(this.cellData, this.villageData, this.cell);
+        download(
+          this.cellData,
+          this.villageData,
+          this.cell,
+          this.state.reportsDate
+        );
       }
     },
     clear() {
@@ -332,6 +357,7 @@ export default {
       this.state.errorMessage = null;
       this.cellData = null;
       this.villageData = null;
+      this.state.reportsDate = null;
     }
   }
 };
@@ -339,12 +365,6 @@ export default {
 
 <style lang="scss">
 .cell-reports {
-  & > header {
-    text-align: center;
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #384950;
-  }
   .controls {
     display: flex;
     flex-direction: column;

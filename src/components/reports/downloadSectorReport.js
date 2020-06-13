@@ -2,7 +2,7 @@ import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-function download(sector, cell, sectorName) {
+function download(sector, cell, sectorName, date) {
   var document = {
     content: [
       {
@@ -100,7 +100,7 @@ function download(sector, cell, sectorName) {
       color: "#232323"
     }
   };
-  pdfMake.createPdf(document).download(`${sectorName} Report.pdf`);
+  pdfMake.createPdf(document).download(`${sectorName} Report of ${date}.pdf`);
 }
 
 function getData(items) {
