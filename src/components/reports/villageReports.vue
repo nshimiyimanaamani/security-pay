@@ -1,65 +1,73 @@
 <template>
   <div id="village-reports">
-    <header>village Report</header>
-    <hr class="m-0 mt-1 mb-4" />
-    <b-row class="m-0 controls">
-      <b-select id="input-1" v-model="cell" :options="cellOptions" v-if="!isManager">
-        <template v-slot:first>
-          <option :value="null" disabled>Please select cell</option>
-        </template>
-      </b-select>
-      <b-select id="input-1" v-model="village" :options="villageOptions">
-        <template v-slot:first>
-          <option :value="null" disabled>Please select village</option>
-        </template>
-      </b-select>
-      <selector
-        :disabled="village?false:true"
-        :object="config"
-        :title="'Generate ' + title +' Report'"
-        v-on:ok="generateAction"
-        class="date-selector"
-      />
-      <Vue-load v-if="state.generating" label="Generating..." />
-    </b-row>
-    <b-row>
-      <b-collapse id="sector-report-collapse" class="w-100 m-3" v-model="state.showReport">
-        <b-card class="text-capitalize" v-if="!state.error">
-          <b-card-title class="font-19 text-uppercase">{{village}} village</b-card-title>
-          <hr />
-          <b-table
-            id="village-reports"
-            :items="generateVillage"
-            :fields="table.fields"
-            :busy.sync="state.generating"
-            :key="'village-'+table.key"
-            v-if="state.generate"
-            small
-            bordered
-            responsive
-            show-empty
-          >
-            <template v-slot:cell(unpayedAmount)="data">
-              <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
-            </template>
-            <template v-slot:cell(payedAmount)="data">
-              <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
-            </template>
-          </b-table>
-        </b-card>
-        <b-card v-if="state.error">
-          <b-card-text>{{state.errorMessage}}</b-card-text>
-        </b-card>
-      </b-collapse>
-    </b-row>
-    <b-row v-if="!state.error && downloadData" class="my-3 mr-1 justify-content-end">
-      <b-button size="sm" class="app-color" @click="downloadReport">Download Report</b-button>
-    </b-row>
+    <header class="tabTitle">village Report</header>
+    <div class="tabBody">
+      <b-row class="controls mb-3" no-gutters>
+        <b-select id="input-1" v-model="cell" :options="cellOptions" v-if="!isManager" class="br-2">
+          <template v-slot:first>
+            <option :value="null" disabled>Please select cell</option>
+          </template>
+        </b-select>
+        <b-select id="input-1" v-model="village" :options="villageOptions" class="br-2">
+          <template v-slot:first>
+            <option :value="null" disabled>Please select village</option>
+          </template>
+        </b-select>
+        <selector
+          :disabled="village?false:true"
+          :object="config"
+          :title="`Generate ${title || ''} Report`"
+          v-on:ok="generateAction"
+          class="date-selector pb-3"
+        />
+        <vue-load v-if="state.generating" label="Generating..." />
+      </b-row>
+      <b-row no-gutters v-show="!state.generating">
+        <b-collapse id="sector-report-collapse" class="w-100" v-model="state.showReport">
+          <div class="reports-card" v-if="!state.error">
+            <b-row no-gutters class="mb-2 justify-content-end">
+              <b-badge
+                variant="secondary"
+                class="p-2 font-13"
+              >Report Date: &nbsp; {{state.reportsDate}}</b-badge>
+            </b-row>
+            <h5 class="bg-dark text-uppercase">{{village || ''}} village</h5>
+            <b-table
+              id="village-reports"
+              :items="generateVillage"
+              :fields="table.fields"
+              :busy.sync="state.generating"
+              :key="'village-'+table.key"
+              v-if="state.generate"
+              small
+              bordered
+              responsive
+              show-empty
+            >
+              <template v-slot:cell(unpayedAmount)="data">
+                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+              </template>
+              <template v-slot:cell(payedAmount)="data">
+                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+              </template>
+            </b-table>
+          </div>
+          <b-card v-if="state.error">
+            <b-card-text>{{state.errorMessage}}</b-card-text>
+          </b-card>
+        </b-collapse>
+
+        <b-row v-if="canDownload" class="justify-content-end w-100 mt-3" no-gutters>
+          <b-button variant="info" class="br-2" @click="downloadReport">
+            <i class="fa fa-download mr-1" />Download Report
+          </b-button>
+        </b-row>
+      </b-row>
+    </div>
   </div>
 </template>
 
 <script>
-import { Village } from "rwanda";
 import download from "./downloadVillageReport";
 import selector from "../reportsDateSelector";
 export default {
@@ -74,7 +82,8 @@ export default {
         showReport: false,
         generate: false,
         error: false,
-        errorMessage: null
+        errorMessage: null,
+        reportsDate: null
       },
       config: {
         configuring: false,
@@ -160,6 +169,13 @@ export default {
     },
     location() {
       return this.$store.getters.location;
+    },
+    canDownload() {
+      if (!this.state.error && this.downloadData) return true;
+      return false;
+    },
+    months() {
+      return this.$store.getters.getMonths;
     }
   },
   watch: {
@@ -185,6 +201,7 @@ export default {
       this.state.generating = true;
       const year = this.config.year;
       const month = this.config.month;
+      this.state.reportsDate = `${this.months[month - 1]}, ${year}`;
       const first = this.axios.get(
         `/metrics/ratios/villages/${this.village}?year=${year}&month=${month}`
       );
@@ -218,7 +235,7 @@ export default {
     },
     downloadReport() {
       if (!this.state.generating && this.downloadData != null) {
-        download(this.downloadData, this.village);
+        download(this.downloadData, this.village, this.state.reportsDate);
       }
     },
     clear() {
@@ -228,6 +245,7 @@ export default {
       this.state.error = false;
       this.state.errorMessage = null;
       this.downloadData = null;
+      this.state.reportsDate = null;
     }
   }
 };
@@ -235,24 +253,24 @@ export default {
 
 <style lang="scss">
 #village-reports {
-  & > header {
-    text-align: center;
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #384950;
-  }
   .controls {
     display: flex;
     flex-direction: column;
 
-    select {
+    & > select {
       max-width: 500px;
       margin: 0 auto 1.5rem;
     }
 
-    .date-selector > button {
-      max-width: 500px;
-      margin: auto;
+    .date-selector {
+      & > button {
+        max-width: 500px;
+        margin: auto;
+        border-radius: 2px;
+      }
+      .dropdown-menu {
+        max-width: 250px;
+      }
     }
   }
 }

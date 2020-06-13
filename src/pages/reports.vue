@@ -1,25 +1,22 @@
 <template>
   <b-container class="reports-page h-100" fluid>
     <vue-title title="Paypack | Reports" />
-    <b-card no-body class="mh-100">
+    <b-card no-body class="mh-100 h-100">
       <b-tabs
         pills
         card
         vertical
         lazy
-        class="reports-tabs text-uppercase flex-nowrap mh-100 overflow-auto"
-        content-class="secondary-font overflow-auto reports-content"
+        class="reports-tabs mh-100 h-100 secondary-font"
+        content-class=" reports-content"
+        active-tab-class="h-100 p-0"
         active-nav-item-class="app-color text-white"
         nav-class="report-navs"
       >
         <b-tab title="PAYMENT REPORTS">
           <payment-reports />
         </b-tab>
-        <b-tab
-          v-if="user.role.toLowerCase() =='admin' || user.role.toLowerCase() =='dev'"
-          title="SECTOR REPORTS"
-          active
-        >
+        <b-tab v-if="isAdmin" title="SECTOR REPORTS" active>
           <sector-reports />
         </b-tab>
         <b-tab title="CELL REPORTS">
@@ -62,6 +59,9 @@ export default {
   computed: {
     user() {
       return this.$store.getters.userDetails;
+    },
+    isAdmin() {
+      return this.user.role === "admin" ? true : false;
     }
   }
 };
@@ -70,12 +70,51 @@ export default {
 <style lang="scss">
 .reports-page {
   min-width: 500px;
-  padding: 2rem 1rem 1rem;
+  padding: 3rem;
 
+  .reports-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow: auto;
+    text-transform: uppercase;
+
+    header.tabTitle {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #384950;
+      padding: 1rem;
+      z-index: 100;
+      background: white;
+      border-bottom: 1px solid #e5e5e5;
+      position: sticky;
+      top: 0;
+    }
+    .tabBody {
+      margin: 0;
+      width: 100%;
+      padding: 1rem;
+
+      .reports-card {
+        & > h5 {
+          padding: 0.5rem 0;
+          font-size: 1rem;
+          font-weight: bold;
+          margin: 0;
+          color: white;
+          text-align: center;
+        }
+        table {
+          min-width: max-content;
+        }
+      }
+    }
+  }
   .report-navs {
     a.nav-link {
       color: #017db3;
       margin: 1px 0;
+      border-radius: 2px;
       transition-duration: 200ms;
       transition-timing-function: ease-in-out;
       &:hover {
@@ -86,6 +125,7 @@ export default {
   }
 
   .reports-content {
+    overflow: auto;
     .active {
       transition: all 500ms;
     }

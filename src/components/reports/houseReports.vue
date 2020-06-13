@@ -1,84 +1,88 @@
 <template>
   <div id="house-report">
-    <header>House Report</header>
-    <hr class="m-0 mt-1 mb-4" />
-    <b-row class="controls">
-      <b-input v-model="houseId" placeholder="Enter House ID..." class="text-uppercase mt-3" />
-      <b-button
-        variant="info"
-        :disabled="houseId?false:true"
-        class="my-4"
-        @click="generate"
-      >Generate House Report</b-button>
-    </b-row>
-    <b-row class="m-0 justify-content-center text-capitalize">
-      <vue-load v-if="state.generating" label="Generating..." />
-      <b-collapse id="housereport-collapse" v-model="state.showReport">
-        <b-table-simple hover bordered small caption-top responsive v-if="userDetails">
-          <caption>Details of {{userDetails.owner.fname+' '+userDetails.owner.lname}}:</caption>
-          <b-tbody>
-            <b-tr>
-              <b-th>Names</b-th>
-              <b-td>{{userDetails.owner.fname+' '+userDetails.owner.lname}}</b-td>
-            </b-tr>
-            <b-tr>
-              <b-th>Phone Number</b-th>
-              <b-td>{{userDetails.owner.phone}}</b-td>
-            </b-tr>
-            <b-tr>
-              <b-th>House ID</b-th>
-              <b-td>{{userDetails.id}}</b-td>
-            </b-tr>
-            <b-tr>
-              <b-th>Location</b-th>
-              <b-td>{{userDetails.address.sector+', '+userDetails.address.cell+', '+userDetails.address.village}}</b-td>
-            </b-tr>
-            <b-tr>
-              <b-th>Amount</b-th>
-              <b-td>{{userDetails.due | number}} Rwf</b-td>
-            </b-tr>
-            <b-tr>
-              <b-th>For Rent</b-th>
-              <b-td>{{userDetails.occupied?userDetails.occupied?"Yes":"No":'No'}}</b-td>
-            </b-tr>
-            <b-tr>
-              <b-th>Registered by</b-th>
-              <b-td style="text-transform: none;">{{userDetails.recorded_by}}</b-td>
-            </b-tr>
-            <b-tr>
-              <b-th>Registered on</b-th>
-              <b-td>{{userDetails.created_at | date}}</b-td>
-            </b-tr>
-          </b-tbody>
-        </b-table-simple>
-      </b-collapse>
-    </b-row>
-    <b-row class="justify-content-center text-capitalize">
-      <vue-load v-if="state.generatingP" label="Generating..." />
-      <b-collapse id="PaymentReport-collapse" class="flex-grow-1 mx-3" v-model="state.showPayment">
-        <b-table-simple hover bordered small caption-top responsive v-if="paymentDetails">
-          <caption>Payment History of {{userDetails.owner.fname+' '+userDetails.owner.lname}}:</caption>
-          <b-tbody>
-            <b-tr>
-              <b-th>Month</b-th>
-              <b-td>Status</b-td>
-            </b-tr>
-            <b-tr v-for="(item,index) in paymentDetails" :key="index">
-              <b-th>{{item.created_at | date}}</b-th>
-              <b-td>{{item.status=="pending"?'Not Paid':'Paid'}}</b-td>
-            </b-tr>
-          </b-tbody>
-        </b-table-simple>
-      </b-collapse>
-    </b-row>
-    <b-row class="justify-content-end mx-1" v-if="paymentDetails">
-      <b-button
-        size="sm"
-        variant="info"
-        class="font-14 border-0 my-3"
-        @click="download"
-      >Download Report</b-button>
-    </b-row>
+    <header class="tabTitle">House Report</header>
+    <div class="tabBody">
+      <b-row class="controls" no-gutters>
+        <b-input
+          v-model="houseId"
+          placeholder="Enter House ID..."
+          class="text-uppercase mt-3 br-2"
+        />
+        <b-button
+          variant="info"
+          :disabled="houseId?false:true"
+          class="my-4 br-2"
+          @click="generate"
+        >Generate House Report</b-button>
+        <vue-load v-if="state.generating" label="Generating..." />
+      </b-row>
+      <b-row class="m-0 justify-content-center text-capitalize" no-gutters>
+        <b-collapse id="housereport-collapse" v-model="state.showReport">
+          <b-table-simple hover bordered small caption-top responsive v-if="userDetails">
+            <caption>Details of {{userDetails.owner.fname+' '+userDetails.owner.lname}}:</caption>
+            <b-tbody>
+              <b-tr>
+                <b-th>Names</b-th>
+                <b-td>{{userDetails.owner.fname+' '+userDetails.owner.lname}}</b-td>
+              </b-tr>
+              <b-tr>
+                <b-th>Phone Number</b-th>
+                <b-td>{{userDetails.owner.phone}}</b-td>
+              </b-tr>
+              <b-tr>
+                <b-th>House ID</b-th>
+                <b-td>{{userDetails.id}}</b-td>
+              </b-tr>
+              <b-tr>
+                <b-th>Location</b-th>
+                <b-td>{{userDetails.address.sector+', '+userDetails.address.cell+', '+userDetails.address.village}}</b-td>
+              </b-tr>
+              <b-tr>
+                <b-th>Amount</b-th>
+                <b-td>{{userDetails.due | number}} Rwf</b-td>
+              </b-tr>
+              <b-tr>
+                <b-th>For Rent</b-th>
+                <b-td>{{userDetails.occupied?userDetails.occupied?"Yes":"No":'No'}}</b-td>
+              </b-tr>
+              <b-tr>
+                <b-th>Registered by</b-th>
+                <b-td style="text-transform: none;">{{userDetails.recorded_by}}</b-td>
+              </b-tr>
+              <b-tr>
+                <b-th>Registered on</b-th>
+                <b-td>{{userDetails.created_at | date}}</b-td>
+              </b-tr>
+            </b-tbody>
+          </b-table-simple>
+        </b-collapse>
+      </b-row>
+      <b-row class="justify-content-center text-capitalize">
+        <vue-load v-if="state.generatingP" label="Generating..." />
+        <b-collapse
+          id="PaymentReport-collapse"
+          class="flex-grow-1 mx-3"
+          v-model="state.showPayment"
+        >
+          <b-table-simple hover bordered small caption-top responsive v-if="paymentDetails">
+            <caption>Payment History of {{userDetails.owner.fname+' '+userDetails.owner.lname}}:</caption>
+            <b-tbody>
+              <b-tr>
+                <b-th>Month</b-th>
+                <b-td>Status</b-td>
+              </b-tr>
+              <b-tr v-for="(item,index) in paymentDetails" :key="index">
+                <b-th>{{item.created_at | date}}</b-th>
+                <b-td>{{item.status=="pending"?'Not Paid':'Paid'}}</b-td>
+              </b-tr>
+            </b-tbody>
+          </b-table-simple>
+        </b-collapse>
+      </b-row>
+      <b-row class="justify-content-end" v-if="paymentDetails" no-gutters>
+        <b-button variant="info" @click="download">Download Report</b-button>
+      </b-row>
+    </div>
   </div>
 </template>
 

@@ -2,7 +2,7 @@ import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-function download(data, village) {
+function download(data, village, date) {
   var document = {
     content: [
       {
@@ -64,7 +64,7 @@ function download(data, village) {
       color: "#232323"
     }
   };
-  pdfMake.createPdf(document).download(`${village} Report.pdf`);
+  pdfMake.createPdf(document).download(`${village} Report of ${date}.pdf`);
 }
 
 export default download;
