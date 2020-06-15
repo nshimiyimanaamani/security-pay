@@ -162,16 +162,19 @@
     ></b-pagination>
     <add-property
       :show="addProperty.show"
-      v-on:closeModal="addProperty.show =false"
-      v-on:refresh="loadData()"
+      @closeModal="addProperty.show =false"
+      @added="propertyAdded"
     />
-    <b-modal id="updateModal" v-model="updateModal.show" hide-footer>
-      <template v-slot:modal-title>Modify House</template>
+    <b-modal id="updateModal" v-model="updateModal.show" hide-footer body-class="px-4 py-3">
+      <template v-slot:modal-title>
+        <header class="secondary-font">Modify House</header>
+      </template>
       <update-house
         v-if="updateModal.show"
         :item="updateModal.item"
         :option="updateModal.option"
-        v-on:closeModal="closeUpdateModal"
+        @closeModal="closeUpdateModal"
+        @updated="state.reloadData=true"
       />
     </b-modal>
     <vue-menu
@@ -179,13 +182,13 @@
       :options="rightMenu.options"
       :ref="'rightMenu'"
       @option-clicked="showContextMenu"
-    ></vue-menu>
+    />
 
     <message
       :phones="message.sendTo"
       v-if="message.show"
-      v-on:modal-closed="message.show= false"
-      v-on:sent="messageSent"
+      @modal-closed="closeModal('message')"
+      @sent="messageSent"
     />
   </b-container>
 </template>
@@ -212,7 +215,8 @@ export default {
       filteredData: [],
       addProperty: { show: false },
       state: {
-        changedLocation: false
+        changedLocation: false,
+        reloadData: false
       },
       selected: null,
       width: 0,
@@ -363,7 +367,13 @@ export default {
     async loadData() {
       this.loading.request = true;
 
-      if (this.development) {
+      var promise = await this.getUrl();
+      const total = await this.$getTotal(`${promise}0`);
+
+      if (total)
+        if (total !== this.originalData.length) this.state.reloadData = true;
+
+      if (this.state.reloadData === false) {
         const properties = JSON.parse(localStorage.getItem("Properties"));
         if (properties && properties.length > 0) {
           this.filteredData = properties;
@@ -374,33 +384,45 @@ export default {
         }
       }
 
-      var promise = await this.getUrl();
-      const total = await this.$getTotal(`${promise}0`);
       this.axios
         .get(promise + `${total}`)
         .then(res => {
           this.filteredData = res.data.Properties;
           this.originalData = Object.freeze(res.data.Properties);
-          this.pagination.totalRows = this.originalData.length;
+          this.pagination.totalRows = res.data.Properties.length;
           this.filterByLocation();
-
-          if (this.development) {
-            localStorage.clear();
-            localStorage.setItem(
-              "Properties",
-              JSON.stringify(res.data.Properties)
-            );
-          }
+          localStorage.removeItem("Properties");
+          localStorage.setItem(
+            "Properties",
+            JSON.stringify(res.data.Properties)
+          );
+          this.loading.request = false;
+          this.state.reloadData = false;
         })
         .catch(err => {
-          const error = err.response
-            ? err.response.data.error || err.response.data
-            : null;
-          if (error) this.$snotify.error(error);
-        })
-        .finally(() => {
+          const properties = JSON.parse(localStorage.getItem("Properties"));
+          if (properties && properties.length > 0) {
+            this.filteredData = properties;
+            this.originalData = Object.freeze(properties);
+            this.filterByLocation();
+            this.$snotify.error(
+              "Failed to retrieve data from database! showing outdated Data"
+            );
+          } else {
+            try {
+              this.$snotify.error(err.response.data.error || err.response.data);
+            } catch {
+              this.$snotify.error(
+                "Failed to load data from database! check your connectivity and try again"
+              );
+            }
+          }
           this.loading.request = false;
         });
+    },
+    propertyAdded() {
+      this.state.reloadData = true;
+      this.loadData();
     },
     filterByName(name) {
       if (!name) return this.originalData;
@@ -444,7 +466,6 @@ export default {
         }
       });
     },
-
     downloadList() {
       download(this.filteredData, this.selected);
     },
@@ -460,24 +481,34 @@ export default {
       } else if (data.option.slug == "delete") {
         this.deleteHouse(data.item);
       } else if (data.option.slug == "send") {
-        this.message.sendTo.push(data.item.owner.phone);
+        this.message.sendTo = [data.item.owner.phone];
         this.message.show = true;
       }
     },
     deleteHouse(house) {
-      const message = `Do you want to delete this house? Names: ${house.owner.fname} ${house.owner.lname}  ID: ${house.id}`;
+      const el = this.$createElement;
+      const messageNode = el(
+        "ul",
+        { class: "list-style-none p-0 text-center" },
+        [
+          el("li", { class: "mb-2" }, [
+            `Names: ${house.owner.fname} ${house.owner.lname}`
+          ]),
+          el("li", { class: "mb-2" }, [`HouseId: ${house.id}`])
+        ]
+      );
+      const message = `Names: ${house.owner.fname} ${house.owner.lname}  ID: ${house.id}`;
 
       this.$bvModal
-        .msgBoxConfirm(message, {
-          title: "Delete Property?",
-          size: "sm",
+        .msgBoxConfirm(messageNode, {
+          title: "Confirm to delete this house?",
           buttonSize: "sm",
           okVariant: "danger",
-          okTitle: "Delete",
+          okTitle: "yes! delete",
           cancelTitle: "NO",
           footerClass: "p-2",
-          hideHeaderClose: false,
-          centered: true
+          contentClass: "secondary-font",
+          hideHeaderClose: false
         })
         .then(value => {
           if (value === true) {
@@ -485,7 +516,7 @@ export default {
             this.axios
               .delete("/properties/" + house.id)
               .then(res => {
-                console.log(res.data);
+                this.state.reloadData = true;
                 this.$snotify.info("House deleted successfully");
                 this.loadData();
               })
@@ -494,7 +525,11 @@ export default {
                   ? err.response.data.error || err.response.data
                   : null;
                 this.loading.request = false;
-                if (error) this.$snotify.error(error);
+                try {
+                  this.$snotify.error(error);
+                } catch {
+                  this.$snotify.error("Failed to delete House");
+                }
               });
           }
         })
@@ -509,11 +544,16 @@ export default {
       this.loadData();
       this.updateModal.show = false;
     },
+    closeModal(name) {
+      if (name == "message") {
+        this.message.sendTo = [];
+        this.message.show = false;
+      }
+    },
     messageSent() {
       this.message.show = false;
       this.message.sendTo = [];
     },
-
     async clearFilter() {
       await this.$refs.dropdown.hide(true);
       this.select.village = null;

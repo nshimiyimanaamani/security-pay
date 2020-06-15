@@ -101,8 +101,11 @@ form input {
 }
 .vue-menu {
   position: fixed !important;
-  font-size: 15px !important;
-  font-family: "Roboto", sans-serif !important;
+  font-family: "Montserrat", Arial, Helvetica, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", "Noto Sans", sans-serif !important;
+}
+.list-style-none{
+  list-style: none;
 }
 .vue-slider-rail {
   background-color: #ccc;
@@ -184,7 +187,8 @@ button {
   z-index: 1000000;
   background-color: #ecf0f1;
   border-bottom-width: 0;
-  font-family: "Roboto", "Ubuntu", "Helvetica Neue", sans-serif;
+  font-family: "Montserrat", Arial, Helvetica, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", "Noto Sans", sans-serif;
   box-shadow: 0 3px 6px 0 rgba(51, 51, 51, 0.2);
   border-radius: 4px;
 }
@@ -199,7 +203,7 @@ button {
   align-items: center;
 }
 .vue-menu__item:hover {
-  background-color: #007aff;
+  background-color: #017db3 !important;
   color: #fff;
 }
 .vue-menu li:first-of-type {

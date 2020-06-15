@@ -1,5 +1,5 @@
 <template>
-  <b-container class="accounts-page">
+  <b-container class="accounts-page h-100" fluid>
     <vue-title title="Paypack | create accounts" />
     <header class="secondary-font">ACCOUNT REGISTRATION</header>
     <b-card no-body class="nav-controls">
@@ -8,10 +8,11 @@
         card
         vertical
         lazy
-        class="text-uppercase secondary-font"
-        content-class="text-capitalize secondary-font"
+        class="text-uppercase secondary-font flex-nowrap h-100"
+        content-class="text-capitalize"
         nav-wrapper-class="accounts-nav"
         active-nav-item-class="app-color text-white"
+        active-tab-class="h-100 p-0"
       >
         <b-tab title="Agents Accounts" active>
           <add-agent />
@@ -86,13 +87,17 @@ export default {
 
 <style lang="scss">
 .accounts-page {
+  padding-top: 1rem;
+  padding-bottom: 2rem;
   header {
     font-size: 1.25rem;
     width: 100%;
     text-align: center;
-    margin-bottom: 2rem;
-    margin-top: 0.5rem;
+    height: 50px;
     font-weight: 700;
+  }
+  .nav-controls {
+   height: calc(100% - 50px);
   }
   .accounts-nav {
     .nav-item {

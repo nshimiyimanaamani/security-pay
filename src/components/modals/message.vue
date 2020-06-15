@@ -1,61 +1,61 @@
 <template>
-  <b-modal @hidden="modalClosed" v-model="show" size="sm" class="mt-3" hide-footer>
-    <template v-slot:modal-title>Send Text Message</template>
-    <div class="message-wrapper px-2">
-      <b-row class="align-items-baseline">
-        <p>Phone Number:</p>
-        <b-badge v-for="(phone,i) in phones" :key="i" class="align-items-baseline d-flex p-1 m-1">
-          <b-card-text class="m-0">{{phone}}</b-card-text>
-          <!-- <b-button size="sm" class="ml-2 p-1 rounded-circle bg-white close-button">
-            <i class="fa fa-times text-black-50" />
-          </b-button>-->
-        </b-badge>
-      </b-row>
-      <b-row class="mt-3">
-        <textarea
-          v-model="message"
-          class="rounded w-100"
-          rows="5"
-          placeholder="Enter your message..."
-        ></textarea>
-      </b-row>
-      <b-row>
-        <b-button
-          @click.prevent="send"
-          size="sm"
-          class="mt-3 ml-auto position-relative"
-          variant="info"
-          :disabled="message? false : true"
-        >
-          Send
-          <div class="loading-spinner" v-show="state.sending">
-            <b-spinner variant="black" small />
-          </div>
-          <i class="fa fa-paper-plane" />
-        </b-button>
-      </b-row>
-    </div>
+  <b-modal
+    @hidden="$emit('modal-closed')"
+    v-model="state.show"
+    content-class="secondary-font"
+    body-class="px-4 py-3 message-wrapper"
+    hide-footer
+  >
+    <template v-slot:modal-title>
+      <h4 class="m-0">Send Text Message</h4>
+    </template>
+    <b-row class="align-items-end" no-gutters>
+      <p class="m-0">Phone Number:</p>
+      <b-badge v-for="(phone,i) in phones" :key="i" class="align-items-baseline d-flex p-2 ml-2">
+        <b-card-text class="m-0">{{phone}}</b-card-text>
+      </b-badge>
+    </b-row>
+    <b-row class="mt-4" no-gutters>
+      <textarea
+        v-model="message"
+        class="w-100 p-2 rounded"
+        rows="10"
+        placeholder="Enter your message..."
+      ></textarea>
+    </b-row>
+    <b-row class="justify-content-end" no-gutters>
+      <b-button @click="send" class="mt-4 br-2 px-4" variant="info" :disabled="disableBtn">
+        {{ state.sending ? 'Sending' : "Send" }}
+        <i
+          class="fa fa-spinner fa-spin"
+          v-show="state.sending"
+        />
+        <i class="fa fa-paper-plane" v-show="!state.sending" />
+      </b-button>
+    </b-row>
   </b-modal>
 </template>
 
 <script>
-import loader from "../loader";
 export default {
   name: "message-component",
-  components: {
-    loader
-  },
   props: {
     phones: Array
   },
   data() {
     return {
-      show: true,
       message: null,
       state: {
-        sending: false
+        sending: false,
+        show: true
       }
     };
+  },
+  computed: {
+    disableBtn() {
+      if (this.message === null || this.state.sending === true) return true;
+      return false;
+    }
   },
   methods: {
     send() {
@@ -66,21 +66,16 @@ export default {
           recipients: this.phones
         })
         .then(res => {
-          this.$snotify.info("Message Sent!");
+          this.$snotify.info(`Message sent to ${this.phones[0]}`);
           this.$emit("sent");
+          this.show = false;
+          this.state.sending = false;
         })
         .catch(err => {
-          this.$snotify.error("Message not sent!");
-        })
-        .finally(() => {
+          console.log(err, err.request, err.response);
+          this.$snotify.error("Failed to send message! try again later");
           this.state.sending = false;
         });
-    },
-    modalClosed() {
-      this.$emit("modal-closed");
-      this.message = null;
-      this.phones = [];
-      this.state.sending = false;
     }
   }
 };

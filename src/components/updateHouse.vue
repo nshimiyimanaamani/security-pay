@@ -1,119 +1,107 @@
 <template>
-  <b-row class="justify-content-center">
-    <b-form class="px-3 w-100">
-      <b-row>
-        <b-col>
-          <b-form-group id="input-group-1" label="First name:" label-for="input-1">
-            <b-form-input
-              id="input-1"
-              v-model="house.owner.fname"
-              required
-              placeholder="First name..."
-              size="sm"
-            ></b-form-input>
-          </b-form-group>
-        </b-col>
-        <b-col>
-          <b-form-group id="input-group-2" label="Last name:" label-for="input-2">
-            <b-form-input
-              id="input-2"
-              v-model="house.owner.lname"
-              required
-              placeholder="Last name..."
-              size="sm"
-            ></b-form-input>
-          </b-form-group>
-        </b-col>
-      </b-row>
-      <b-form-group id="input-group-3" label="Phone Number" label-for="input-3">
-        <b-form-input
-          size="sm "
-          id="input-3"
-          v-model="house.owner.phone"
-          placeholder="Phone Number..."
-          required
-        />
-      </b-form-group>
-      <b-form-group label="Irakodeshwa ?">
-        <b-form-radio-group v-model="rented" :options="query" name="radio-stacked" size="sm"></b-form-radio-group>
-      </b-form-group>
-      <b-form-group id="input-group-4" label-for="range-1" class="mb-4">
-        <template v-slot:label>
-          <b-row class="m-o align-items-center px-3">
-            Due:
-            <b-input
-              v-model="house.due"
-              required
-              step="500"
-              min="500"
-              size="sm"
-              type="number"
-              class="w-auto mx-1"
-            />Rwf
-          </b-row>
-        </template>
-        <div>
-          <vue-slider
+  <b-form class="secondary-font" @submit.prevent="update">
+    <b-row class="pb-1">
+      <b-col>
+        <b-form-group label="First name:">
+          <b-form-input
+            v-model="house.owner.fname"
+            required
+            placeholder="First name..."
+            class="br-2"
+          />
+        </b-form-group>
+      </b-col>
+      <b-col>
+        <b-form-group label="Last name:">
+          <b-form-input
+            v-model="house.owner.lname"
+            required
+            placeholder="Last name..."
+            class="br-2"
+          />
+        </b-form-group>
+      </b-col>
+    </b-row>
+    <b-form-group label="Phone Number" class="pb-1">
+      <b-form-input
+        v-model="house.owner.phone"
+        placeholder="Phone Number..."
+        required
+        class="br-2"
+      />
+    </b-form-group>
+    <b-form-group label="House is Rented?" class="pb-3">
+      <b-form-radio-group v-model="rented" :options="query" />
+    </b-form-group>
+    <b-form-group class="pb-4">
+      <template v-slot:label>
+        <b-row class="align-items-center" no-gutters>
+          Due:
+          <b-input
             v-model="house.due"
-            :marks="slider.marks"
-            :interval="500"
-            :process="true"
-            :tooltip="'none'"
-            :min="500"
-            :max="50000"
-          >
-            <template v-slot:label="{ active, value }">
-              <div :class="['vue-slider-mark-label', 'custom-label', { active }]">{{ value/1000 }}K</div>
-            </template>
-          </vue-slider>
-        </div>
-      </b-form-group>
-
-      <b-form-group
-        id="input-group-5"
-        :label="'Cell: '+house.address.cell.toUpperCase()"
-        label-class="font-14"
-        label-for="select-5"
-      >
-        <b-form-select
-          id="select-5"
-          class="font-14"
-          :options="cellOptions"
-          v-model="newAddress.cell"
-          size="sm"
+            required
+            step="500"
+            min="500"
+            size="sm"
+            type="number"
+            class="w-auto mx-1"
+          />Rwf
+        </b-row>
+      </template>
+      <div>
+        <vue-slider
+          v-model="house.due"
+          :marks="slider.marks"
+          :interval="500"
+          :process="true"
+          :tooltip="'none'"
+          :min="500"
+          :max="50000"
         >
-          <template v-slot:first>
-            <option :value="null" disabled>select new cell</option>
+          <template v-slot:label="{ active, value }">
+            <div :class="['vue-slider-mark-label', 'custom-label', { active }]">{{ value/1000 }}K</div>
           </template>
-        </b-form-select>
-      </b-form-group>
+        </vue-slider>
+      </div>
+    </b-form-group>
 
-      <b-form-group
-        id="input-group-7"
-        :label="'village: '+house.address.village.toUpperCase()"
-        label-for="input-7"
-        label-class="font-14"
-      >
-        <b-form-select
-          id="input-7"
-          v-model="newAddress.village"
-          :options="villageOptions"
-          size="sm"
-          class="font-14"
-        >
-          <template v-slot:first>
-            <option :value="null" disabled>select new village</option>
-          </template>
-        </b-form-select>
-      </b-form-group>
-      <b-form-group class="m-0">
-        <b-button variant="info" class="float-right" @click.prevent="update">
-          {{state.updating ? 'Updating' : "Update"}}
-          <b-spinner v-show="state.updating" small type="grow"></b-spinner>
-        </b-button>
-      </b-form-group>
-    </b-form>
-  </b-row>
+    <b-form-group class="pb-2">
+      <template v-slot:label>
+        <label class="m-0 d-flex justify-content-between">
+          Cell
+          <b-badge class="p-2">{{house.address.cell.toUpperCase()}}</b-badge>
+        </label>
+      </template>
+      <b-form-select :options="cellOptions" v-model="newAddress.cell" class="br-2">
+        <template v-slot:first>
+          <option :value="null" disabled>select new cell</option>
+        </template>
+      </b-form-select>
+    </b-form-group>
+
+    <b-form-group class="pb-2">
+      <template v-slot:label>
+        <label class="m-0 d-flex justify-content-between">
+          Village
+          <b-badge class="p-2">{{house.address.village.toUpperCase()}}</b-badge>
+        </label>
+      </template>
+      <b-form-select v-model="newAddress.village" :options="villageOptions" class="br-2">
+        <template v-slot:first>
+          <option :value="null" disabled>select new village</option>
+        </template>
+      </b-form-select>
+    </b-form-group>
+    <b-row class="d-flex justify-content-end" no-gutters>
+      <b-button variant="info" type="submit" class="br-2">
+        {{state.updating ? 'Updating' : "Update"}}
+        <i
+          v-show="state.updating"
+          class="fa fa-spinner fa-spin"
+        />
+      </b-button>
+    </b-row>
+  </b-form>
 </template>
 
 <script>
@@ -199,23 +187,28 @@ export default {
             })
             .then(response => {
               this.$snotify.info(response.data.message);
+              this.state.updating = false;
+              this.$emit("updated");
+              this.$emit("closeModal");
             })
             .catch(err => {
-              const error = err.response
-                ? err.response.data.message || err.response.data
-                : null;
-              if (error) this.$snotify.error(error);
-            })
-            .finally(() => {
+              try {
+                this.$snotify.error(
+                  err.response.data.message || err.response.data
+                );
+              } catch {
+                this.$snotify.error("Failed to update property");
+              }
               this.state.updating = false;
               this.$emit("closeModal");
             });
         })
         .catch(err => {
-          const error = err.response
-            ? err.response.data.message || err.response.data
-            : null;
-          if (error) this.$snotify.error(error);
+          try {
+            this.$snotify.error(err.response.data.message || err.response.data);
+          } catch {
+            this.$snotify.error("Failed to update owner");
+          }
           this.state.updating = false;
           this.$emit("closeModal");
         });

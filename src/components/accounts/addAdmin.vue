@@ -32,11 +32,10 @@
     <b-tab title="List all Admins">
       <b-table
         id="Dev-table"
-        bordered
         hover
         small
-        responsive
         show-empty
+        sticky-header
         head-variant="light"
         thead-class="text-uppercase"
         :items="loadData"
@@ -219,12 +218,12 @@ export default {
 .addAdmin {
   .accountForm {
     width: auto;
-    border: 1px solid #dee2e6;
+    border: 1px solid #fff;
     border-radius: 2px;
     padding: 1rem;
 
     & > .form-group {
-      max-width: 300px;
+      max-width: 500px;
       margin: auto;
       margin-bottom: 1rem;
     }
