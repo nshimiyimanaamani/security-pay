@@ -14,6 +14,7 @@ type Property struct {
 	Address    Address   `json:"address,omitempty"`
 	Occupied   bool      `json:"occupied,omitempty"`
 	ForRent    bool      `json:"for_rent,omitempty"`
+	Namespace  string    `json:"namespace"`
 	RecordedBy string    `json:"recorded_by,omitempty"`
 	CreatedAt  time.Time `json:"created_at,omitempty"`
 	UpdatedAt  time.Time `json:"updated_at,omitempty"`
@@ -65,15 +66,19 @@ func (prt *Property) Validate() error {
 	if prt.RecordedBy == "" {
 		return errors.E(op, "invalid property: missing recording agent", errors.KindBadRequest)
 	}
+	if prt.Namespace == "" {
+		return errors.E(op, "invalid property: missing namespace tag", errors.KindBadRequest)
+	}
 	return nil
 }
 
 //Owner defines a property owner
 type Owner struct {
-	ID    string `json:"id,omitempty"`
-	Fname string `json:"fname,omitempty"`
-	Lname string `json:"lname,omitempty"`
-	Phone string `json:"phone,omitempty"`
+	ID        string `json:"id,omitempty"`
+	Fname     string `json:"fname,omitempty"`
+	Lname     string `json:"lname,omitempty"`
+	Phone     string `json:"phone,omitempty"`
+	Namespace string `json:"namespace,omitempty"`
 }
 
 //OwnerPage ist of owners

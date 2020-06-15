@@ -541,6 +541,55 @@ func migrateDB(db *sql.DB) error {
 					`,
 				},
 			},
+			{
+				Id: "009_drop_accounts_sector_fk_contraint",
+				Up: []string{
+					`ALTER TABLE accounts DROP CONSTRAINT accounts_id_fkey;`,
+				},
+			},
+			{
+				Id: "010_alter_all_add_namespace",
+				Up: []string{
+					`ALTER TABLE properties 
+						ADD COLUMN namespace VARCHAR(254) NOT NULL default 'kigali.gasabo.remera';`,
+
+					`ALTER TABLE properties
+						ADD FOREIGN KEY(namespace) REFERENCES accounts(id) ON UPDATE CASCADE ON DELETE CASCADE;`,
+				},
+			},
+			{
+				Id: "011_alter_users_password_from_varch_to_text",
+				Up: []string{
+					`ALTER TABLE users ALTER COLUMN password TYPE TEXT;`,
+				},
+			},
+			{
+				Id: "012_alter_table_owners_add_namespace",
+				Up: []string{
+					`ALTER TABLE owners 
+						ADD COLUMN namespace VARCHAR(254) NOT NULL default 'kigali.gasabo.remera';`,
+
+					`ALTER TABLE owners
+						ADD FOREIGN KEY(namespace) REFERENCES accounts(id) ON UPDATE CASCADE ON DELETE CASCADE;`,
+				},
+			},
+			{
+				Id: "013_alter_table_owners_drop_namespace",
+				Up: []string{
+					`ALTER TABLE owners DROP  CONSTRAINT owners_namespace_fkey`,
+					`ALTER TABLE owners DROP COLUMN namespace`,
+				},
+			},
+			{
+				Id: "014_alter_table_transactions_add_namespace",
+				Up: []string{
+					`ALTER TABLE transactions 
+						ADD COLUMN namespace VARCHAR(254) NOT NULL default 'kigali.gasabo.remera';`,
+
+					`ALTER TABLE transactions
+						ADD FOREIGN KEY(namespace) REFERENCES accounts(id) ON UPDATE CASCADE ON DELETE CASCADE;`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

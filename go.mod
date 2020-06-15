@@ -31,9 +31,8 @@ require (
 	github.com/hashicorp/raft v1.1.2 // indirect
 	github.com/hibiken/asynq v0.7.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/lib/pq v1.3.0
-	github.com/marianogappa/sqlparser v0.0.0-20190512194142-a82c3f44d2fc // indirect
-	github.com/matoous/go-nanoid v1.1.0
+	github.com/lib/pq v1.6.0
+	github.com/matoous/go-nanoid v1.3.0
 	github.com/matryer/is v1.3.0
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
@@ -44,13 +43,14 @@ require (
 	github.com/rubenv/sql-migrate v0.0.0-20200212082348-64f95ea68aa3
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/satori/go.uuid v1.2.0
-	github.com/sirupsen/logrus v1.4.2
-	github.com/stretchr/testify v1.5.1
+	github.com/sirupsen/logrus v1.6.0
+	github.com/stretchr/testify v1.6.0
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
 	github.com/ttacon/libphonenumber v1.1.0
 	github.com/vmihailenco/msgpack/v4 v4.3.11
-	golang.org/x/crypto v0.0.0-20200219234226-1ad67e1f0ef4
+	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
 	google.golang.org/genproto v0.0.0-20200303153909-beee998c1893 // indirect
+	gopkg.in/redis.v5 v5.2.9
 	gotest.tools v2.2.0+incompatible // indirect
 )

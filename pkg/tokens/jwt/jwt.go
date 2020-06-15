@@ -70,16 +70,15 @@ func (idp *jwtIdentityProvider) Identity(ctx context.Context, key string) (auth.
 		return auth.Credentials{}, errors.E(op, err, "access denied: invalid token", errors.KindAccessDenied)
 	}
 
-	claims, ok := token.Claims.(Claims)
-	if ok && token.Valid {
-		creds := auth.Credentials{
-			Username: claims.Username,
-			Account:  claims.Account,
-			Role:     claims.Role,
-		}
-		return creds, nil
+	if !token.Valid {
+		return auth.Credentials{}, errors.E(op, "access denied: invalid token", errors.KindAccessDenied)
 	}
-	return auth.Credentials{}, nil
+	creds := auth.Credentials{
+		Username: claims.Username,
+		Account:  claims.Account,
+		Role:     claims.Role,
+	}
+	return creds, nil
 }
 
 func (idp *jwtIdentityProvider) jwt(claims jwt.Claims) (string, error) {

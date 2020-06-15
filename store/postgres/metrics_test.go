@@ -37,7 +37,12 @@ func TestRetrieveSectorPayRatio(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -48,6 +53,7 @@ func TestRetrieveSectorPayRatio(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  account.ID,
 		Due:        float64(1000),
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
@@ -120,7 +126,12 @@ func TestRetrieveCellPayRatio(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -131,6 +142,7 @@ func TestRetrieveCellPayRatio(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  account.ID,
 		Due:        float64(1000),
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
@@ -204,7 +216,12 @@ func TestRetrieveVillagePayRatio(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -215,6 +232,7 @@ func TestRetrieveVillagePayRatio(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  account.ID,
 		Due:        float64(1000),
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
@@ -290,7 +308,12 @@ func TestListSectorRatios(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	n := uint64(10)
@@ -304,6 +327,7 @@ func TestListSectorRatios(t *testing.T) {
 				Cell:    fmt.Sprintf("%d.%s", i, cell),
 				Village: fmt.Sprintf("%d.%s", i, village),
 			},
+			Namespace:  account.ID,
 			Due:        float64(1000),
 			RecordedBy: agent.Telephone,
 			Occupied:   true,
@@ -361,7 +385,12 @@ func TestListCellRatios(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	n := uint64(10)
@@ -375,6 +404,7 @@ func TestListCellRatios(t *testing.T) {
 				Cell:    cell,
 				Village: fmt.Sprintf("%d.%s", i, village),
 			},
+			Namespace:  account.ID,
 			Due:        float64(1000),
 			RecordedBy: agent.Telephone,
 			Occupied:   true,
@@ -429,7 +459,13 @@ func TestRetrieveSectorBalance(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
+
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -440,6 +476,7 @@ func TestRetrieveSectorBalance(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  account.ID,
 		Due:        float64(1000),
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
@@ -513,7 +550,12 @@ func TestRetrieveCellBalance(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -524,6 +566,7 @@ func TestRetrieveCellBalance(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  account.ID,
 		Due:        float64(1000),
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
@@ -596,8 +639,12 @@ func TestRetrieveVillageBalance(t *testing.T) {
 		Account:   account.ID,
 	}
 	agent = saveAgent(t, db, agent)
-
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -608,6 +655,7 @@ func TestRetrieveVillageBalance(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  account.ID,
 		Due:        float64(1000),
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
@@ -683,7 +731,12 @@ func TestListSectorBalances(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	n := uint64(10)
@@ -697,6 +750,7 @@ func TestListSectorBalances(t *testing.T) {
 				Cell:    fmt.Sprintf("%d.%s", i, cell),
 				Village: fmt.Sprintf("%d.%s", i, village),
 			},
+			Namespace:  account.ID,
 			Due:        float64(1000),
 			RecordedBy: agent.Telephone,
 			Occupied:   true,
@@ -753,7 +807,12 @@ func TestListCellBalances(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	n := uint64(10)
@@ -767,6 +826,7 @@ func TestListCellBalances(t *testing.T) {
 				Cell:    cell,
 				Village: fmt.Sprintf("%d.%s", i, village),
 			},
+			Namespace:  account.ID,
 			Due:        float64(1000),
 			RecordedBy: agent.Telephone,
 			Occupied:   true,

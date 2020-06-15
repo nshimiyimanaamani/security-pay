@@ -24,7 +24,12 @@ func TestSaveTransaction(t *testing.T) {
 
 	const op errors.Op = "store/postgres/paymentRepo.Save"
 
-	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{
+		ID:            "paypack.developers",
+		Name:          "remera",
+		NumberOfSeats: 10,
+		Type:          accounts.Devs,
+	}
 	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
@@ -40,7 +45,12 @@ func TestSaveTransaction(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -51,6 +61,7 @@ func TestSaveTransaction(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  account.ID,
 		Due:        float64(1000),
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
@@ -115,7 +126,12 @@ func TestRetrieveProperty(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	sown := saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -126,6 +142,7 @@ func TestRetrieveProperty(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  account.ID,
 		Due:        float64(1000),
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
@@ -183,7 +200,12 @@ func TestOldestInvoice(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -194,6 +216,7 @@ func TestOldestInvoice(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  account.ID,
 		Due:        float64(1000),
 		RecordedBy: agent.Telephone,
 		Occupied:   true,

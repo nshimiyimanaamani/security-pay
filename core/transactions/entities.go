@@ -1,8 +1,9 @@
 package transactions
 
 import (
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"time"
+
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
 //Transaction defines a payment made for a property(i.e house).
@@ -19,6 +20,7 @@ type Transaction struct {
 	Amount       float64   `json:"amount,omitempty"`
 	Method       string    `json:"method,omitempty"`
 	Invoice      uint64    `json:"invoice,omitempty"`
+	Namespace    string    `json:"namespace,omitempty"`
 	DateRecorded time.Time `json:"date_recorded,omitempty"`
 }
 

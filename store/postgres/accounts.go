@@ -26,9 +26,9 @@ func (repo *accountRepository) Save(ctx context.Context, acc accounts.Account) (
 			id, 
 			name, 
 			type, 
-			seats
-		) VALUES ($1, $2, $3, $4) RETURNING created_at, updated_at;`
-
+			seats 
+		) VALUES ($1, $2, $3, $4) RETURNING created_at, updated_at;
+	`
 	empty := accounts.Account{}
 
 	err := repo.QueryRow(q, acc.ID, acc.Name, acc.Type, acc.NumberOfSeats).Scan(&acc.CreatedAt, &acc.UpdatedAt)
@@ -38,8 +38,6 @@ func (repo *accountRepository) Save(ctx context.Context, acc accounts.Account) (
 			switch pqErr.Code.Name() {
 			case errDuplicate:
 				return empty, errors.E(op, err, "account already exists", errors.KindAlreadyExists)
-			case errFK:
-				return empty, errors.E(op, err, "invalid input data: sector not found", errors.KindNotFound)
 			case errInvalid, errTruncation:
 				return empty, errors.E(op, err, "invalid input data ", errors.KindBadRequest)
 			}
@@ -47,6 +45,7 @@ func (repo *accountRepository) Save(ctx context.Context, acc accounts.Account) (
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
+	//tx.Commit()
 	return acc, nil
 }
 

@@ -66,12 +66,15 @@ func Bootstrap(conf *config.Config) (http.Handler, error) {
 	r := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(false)
 
 	r.Use(mw.LogEntryMiddleware(lggr))
+	r.Use(mw.Recover())
 
 	Register(r, handlerOpts)
 
 	if conf.GoEnv == "development" {
 		r.Use(mw.RequestLogger)
 	}
+
+	//recover := handlers.RecoveryHandler()(r)
 
 	cors := handlers.CORS(
 		handlers.AllowedOrigins([]string{"*"}),

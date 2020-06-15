@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/rugwirobaker/paypack-backend/core/accounts"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/nanoid"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/core/users"
@@ -38,20 +39,27 @@ func TestSaveProperty(t *testing.T) {
 	}
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	new := properties.Property{
 		ID:         nanoid.New(nil).ID(),
 		Owner:      properties.Owner{ID: owner.ID},
+		Namespace:  account.ID,
 		Due:        float64(1000),
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
 
 	invalid := properties.Property{
-		ID:    wrongValue,
-		Owner: properties.Owner{ID: "invalid"},
+		ID:        wrongValue,
+		Owner:     properties.Owner{ID: "invalid"},
+		Namespace: account.ID,
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -111,11 +119,14 @@ func TestUpdate(t *testing.T) {
 		Role:      users.Dev,
 		Account:   account.ID,
 	}
-
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -126,15 +137,14 @@ func TestUpdate(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  account.ID,
 		Due:        float64(1000),
 		ForRent:    true,
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
 
-	ctx := context.Background()
-	sp, err := props.Save(ctx, property)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+	saved := saveProperty(t, db, property)
 
 	const op errors.Op = "store/postgres/propertiesStore.Update"
 
@@ -145,14 +155,15 @@ func TestUpdate(t *testing.T) {
 	}{
 		{
 			desc:     "update existing property",
-			property: sp,
+			property: saved,
 			err:      nil,
 		},
 		{
 			desc: "update non existant property",
 			property: properties.Property{
-				ID:    nanoid.New(nil).ID(),
-				Owner: properties.Owner{ID: uuid.New().ID()},
+				ID:        nanoid.New(nil).ID(),
+				Owner:     properties.Owner{ID: uuid.New().ID()},
+				Namespace: account.ID,
 				Address: properties.Address{
 					Sector:  "Remera",
 					Cell:    "Gishushu",
@@ -165,8 +176,9 @@ func TestUpdate(t *testing.T) {
 		{
 			desc: "update property with invalid owner",
 			property: properties.Property{
-				ID:    nanoid.New(nil).ID(),
-				Owner: properties.Owner{ID: wrongValue},
+				ID:        nanoid.New(nil).ID(),
+				Owner:     properties.Owner{ID: wrongValue},
+				Namespace: account.ID,
 				Address: properties.Address{
 					Sector:  "Remera",
 					Cell:    "Gishushu",
@@ -209,7 +221,12 @@ func TestDelete(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -220,6 +237,7 @@ func TestDelete(t *testing.T) {
 			Cell:    "Gishushu",
 			Village: "Ingabo",
 		},
+		Namespace:  account.ID,
 		Due:        float64(1000),
 		ForRent:    true,
 		RecordedBy: agent.Telephone,
@@ -276,7 +294,12 @@ func TestRetrieveByID(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	property := properties.Property{
@@ -287,6 +310,7 @@ func TestRetrieveByID(t *testing.T) {
 			Cell:    "Kanserege",
 			Village: "RukiriII",
 		},
+		Namespace:  account.ID,
 		Due:        float64(1000),
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
@@ -335,6 +359,13 @@ func TestRetrieveByOwner(t *testing.T) {
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 	account = saveAccount(t, db, account)
 
+	creds := auth.Credentials{
+		Username: "username",
+		Password: "password",
+		Role:     auth.Dev,
+		Account:  account.ID,
+	}
+
 	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
@@ -349,7 +380,12 @@ func TestRetrieveByOwner(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	sector := "Nyarugenge"
@@ -367,6 +403,7 @@ func TestRetrieveByOwner(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
+			Namespace:  account.ID,
 			Due:        float64(1000),
 			RecordedBy: agent.Telephone,
 			Occupied:   true,
@@ -409,6 +446,7 @@ func TestRetrieveByOwner(t *testing.T) {
 
 	for desc, tc := range cases {
 		ctx := context.Background()
+		ctx = auth.SetECredetialsInContext(ctx, &creds)
 		page, err := props.RetrieveByOwner(ctx, tc.owner, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
@@ -426,6 +464,13 @@ func TestRetrieveBySector(t *testing.T) {
 
 	account = saveAccount(t, db, account)
 
+	creds := &auth.Credentials{
+		Username: "username",
+		Password: "password",
+		Role:     auth.Dev,
+		Account:  account.ID,
+	}
+
 	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
@@ -440,7 +485,12 @@ func TestRetrieveBySector(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	sector := "Gasabo"
@@ -458,6 +508,7 @@ func TestRetrieveBySector(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
+			Namespace:  account.ID,
 			Due:        float64(1000),
 			RecordedBy: agent.Telephone,
 			Occupied:   true,
@@ -499,6 +550,7 @@ func TestRetrieveBySector(t *testing.T) {
 
 	for desc, tc := range cases {
 		ctx := context.Background()
+		ctx = auth.SetECredetialsInContext(ctx, creds)
 		page, err := props.RetrieveBySector(ctx, tc.sector, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
@@ -516,6 +568,13 @@ func TestRetrieveByCell(t *testing.T) {
 
 	account = saveAccount(t, db, account)
 
+	creds := &auth.Credentials{
+		Username: "username",
+		Password: "password",
+		Role:     auth.Dev,
+		Account:  account.ID,
+	}
+
 	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
@@ -530,7 +589,12 @@ func TestRetrieveByCell(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	sector := "Gasate"
@@ -548,6 +612,7 @@ func TestRetrieveByCell(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
+			Namespace:  account.ID,
 			Due:        float64(1000),
 			RecordedBy: agent.Telephone,
 			Occupied:   true,
@@ -590,6 +655,7 @@ func TestRetrieveByCell(t *testing.T) {
 
 	for desc, tc := range cases {
 		ctx := context.Background()
+		ctx = auth.SetECredetialsInContext(ctx, creds)
 		page, err := props.RetrieveByCell(ctx, tc.cell, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
@@ -607,6 +673,13 @@ func TestRetrieveByVillage(t *testing.T) {
 
 	account = saveAccount(t, db, account)
 
+	creds := &auth.Credentials{
+		Username: "username",
+		Password: "password",
+		Role:     auth.Dev,
+		Account:  account.ID,
+	}
+
 	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
@@ -621,7 +694,12 @@ func TestRetrieveByVillage(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	sector := "Kigomna"
@@ -639,6 +717,7 @@ func TestRetrieveByVillage(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
+			Namespace:  account.ID,
 			Due:        float64(1000),
 			RecordedBy: agent.Telephone,
 			Occupied:   true,
@@ -682,6 +761,7 @@ func TestRetrieveByVillage(t *testing.T) {
 
 	for desc, tc := range cases {
 		ctx := context.Background()
+		ctx = auth.SetECredetialsInContext(ctx, creds)
 		page, err := props.RetrieveByVillage(ctx, tc.village, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
@@ -699,6 +779,13 @@ func TestRetrieveByRecorder(t *testing.T) {
 
 	account = saveAccount(t, db, account)
 
+	creds := &auth.Credentials{
+		Username: "username",
+		Password: "password",
+		Role:     auth.Dev,
+		Account:  account.ID,
+	}
+
 	agent := users.Agent{
 		Telephone: random(15),
 		FirstName: "first",
@@ -713,7 +800,12 @@ func TestRetrieveByRecorder(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	sector := "Kigomna"
@@ -731,6 +823,7 @@ func TestRetrieveByRecorder(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
+			Namespace:  account.ID,
 			Due:        float64(1000),
 			RecordedBy: agent.Telephone,
 			Occupied:   true,
@@ -774,6 +867,7 @@ func TestRetrieveByRecorder(t *testing.T) {
 
 	for desc, tc := range cases {
 		ctx := context.Background()
+		ctx = auth.SetECredetialsInContext(ctx, creds)
 		page, err := props.RetrieveByRecorder(ctx, tc.user, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))

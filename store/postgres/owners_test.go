@@ -10,6 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/rugwirobaker/paypack-backend/core/accounts"
 	"github.com/rugwirobaker/paypack-backend/core/owners"
 	"github.com/rugwirobaker/paypack-backend/core/uuid"
 
@@ -31,7 +32,12 @@ func TestSaveOwner(t *testing.T) {
 
 	defer CleanDB(t, db)
 
-	new := owners.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	new := owners.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 
 	cases := []struct {
 		desc  string
@@ -67,7 +73,12 @@ func TestUpdateOwner(t *testing.T) {
 
 	defer CleanDB(t, db)
 
-	owner := owners.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := owners.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 
 	ctx := context.Background()
 	saved, err := repo.Save(ctx, owner)
@@ -108,8 +119,12 @@ func TestRetrieveOwner(t *testing.T) {
 
 	defer CleanDB(t, db)
 
-	owner := owners.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
-
+	owner := owners.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	ctx := context.Background()
 
 	saved, err := repo.Save(ctx, owner)
@@ -137,7 +152,12 @@ func TestSearch(t *testing.T) {
 
 	defer CleanDB(t, db)
 
-	owner := owners.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := owners.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 
 	ctx := context.Background()
 
@@ -222,6 +242,7 @@ func TestRetrieveAllOwners(t *testing.T) {
 
 	for desc, tc := range cases {
 		ctx := context.Background()
+
 		page, err := repo.RetrieveAll(ctx, tc.offset, tc.limit)
 		size := uint64(len(page.Owners))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
@@ -235,7 +256,20 @@ func TestRetrieveOwnerByPhone(t *testing.T) {
 
 	defer CleanDB(t, db)
 
-	new := owners.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	account := accounts.Account{
+		ID:            "paypack.developers",
+		Name:          "developers",
+		NumberOfSeats: 10,
+		Type:          accounts.Devs,
+	}
+	account = saveAccount(t, db, account)
+
+	new := owners.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 
 	ctx := context.Background()
 	_, err := repo.Save(ctx, new)

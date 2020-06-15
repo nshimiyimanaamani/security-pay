@@ -25,6 +25,7 @@ func TestValidate(t *testing.T) {
 				Owner:      properties.Owner{ID: uuid.New().ID()},
 				Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 				Due:        float64(1000),
+				Namespace:  "kigali.gasabo.remera",
 				RecordedBy: uuid.New().ID(),
 			},
 			err: nil,
@@ -34,6 +35,7 @@ func TestValidate(t *testing.T) {
 			property: properties.Property{
 				Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 				Due:        float64(1000),
+				Namespace:  "kigali.gasabo.remera",
 				RecordedBy: uuid.New().ID(),
 			},
 			err: errors.E(op, "invalid property: missing owner", errors.KindBadRequest),
@@ -41,8 +43,9 @@ func TestValidate(t *testing.T) {
 		{
 			desc: "validate with empty montly due",
 			property: properties.Property{
-				Owner:   properties.Owner{ID: uuid.New().ID()},
-				Address: properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+				Owner:     properties.Owner{ID: uuid.New().ID()},
+				Namespace: "kigali.gasabo.remera",
+				Address:   properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 			},
 			err: errors.E(op, "invalid property: missing due", errors.KindBadRequest),
 		},
@@ -52,6 +55,7 @@ func TestValidate(t *testing.T) {
 				Owner:      properties.Owner{ID: uuid.New().ID()},
 				Address:    properties.Address{},
 				Due:        float64(1000),
+				Namespace:  "kigali.gasabo.remera",
 				RecordedBy: uuid.New().ID(),
 			},
 			err: errors.E(op, "invalid property: invalid address", errors.KindBadRequest),
@@ -64,6 +68,16 @@ func TestValidate(t *testing.T) {
 				Due:     float64(1000),
 			},
 			err: errors.E(op, "invalid property: missing recording agent", errors.KindBadRequest),
+		},
+		{
+			desc: "validate with no account namespace",
+			property: properties.Property{
+				Owner:      properties.Owner{ID: uuid.New().ID()},
+				Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+				Due:        float64(1000),
+				RecordedBy: uuid.New().ID(),
+			},
+			err: errors.E(op, "invalid property: missing namespace tag", errors.KindBadRequest),
 		},
 	}
 

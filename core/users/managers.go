@@ -59,11 +59,10 @@ func (svc *service) UpdateManagerCreds(ctx context.Context, user Manager) error 
 		return errors.E(op, "invalid user: missing password", errors.KindBadRequest)
 	}
 
-	password, err := svc.hasher.Hash(user.Password)
-	if err != nil {
-		return errors.E(op, err)
-	}
-	user.Password = password
+	// user.Password, err = svc.hasher.Hash(user.Password)
+	// if err != nil {
+	// 	return errors.E(op, err)
+	// }
 
 	if err := svc.repo.UpdateManagerCreds(ctx, user); err != nil {
 		return errors.E(op, err)

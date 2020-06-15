@@ -39,12 +39,19 @@ func TestCountAuditable(t *testing.T) {
 
 	agent = saveAgent(t, db, agent)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	sector := "Kigomna"
 	cell := "Kigeme"
 	village := "Tetero"
+
+	begin := tools.BeginningOfMonth()
 
 	n := uint64(10)
 
@@ -57,11 +64,12 @@ func TestCountAuditable(t *testing.T) {
 				Cell:    cell,
 				Village: village,
 			},
+			Namespace:  account.ID,
 			Due:        float64(1000),
 			RecordedBy: agent.Telephone,
 			Occupied:   true,
-			CreatedAt:  tools.LastMonth(),
-			UpdatedAt:  tools.LastMonth(),
+			CreatedAt:  tools.AddMonth(begin, -1),
+			UpdatedAt:  tools.AddMonth(begin, -1),
 		}
 		savePropertyOn(t, db, p)
 	}

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/lib/pq"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/users"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
@@ -130,13 +131,15 @@ func (repo *userRepository) ListAgents(ctx context.Context, offset, limit uint64
 		INNER JOIN 
 			agents ON users.username=agents.telephone
 		WHERE 
-			users.role='min' 
-		ORDER BY users.username LIMIT $1 OFFSET $2;
+			users.role='min' AND account=$1
+		ORDER BY users.username LIMIT $2 OFFSET $3;
 	`
 
 	var items = []users.Agent{}
 
-	rows, err := repo.Query(q, limit, offset)
+	creds := auth.CredentialsFromContext(ctx)
+
+	rows, err := repo.Query(q, creds.Account, limit, offset)
 	if err != nil {
 		return users.AgentPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -153,10 +156,10 @@ func (repo *userRepository) ListAgents(ctx context.Context, offset, limit uint64
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM users WHERE role='min';`
+	q = `SELECT COUNT(*) FROM users WHERE role='min' AND account=$1;`
 
 	var total uint64
-	if err := repo.QueryRow(q).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, creds.Account).Scan(&total); err != nil {
 		return users.AgentPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 

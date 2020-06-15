@@ -16,6 +16,9 @@ import (
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/accounts"
 	"github.com/rugwirobaker/paypack-backend/core/accounts"
 	"github.com/rugwirobaker/paypack-backend/core/accounts/mocks"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
+	authmocks "github.com/rugwirobaker/paypack-backend/core/auth/mocks"
+	"github.com/rugwirobaker/paypack-backend/pkg/encrypt"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -25,6 +28,7 @@ const (
 	contentType = "application/json"
 	wrongID     = 10
 	wrongValue  = "wrong"
+	token       = "rugwiro.account.dev"
 )
 
 type testRequest struct {
@@ -50,6 +54,22 @@ func (tr testRequest) make() (*http.Response, error) {
 	return tr.client.Do(req)
 }
 
+func newAuthenticator() auth.Service {
+	user := auth.Credentials{
+		Username: "username",
+		Password: "password",
+		Role:     auth.Dev,
+		Account:  "account",
+	}
+	opts := &auth.Options{
+		Hasher:    authmocks.NewHasher(),
+		Encrypter: encrypt.None(),
+		Repo:      authmocks.NewRepository(user),
+		JWT:       authmocks.NewJWTProvider(),
+	}
+	return auth.New(opts)
+}
+
 func newService() accounts.Service {
 	repo := mocks.NewRepository()
 	idp := mocks.NewIdentityProvider()
@@ -60,8 +80,9 @@ func newService() accounts.Service {
 func newServer(svc accounts.Service) *httptest.Server {
 	mux := mux.NewRouter()
 	opts := &endpoints.HandlerOpts{
-		Service: svc,
-		Logger:  log.NoOpLogger(),
+		Service:       svc,
+		Authenticator: newAuthenticator(),
+		Logger:        log.NoOpLogger(),
 	}
 	endpoints.RegisterHandlers(mux, opts)
 	return httptest.NewServer(mux)
@@ -91,6 +112,7 @@ func TestCreate(t *testing.T) {
 	}{
 		{
 			desc:        "create valid account",
+			token:       token,
 			req:         toJSON(accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}),
 			contentType: contentType,
 			status:      http.StatusCreated,
@@ -98,6 +120,7 @@ func TestCreate(t *testing.T) {
 		},
 		{
 			desc:        " create account with missing account name",
+			token:       token,
 			req:         toJSON(accounts.Account{NumberOfSeats: 10, Type: accounts.Devs}),
 			contentType: contentType,
 			status:      http.StatusBadRequest,
@@ -106,6 +129,7 @@ func TestCreate(t *testing.T) {
 
 		{
 			desc:        "create account with missing type",
+			token:       token,
 			req:         toJSON(accounts.Account{Name: "remera", NumberOfSeats: 10}),
 			contentType: contentType,
 			status:      http.StatusBadRequest,
@@ -113,17 +137,26 @@ func TestCreate(t *testing.T) {
 		},
 		{
 			desc:        "record message with empty request",
+			token:       token,
 			req:         "",
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 			res:         toJSON(map[string]string{"error": "invalid request: wrong data format"}),
 		},
 		{
-			desc:        "add property with missing content type",
+			desc:        "create account with missing content type",
+			token:       token,
 			req:         toJSON(accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}),
 			contentType: "",
 			status:      http.StatusUnsupportedMediaType,
 			res:         toJSON(map[string]string{"error": "invalid request: invalid content type"}),
+		},
+		{
+			desc:        "create account with invalid token",
+			req:         toJSON(accounts.Account{ID: id, Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}),
+			contentType: contentType,
+			status:      http.StatusUnauthorized,
+			res:         toJSON(map[string]string{"error": "access denied: missing authorization token"}),
 		},
 	}
 
@@ -172,6 +205,7 @@ func TestUpdate(t *testing.T) {
 	}{
 		{
 			desc:        "update valid account",
+			token:       token,
 			req:         toJSON(accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}),
 			id:          saved.ID,
 			contentType: contentType,
@@ -180,6 +214,7 @@ func TestUpdate(t *testing.T) {
 		},
 		{
 			desc:        "update non-existant account",
+			token:       token,
 			req:         toJSON(accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}),
 			id:          strconv.FormatUint(wrongID, 10),
 			contentType: contentType,
@@ -188,6 +223,7 @@ func TestUpdate(t *testing.T) {
 		},
 		{
 			desc:        "update account with invalid id",
+			token:       token,
 			req:         toJSON(accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}),
 			id:          "invalid",
 			contentType: contentType,
@@ -196,6 +232,7 @@ func TestUpdate(t *testing.T) {
 		},
 		{
 			desc:        " create account with missing account name",
+			token:       token,
 			req:         toJSON(accounts.Account{NumberOfSeats: 10, Type: accounts.Devs}),
 			id:          saved.ID,
 			contentType: contentType,
@@ -205,6 +242,7 @@ func TestUpdate(t *testing.T) {
 
 		{
 			desc:        "update account with missing type",
+			token:       token,
 			req:         toJSON(accounts.Account{Name: "remera", NumberOfSeats: 10}),
 			id:          saved.ID,
 			contentType: contentType,
@@ -213,6 +251,7 @@ func TestUpdate(t *testing.T) {
 		},
 		{
 			desc:        "update account with empty request",
+			token:       token,
 			req:         "",
 			id:          saved.ID,
 			contentType: contentType,
@@ -221,11 +260,20 @@ func TestUpdate(t *testing.T) {
 		},
 		{
 			desc:        "update property with missing content type",
+			token:       token,
 			req:         toJSON(accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}),
 			id:          saved.ID,
 			contentType: "",
 			status:      http.StatusUnsupportedMediaType,
 			res:         toJSON(map[string]string{"error": "invalid request: invalid content type"}),
+		},
+		{
+			desc:        "update account with invalid token",
+			req:         toJSON(accounts.Account{Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}),
+			id:          saved.ID,
+			contentType: contentType,
+			status:      http.StatusUnauthorized,
+			res:         toJSON(map[string]string{"error": "access denied: missing authorization token"}),
 		},
 	}
 
@@ -272,6 +320,7 @@ func TestRetrieve(t *testing.T) {
 	}{
 		{
 			desc:   "retrieve existant account",
+			token:  token,
 			id:     saved.ID,
 			status: http.StatusOK,
 			res:    toJSON(saved),
@@ -279,6 +328,7 @@ func TestRetrieve(t *testing.T) {
 
 		{
 			desc:   "retrieve account with invalid id",
+			token:  token,
 			id:     "invalid",
 			status: http.StatusNotFound,
 			res:    toJSON(map[string]string{"error": "account not found"}),
@@ -286,9 +336,16 @@ func TestRetrieve(t *testing.T) {
 
 		{
 			desc:   "retrieve non-existent message",
+			token:  token,
 			id:     strconv.FormatUint(wrongID, 10),
 			status: http.StatusNotFound,
 			res:    toJSON(map[string]string{"error": "account not found"}),
+		},
+		{
+			desc:   "retrieve account with invalid token",
+			id:     saved.ID,
+			status: http.StatusUnauthorized,
+			res:    toJSON(map[string]string{"error": "access denied: missing authorization token"}),
 		},
 	}
 
@@ -296,6 +353,7 @@ func TestRetrieve(t *testing.T) {
 		req := testRequest{
 			client: client,
 			method: http.MethodGet,
+			token:  tc.token,
 			url:    fmt.Sprintf("%s/accounts/%s", srv.URL, tc.id),
 		}
 
@@ -313,8 +371,6 @@ func TestRetrieve(t *testing.T) {
 func TestList(t *testing.T) {
 	svc := newService()
 	srv := newServer(svc)
-
-	t.Skip()
 
 	defer srv.Close()
 	client := srv.Client()
@@ -336,26 +392,36 @@ func TestList(t *testing.T) {
 
 	cases := []struct {
 		desc   string
+		token  string
 		status int
 		url    string
 		res    []accounts.Account
 	}{
 		{
 			desc:   "get a list of accounts",
-			status: http.StatusOK,
+			token:  token,
 			url:    fmt.Sprintf("%s?offset=%d&limit=%d", accountsURL, 0, 5),
+			status: http.StatusOK,
 			res:    data[0:5],
 		},
 		{
 			desc:   "get a list of accounts with negative offset",
-			status: http.StatusBadRequest,
+			token:  token,
 			url:    fmt.Sprintf("%s?offset=%d&limit=%d", accountsURL, -1, 5),
+			status: http.StatusBadRequest,
 			res:    nil,
 		},
 		{
 			desc:   "get a list of accounts with negative limit",
-			status: http.StatusBadRequest,
+			token:  token,
 			url:    fmt.Sprintf("%s?offset=%d&limit=%d", accountsURL, 1, -5),
+			status: http.StatusBadRequest,
+			res:    nil,
+		},
+		{
+			desc:   "get a list of accounts with invalid token",
+			url:    fmt.Sprintf("%s?offset=%d&limit=%d", accountsURL, 0, 5),
+			status: http.StatusUnauthorized,
 			res:    nil,
 		},
 	}
@@ -364,6 +430,7 @@ func TestList(t *testing.T) {
 		req := testRequest{
 			client: client,
 			method: http.MethodGet,
+			token:  tc.token,
 			url:    tc.url,
 		}
 

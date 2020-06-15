@@ -41,6 +41,7 @@ func TestRegister(t *testing.T) {
 	property := properties.Property{
 		Owner:      properties.Owner{ID: owner.ID},
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Namespace:  "kigali.gasabo.remera",
 		Due:        float64(1000),
 		RecordedBy: uuid.New().ID(),
 	}
@@ -48,12 +49,14 @@ func TestRegister(t *testing.T) {
 	invalidProperty := properties.Property{
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:        float64(1000),
+		Namespace:  "kigali.gasabo.remera",
 		RecordedBy: uuid.New().ID(),
 	}
 
 	emptyDue := properties.Property{
 		Owner:      properties.Owner{ID: owner.ID},
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Namespace:  "kigali.gasabo.remera",
 		RecordedBy: uuid.New().ID(),
 	}
 
@@ -61,6 +64,7 @@ func TestRegister(t *testing.T) {
 		Owner:      properties.Owner{ID: uuid.New().ID()},
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:        float64(1000),
+		Namespace:  "kigali.gasabo.remera",
 		RecordedBy: uuid.New().ID(),
 	}
 
@@ -108,18 +112,21 @@ func TestUpdate(t *testing.T) {
 		Owner:      properties.Owner{ID: owner.ID},
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:        float64(1000),
+		Namespace:  "kigali.gasabo.remera",
 		RecordedBy: uuid.New().ID(),
 	}
 
 	invalidProperty := properties.Property{
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:        float64(1000),
+		Namespace:  "kigali.gasabo.remera",
 		RecordedBy: uuid.New().ID(),
 	}
 
 	emptyDue := properties.Property{
 		Owner:      properties.Owner{ID: owner.ID},
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
+		Namespace:  "kigali.gasabo.remera",
 		RecordedBy: uuid.New().ID(),
 	}
 
@@ -171,6 +178,7 @@ func TestRetrieve(t *testing.T) {
 		Owner:      properties.Owner{ID: owner.ID},
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:        float64(1000),
+		Namespace:  "kigali.gasabo.remera",
 		RecordedBy: uuid.New().ID(),
 	}
 
@@ -212,6 +220,7 @@ func TestDelete(t *testing.T) {
 		Owner:      properties.Owner{ID: owner.ID},
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:        float64(1000),
+		Namespace:  "kigali.gasabo.remera",
 		RecordedBy: uuid.New().ID(),
 	}
 
@@ -255,6 +264,7 @@ func TestListByOwner(t *testing.T) {
 			Owner:      owner,
 			Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 			Due:        float64(1000),
+			Namespace:  "kigali.gasabo.remera",
 			RecordedBy: uuid.New().ID(),
 		}
 
@@ -315,7 +325,7 @@ func TestListByOwner(t *testing.T) {
 	}
 }
 
-func TestBySector(t *testing.T) {
+func TestListBySector(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 	svc := newService(makeOwners(owner))
 
@@ -323,6 +333,7 @@ func TestBySector(t *testing.T) {
 		Owner:      owner,
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:        float64(1000),
+		Namespace:  "kigali.gasabo.remera",
 		RecordedBy: uuid.New().ID(),
 	}
 
@@ -392,6 +403,7 @@ func TestListByCell(t *testing.T) {
 		Owner:      owner,
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:        float64(1000),
+		Namespace:  "kigali.gasabo.remera",
 		RecordedBy: uuid.New().ID(),
 	}
 
@@ -463,6 +475,7 @@ func TestListByVillage(t *testing.T) {
 		Owner:      owner,
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:        float64(1000),
+		Namespace:  "kigali.gasabo.remera",
 		RecordedBy: uuid.New().ID(),
 	}
 
@@ -533,6 +546,7 @@ func TestListByRecorder(t *testing.T) {
 		Owner:      owner,
 		Address:    properties.Address{Sector: "Remera", Cell: "Gishushu", Village: "Ingabo"},
 		Due:        float64(1000),
+		Namespace:  "kigali.gasabo.remera",
 		RecordedBy: uuid.New().ID(),
 	}
 

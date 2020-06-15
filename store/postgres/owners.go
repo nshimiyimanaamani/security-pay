@@ -21,9 +21,20 @@ func NewOwnerRepo(db *sql.DB) owners.Repository {
 }
 
 func (str *ownerRepo) Save(ctx context.Context, owner owners.Owner) (owners.Owner, error) {
-	q := `INSERT INTO owners (id, fname, lname, phone) VALUES ($1, $2, $3, $4) RETURNING id;`
+	q := `INSERT INTO owners (
+			id, 
+			fname, 
+			lname, 
+			phone
+		) VALUES ($1, $2, $3, $4) RETURNING id;`
 
-	_, err := str.db.Exec(q, &owner.ID, &owner.Fname, &owner.Lname, &owner.Phone)
+	_, err := str.db.Exec(q,
+		&owner.ID,
+		&owner.Fname,
+		&owner.Lname,
+		&owner.Phone,
+	)
+
 	if err != nil {
 		empty := owners.Owner{}
 
@@ -100,7 +111,15 @@ func (str *ownerRepo) Search(ctx context.Context, owner owners.Owner) (owners.Ow
 }
 
 func (str *ownerRepo) RetrieveAll(ctx context.Context, offset, limit uint64) (owners.OwnerPage, error) {
-	q := `SELECT id, fname, lname, phone FROM owners ORDER BY id LIMIT $1 OFFSET $2;`
+	q := `
+		SELECT 
+			id, 
+			fname, 
+			lname, 
+			phone 
+		FROM 
+			owners 
+		ORDER BY id LIMIT $1 OFFSET $2;`
 
 	var items = []owners.Owner{}
 
@@ -138,7 +157,17 @@ func (str *ownerRepo) RetrieveAll(ctx context.Context, offset, limit uint64) (ow
 }
 
 func (str *ownerRepo) RetrieveByPhone(ctx context.Context, phone string) (owners.Owner, error) {
-	q := `SELECT id, fname, lname, phone FROM owners WHERE phone = $1`
+	q := `
+		SELECT 
+			id, 
+			fname, 
+			lname, 
+			phone 
+		FROM 
+			owners 
+		WHERE 
+			phone = $1`
+
 	var owner owners.Owner
 
 	if err := str.db.QueryRow(q, phone).Scan(&owner.ID, &owner.Fname, &owner.Lname, &owner.Phone); err != nil {

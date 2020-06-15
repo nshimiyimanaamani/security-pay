@@ -8,6 +8,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
+// Send handles sms  notifications
 func Send(lgger log.Entry, svc notifications.Service) http.Handler {
 	const op errors.Op = "api/http/notifications/Send"
 	f := func(w http.ResponseWriter, r *http.Request) {

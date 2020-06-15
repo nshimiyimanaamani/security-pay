@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/rugwirobaker/paypack-backend/core/accounts"
 	"github.com/rugwirobaker/paypack-backend/core/feedback"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/core/uuid"
@@ -19,7 +20,20 @@ func TestSaveMessage(t *testing.T) {
 
 	defer CleanDB(t, db)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	account := accounts.Account{
+		ID:            "paypack.developers",
+		Name:          "remera",
+		NumberOfSeats: 10,
+		Type:          accounts.Devs,
+	}
+	account = saveAccount(t, db, account)
+
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	message := feedback.Message{
@@ -61,7 +75,20 @@ func TestUpdateMessage(t *testing.T) {
 
 	defer CleanDB(t, db)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	account := accounts.Account{
+		ID:            "paypack.developers",
+		Name:          "remera",
+		NumberOfSeats: 10,
+		Type:          accounts.Devs,
+	}
+	account = saveAccount(t, db, account)
+
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	message := feedback.Message{
@@ -106,7 +133,20 @@ func TestRetrieveMessage(t *testing.T) {
 
 	defer CleanDB(t, db)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	account := accounts.Account{
+		ID:            "paypack.developers",
+		Name:          "remera",
+		NumberOfSeats: 10,
+		Type:          accounts.Devs,
+	}
+	account = saveAccount(t, db, account)
+
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	message := feedback.Message{
@@ -157,7 +197,20 @@ func TestDeleteMessage(t *testing.T) {
 
 	defer CleanDB(t, db)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	account := accounts.Account{
+		ID:            "paypack.developers",
+		Name:          "remera",
+		NumberOfSeats: 10,
+		Type:          accounts.Devs,
+	}
+	account = saveAccount(t, db, account)
+
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	message := feedback.Message{
@@ -208,7 +261,20 @@ func TestRetrieveAllMessages(t *testing.T) {
 
 	defer CleanDB(t, db)
 
-	owner := properties.Owner{ID: uuid.New().ID(), Fname: "rugwiro", Lname: "james", Phone: "0784677882"}
+	account := accounts.Account{
+		ID:            "paypack.developers",
+		Name:          "remera",
+		NumberOfSeats: 10,
+		Type:          accounts.Devs,
+	}
+	account = saveAccount(t, db, account)
+
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
 	owner = saveOwner(t, db, owner)
 
 	n := uint64(10)

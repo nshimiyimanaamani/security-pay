@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/lib/pq"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/users"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
@@ -100,12 +101,18 @@ func (repo *userRepository) ListAdmins(ctx context.Context, offset, limit uint64
 			role,  
 			created_at, 
 			updated_at 
-		FROM users WHERE role='admin' ORDER BY username LIMIT $1 OFFSET $2;
+		FROM 
+			users 
+		WHERE 
+			role='admin' AND account=$1 
+		ORDER BY username LIMIT $2 OFFSET $3;
 	`
 
 	var items = []users.Administrator{}
 
-	rows, err := repo.Query(q, limit, offset)
+	creds := auth.CredentialsFromContext(ctx)
+
+	rows, err := repo.Query(q, creds.Account, limit, offset)
 	if err != nil {
 		return users.AdministratorPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -121,10 +128,10 @@ func (repo *userRepository) ListAdmins(ctx context.Context, offset, limit uint64
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM users WHERE role='admin';`
+	q = `SELECT COUNT(*) FROM users WHERE role='admin' AND account=$1;`
 
 	var total uint64
-	if err := repo.QueryRow(q).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, creds.Account).Scan(&total); err != nil {
 		return users.AdministratorPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 

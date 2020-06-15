@@ -42,17 +42,20 @@ type HandlerOptions struct {
 // NewHandlerOptions ...
 func NewHandlerOptions(services *Services, lggr *log.Logger) *HandlerOptions {
 	feedOpts := &feedback.HandlerOpts{
-		Service: services.Feedback,
-		Logger:  lggr,
+		Logger:        lggr,
+		Service:       services.Feedback,
+		Authenticator: services.Auth,
 	}
 	proOpts := &properties.HandlerOpts{
-		Service: services.Properties,
-		Logger:  lggr,
+		Logger:        lggr,
+		Service:       services.Properties,
+		Authenticator: services.Auth,
 	}
 
 	ownersOpts := &owners.HandlerOpts{
-		Service: services.Owners,
-		Logger:  lggr,
+		Logger:        lggr,
+		Service:       services.Owners,
+		Authenticator: services.Auth,
 	}
 	paymentOpts := &payment.HandlerOpts{
 		Service: services.Payment,
@@ -60,18 +63,21 @@ func NewHandlerOptions(services *Services, lggr *log.Logger) *HandlerOptions {
 	}
 
 	transOpts := &transactions.HandlerOpts{
-		Service: services.Transactions,
-		Logger:  lggr,
+		Logger:        lggr,
+		Service:       services.Transactions,
+		Authenticator: services.Auth,
 	}
 
 	usersOpts := &users.HandlerOpts{
-		Service: services.Users,
-		Logger:  lggr,
+		Logger:        lggr,
+		Service:       services.Users,
+		Authenticator: services.Auth,
 	}
 
 	accountsOpts := &accounts.HandlerOpts{
-		Service: services.Accounts,
-		Logger:  lggr,
+		Logger:        lggr,
+		Service:       services.Accounts,
+		Authenticator: services.Auth,
 	}
 
 	authOpts := &auth.HandlerOpts{
@@ -79,24 +85,28 @@ func NewHandlerOptions(services *Services, lggr *log.Logger) *HandlerOptions {
 		Logger:  lggr,
 	}
 	invOpts := &invoices.HandlerOpts{
-		Service: services.Invoices,
-		Logger:  lggr,
+		Logger:        lggr,
+		Service:       services.Invoices,
+		Authenticator: services.Auth,
 	}
 	statsOpts := &metrics.HandlerOpts{
-		Service: services.Stats,
-		Logger:  lggr,
+		Logger:        lggr,
+		Service:       services.Stats,
+		Authenticator: services.Auth,
 	}
 	notifOpts := &notifications.HandlerOpts{
-		Service: services.Notifications,
-		Logger:  lggr,
+		Logger:        lggr,
+		Service:       services.Notifications,
+		Authenticator: services.Auth,
 	}
 	ussdOpts := &ussd.HandlerOpts{
 		Service: services.USSD,
 		Logger:  lggr,
 	}
 	scOptions := &scheduler.HandlerOpts{
-		Service: services.Scheduler,
-		Logger:  lggr,
+		Logger:        lggr,
+		Service:       services.Scheduler,
+		Authenticator: services.Auth,
 	}
 
 	opts := &HandlerOptions{
@@ -125,6 +135,7 @@ func Register(mux *mux.Router, opts *HandlerOptions) {
 
 	mux.HandleFunc("/healthz", health.Health).Methods(http.MethodGet)
 	mux.HandleFunc("/version", version.Build).Methods(http.MethodGet)
+	mux.HandleFunc("/panic", health.Panic).Methods(http.MethodGet)
 
 	users.RegisterHandlers(mux, opts.UsersOptions)
 

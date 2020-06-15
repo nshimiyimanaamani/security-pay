@@ -31,6 +31,10 @@ func (idp *jwtProviderMock) Identity(ctx context.Context, token string) (auth.Cr
 	const op errors.Op = "pkg/jwt/jwtProvider.Identify"
 
 	keys := strings.Split(token, ".")
+
+	if len(keys) < 3 {
+		return auth.Credentials{}, errors.E(op, "access denied: invalid token", errors.KindAccessDenied)
+	}
 	creds := auth.Credentials{
 		Username: keys[0],
 		Account:  keys[1],
