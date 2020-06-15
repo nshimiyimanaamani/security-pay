@@ -35,11 +35,11 @@
     </b-tab>
     <b-tab title="List all Managers">
       <b-table
-        id="Dev-table"
-        bordered
+        id="manager-table"
         responsive
         hover
         small
+        sticky-header
         show-empty
         head-variant="light"
         thead-class="text-uppercase"
@@ -86,18 +86,20 @@
             </template>
           </b-form-select>
         </b-form-group>
-        <b-form-group class="m-0">
+        <b-row class="justify-content-end" no-gutters>
           <b-button
-            size="sm"
             variant="info"
             :disabled="(form.newCell && form.newEmail)?false:true"
-            class="float-right"
+            class="br-2"
             type="submit"
           >
             {{state.changing ? 'Updating' : "Update"}}
-            <b-spinner v-show="state.changing" small type="grow"></b-spinner>
+            <i
+              v-show="state.changing"
+              class="fa fa-spinner fa-spin"
+            />
           </b-button>
-        </b-form-group>
+        </b-row>
       </b-form>
     </b-modal>
   </b-tabs>
@@ -277,7 +279,7 @@ export default {
 .addManager {
   .accountForm {
     width: auto;
-    border: 1px solid #dee2e6;
+    border: 1px solid #fff;
     border-radius: 2px;
     padding: 1rem;
   }

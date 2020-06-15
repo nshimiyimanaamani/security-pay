@@ -1,5 +1,5 @@
 <template>
-  <b-tabs content-class="mt-2" class="addAgent" fill lazy>
+  <b-tabs content-class="agentTabs-body" nav-class="agentTabs-nav" class="addAgent h-100" fill lazy>
     <b-tab title="Create Agent" active>
       <b-form class="accountForm" @submit.prevent="create">
         <b-row>
@@ -75,25 +75,24 @@
             </template>
           </b-select>
         </b-form-group>
-        <b-form-group class="mb-0">
-          <b-button variant="info" class="float-right" type="submit">
+        <b-row class="justify-content-end" no-gutters>
+          <b-button variant="info" type="submit" class="br-2">
             {{state.creating ? 'Creating' : "Create"}}
             <i
               class="fa fa-spinner fa-spin"
               v-if="state.creating"
             />
           </b-button>
-        </b-form-group>
+        </b-row>
       </b-form>
     </b-tab>
-    <b-tab title="List all Agents">
+    <b-tab title="List all Agents" class="h-100">
       <b-table
         id="data-table"
-        bordered
         striped
         hover
         small
-        responsive
+        sticky-header
         head-variant="light"
         thead-class="text-uppercase"
         show-empty
@@ -113,31 +112,31 @@
       :options="rightMenu.options"
       :ref="'agent_rightMenu'"
       @option-clicked="optionClicked"
-    ></vue-menu>
+      class="secondary-font"
+    />
     <b-modal
       v-model="change_pswd_modal.show"
       title="Change Password"
       hide-footer
+      content-class="secondary-font"
       header-class="align-items-center"
     >
       <b-form @submit.prevent="changePassword">
-        <b-form-group id="input-group-1" label="Current Password:" label-for="input-1">
-          <b-form-input id="input-1" disabled v-model="currentPwd"></b-form-input>
+        <b-form-group label="Current Password:">
+          <b-form-input disabled v-model="currentPwd" />
         </b-form-group>
-        <b-form-group id="input-group-2" label="New Password:" label-for="input-2">
-          <b-form-input id="input-2" required v-model="form.newPwd" placeholder="New Password..."></b-form-input>
+        <b-form-group label="New Password:">
+          <b-form-input required v-model="form.newPwd" placeholder="New Password..."></b-form-input>
         </b-form-group>
-        <b-form-group class="m-0">
-          <b-button
-            :disabled="form.newPwd ? false:true "
-            variant="info"
-            class="float-right"
-            type="submit"
-          >
+        <b-row no-gutters class="justify-content-end">
+          <b-button :disabled="form.newPwd ? false:true " variant="info" class="br-2" type="submit">
             {{state.changing ? 'Changing' : "Change"}}
-            <b-spinner v-show="state.changing" small type="grow"></b-spinner>
+            <i
+              v-show="state.changing"
+              class="fa fa-spinner fa-spin"
+            />
           </b-button>
-        </b-form-group>
+        </b-row>
       </b-form>
     </b-modal>
   </b-tabs>
@@ -362,9 +361,27 @@ export default {
   .nav-link.active {
     background-color: white !important;
   }
+
+  .agentTabs-nav {
+    height: 40px;
+  }
+  .agentTabs-body {
+    height: calc(100% - 40px);
+    overflow: auto;
+
+    .b-table-sticky-header {
+      max-height: 100%;
+      margin: 0;
+    }
+
+    table {
+      min-width: max-content;
+      margin: 0;
+    }
+  }
   .accountForm {
     width: auto;
-    border: 1px solid #dee2e6;
+    border: 1px solid #fff;
     border-radius: 3px;
     padding: 1rem;
   }

@@ -254,10 +254,13 @@ export default {
                   })
                   .catch(err => {
                     console.log(err, err.response);
-                    const error = err.response
-                      ? err.response.data.message || err.response.data
-                      : null;
-                    if (error) this.$snotify.error(error);
+                    try {
+                      this.$snotify.error(
+                        err.response.data.message || err.response.data
+                      );
+                    } catch {
+                      this.$snotify.error("Failed to register owner");
+                    }
                     this.state.adding = false;
                   });
               }
@@ -282,14 +285,15 @@ export default {
           })
           .then(res => {
             this.resetModal();
-            this.$emit("refresh");
+            this.$emit("added");
             this.$snotify.info(`Property Registered successfully!`);
           })
           .catch(err => {
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : null;
-            if (error) this.$snotify.error(error);
+            try {
+              this.$snotify.error(err.response.data.error || err.response.data);
+            } catch {
+              this.$snotify.error("Failed to register property");
+            }
             this.state.adding = false;
           });
       }
@@ -307,10 +311,6 @@ export default {
       this.address.cell = null;
       this.address.village = null;
       this.form.occupied = null;
-    },
-    capitalize(string) {
-      string.toLowerCase();
-      return string.charAt(0).toUpperCase() + string.slice(1);
     },
     confirm(message) {
       return this.$bvModal.msgBoxConfirm(message, {

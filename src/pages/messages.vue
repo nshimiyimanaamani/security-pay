@@ -10,7 +10,7 @@
         nav-class="message-nav"
         @activate-tab="clear"
       >
-        <b-tab title="SECTOR" active>
+        <b-tab title="SECTOR" active v-if="isAdmin">
           <div class="sector-body">
             <h3
               class="message-title secondary-font"
@@ -37,12 +37,12 @@
             </div>
           </div>
         </b-tab>
-        <b-tab title="CELL">
+        <b-tab title="CELL" :active="!isAdmin">
           <div class="cell-body">
             <h3
               class="message-title secondary-font"
             >Send message to all payers in {{select.cell ? select.cell : "Cell"}}</h3>
-            <div class="control mb-4">
+            <div class="control mb-4" v-if="isAdmin">
               <label class="message-label" for="select">Select a cell:</label>
               <b-select v-model="select.cell" :options="cellOptions">
                 <template v-slot:first>
@@ -147,6 +147,11 @@ export default {
       }
     };
   },
+  mounted() {
+    if (this.isAdmin === false) {
+      this.select.cell = this.activeCell;
+    }
+  },
   computed: {
     cellOptions() {
       const { province, district } = this.location;
@@ -164,8 +169,18 @@ export default {
     activeSector() {
       return this.$store.getters.getActiveSector;
     },
+    activeCell() {
+      return this.$store.getters.getActiveCell;
+    },
     location() {
       return this.$store.getters.location;
+    },
+    user() {
+      return this.$store.getters.userDetails;
+    },
+    isAdmin() {
+      if (this.user.role === "admin") return true;
+      return false;
     }
   },
   watch: {
@@ -188,19 +203,21 @@ export default {
             recipients: recipients
           })
           .then(res => {
+            this.clear();
             this.$snotify.info(
-              `Message sent to all properties in ${this.activeSector} sector! Message sent successfully`
+              `Message sent to all properties in ${this.activeSector} sector!`
             );
           })
           .catch(err => {
-            console.log(err.response);
-            this.$snotify.error("Unable to send message! Message not sent");
+            console.log(err, err.response, err.request);
+            this.$snotify.error("Failed to send message! Try again later");
           })
           .finally(() => {
             this.state.sending = false;
           });
       } else {
-        this.$snotify.error("An error occured");
+        this.state.sending = false;
+        this.$snotify.error("Failed to retrieve recipients");
       }
     },
     async sendToCell() {
@@ -216,19 +233,21 @@ export default {
             recipients: recipients
           })
           .then(res => {
+            this.clear();
             this.$snotify.info(
-              `Message sent to all properties in ${cell} cell! Message sent successfully`
+              `Message sent to all properties in ${cell} cell!`
             );
           })
           .catch(err => {
-            console.log(err.response);
-            this.$snotify.error("Unable to send message! Message not sent");
+            console.log(err, err.request, err.response);
+            this.$snotify.error("Failed to send message! Try again later");
           })
           .finally(() => {
             this.state.sending = false;
           });
       } else {
-        this.$snotify.error("An error occured!");
+        this.state.sending = false;
+        this.$snotify.error("Failed to retrieve recipients");
       }
     },
     async sendToVillage() {
@@ -244,19 +263,21 @@ export default {
             recipients: recipients
           })
           .then(res => {
+            this.clear();
             this.$snotify.info(
-              `Message sent to all properties in ${village} village! Message sent successfully`
+              `Message sent to all properties in ${village} village!`
             );
           })
           .catch(err => {
             console.log(err.response);
-            this.$snotify.error("Unable to send message! Message not sent");
+            this.$snotify.error("Failed to send message! try again later");
           })
           .finally(() => {
             this.state.sending = false;
           });
       } else {
-        this.$snotify.error("An error occured!");
+        this.state.sending = false;
+        this.$snotify.error("Failed to retrieve recipients!");
       }
     },
     async getPhoneArray(request) {
@@ -269,8 +290,8 @@ export default {
     clear() {
       this.message = null;
       this.state.sending = false;
-      this.select.cell = null;
       this.select.village = null;
+      if (this.isAdmin) this.select.cell = null;
     }
   }
 };
