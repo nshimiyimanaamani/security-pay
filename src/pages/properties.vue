@@ -367,11 +367,13 @@ export default {
     async loadData() {
       this.loading.request = true;
 
+      // if (!this.development) {
       var promise = await this.getUrl();
       const total = await this.$getTotal(`${promise}0`);
 
       if (total)
         if (total !== this.originalData.length) this.state.reloadData = true;
+      // }
 
       if (this.state.reloadData === false) {
         const properties = JSON.parse(localStorage.getItem("Properties"));
@@ -467,7 +469,47 @@ export default {
       });
     },
     downloadList() {
-      download(this.filteredData, this.selected);
+      if (this.filteredData.length > 0) {
+        var today = new Date().toLocaleDateString("en-EN", {
+          year: "numeric",
+          month: "long"
+        });
+        var Headers = [
+          "ID",
+          "Names",
+          "House Code",
+          "Phone Number",
+          "Sector",
+          "Cell",
+          "Village",
+          "Payment Amount"
+        ];
+        var Body = this.filteredData.map((item, i) => {
+          var result = Headers.map(i => "");
+          result[Headers.indexOf("ID")] = i;
+          result[
+            Headers.indexOf("Names")
+          ] = `${item.owner.fname} ${item.owner.lname}`;
+          result[Headers.indexOf("House Code")] = item.id;
+          result[Headers.indexOf("Phone Number")] = item.owner.phone;
+          result[Headers.indexOf("Sector")] = item.address.sector;
+          result[Headers.indexOf("Cell")] = item.address.cell;
+          result[Headers.indexOf("Village")] = item.address.village;
+          result[Headers.indexOf("Payment Amount")] = `${Number(
+            item.due
+          ).toLocaleString()} Rwf`;
+          return result;
+        });
+        var data = {
+          title: String(`List of Properties in ${this.selected}`).toUpperCase(),
+          name: `List of Properties in ${this.selected} in ${today}`,
+          data: {
+            Headers: Headers,
+            Body: Body
+          }
+        };
+        download(data);
+      } else this.$snotify.error("There are no Data available to download!");
     },
     editHouse(house, index, evt) {
       evt.preventDefault();
