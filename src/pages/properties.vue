@@ -117,7 +117,7 @@
       :per-page="pagination.perPage"
       :current-page="pagination.currentPage"
     >
-      <template v-slot:cell(due)="data">{{Number(data.item.due).toLocaleString()}} Rwf</template>
+      <template v-slot:cell(due)="data">{{data.item.due | number}} Rwf</template>
       <template v-slot:cell(owner)="data">{{data.item.owner.fname +" "+ data.item.owner.lname}}</template>
       <template v-slot:cell(occupied)="data">
         <b-card-text
