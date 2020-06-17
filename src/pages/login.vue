@@ -79,11 +79,16 @@ export default {
           location.reload();
         })
         .catch(err => {
+          this.loading = false;
           sessionStorage.removeItem("token");
           console.log(err, err.response, err.request);
-          const message = err.response.data.error || err.response.data;
-          if (message) this.$snotify.error(message);
-          this.loading = false;
+          try {
+            this.$snotify.error(err.response.data.error || err.response.data);
+          } catch {
+            this.$snotify.error(
+              "Failed to login! Check your connection and try again"
+            );
+          }
         });
     }
   }

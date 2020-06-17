@@ -2,20 +2,18 @@
   <div class="sector-reports">
     <header class="tabTitle">Sector Report</header>
     <div class="tabBody">
-      <b-row class="justify-content-center flex-column m-0">
+      <b-row class="justify-content-center flex-column" no-gutters>
         <selector
           :object="config"
           :title="'Generate '+activeSector+' Report'"
           v-on:ok="generateAction"
           class="w-auto m-auto date-selector pb-3"
         />
-
-        <vue-load v-if="state.generating" label="Generating..." />
       </b-row>
 
-      <b-row class="m-0" v-show="!state.generating">
+      <b-row no-gutters>
         <b-collapse id="sectorreport-collapse" class="w-100" v-model="state.showReport">
-          <div class="reports-card" v-if="!state.error">
+          <div class="reports-card">
             <b-row no-gutters class="mb-2 justify-content-end">
               <b-badge
                 variant="secondary"
@@ -26,11 +24,9 @@
             <div class="card--body">
               <b-table
                 id="sector-reports"
-                :items="generate"
+                :items="sectorData"
                 :fields="table.fields"
-                :busy="table.busy"
-                :key="'sector-'+table.key"
-                v-if="state.generate"
+                :busy="state.busy.table1"
                 head-row-variant="secondary"
                 small
                 bordered
@@ -38,25 +34,21 @@
                 responsive
                 show-empty
               >
-                <template v-slot:cell(unpayedAmount)="data">
-                  <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+                <template v-slot:table-busy>
+                  <vue-load label="Generating..." class="p-3" />
                 </template>
-                <template v-slot:cell(payedAmount)="data">
-                  <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
-                </template>
+                <template v-slot:empty>{{state.error.table1 || 'No data available to display'}}</template>
               </b-table>
             </div>
           </div>
-          <div class="reports-card" v-if="!state.error">
+          <div class="reports-card">
             <h5 class="bg-dark">cells Reports</h5>
             <div class="card--body">
               <b-table
                 id="sector-cell-reports"
-                :items="generateCell"
+                :items="cellData"
                 :fields="cellTable.fields"
-                :busy="cellTable.busy"
-                :key="'cell-'+cellTable.key"
-                v-if="state.generate"
+                :busy="state.busy.table2"
                 head-row-variant="secondary"
                 small
                 bordered
@@ -64,29 +56,26 @@
                 responsive
                 show-empty
               >
-                <template v-slot:cell(unpayedAmount)="data">
-                  <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+                <template v-slot:table-busy>
+                  <vue-load label="Generating..." class="p-3" />
                 </template>
-                <template v-slot:cell(payedAmount)="data">
-                  <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
-                </template>
+                <template v-slot:empty>{{state.error.table1 || 'No data available to display'}}</template>
               </b-table>
             </div>
           </div>
-          <b-card v-if="state.error">
-            <b-card-text>{{state.errorMessage}}</b-card-text>
-          </b-card>
         </b-collapse>
       </b-row>
-      <b-row v-if="!state.error && sectorData && cellData " class="m-0 py-3 justify-content-end">
-        <b-button @click="downloadReport" variant="info" class="downloadBtn">Download Report</b-button>
+      <b-row v-if="showDownload" class="py-3 justify-content-end" no-gutters>
+        <b-button @click="downloadReport" variant="info" class="downloadBtn">
+          <i class="fa fa-download mr-1" />Download Report
+        </b-button>
       </b-row>
     </div>
   </div>
 </template>
 
 <script>
-import download from "./downloadSectorReport";
+import download from "../download scripts/downloadReports";
 import selector from "../reportsDateSelector";
 export default {
   name: "sectorReports",
@@ -96,20 +85,23 @@ export default {
   data() {
     return {
       state: {
-        generating: false,
-        generate: false,
         showReport: false,
-        error: false,
-        errorMessage: null,
-        reportsDate: null
+        reportsDate: null,
+        busy: {
+          table1: false,
+          table2: false
+        },
+        error: {
+          table1: null,
+          table2: null
+        }
       },
       config: {
-        configuring: false,
         year: new Date().getFullYear(),
         month: new Date().getMonth() + 1
       },
-      sectorData: null,
-      cellData: null,
+      sectorData: [],
+      cellData: [],
       table: {
         fields: [
           {
@@ -142,9 +134,7 @@ export default {
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           }
-        ],
-        busy: false,
-        key: 1
+        ]
       },
       cellTable: {
         fields: [
@@ -184,9 +174,7 @@ export default {
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           }
-        ],
-        busy: false,
-        key: 1
+        ]
       }
     };
   },
@@ -196,18 +184,31 @@ export default {
     },
     months() {
       return this.$store.getters.getMonths;
+    },
+    showDownload() {
+      if (
+        this.state.error.table1 ||
+        this.state.error.table2 ||
+        this.state.busy.table1 ||
+        this.state.busy.table2 ||
+        !this.sectorData ||
+        !this.cellData ||
+        !this.state.showReport
+      )
+        return false;
+      return true;
     }
   },
   methods: {
     generateAction() {
       this.clear();
-      this.state.generate = true;
-      this.table.key++;
-      this.cellTable.key++;
+      this.generateSector();
+      this.generateCell();
     },
-    generate() {
-      this.sectorData = null;
-      this.state.generating = true;
+    generateSector() {
+      this.sectorData = [];
+      this.state.showReport = true;
+      this.state.busy.table1 = true;
       const year = this.config.year;
       const month = this.config.month;
       this.state.reportsDate = `${this.months[month - 1]}, ${year}`;
@@ -223,32 +224,33 @@ export default {
           items.total = res[0].data.data.payed + res[0].data.data.pending;
           items.payed = res[0].data.data.payed;
           items.pending = res[0].data.data.pending;
-          items.payedAmount = res[1].data.data.payed;
-          items.unpayedAmount = res[1].data.data.pending;
+          items.payedAmount = `${Number(
+            res[1].data.data.payed
+          ).toLocaleString()} Rwf`;
+          items.unpayedAmount = `${Number(
+            res[1].data.data.pending
+          ).toLocaleString()} Rwf`;
           this.state.showReport = true;
-          this.sectorData = items;
+          this.sectorData = [items];
+          this.state.busy.table1 = false;
+
           return [items];
         })
         .catch(err => {
-          this.state.error = true;
-          this.state.errorMessage = err.response.data.error
-            ? err.response.data.error
-            : err.response.response;
-          this.sectorData = null;
-          if (this.cellData) {
-            this.state.showReport = true;
+          this.state.busy.table1 = false;
+          try {
+            this.state.error.table1 =
+              err.response.data.error || err.response.response;
+          } catch {
+            this.state.error.table1 = "Failed to retrieve sector report data";
           }
           return [];
-        })
-        .finally(() => {
-          if (this.cellData) {
-            this.state.generating = false;
-          }
         });
     },
     generateCell() {
-      this.cellData = null;
-      this.state.generating = true;
+      this.cellData = [];
+      this.state.showReport = true;
+      this.state.busy.table2 = true;
       const year = this.config.year;
       const month = this.config.month;
       this.state.reportsDate = `${this.months[month - 1]}, ${year}`;
@@ -269,56 +271,96 @@ export default {
                   total: item.data.payed + item.data.pending,
                   payed: item.data.payed,
                   pending: item.data.pending,
-                  unpayedAmount: element.data.pending,
-                  payedAmount: element.data.payed
+                  unpayedAmount: `${Number(
+                    element.data.pending
+                  ).toLocaleString()} Rwf`,
+                  payedAmount: `${Number(
+                    element.data.payed
+                  ).toLocaleString()} Rwf`
                 });
               }
             });
           });
-          this.state.showReport = true;
+          this.state.busy.table2 = false;
           this.cellData = items;
           return items;
         })
         .catch(err => {
-          this.state.error = true;
-          this.state.errorMessage = err.response.data.error
-            ? err.response.data.error
-            : err.response.response;
-          this.cellData = null;
-          if (this.sectorData) {
-            this.state.showReport = true;
+          this.state.busy.table2 = false;
+          try {
+            this.state.error.table2 =
+              err.response.data.error || err.response.response;
+          } catch {
+            this.state.error.table2 = "Failed to retrieve Cells report data";
           }
           return [];
-        })
-        .finally(() => {
-          if (this.sectorData) {
-            this.state.generating = false;
-          }
         });
     },
     downloadReport() {
-      if (
-        !this.state.generating &&
-        this.sectorData != null &&
-        this.cellData != null
-      ) {
-        download(
-          this.sectorData,
-          this.cellData,
-          this.activeSector,
-          this.state.reportsDate
-        );
+      if (this.sectorData.length > 0 && this.cellData.length > 0) {
+        const data = {
+          config: {
+            TITLE: String(
+              `Monthly Report of ${this.activeSector}`
+            ).toUpperCase(),
+            name: `${this.activeSector} Monthly Report of ${this.state.reportsDate}`,
+            date: this.state.reportsDate
+          },
+          data: [
+            {
+              COLUMNS: [
+                {
+                  header: `No of Properties`,
+                  dataKey: "total"
+                },
+                {
+                  header: `No of Paid Properties`,
+                  dataKey: "payed"
+                },
+                { header: `Paid Amount`, dataKey: "payedAmount" },
+                {
+                  header: `No of Unpaid Properties`,
+                  dataKey: "pending"
+                },
+                { header: `Unpaid Amount`, dataKey: "unpayedAmount" }
+              ],
+              BODY: this.sectorData
+            },
+            {
+              COLUMNS: [
+                {
+                  header: `Cell`,
+                  dataKey: "name"
+                },
+                {
+                  header: `No of Properties`,
+                  dataKey: "total"
+                },
+                {
+                  header: `No of Paid Properties`,
+                  dataKey: "payedAmount"
+                },
+                { header: `Paid Amount`, dataKey: "payedAmount" },
+                {
+                  header: `No of Unpaid Properties`,
+                  dataKey: "pending"
+                },
+                { header: `Unpaid Amount`, dataKey: "unpayedAmount" }
+              ],
+              BODY: this.cellData
+            }
+          ]
+        };
+        download(data);
       }
     },
     clear() {
       this.state.showReport = false;
-      this.state.generate = false;
-      this.state.generating = false;
-      this.state.error = false;
-      this.state.errorMessage = null;
-      this.cellData = null;
-      this.cellData = null;
       this.state.reportsDate = null;
+      this.state.error.table1 = null;
+      this.state.error.table2 = null;
+      this.state.busy.table1 = false;
+      this.state.busy.table2 = false;
     }
   }
 };

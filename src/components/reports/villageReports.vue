@@ -20,11 +20,10 @@
           v-on:ok="generateAction"
           class="date-selector pb-3"
         />
-        <vue-load v-if="state.generating" label="Generating..." />
       </b-row>
-      <b-row no-gutters v-show="!state.generating">
+      <b-row no-gutters>
         <b-collapse id="sector-report-collapse" class="w-100" v-model="state.showReport">
-          <div class="reports-card" v-if="!state.error">
+          <div class="reports-card">
             <b-row no-gutters class="mb-2 justify-content-end">
               <b-badge
                 variant="secondary"
@@ -34,27 +33,20 @@
             <h5 class="bg-dark text-uppercase">{{village || ''}} village</h5>
             <b-table
               id="village-reports"
-              :items="generateVillage"
+              :items="villageData"
               :fields="table.fields"
-              :busy.sync="state.generating"
-              :key="'village-'+table.key"
-              v-if="state.generate"
+              :busy.sync="state.busy"
               small
               bordered
               responsive
               show-empty
             >
-              <template v-slot:cell(unpayedAmount)="data">
-                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+              <template v-slot:table-busy>
+                <vue-load label="Generating..." class="p-3" />
               </template>
-              <template v-slot:cell(payedAmount)="data">
-                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
-              </template>
+              <template v-slot:empty>{{state.error || 'No data available to display'}}</template>
             </b-table>
           </div>
-          <b-card v-if="state.error">
-            <b-card-text>{{state.errorMessage}}</b-card-text>
-          </b-card>
         </b-collapse>
 
         <b-row v-if="canDownload" class="justify-content-end w-100 mt-3" no-gutters>
@@ -68,7 +60,7 @@
 </template>
 
 <script>
-import download from "./downloadVillageReport";
+import download from "../download scripts/downloadReports";
 import selector from "../reportsDateSelector";
 export default {
   name: "VillageReports",
@@ -78,15 +70,12 @@ export default {
       cell: null,
       village: null,
       state: {
-        generating: false,
         showReport: false,
-        generate: false,
-        error: false,
-        errorMessage: null,
-        reportsDate: null
+        reportsDate: null,
+        busy: false,
+        error: null
       },
       config: {
-        configuring: false,
         year: new Date().getFullYear(),
         month: new Date().getMonth() + 1
       },
@@ -122,11 +111,9 @@ export default {
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           }
-        ],
-        busy: false,
-        key: 1
+        ]
       },
-      downloadData: null
+      villageData: []
     };
   },
   computed: {
@@ -149,12 +136,6 @@ export default {
 
       return [];
     },
-    currentYear() {
-      return new Date().getFullYear();
-    },
-    currentMonth() {
-      return new Date().getMonth() + 1;
-    },
     user() {
       return this.$store.getters.userDetails;
     },
@@ -171,8 +152,14 @@ export default {
       return this.$store.getters.location;
     },
     canDownload() {
-      if (!this.state.error && this.downloadData) return true;
-      return false;
+      if (
+        this.state.error ||
+        this.state.busy ||
+        this.villageData.length < 1 ||
+        this.state.showReport === false
+      )
+        return false;
+      return true;
     },
     months() {
       return this.$store.getters.getMonths;
@@ -193,12 +180,12 @@ export default {
   methods: {
     generateAction() {
       this.clear();
-      this.state.generate = true;
-      this.table.key++;
+      this.generateVillage();
     },
     generateVillage() {
-      this.downloadData = null;
-      this.state.generating = true;
+      this.villageData = [];
+      this.state.showReport = true;
+      this.state.busy = true;
       const year = this.config.year;
       const month = this.config.month;
       this.state.reportsDate = `${this.months[month - 1]}, ${year}`;
@@ -214,38 +201,65 @@ export default {
           items.total = res[0].data.data.payed + res[0].data.data.pending;
           items.payed = res[0].data.data.payed;
           items.pending = res[0].data.data.pending;
-          items.payedAmount = res[1].data.data.payed;
-          items.unpayedAmount = res[1].data.data.pending;
-          this.state.showReport = true;
-          this.downloadData = items;
+          items.payedAmount = `${Number(
+            res[1].data.data.payed
+          ).toLocaleString()} Rwf`;
+          items.unpayedAmount = `${Number(
+            res[1].data.data.pending
+          ).toLocaleString()} Rwf`;
+          this.villageData = [items];
+          this.state.busy = false;
           return [items];
         })
         .catch(err => {
-          this.state.error = true;
-          this.state.showReport = true;
-          this.state.errorMessage = err.response.data.error
-            ? err.response.data.error
-            : err.response.response;
-          this.downloadData = null;
+          try {
+            this.state.errorMessage =
+              err.response.data.error || err.response.response;
+          } catch {
+            this.state.error = "Failed to retrieve village data!";
+          }
+          this.state.busy = false;
           return [];
-        })
-        .finally(() => {
-          this.state.generating = false;
         });
     },
     downloadReport() {
-      if (!this.state.generating && this.downloadData != null) {
-        download(this.downloadData, this.village, this.state.reportsDate);
+      if (this.villageData.length > 0) {
+        const data = {
+          config: {
+            TITLE: String(`Monthly Report of ${this.village}`).toUpperCase(),
+            name: `${this.cell} Monthly Report of ${this.state.reportsDate}`,
+            date: this.state.reportsDate
+          },
+          data: [
+            {
+              COLUMNS: [
+                {
+                  header: `No of Properties`,
+                  dataKey: "total"
+                },
+                {
+                  header: `No of Paid Properties`,
+                  dataKey: "payed"
+                },
+                { header: `Paid Amount`, dataKey: "payedAmount" },
+                {
+                  header: `No of Unpaid Properties`,
+                  dataKey: "pending"
+                },
+                { header: `Unpaid Amount`, dataKey: "unpayedAmount" }
+              ],
+              BODY: this.villageData
+            }
+          ]
+        };
+        download(data);
       }
     },
     clear() {
       this.state.showReport = false;
-      this.state.generating = false;
-      this.state.generate = false;
-      this.state.error = false;
-      this.state.errorMessage = null;
-      this.downloadData = null;
+      this.state.error = null;
       this.state.reportsDate = null;
+      this.state.busy = false;
     }
   }
 };

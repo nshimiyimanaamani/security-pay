@@ -21,11 +21,10 @@
           v-on:ok="generateAction"
           class="mb-3"
         />
-        <vue-load v-if="state.generating" label="Generating..." />
       </b-row>
-      <b-row class="m-0" v-show="!state.generating">
+      <b-row no-gutters>
         <b-collapse id="sector-report-collapse" class="w-100" v-model="state.showReport">
-          <div class="reports-card" v-if="!state.error">
+          <div class="reports-card">
             <b-row no-gutters class="mb-2 justify-content-end">
               <b-badge
                 variant="secondary"
@@ -35,62 +34,53 @@
             <h5 class="text-uppercase bg-dark">{{cell}} cell</h5>
             <b-table
               id="cell-reports"
-              :items="generate"
+              :items="cellData"
               :fields="table.fields"
-              :busy.sync="state.generating"
-              :key="'cell-'+table.key"
-              v-if="state.generate"
+              :busy.sync="state.busy.table1"
               head-variant="secondary"
               small
               bordered
               responsive
               show-empty
             >
-              <template v-slot:cell(unpayedAmount)="data">
-                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+              <template v-slot:table-busy>
+                <vue-load label="Generating..." class="p-3" />
               </template>
-              <template v-slot:cell(payedAmount)="data">
-                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
-              </template>
+              <template v-slot:empty>{{state.error.table1 || 'No data available to display'}}</template>
             </b-table>
           </div>
           <div class="reports-card">
             <h5 class="text-uppercase bg-dark">villages</h5>
             <b-table
               id="cell-village-reports"
-              :items="generateVillage"
+              :items="villageData"
               :fields="villageTable.fields"
-              :busy.sync="state.generating"
-              :key="'village-'+villageTable.key"
-              v-if="state.generate"
+              :busy.sync="state.busy.table2"
               head-variant="secondary"
               small
               bordered
               responsive
               show-empty
             >
-              <template v-slot:cell(unpayedAmount)="data">
-                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
+              <template v-slot:table-busy>
+                <vue-load label="Generating..." class="p-3" />
               </template>
-              <template v-slot:cell(payedAmount)="data">
-                <b-card-text class="text-normal">{{data.value | number}} Rwf</b-card-text>
-              </template>
+              <template v-slot:empty>{{state.error.table2 || 'No data available to display'}}</template>
             </b-table>
           </div>
-          <b-card v-if="state.error">
-            <b-card-text>{{state.errorMessage}}</b-card-text>
-          </b-card>
         </b-collapse>
       </b-row>
       <b-row v-if="canDownload" class="m-0 justify-content-end">
-        <b-button @click="downloadReport" variant="info" class="br-2">Download Report</b-button>
+        <b-button @click="downloadReport" variant="info" class="br-2">
+          <i class="fa fa-download mr-1" />Download Report
+        </b-button>
       </b-row>
     </div>
   </div>
 </template>
 
 <script>
-import download from "./downloadCellReport";
+import download from "../download scripts/downloadReports";
 import selector from "../reportsDateSelector";
 export default {
   name: "cellReports",
@@ -101,20 +91,23 @@ export default {
     return {
       cell: null,
       state: {
-        generating: false,
-        generate: false,
         showReport: false,
-        error: false,
-        errorMessage: null,
-        reportsDate: null
+        reportsDate: null,
+        busy: {
+          table1: false,
+          table2: false
+        },
+        error: {
+          table1: null,
+          table2: null
+        }
       },
       config: {
-        configuring: false,
         year: new Date().getFullYear(),
         month: new Date().getMonth() + 1
       },
-      cellData: null,
-      villageData: null,
+      cellData: [],
+      villageData: [],
       table: {
         fields: [
           {
@@ -147,9 +140,7 @@ export default {
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           }
-        ],
-        busy: false,
-        key: 1
+        ]
       },
       villageTable: {
         fields: [
@@ -189,9 +180,7 @@ export default {
             tdClass: "text-right",
             thClass: "text-center text-uppercase"
           }
-        ],
-        busy: false,
-        key: 1
+        ]
       }
     };
   },
@@ -222,8 +211,17 @@ export default {
       return this.user.role.toLowerCase() === "basic";
     },
     canDownload() {
-      if (!this.state.error && this.villageData && this.cellData) return true;
-      return false;
+      if (
+        this.state.error.table1 ||
+        this.state.error.table2 ||
+        this.state.busy.table1 ||
+        this.state.busy.table2 ||
+        !this.state.showReport ||
+        !this.villageData ||
+        !this.cellData
+      )
+        return false;
+      return true;
     },
     months() {
       return this.$store.getters.getMonths;
@@ -244,13 +242,13 @@ export default {
   methods: {
     generateAction() {
       this.clear();
-      this.state.generate = true;
-      this.table.key++;
-      this.villageTable.key++;
+      this.generateCell();
+      this.generateVillage();
+      this.state.showReport = true;
     },
-    generate() {
-      this.cellData = null;
-      this.state.generating = true;
+    generateCell() {
+      this.cellData = [];
+      this.state.busy.table1 = true;
       const year = this.config.year;
       const month = this.config.month;
       this.state.reportsDate = `${this.months[month - 1]}, ${year}`;
@@ -266,30 +264,31 @@ export default {
           items.total = res[0].data.data.payed + res[0].data.data.pending;
           items.payed = res[0].data.data.payed;
           items.pending = res[0].data.data.pending;
-          items.payedAmount = res[1].data.data.payed;
-          items.unpayedAmount = res[1].data.data.pending;
-          this.state.showReport = true;
-          this.cellData = items;
+          items.payedAmount = `${Number(
+            res[1].data.data.payed
+          ).toLocaleString()} Rwf`;
+          items.unpayedAmount = `${Number(
+            res[1].data.data.pending
+          ).toLocaleString()} Rwf`;
+          this.cellData = [items];
+          this.state.busy.table1 = false;
           return [items];
         })
         .catch(err => {
+          this.state.busy.table1 = false;
           this.state.error = true;
-          this.state.errorMessage = err.response.data.error
-            ? err.response.data.error
-            : err.response.response;
-          this.cellData = null;
-          if (this.villageData) {
-            this.state.showReport = true;
+          try {
+            this.state.error.table1 =
+              err.response.data.error || err.response.response;
+          } catch {
+            this.state.error.table1 = "Failed to retrieve cell data!";
           }
           return [];
-        })
-        .finally(() => {
-          this.state.generating = false;
         });
     },
     generateVillage() {
-      this.villageData = null;
-      this.state.generating = true;
+      this.villageData = [];
+      this.state.busy.table2 = true;
       const year = this.config.year;
       const month = this.config.month;
       this.state.reportsDate = `${this.months[month - 1]}, ${year}`;
@@ -316,48 +315,86 @@ export default {
               }
             });
           });
-          this.state.showReport = true;
           this.villageData = items;
+          this.state.busy.table2 = false;
           return items;
         })
         .catch(err => {
-          this.state.error = true;
-          this.state.errorMessage = err.response.data.error
-            ? err.response.data.error
-            : err.response.response;
-          this.villageData = null;
-          if (this.cellData) {
-            this.state.showReport = true;
+          this.state.busy.table2 = false;
+          try {
+            this.state.errorMessage =
+              err.response.data.error || err.response.response;
+          } catch {
+            this.state.error.table2 = "Failed to retrieve village data!";
           }
           return [];
-        })
-        .finally(() => {
-          this.state.generating = false;
         });
     },
     downloadReport() {
-      if (
-        !this.state.generating &&
-        this.cellData != null &&
-        this.villageData != null
-      ) {
-        download(
-          this.cellData,
-          this.villageData,
-          this.cell,
-          this.state.reportsDate
-        );
+      if (this.cellData.length > 0 && this.villageData.length > 0) {
+        const data = {
+          config: {
+            TITLE: String(`Monthly Report of ${this.cell}`).toUpperCase(),
+            name: `${this.cell} Monthly Report of ${this.state.reportsDate}`,
+            date: this.state.reportsDate
+          },
+          data: [
+            {
+              COLUMNS: [
+                {
+                  header: `No of Properties`,
+                  dataKey: "total"
+                },
+                {
+                  header: `No of Paid Properties`,
+                  dataKey: "payed"
+                },
+                { header: `Paid Amount`, dataKey: "payedAmount" },
+                {
+                  header: `No of Unpaid Properties`,
+                  dataKey: "pending"
+                },
+                { header: `Unpaid Amount`, dataKey: "unpayedAmount" }
+              ],
+              BODY: this.cellData
+            },
+            {
+              COLUMNS: [
+                {
+                  header: `Village`,
+                  dataKey: "name"
+                },
+                {
+                  header: `No of Properties`,
+                  dataKey: "total"
+                },
+                {
+                  header: `No of Paid Properties`,
+                  dataKey: "payedAmount"
+                },
+                { header: `Paid Amount`, dataKey: "payedAmount" },
+                {
+                  header: `No of Unpaid Properties`,
+                  dataKey: "pending"
+                },
+                { header: `Unpaid Amount`, dataKey: "unpayedAmount" }
+              ],
+              BODY: this.villageData
+            }
+          ]
+        };
+        download(data);
       }
     },
     clear() {
       this.state.showReport = false;
-      this.state.generating = false;
-      this.state.generate = false;
-      this.state.error = false;
-      this.state.errorMessage = null;
-      this.cellData = null;
-      this.villageData = null;
       this.state.reportsDate = null;
+      this.cellData = [];
+      this.villageData = [];
+      this.state.error.table1 = null;
+      this.state.error.table2 = null;
+      this.state.busy.table1 = false;
+      this.state.busy.table2 = false;
     }
   }
 };

@@ -10,40 +10,40 @@
         />
         <b-button
           variant="info"
-          :disabled="houseId?false:true"
+          :disabled="houseId ? false : true"
           class="my-4 br-2"
           @click="generate"
         >Generate House Report</b-button>
         <vue-load v-if="state.generating" label="Generating..." />
       </b-row>
-      <b-row class="m-0 justify-content-center text-capitalize" no-gutters>
-        <b-collapse id="housereport-collapse" v-model="state.showReport">
-          <b-table-simple hover bordered small caption-top responsive v-if="userDetails">
-            <caption>Details of {{userDetails.owner.fname+' '+userDetails.owner.lname}}:</caption>
+      <b-row class="justify-content-center text-capitalize" no-gutters>
+        <b-collapse id="housereport-collapse" v-model="state.showReport" class="w-100">
+          <b-table-simple hover bordered small caption-top responsive v-if="showUserDetails">
+            <caption>Details of {{userDetails.names || 'user'}}:</caption>
             <b-tbody>
               <b-tr>
                 <b-th>Names</b-th>
-                <b-td>{{userDetails.owner.fname+' '+userDetails.owner.lname}}</b-td>
+                <b-td>{{userDetails.names}}</b-td>
               </b-tr>
               <b-tr>
                 <b-th>Phone Number</b-th>
-                <b-td>{{userDetails.owner.phone}}</b-td>
+                <b-td>{{userDetails.phone_number}}</b-td>
               </b-tr>
               <b-tr>
                 <b-th>House ID</b-th>
-                <b-td>{{userDetails.id}}</b-td>
+                <b-td>{{userDetails.house_id}}</b-td>
               </b-tr>
               <b-tr>
                 <b-th>Location</b-th>
-                <b-td>{{userDetails.address.sector+', '+userDetails.address.cell+', '+userDetails.address.village}}</b-td>
+                <b-td>{{userDetails.location}}</b-td>
               </b-tr>
               <b-tr>
                 <b-th>Amount</b-th>
-                <b-td>{{userDetails.due | number}} Rwf</b-td>
+                <b-td>{{userDetails.amount}}</b-td>
               </b-tr>
               <b-tr>
                 <b-th>For Rent</b-th>
-                <b-td>{{userDetails.occupied?userDetails.occupied?"Yes":"No":'No'}}</b-td>
+                <b-td>{{userDetails.forRent}}</b-td>
               </b-tr>
               <b-tr>
                 <b-th>Registered by</b-th>
@@ -51,111 +51,199 @@
               </b-tr>
               <b-tr>
                 <b-th>Registered on</b-th>
-                <b-td>{{userDetails.created_at | date}}</b-td>
+                <b-td>{{userDetails.created_at}}</b-td>
               </b-tr>
             </b-tbody>
           </b-table-simple>
-        </b-collapse>
-      </b-row>
-      <b-row class="justify-content-center text-capitalize">
-        <vue-load v-if="state.generatingP" label="Generating..." />
-        <b-collapse
-          id="PaymentReport-collapse"
-          class="flex-grow-1 mx-3"
-          v-model="state.showPayment"
-        >
-          <b-table-simple hover bordered small caption-top responsive v-if="paymentDetails">
-            <caption>Payment History of {{userDetails.owner.fname+' '+userDetails.owner.lname}}:</caption>
+          <b-table-simple
+            hover
+            bordered
+            small
+            caption-top
+            responsive
+            v-if="paymentDetails.length > 0"
+          >
+            <caption>Payment History of {{userDetails.names || 'user'}}:</caption>
             <b-tbody>
               <b-tr>
                 <b-th>Month</b-th>
                 <b-td>Status</b-td>
               </b-tr>
               <b-tr v-for="(item,index) in paymentDetails" :key="index">
-                <b-th>{{item.created_at | date}}</b-th>
-                <b-td>{{item.status=="pending"?'Not Paid':'Paid'}}</b-td>
+                <b-th>{{item.created_at}}</b-th>
+                <b-td>{{item.status}}</b-td>
               </b-tr>
             </b-tbody>
           </b-table-simple>
+          <div v-else class="w-100 d-flex justify-content-center align-items-center p-5 bg-light">
+            <p>{{state.error || 'Oops, something went wrong!'}}</p>
+          </div>
         </b-collapse>
       </b-row>
-      <b-row class="justify-content-end" v-if="paymentDetails" no-gutters>
-        <b-button variant="info" @click="download">Download Report</b-button>
+      <b-row class="justify-content-end" v-if="showDownload" no-gutters>
+        <b-button variant="info" class="br-2" @click="downloadReports">
+          <i class="fa fa-download mr-1" />Download Report
+        </b-button>
       </b-row>
     </div>
   </div>
 </template>
 
 <script>
-import DownloadReport from "./downloadReport";
+import download from "../download scripts/downloadReports";
 export default {
   name: "cellReports",
   data() {
     return {
       houseId: null,
-      userDetails: null,
-      paymentDetails: null,
+      userDetails: [],
+      paymentDetails: [],
       state: {
         showReport: false,
-        showPayment: false,
-        generatingP: false,
-        generating: false
+        generating: false,
+        error: null
       }
     };
   },
   computed: {
-    cellOptions() {
-      return this.$store.getters.getCellsArray;
+    showDownload() {
+      if (
+        this.userDetails.length < 1 ||
+        this.paymentDetails.length < 1 ||
+        this.state.showReport === false ||
+        this.state.generating === true ||
+        this.state.error !== null
+      )
+        return false;
+      return true;
+    },
+    showUserDetails() {
+      return Object.keys(this.userDetails).length > 0;
     }
   },
-  mounted() {},
   methods: {
     generate() {
       this.state.generating = true;
-      this.userDetails = null;
-      this.paymentDetails = null;
+      this.userDetails = [];
+      this.paymentDetails = [];
       this.state.showReport = false;
-      this.state.showPayment = false;
       this.axios
         .get("/properties/" + this.houseId.toUpperCase())
         .then(res => {
-          this.state.showReport = true;
-          this.userDetails = res.data;
+          this.userDetails = [res.data].map(item => {
+            return {
+              names: `${item.owner.fname} ${item.owner.lname}`,
+              phone_number: item.owner.phone,
+              house_id: item.id,
+              location: `${item.address.sector}, ${item.address.cell}, ${item.address.village}`,
+              amount: `${this.$options.filters.number(item.due)} Rwf`,
+              forRent: item.occupied ? "Yes" : "No",
+              recorded_by: item.recorded_by,
+              created_at: this.$options.filters.date(item.created_at),
+              updated_at: this.$options.filters.date(item.updated_at)
+            };
+          })[0];
           this.generatePayment();
         })
         .catch(err => {
-          this.state.showReport = false;
-          const error = err.response
-            ? err.response.data.error || err.response.data
-            : null;
-          if (error) this.$snotify.error(error);
-        })
-        .finally(() => {
+          this.state.showReport = true;
           this.state.generating = false;
+          try {
+            this.state.error = err.response.data.error || err.response.data;
+          } catch {
+            this.state.error = "Failed to retrieve property details!";
+          }
         });
     },
     generatePayment() {
-      this.state.showPayment = false;
-      this.state.generatingP = true;
+      this.state.showReport = false;
       this.axios
         .get("/billing/invoices?property=" + this.houseId + "&months=12")
         .then(res => {
-          this.paymentDetails = res.data.Invoices;
-          this.state.showPayment = true;
+          this.paymentDetails = res.data.Invoices.map(item => {
+            return {
+              id: item.id,
+              propertyID: item.property,
+              amount: this.$options.filters.number(item.amount),
+              status: item.status == "pending" ? "Not paid" : "Paid",
+              created_at: this.$options.filters.date(item.created_at),
+              updated_at: this.$options.filters.date(item.updated_at)
+            };
+          });
+          this.state.showReport = true;
+          this.state.generating = false;
         })
         .catch(err => {
-          this.state.showPayment = true;
-          const error = err.response
-            ? err.response.data.error || err.response.data
-            : null;
-          if (error) this.$snotify.error(error);
-        })
-        .finally(() => (this.state.generatingP = false));
+          try {
+            this.state.error = err.response.data.error || err.response.data;
+          } catch {
+            this.state.error = "Failed to retrieve user payment Details";
+          }
+          this.state.generating = false;
+        });
     },
-    download() {
-      if (this.paymentDetails != null && this.userDetails != null) {
-        DownloadReport(this.userDetails, this.paymentDetails);
+    downloadReports() {
+      if (this.paymentDetails.length > 1 && this.userDetails) {
+        const data = {
+          config: {
+            TITLE: String(
+              `Report of ${this.userDetails.names}'s Property`
+            ).toUpperCase(),
+            name: `Report of ${this.userDetails.names}'s Property`,
+            date: this.state.reportsDate
+          },
+          data: [
+            {
+              SHOWHEAD: "never",
+              COLUMNS: [
+                {
+                  header: `key`,
+                  dataKey: "key"
+                },
+                {
+                  header: `value`,
+                  dataKey: "value"
+                }
+              ],
+              BODY: [this.userDetails].map(item => {
+                return [
+                  { key: "Names", value: item.names },
+                  { key: "Phone Number", value: item.phone_number },
+                  { key: "House Id", value: item.house_id },
+                  { key: "Location", value: item.location },
+                  { key: "Amount", value: item.amount },
+                  { key: "For Rent", value: item.forRent },
+                  { key: "Registered By", value: item.recorded_by },
+                  { key: "Registered On", value: item.created_at }
+                ];
+              })[0]
+            },
+            {
+              COLUMNS: [
+                {
+                  header: "Payment History",
+                  dataKey: "key"
+                },
+                {
+                  header: "Status",
+                  dataKey: "value"
+                }
+              ],
+              BODY: this.paymentDetails.map(obj => {
+                return {
+                  key: obj.created_at,
+                  value: obj.status
+                };
+              })
+            }
+          ]
+        };
+        download(data);
       }
+    },
+    clear() {
+      this.state.generating = false;
+      this.state.error = null;
     }
   }
 };
