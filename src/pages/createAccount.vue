@@ -81,6 +81,24 @@ export default {
     location() {
       return this.$store.getters.location;
     }
+  },
+  mounted() {
+    const el = this.$createElement;
+    var message = "Hello just testing a modal";
+    var title = "This is going to be the title";
+    const messageNode = el("div", [message]);
+    this.$bvModal.msgBoxConfirm(messageNode, {
+      title: title,
+      okTitle: "YES",
+      centered: true,
+      cancelTitle: "NO",
+      okVariant: "danger",
+      modalClass: "__custom-modal",
+      footerClass: "__custom-modal-footer",
+      headerClass: "__custom-modal-header",
+      bodyClass: "__custom-modal-body",
+      contentClass: "secondary-font"
+    });
   }
 };
 </script>
@@ -97,7 +115,7 @@ export default {
     font-weight: 700;
   }
   .nav-controls {
-   height: calc(100% - 50px);
+    height: calc(100% - 50px);
   }
   .accounts-nav {
     .nav-item {

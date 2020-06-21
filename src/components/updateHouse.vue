@@ -139,26 +139,28 @@ export default {
   },
   computed: {
     cellOptions() {
-      return this.$store.getters.getCellsArray;
+      const { province, district, sector } = this.location;
+      return this.$cells(province, district, sector);
     },
     villageOptions() {
       const cell = this.newAddress.cell
         ? this.newAddress.cell
         : this.house.address.cell;
-      if (cell) {
-        return Village("Kigali", "Gasabo", this.activeSector, cell);
-      } else {
-        return [];
-      }
+      const { province, district, sector } = this.location;
+      if (cell) return this.$villages(province, district, sector, cell);
+      return [];
     },
     activeSector() {
       return this.$store.getters.getActiveSector;
+    },
+    location() {
+      return this.$store.getters.location;
+    },
+    user() {
+      return this.$store.getters.userDetails;
     }
   },
   methods: {
-    due(house) {
-      return Number(house.due).toLocaleString();
-    },
     update() {
       const sector = this.house.address.sector;
       const cell = this.newAddress.cell
@@ -183,7 +185,8 @@ export default {
               address: { cell: cell, village: village, sector: sector },
               recorded_by: this.house.recorded_by,
               due: String(this.house.due),
-              occupied: this.rented
+              occupied: this.rented,
+              namespace: this.user.account
             })
             .then(response => {
               this.$snotify.info(response.data.message);

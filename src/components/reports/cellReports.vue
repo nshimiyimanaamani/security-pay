@@ -28,7 +28,7 @@
             <b-row no-gutters class="mb-2 justify-content-end">
               <b-badge
                 variant="secondary"
-                class="p-2 font-13"
+                class="p-2 fsize-sm"
               >Report Date: &nbsp; {{state.reportsDate}}</b-badge>
             </b-row>
             <h5 class="text-uppercase bg-dark">{{cell}} cell</h5>

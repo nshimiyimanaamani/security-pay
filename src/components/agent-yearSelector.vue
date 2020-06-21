@@ -10,7 +10,7 @@
     <template v-slot:button-content>
       <p class="m-0 d-flex align-items-center">
         settings
-        <i class="fa fa-cog text-white font-19 ml-1" />
+        <i class="fa fa-cog text-white fsize-xl ml-1" />
       </p>
     </template>
     <b-dropdown-form form-class="p-2">

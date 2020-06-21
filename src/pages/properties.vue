@@ -300,11 +300,8 @@ export default {
       return this.fields.map(i => i.label);
     },
     totals() {
-      if (this.filteredData.length > 0) {
-        let total = 0;
-        this.filteredData.forEach(i => (total += Number(i.due)));
-        return total;
-      }
+      if (this.filteredData.length > 0)
+        return this.filteredData.reduce((a, b) => a + b);
       return 0;
     },
     user() {
@@ -543,7 +540,7 @@ export default {
 
       this.$bvModal
         .msgBoxConfirm(messageNode, {
-          title: "Confirm to delete this house?",
+          title: "Are you sure to delete this house?",
           buttonSize: "sm",
           okVariant: "danger",
           okTitle: "yes! delete",

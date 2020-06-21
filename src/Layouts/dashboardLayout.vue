@@ -20,7 +20,7 @@
             <router-link to="/cells" v-for="cell in cellsOptions" :key="cell">
               <ul
                 @click="update({toUpdate: 'cell', changed: cell})"
-                class="text-white py-1 px-3 font-13 hover-color cursor-pointer"
+                class="text-white py-1 px-3 fsize-sm hover-color cursor-pointer"
               >{{cell}}</ul>
               <hr class="m-0" />
             </router-link>
@@ -33,7 +33,7 @@
             <router-link to="/village" v-for="village in villageOptions" :key="village">
               <ul
                 @click="update({toUpdate: 'village', changed: village})"
-                class="text-white py-1 px-3 font-13 hover-color cursor-pointer"
+                class="text-white py-1 px-3 fsize-sm hover-color cursor-pointer"
               >{{village}}</ul>
               <hr class="m-0" />
             </router-link>
