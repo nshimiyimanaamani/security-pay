@@ -1,48 +1,35 @@
 <template>
   <b-tabs content-class="agentTabs-body" nav-class="agentTabs-nav" class="addAgent h-100" fill lazy>
-    <b-tab title="Create Agent" active>
+    <b-tab title="Create Agent">
       <b-form class="accountForm" @submit.prevent="create">
         <b-row>
           <b-col>
-            <b-form-group id="input-group-1" label="First name:" label-for="input-1">
-              <b-form-input
-                id="input-1"
-                required
-                v-model="form.fname"
-                placeholder="First name..."
-                class="br-2"
-              ></b-form-input>
+            <b-form-group label="First name:">
+              <b-form-input required v-model="form.fname" placeholder="First name..." class="br-2" />
             </b-form-group>
           </b-col>
           <b-col>
-            <b-form-group id="input-group-2" label="Last name:" label-for="input-2">
-              <b-form-input
-                id="input-2"
-                required
-                v-model="form.lname"
-                placeholder="Last name..."
-                class="br-2"
-              ></b-form-input>
+            <b-form-group label="Last name:">
+              <b-form-input required v-model="form.lname" placeholder="Last name..." class="br-2" />
             </b-form-group>
           </b-col>
         </b-row>
-        <b-form-group id="input-group-3" label="Phone Number:" label-for="input-3">
+        <b-form-group label="Phone Number:">
           <b-form-input
-            id="input-3"
             type="number"
             v-model="form.phone"
             class="br-2"
             required
             placeholder="Enter Phone number..."
-          ></b-form-input>
+          />
         </b-form-group>
 
-        <b-form-group id="input-group-4" label="Sector:" label-for="input-4">
+        <b-form-group label="Sector:">
           <b-form-select
             class="br-2"
-            id="input-4"
             v-model="form.select.sector"
             :options="sectorOptions"
+            required
           >
             <template v-slot:first>
               <option :value="null" disabled>select sector</option>
@@ -50,26 +37,16 @@
           </b-form-select>
         </b-form-group>
 
-        <b-form-group id="input-group-5" label="Cell:" label-for="input-5">
-          <b-form-select
-            id="input-5"
-            class="br-2"
-            v-model="form.select.cell"
-            :options="cellOptions"
-          >
+        <b-form-group label="Cell:">
+          <b-form-select class="br-2" v-model="form.select.cell" :options="cellOptions" required>
             <template v-slot:first>
               <option :value="null" disabled>select cell</option>
             </template>
           </b-form-select>
         </b-form-group>
 
-        <b-form-group id="input-group-5" label="Village:" label-for="input-6">
-          <b-select
-            id="input-6"
-            v-model="form.select.village"
-            :options="villageOptions"
-            class="br-2"
-          >
+        <b-form-group label="Village:">
+          <b-select v-model="form.select.village" :options="villageOptions" class="br-2" required>
             <template v-slot:first>
               <option :value="null" disabled>select village</option>
             </template>
@@ -86,7 +63,7 @@
         </b-row>
       </b-form>
     </b-tab>
-    <b-tab title="List all Agents" class="h-100">
+    <b-tab title="List all Agents" class="h-100" active>
       <b-table
         id="data-table"
         striped
@@ -177,7 +154,10 @@ export default {
         data: null
       },
       rightMenu: {
-        options: [{ name: "Change Password", slug: "changePwd" }]
+        options: [
+          { name: "Change Password", slug: "changePwd" },
+          { name: "Delete", slug: "delete" }
+        ]
       }
     };
   },
@@ -187,34 +167,22 @@ export default {
     },
     cellOptions() {
       const sector = this.form.select.sector;
-      if (sector) {
-        return this.$cells(
-          this.location.province,
-          this.location.district,
-          sector
-        );
-      }
+      const { province, district } = this.location;
+      if (sector) return this.$cells(province, district, sector);
+      return [];
     },
     villageOptions() {
       const sector = this.form.select.sector;
       const cell = this.form.select.cell;
-      if (sector && cell) {
-        return this.$villages(
-          this.location.province,
-          this.location.district,
-          sector,
-          cell
-        ).sort();
-      } else {
-        return [];
-      }
+      const { province, district } = this.location;
+      if (sector && cell)
+        return this.$villages(province, district, sector, cell);
+      return [];
     },
     currentPwd() {
-      if (this.change_pswd_modal.data) {
+      if (this.change_pswd_modal.data)
         return this.change_pswd_modal.data.password;
-      } else {
-        return null;
-      }
+      return null;
     },
     user() {
       return this.$store.getters.userDetails;
@@ -254,30 +222,43 @@ export default {
           sector: this.form.select.sector
         })
         .then(res => {
-          if (res) {
-            this.$snotify.info("Agent successfully created...");
-            const message = `Password For ${res.data.first_name} ${last_name} is: ${res.data.password}`;
+          this.state.creating = false;
+          if (res.status === 201) {
+            const el = this.$createElement;
+            const messageNode = el("div", [
+              el("p", { class: "text-center" }, [
+                `Password For ${res.data.first_name} ${res.data.last_name} is`
+              ]),
+              el("br"),
+              el("p", { class: "text-center" }, [` ${res.data.password}`])
+            ]);
             this.$bvModal
-              .msgBoxOk(message, {
-                title: "Agent Details",
-                size: "md",
-                buttonSize: "sm",
-                okVariant: "info",
-                headerClass: "p-2 border-bottom-0",
-                footerClass: "p-2 border-top-0",
-                centered: true
+              .msgBoxConfirm(messageNode, {
+                okTitle: "YES",
+                centered: true,
+                cancelTitle: "NO",
+                okVariant: "danger",
+                modalClass: "__custom-modal",
+                footerClass: "d-none",
+                headerClass: "d-none",
+                bodyClass: "__custom-modal-body",
+                contentClass: "secondary-font"
               })
-              .then(res => console.log(""));
+              .then(() => {
+                this.$snotify.info("Agent successfully created...");
+              });
           }
         })
         .catch(err => {
-          const error = err.response
-            ? err.response.data.error || err.response.data
-            : null;
-          if (error) this.$snotify.error(error);
-        })
-        .finally(() => {
+          console.log(err, err.request, err.response);
           this.state.creating = false;
+          try {
+            this.$snotify.error(
+              err.response.data.error || err.response.data || err
+            );
+          } catch {
+            this.$snotify.error("Failed to create agent account!");
+          }
         });
     },
     async loadData() {
@@ -300,7 +281,6 @@ export default {
     },
     menu(house, index, evt) {
       evt.preventDefault();
-
       this.$refs.agent_rightMenu.showMenu(evt, house);
     },
     optionClicked(data) {
@@ -313,10 +293,14 @@ export default {
             this.$snotify.info("Agent deleted Succesfully");
           })
           .catch(err => {
-            const error = err.response
-              ? err.response.data.error || err.response.data
-              : null;
-            if (error) this.$snotify.error(error);
+            console.log(err, err.request, err.response);
+            try {
+              this.$snotify.error(
+                err.response.data.error || err.response.data || err
+              );
+            } catch {
+              this.$snotify.error("Failed to delete agent account!");
+            }
           })
           .finally(() => {
             this.state.tableLoad = false;

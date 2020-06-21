@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <vue-snotify class="text-capitalize secondary-font font-13"></vue-snotify>
+    <vue-snotify class="text-capitalize secondary-font fsize-sm"></vue-snotify>
     <b-alert :show="offline" variant="danger" class="offline-indicator secondary-font" dismissible>
       <b>OFFLINE!</b> Please check your internet connection...
     </b-alert>

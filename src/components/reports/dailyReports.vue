@@ -1,6 +1,6 @@
 <template>
   <div>
-    <header class="d-flex justify-content-center font-19 text-uppercase">Daily Reports</header>
+    <header class="d-flex justify-content-center fsize-xl text-uppercase">Daily Reports</header>
     <hr class="m-0 mb-3" />
   </div>
 </template>

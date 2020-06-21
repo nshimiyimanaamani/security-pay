@@ -1,8 +1,8 @@
 <template>
   <div class="w-100 m-auto">
     <b-row class="m-0 justify-content-between align-items-center">
-      <b-button v-b-modal.register-property class="font-14" variant="info">Register</b-button>
-      <b-button class="font-14 ml-2" variant="info" @click.prevent="refresh">
+      <b-button v-b-modal.register-property class="fsize-m" variant="info">Register</b-button>
+      <b-button class="fsize-m ml-2" variant="info" @click.prevent="refresh">
         Refresh
         <i class="fa fa-sync-alt ml-1" />
       </b-button>
@@ -88,8 +88,8 @@
         </b-form-group>
         <hr />
         <b-row id="input-group-8" class="m-0 mt-3 justify-content-between">
-          <b-button type="reset" variant="danger" size="sm" class="px-3 py-1 font-14">cancel</b-button>
-          <b-button type="submit" size="sm" variant="info" class="px-3 py-1 font-14">
+          <b-button type="reset" variant="danger" size="sm" class="px-3 py-1 fsize-m">cancel</b-button>
+          <b-button type="submit" size="sm" variant="info" class="px-3 py-1 fsize-m">
             {{state.loading ? 'Registering' : 'Register'}}
             <b-spinner v-show="state.loading" small type="grow" />
           </b-button>

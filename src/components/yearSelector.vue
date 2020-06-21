@@ -9,7 +9,7 @@
     toggle-class="p-0 border-0 bg-transparent"
   >
     <template v-slot:button-content>
-      <i class="fa fa-cog text-white font-19" />
+      <i class="fa fa-cog text-white fsize-xl" />
     </template>
     <b-dropdown-form form-class="p-2">
       <b-form-group label="Year" :label-for="'dropdown-year_'+random" @submit.stop.prevent>

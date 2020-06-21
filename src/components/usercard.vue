@@ -6,8 +6,8 @@
     </b-card-header>
     <b-card-footer class="d-flex justify-content-between py-2 align-items-end bg-white">
       <article class="d-flex flex-column w-100 pr-1">
-        <span v-show="house.percentage" class="completed font-13">completed</span>
-        <span class="details font-13">{{house.due}} Rwf per month</span>
+        <span v-show="house.percentage" class="completed fsize-sm">completed</span>
+        <span class="details fsize-sm">{{house.due}} Rwf per month</span>
         <b-progress class="w-100" :value="0" :max="100"></b-progress>
       </article>
       <i
@@ -25,7 +25,7 @@
             block
             v-b-toggle="'accordion-'+i+house.id"
             variant="light"
-            class="font-13"
+            class="fsize-sm"
           >Year - {{currentYear-i}}</b-button>
         </b-card>
         <b-collapse :id="'accordion-'+i+house.id" accordion="my-accordion" role="tabpanel">

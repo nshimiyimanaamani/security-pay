@@ -5,21 +5,18 @@ import Vue from "vue";
 import axios from "axios";
 import App from "./App.vue";
 import router from "./router";
-import "./assets/css/main.css";
 import { store } from "./store";
+import "./assets/css/main.scss";
+const Rwanda = require("rwanda");
 import VueAxios from "vue-axios";
 import PortalVue from "portal-vue";
+import { decode } from "jsonwebtoken";
 import vueBoostrap from "bootstrap-vue";
 import VueSlider from "vue-slider-component";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "vue-slider-component/theme/default.css";
-import "bootstrap-vue/dist/bootstrap-vue.min.css";
 import titleComponent from "./components/title.vue";
 import Snotify, { SnotifyPosition } from "vue-snotify";
 import loadingComponent from "./components/loading.vue";
 import VueSimpleContextMenu from "./scripts/simplecontextMenu";
-const Rwanda = require("rwanda");
-import { decode } from "jsonwebtoken";
 
 Vue.component("VueSlider", VueSlider);
 Vue.component("vue-title", titleComponent);
@@ -31,7 +28,7 @@ Vue.use(vueBoostrap);
 
 Vue.use(Snotify, {
   toast: {
-    timeout: 3000,
+    timeout: 5000,
     showProgressBar: false,
     closeOnClick: true,
     position: SnotifyPosition.rightTop
@@ -78,7 +75,7 @@ Vue.prototype.$isPhoneNumber = number => {
     throw new Error("Input should be string");
   }
 
-  const re = /^(\+?25)?(078|075|073|072)\d{7}$/;
+  const re = /^(\+?25)?(078|073|072)\d{7}$/;
   if (!re.test(number)) {
     return errors.format;
   }
