@@ -301,7 +301,9 @@ export default {
     },
     totals() {
       if (this.filteredData.length > 0)
-        return this.filteredData.reduce((a, b) => a + b);
+        return this.filteredData.reduce(
+          (a, b) => Number(a.due || a) + Number(b.due)
+        );
       return 0;
     },
     user() {
@@ -364,13 +366,13 @@ export default {
     async loadData() {
       this.loading.request = true;
 
-      // if (!this.development) {
-      var promise = await this.getUrl();
-      const total = await this.$getTotal(`${promise}0`);
+      if (!this.development) {
+        var promise = await this.getUrl();
+        const total = await this.$getTotal(`${promise}0`);
 
-      if (total)
-        if (total !== this.originalData.length) this.state.reloadData = true;
-      // }
+        if (total)
+          if (total !== this.originalData.length) this.state.reloadData = true;
+      }
 
       if (this.state.reloadData === false) {
         const properties = JSON.parse(localStorage.getItem("Properties"));
