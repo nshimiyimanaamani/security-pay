@@ -366,13 +366,11 @@ export default {
     async loadData() {
       this.loading.request = true;
 
-      if (!this.development) {
-        var promise = await this.getUrl();
-        const total = await this.$getTotal(`${promise}0`);
+      var promise = await this.getUrl();
+      const total = await this.$getTotal(`${promise}0`);
 
-        if (total)
-          if (total !== this.originalData.length) this.state.reloadData = true;
-      }
+      if (total)
+        if (total !== this.originalData.length) this.state.reloadData = true;
 
       if (this.state.reloadData === false) {
         const properties = JSON.parse(localStorage.getItem("Properties"));
@@ -401,6 +399,7 @@ export default {
           this.state.reloadData = false;
         })
         .catch(err => {
+          console.log(err.request);
           const properties = JSON.parse(localStorage.getItem("Properties"));
           if (properties && properties.length > 0) {
             this.filteredData = properties;
