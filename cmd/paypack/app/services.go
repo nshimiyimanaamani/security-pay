@@ -54,6 +54,7 @@ func Init(
 	s notifications.Backend,
 	secret string,
 	namespace string,
+	prefix string,
 ) *Services {
 	services := &Services{
 		Accounts:      bootAccountsService(db),
@@ -68,7 +69,7 @@ func Init(
 		Invoices:      bootInvoiceService(db),
 		Stats:         bootStatsService(db),
 		Scheduler:     bootScheduler(db, queue),
-		USSD:          bootUSSDService(),
+		USSD:          bootUSSDService(prefix, db, rclient, p),
 	}
 	return services
 }
@@ -157,9 +158,18 @@ func bootNotifService(sms notifications.Backend) notifications.Service {
 	return notifications.New(opts)
 }
 
-func bootUSSDService() ussd.Service {
+func bootUSSDService(prefix string, db *sql.DB, rclient *redis.Client, bc payment.Backend) ussd.Service {
 	idp := uuid.New()
-	opts := &ussd.Options{Idp: idp}
+	properties := postgres.NewPropertyStore(db)
+	owners := postgres.NewOwnerRepo(db)
+	payment := bootPaymentService(db, rclient, bc)
+	opts := &ussd.Options{
+		Prefix:     prefix,
+		IDP:        idp,
+		Owners:     owners,
+		Properties: properties,
+		Payment:    payment,
+	}
 	return ussd.New(opts)
 }
 

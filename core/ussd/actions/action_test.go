@@ -32,13 +32,13 @@ func TestAction(t *testing.T) {
 		{
 			desc:     "action1: view properties",
 			input:    "*662*102*1#",
-			expected: "Kwemeza kureba code y'(z')inzu, Shyiramo nimero za telephone",
+			expected: "Kwemeza kureba code y'(z')inzu, Andika nimero za telephone",
 			err:      nil,
 		},
 		{
 			desc:     "action2: make payment",
 			input:    "*662*102*2#",
-			expected: "Kwishyura, Shyiramo code y' inzu",
+			expected: "Kwishyura, Andika code y' inzu",
 			err:      nil,
 		},
 	}

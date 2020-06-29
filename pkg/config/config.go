@@ -19,6 +19,7 @@ type Config struct {
 	Redis        *RedisConfig
 	Payment      *PaymentConfig
 	SMS          *SMSConfig
+	USSD         *USSDConfig
 }
 
 //default config

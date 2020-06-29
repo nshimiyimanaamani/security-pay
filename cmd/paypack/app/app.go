@@ -59,14 +59,14 @@ func Bootstrap(conf *config.Config) (http.Handler, error) {
 	}
 
 	//create protocol
-	services := Init(db, rclient, queue, pb, sms, conf.Secret, namespace)
+	services := Init(db, rclient, queue, pb, sms, conf.Secret, namespace, conf.USSD.Prefix)
 
 	handlerOpts := NewHandlerOptions(services, lggr)
 
 	r := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(false)
 
 	r.Use(mw.LogEntryMiddleware(lggr))
-	r.Use(mw.Recover())
+	// r.Use(mw.Recover())
 
 	Register(r, handlerOpts)
 

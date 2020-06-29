@@ -48,6 +48,6 @@ func (action *action1) Tail() bool {
 }
 
 func (action *action1) run() (ussd.Result, error) {
-	var menu = "Kwemeza kureba code y'(z')inzu, Shyiramo nimero za telephone"
+	var menu = "Kwemeza kureba code y'(z')inzu, Andika nimero za telephone"
 	return NewResult(menu), nil
 }

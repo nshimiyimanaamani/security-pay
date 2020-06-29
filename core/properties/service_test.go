@@ -22,9 +22,9 @@ const (
 
 var uuidLength = len(uuid.New().ID())
 
-func newService(owners map[string]properties.Owner) properties.Service {
+func newService(owner properties.Owner) properties.Service {
 	idp := mocks.NewIdentityProvider()
-	props := mocks.NewRepository(owners)
+	props := mocks.NewRepository(owner.ID)
 	return properties.New(idp, props)
 }
 
@@ -36,7 +36,7 @@ func makeOwners(owner properties.Owner) map[string]properties.Owner {
 
 func TestRegister(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	property := properties.Property{
 		Owner:      properties.Owner{ID: owner.ID},
@@ -106,7 +106,7 @@ func TestRegister(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	property := properties.Property{
 		Owner:      properties.Owner{ID: owner.ID},
@@ -172,7 +172,7 @@ func TestUpdate(t *testing.T) {
 
 func TestRetrieve(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	property := properties.Property{
 		Owner:      properties.Owner{ID: owner.ID},
@@ -214,7 +214,7 @@ func TestRetrieve(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	property := properties.Property{
 		Owner:      properties.Owner{ID: owner.ID},
@@ -256,7 +256,7 @@ func TestDelete(t *testing.T) {
 
 func TestListByOwner(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	n := uint64(10)
 	for i := uint64(0); i < n; i++ {
@@ -327,7 +327,7 @@ func TestListByOwner(t *testing.T) {
 
 func TestListBySector(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	property := properties.Property{
 		Owner:      owner,
@@ -397,7 +397,7 @@ func TestListBySector(t *testing.T) {
 
 func TestListByCell(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	property := properties.Property{
 		Owner:      owner,
@@ -469,7 +469,7 @@ func TestListByCell(t *testing.T) {
 
 func TestListByVillage(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	property := properties.Property{
 		Owner:      owner,
@@ -540,7 +540,7 @@ func TestListByVillage(t *testing.T) {
 
 func TestListByRecorder(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	property := properties.Property{
 		Owner:      owner,

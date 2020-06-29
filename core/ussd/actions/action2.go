@@ -50,7 +50,7 @@ func (action *action2) Tail() bool {
 }
 
 func (action *action2) run() (ussd.Result, error) {
-	var menu = "Kwishyura, Shyiramo code y' inzu"
+	var menu = "Kwishyura, Andika code y' inzu"
 
 	return NewResult(menu), nil
 }

@@ -73,9 +73,9 @@ func newAuthenticator() auth.Service {
 	return auth.New(opts)
 }
 
-func newService(owners map[string]properties.Owner) properties.Service {
+func newService(owner properties.Owner) properties.Service {
 	idp := mocks.NewIdentityProvider()
-	props := mocks.NewRepository(owners)
+	props := mocks.NewRepository(owner.ID)
 	return properties.New(idp, props)
 }
 
@@ -103,7 +103,7 @@ func toJSON(data interface{}) string {
 
 func TestRegister(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 	ts := newServer(svc)
 
 	defer ts.Close()
@@ -224,7 +224,7 @@ func TestRegister(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	ts := newServer(svc)
 	defer ts.Close()
@@ -367,7 +367,7 @@ func TestUpdate(t *testing.T) {
 
 func TestRetrieve(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	ts := newServer(svc)
 	defer ts.Close()
@@ -474,7 +474,7 @@ func TestRetrieve(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	ts := newServer(svc)
 	defer ts.Close()
@@ -565,7 +565,7 @@ func TestDelete(t *testing.T) {
 
 func TestListByOwner(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	ts := newServer(svc)
 	defer ts.Close()
@@ -672,7 +672,7 @@ func TestListByOwner(t *testing.T) {
 
 func TestListByCell(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	ts := newServer(svc)
 	defer ts.Close()
@@ -780,7 +780,7 @@ func TestListByCell(t *testing.T) {
 
 func TestListBySector(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 
 	ts := newServer(svc)
 	defer ts.Close()
@@ -889,7 +889,7 @@ func TestListBySector(t *testing.T) {
 func TestListByVillage(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 	ts := newServer(svc)
 	defer ts.Close()
 	client := ts.Client()
@@ -998,7 +998,7 @@ func TestListByVillage(t *testing.T) {
 func TestListByRecorder(t *testing.T) {
 	owner := properties.Owner{ID: uuid.New().ID()}
 
-	svc := newService(makeOwners(owner))
+	svc := newService(owner)
 	ts := newServer(svc)
 	defer ts.Close()
 	client := ts.Client()

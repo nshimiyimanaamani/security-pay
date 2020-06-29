@@ -11,13 +11,13 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
-// Callback recieves ussd callback requests
-func Callback(lgger log.Entry, svc ussd.Service) http.Handler {
-	const op errors.Op = "api/http/ussd.Callback"
+// Process recieves ussd callback requests
+func Process(lgger log.Entry, svc ussd.Service) http.Handler {
+	const op errors.Op = "api/http/ussd/Process"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
 
-		//debug(r, w)
+		// debug(r, w)
 
 		var req ussd.Request
 
@@ -29,7 +29,7 @@ func Callback(lgger log.Entry, svc ussd.Service) http.Handler {
 			return
 		}
 
-		res, err := svc.Process(r.Context(), req)
+		res, err := svc.Process(r.Context(), &req)
 		if err != nil {
 			lgger.SystemErr(err)
 			encoding.EncodeError(w, errors.Kind(err), err)
