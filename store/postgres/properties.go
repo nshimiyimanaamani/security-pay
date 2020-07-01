@@ -213,16 +213,16 @@ func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, 
 		INNER JOIN
 			owners ON properties.owner=owners.id
 		WHERE 
-			properties.owner = $1 AND properties.namespace=$2
-		ORDER BY properties.id LIMIT $3 OFFSET $4
+			properties.owner = $1
+		ORDER BY properties.id LIMIT $2 OFFSET $3
 		
 	`
 
-	creds := auth.CredentialsFromContext(ctx)
+	// creds := auth.CredentialsFromContext(ctx)
 
 	var items = []properties.Property{}
 
-	rows, err := repo.Query(q, owner, creds.Account, limit, offset)
+	rows, err := repo.Query(q, owner, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -255,10 +255,10 @@ func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, 
 		items = append(items, row)
 	}
 
-	q = `SELECT COUNT(*) FROM properties WHERE owner = $1 AND namespace=$2`
+	q = `SELECT COUNT(*) FROM properties WHERE owner = $1`
 
 	var total uint64
-	if err := repo.QueryRow(q, owner, creds.Account).Scan(&total); err != nil {
+	if err := repo.QueryRow(q, owner).Scan(&total); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 

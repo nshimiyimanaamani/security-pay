@@ -29,7 +29,7 @@ require (
 	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rubenv/sql-migrate v0.0.0-20200616145509-8d140a17f351
-	github.com/rugwirobaker/platypus v0.0.3
+	github.com/rugwirobaker/platypus v0.0.4
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/testify v1.6.1

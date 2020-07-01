@@ -27,7 +27,7 @@ func (svc *service) action2(ctx context.Context, cmd *platypus.Command) (platypu
 }
 
 func (svc *service) action2_1(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
-	const op errors.Op = "core/ussd/service.Action1"
+	const op errors.Op = "core/ussd/service.Action2_1"
 
 	const success = "Amazu abanditseho:\n"
 
@@ -72,7 +72,9 @@ func PrintProperties(static string, page properties.PropertyPage) string {
 	for n, property := range page.Properties {
 		id := property.ID
 		sector := property.Address.Sector
-		_, _ = buf.WriteString(fmt.Sprintf("%d.%s:'%s'\n", n+1, sector, id))
+		cell := property.Address.Cell
+		village := property.Address.Village
+		_, _ = buf.WriteString(fmt.Sprintf("%d.%s-%s-%s:'%s'\n", n+1, sector, cell, village, id))
 	}
 	return buf.String()
 }

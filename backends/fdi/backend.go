@@ -61,7 +61,7 @@ func (cli *backend) Pull(ctx context.Context, tx payment.Transaction) (payment.S
 		AccountID:   cli.AppID,
 		Msisdn:      tx.Phone,
 		Amount:      tx.Amount,
-		ChannelID:   tx.Method,
+		ChannelID:   string(tx.Method),
 		CallbackURL: cli.Callback,
 	}
 

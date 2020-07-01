@@ -72,7 +72,6 @@ func TestSaveTransaction(t *testing.T) {
 	invoice = saveInvoice(t, db, invoice)
 
 	id := uuid.New().ID()
-	method := "bk"
 
 	cases := []struct {
 		desc string
@@ -81,17 +80,17 @@ func TestSaveTransaction(t *testing.T) {
 	}{
 		{
 			desc: "save new transaction",
-			tx:   payment.Transaction{ID: id, Code: property.ID, Amount: invoice.Amount, Invoice: invoice.ID, Method: method},
+			tx:   payment.Transaction{ID: id, Code: property.ID, Amount: invoice.Amount, Invoice: invoice.ID, Method: payment.MTN},
 			err:  nil,
 		},
 		{
 			desc: "save duplicate transaction",
-			tx:   payment.Transaction{ID: id, Code: property.ID, Amount: invoice.Amount, Invoice: invoice.ID, Method: method},
+			tx:   payment.Transaction{ID: id, Code: property.ID, Amount: invoice.Amount, Invoice: invoice.ID, Method: payment.MTN},
 			err:  errors.E(op, "duplicate transaction", errors.KindAlreadyExists),
 		},
 		{
 			desc: "save owner with invalid id",
-			tx:   payment.Transaction{ID: "invalid", Code: property.ID, Amount: invoice.Amount, Invoice: invoice.ID, Method: method},
+			tx:   payment.Transaction{ID: "invalid", Code: property.ID, Amount: invoice.Amount, Invoice: invoice.ID, Method: payment.MTN},
 			err:  errors.E(op, "invalid transaction entity", errors.KindBadRequest),
 		},
 	}

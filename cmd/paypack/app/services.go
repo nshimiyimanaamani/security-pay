@@ -162,12 +162,14 @@ func bootUSSDService(prefix string, db *sql.DB, rclient *redis.Client, bc paymen
 	idp := uuid.New()
 	properties := postgres.NewPropertyStore(db)
 	owners := postgres.NewOwnerRepo(db)
+	inv := postgres.NewPaymentRepo(db)
 	payment := bootPaymentService(db, rclient, bc)
 	opts := &ussd.Options{
 		Prefix:     prefix,
 		IDP:        idp,
 		Owners:     owners,
 		Properties: properties,
+		Invoices:   inv,
 		Payment:    payment,
 	}
 	return ussd.New(opts)

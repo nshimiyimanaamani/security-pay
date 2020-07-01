@@ -368,6 +368,8 @@ github.com/rugwirobaker/platypus v0.0.2 h1:nmqqGd1ZNsO1WLjenRwMmBWtWd3i/4xanoqJF
 github.com/rugwirobaker/platypus v0.0.2/go.mod h1:B9n4CKeBD5CJHvxZo2/C1xe8AM1fyoGalcZr0CRViAI=
 github.com/rugwirobaker/platypus v0.0.3 h1:PzxZtI9gIV4KRHXKNuUxOPXba1lSP6MbQFMsvXtvSJQ=
 github.com/rugwirobaker/platypus v0.0.3/go.mod h1:B9n4CKeBD5CJHvxZo2/C1xe8AM1fyoGalcZr0CRViAI=
+github.com/rugwirobaker/platypus v0.0.4 h1:7rKnmen/XmBLct65GXHnPviU0SmktsRM1bLWuNmlirA=
+github.com/rugwirobaker/platypus v0.0.4/go.mod h1:B9n4CKeBD5CJHvxZo2/C1xe8AM1fyoGalcZr0CRViAI=
 github.com/russross/blackfriday v1.5.2 h1:HyvC0ARfnZBqnXwABFeSZHpKvJHJJfPz81GNueLj0oo=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
 github.com/russross/blackfriday/v2 v2.0.1 h1:lPqVAte+HuHNfhJ/0LC98ESWRz8afy9tM/0RK8m9o+Q=

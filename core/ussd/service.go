@@ -24,6 +24,7 @@ type Options struct {
 	IDP        identity.Provider
 	Properties properties.Repository
 	Owners     owners.Repository
+	Invoices   payment.Repository
 	Payment    payment.Service
 }
 
@@ -32,6 +33,7 @@ type service struct {
 	idp        identity.Provider
 	properties properties.Repository
 	owners     owners.Repository
+	invoices   payment.Repository
 	payment    payment.Service
 	mux        *platypus.Mux
 }
@@ -51,6 +53,7 @@ func new(opts *Options) *service {
 		properties: opts.Properties,
 		payment:    opts.Payment,
 		owners:     opts.Owners,
+		invoices:   opts.Invoices,
 	}
 }
 
@@ -58,7 +61,10 @@ func new(opts *Options) *service {
 func register(prefix string, svc *service, mux *platypus.Mux) *platypus.Mux {
 	prefix = strings.TrimSuffix(prefix, "#")
 	mux.Handle(prefix+"*1", platypus.HandlerFunc(svc.Action1), platypus.TrimTrailHash)
-	mux.Handle(prefix+"*1*:id*1#", platypus.HandlerFunc(svc.Action1_1_1), nil)
+	mux.Handle(prefix+"*1*:id*1*1#", platypus.HandlerFunc(svc.Action1_1_1_1), nil)
+	mux.Handle(prefix+"*1*:id*2*1#", platypus.HandlerFunc(svc.Action1_1_1_2), nil)
+	mux.Handle(prefix+"*1*:id*1", platypus.HandlerFunc(svc.ActionPreview), platypus.TrimTrailHash)
+	mux.Handle(prefix+"*1*:id*2", platypus.HandlerFunc(svc.ActionPreview), platypus.TrimTrailHash)
 	mux.Handle(prefix+"*1*:id", platypus.HandlerFunc(svc.Action1_1), platypus.TrimTrailHash)
 	mux.Handle(prefix+"*2", platypus.HandlerFunc(svc.action2), platypus.TrimTrailHash)
 	mux.Handle(prefix+"*2*:phone#", platypus.HandlerFunc(svc.action2_1), nil)
@@ -71,8 +77,7 @@ func (svc *service) Process(ctx context.Context, req *Request) (Response, error)
 	if err := req.Validate(); err != nil {
 		return Response{}, errors.E(op, err)
 	}
-
-	cmd := &platypus.Command{Pattern: req.UserInput}
+	cmd := platypus.NewCommand(req.Msisdn, req.UserInput)
 
 	result, err := svc.mux.Process(ctx, cmd)
 
@@ -82,16 +87,21 @@ func (svc *service) Process(ctx context.Context, req *Request) (Response, error)
 	return respond(svc.idp.ID(), result, req), nil
 }
 
-func (svc *service) MakePayment(ctx context.Context, property properties.Property) error {
+func (svc *service) MakePayment(ctx context.Context, p properties.Property, phone string) (string, error) {
+	invoice, err := svc.invoices.EarliestInvoice(ctx, p.ID)
+
 	tx := payment.Transaction{
-		Code:   property.ID,
-		Method: payment.MTN,
+		ID:      svc.idp.ID(),
+		Code:    p.ID,
+		Amount:  p.Due,
+		Invoice: invoice.ID,
+		Method:  SelectMethod(phone),
 	}
-	_, err := svc.payment.Initilize(ctx, tx)
+	status, err := svc.payment.Initilize(ctx, tx)
 	if err != nil {
-		return err
+		return status.Message, err
 	}
-	return nil
+	return status.Message, nil
 }
 
 func sequence(res platypus.Result) int {
@@ -112,4 +122,15 @@ func respond(ref string, result platypus.Result, req *Request) Response {
 		Text:      result.Out,
 		End:       sequence(result),
 	}
+}
+
+// SelectMethod selects payment method based on
+func SelectMethod(phone string) payment.Method {
+	if strings.HasPrefix(phone, "25073") || strings.HasPrefix(phone, "25072") {
+		return payment.AIRTEL
+	}
+	if strings.HasPrefix(phone, "25078") {
+		return payment.MTN
+	}
+	return ""
 }

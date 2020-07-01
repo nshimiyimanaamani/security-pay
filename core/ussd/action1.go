@@ -16,60 +16,37 @@ func (svc *service) Action1(ctx context.Context, cmd *platypus.Command) (platypu
 
 	params := platypus.ParamsFromContext(ctx)
 
-	end, err := params.GetBool("isleaf")
+	leaf, err := params.GetBool("isleaf")
 	if err != nil {
 		return platypus.Result{}, errors.E(op, err, errors.KindNotFound)
 	}
 
-	return platypus.Result{Out: menu, Leaf: end}, nil
+	return platypus.Result{Out: menu, Leaf: leaf}, nil
 }
 
 func (svc *service) Action1_1(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
-	const op errors.Op = "core/ussd/service.Action1_1"
+	const op errors.Op = "core/ussd/service.Action1_1_1"
 
-	params := platypus.ParamsFromContext(ctx)
-
-	end, err := params.GetBool("isleaf")
-	if err != nil {
-		return platypus.Result{}, errors.E(op, err, errors.KindNotFound)
-	}
-
-	id, err := params.GetString("id")
-	if err != nil {
-		return platypus.Result{}, errors.E(op, err, errors.KindNotFound)
-	}
-
-	property, err := svc.properties.RetrieveByID(ctx, id)
-	if err != nil {
-		return platypus.Result{Out: "Inzu ntibaho mu nkusanya makuru", Leaf: end}, nil
-	}
-
-	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
-	if err != nil {
-		return platypus.Result{}, errors.E(op, err)
-	}
-
-	out := fmt.Sprintf(
-		"Inzu:%s ya %s %s yishyura:%dRWF\n1. Kwemeza",
-		property.ID,
-		owner.Fname,
-		owner.Lname,
-		int(property.Due),
-	)
-
-	return platypus.Result{Out: out, Leaf: end}, nil
-}
-
-func (svc *service) Action1_1_1(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
-	const op errors.Op = "core/ussd/service.Action1"
-
-	const success = "Murakoze"
+	const success = "Numero yo kwishyura\n 1. Iyanditsweho inzu\n2.Iyo uri gukoresha\n"
 
 	const fail = "Mwongere mugerageze habaye ikibazo"
 
 	params := platypus.ParamsFromContext(ctx)
 
-	end, err := params.GetBool("isleaf")
+	leaf, err := params.GetBool("isleaf")
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err, errors.KindNotFound)
+	}
+	return platypus.Result{Out: success, Leaf: leaf}, nil
+}
+
+// ActionPreview corresponds to both ) Action1_1_1_1 and ) Action1_1_1_2
+func (svc *service) ActionPreview(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
+	const op errors.Op = "core/ussd/service.Action1_1_1_2_1"
+
+	params := platypus.ParamsFromContext(ctx)
+
+	leaf, err := params.GetBool("isleaf")
 	if err != nil {
 		return platypus.Result{}, errors.E(op, err, errors.KindNotFound)
 	}
@@ -78,17 +55,97 @@ func (svc *service) Action1_1_1(ctx context.Context, cmd *platypus.Command) (pla
 
 	property.ID, err = params.GetString("id")
 	if err != nil {
-		return platypus.Result{}, errors.E(op, err, errors.KindNotFound)
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	property, err = svc.properties.RetrieveByID(ctx, property.ID)
 	if err != nil {
-		return platypus.Result{}, errors.E(op, err)
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
-	if err := svc.MakePayment(ctx, property); err != nil {
-		return platypus.Result{Out: fail}, nil
+	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+	}
+	out := fmt.Sprintf(
+		"Ugiye kwishyurira inzu ifite '%s' ya %s %s iri mu murenge: '%s' akagari: '%s' umudugudu '%s' yishyura:%dRWF\n1. Kwemeza",
+		property.ID,
+		owner.Fname,
+		owner.Lname,
+		property.Address.Sector,
+		property.Address.Cell,
+		property.Address.Village,
+		int(property.Due),
+	)
+	return platypus.Result{Out: out, Leaf: leaf}, nil
+}
+
+func (svc *service) Action1_1_1_1(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
+	const op errors.Op = "core/ussd/service.Action1_1_1_1"
+
+	const success = "Murakoze gukoresha serivise za PayPack"
+	const fail = "Mwongere mugerageze habaye ikibazo"
+
+	params := platypus.ParamsFromContext(ctx)
+
+	leaf, err := params.GetBool("isleaf")
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err, errors.KindNotFound)
 	}
 
-	return platypus.Result{Out: success, Leaf: end}, nil
+	var property properties.Property
+
+	property.ID, err = params.GetString("id")
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	property, err = svc.properties.RetrieveByID(ctx, property.ID)
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	_, err = svc.MakePayment(ctx, property, owner.Phone)
+	if err != nil {
+		return platypus.Result{Out: fail, Leaf: leaf}, nil
+	}
+
+	return platypus.Result{Out: success, Leaf: leaf}, nil
+}
+
+func (svc *service) Action1_1_1_2(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
+	const op errors.Op = "core/ussd/service.Action1_1_1_2"
+
+	const success = "Murakoze gukoresha serivise za PayPack"
+	const fail = "Mwongere mugerageze habaye ikibazo"
+
+	params := platypus.ParamsFromContext(ctx)
+
+	leaf, err := params.GetBool("isleaf")
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err, errors.KindNotFound)
+	}
+
+	var property properties.Property
+
+	property.ID, err = params.GetString("id")
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	property, err = svc.properties.RetrieveByID(ctx, property.ID)
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	_, err = svc.MakePayment(ctx, property, cmd.Phone)
+	if err != nil {
+		return platypus.Result{Out: fail, Leaf: leaf}, nil
+	}
+	return platypus.Result{Out: success, Leaf: leaf}, nil
 }

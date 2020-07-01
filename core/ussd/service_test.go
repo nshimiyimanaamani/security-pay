@@ -35,12 +35,31 @@ func TestProcess(t *testing.T) {
 			ID: owner.ID,
 		},
 		Address: properties.Address{
-			Sector: "Kimironko",
+			Sector:  "Remera",
+			Cell:    "Kibagagabaga",
+			Village: "Ishema",
 		},
 	}
 	property, properties := newPropertyRepository(property)
 
-	svc := newService(properties, owners)
+	invoice := payment.Invoice{
+		ID:     uint64(1000),
+		Amount: float64(1000),
+	}
+	props := []string{property.ID}
+
+	svc := newService(properties, owners, invoice, props)
+
+	req := &ussd.Request{
+		SessionID:   "session",
+		GwRef:       "gwref",
+		GwTstamp:    "stamp",
+		Msisdn:      "msisdn",
+		NetworkCode: "net",
+		ServiceCode: "service",
+		ServiceID:   "serviceid",
+		TenantID:    "tenantid",
+	}
 
 	cases := []struct {
 		desc     string
@@ -62,23 +81,56 @@ func TestProcess(t *testing.T) {
 			end:      1,
 		},
 		{
-			desc:  "action1_1: kwishyura",
-			input: fmt.Sprintf("*662*104*1*%s#", property.ID),
+			desc:     "action1_1: guhitamo uwishyura",
+			input:    fmt.Sprintf("*662*104*1*%s#", property.ID),
+			expected: "Numero yo kwishyura\n 1. Iyanditsweho inzu\n2.Iyo uri gukoresha\n",
+			end:      1,
+		},
+		{
+			desc:  "action1_1_1[preview]: Iyanditsweho inzu",
+			input: fmt.Sprintf("*662*104*1*%s*1#", property.ID),
 			expected: fmt.Sprintf(
-				"Inzu:%s ya %s %s yishyura:%dRWF\n1. Kwemeza",
+				"Ugiye kwishyurira inzu ifite '%s' ya %s %s iri mu murenge: '%s' akagari: '%s' umudugudu '%s' yishyura:%dRWF\n1. Kwemeza",
 				property.ID,
 				owner.Fname,
 				owner.Lname,
+				property.Address.Sector,
+				property.Address.Cell,
+				property.Address.Village,
+				int(property.Due),
+			),
+			end: 1,
+		},
+
+		{
+			desc:  "action1_1_2[preview]: Iyo uri gukoresha",
+			input: fmt.Sprintf("*662*104*1*%s*2#", property.ID),
+			expected: fmt.Sprintf(
+				"Ugiye kwishyurira inzu ifite '%s' ya %s %s iri mu murenge: '%s' akagari: '%s' umudugudu '%s' yishyura:%dRWF\n1. Kwemeza",
+				property.ID,
+				owner.Fname,
+				owner.Lname,
+				property.Address.Sector,
+				property.Address.Cell,
+				property.Address.Village,
 				int(property.Due),
 			),
 			end: 1,
 		},
 		{
-			desc:     "action1_1_1: kwemeza ubwishyu",
-			input:    fmt.Sprintf("*662*104*1*%s*1#", property.ID),
-			expected: "Murakoze",
+			desc:     "action1_1_1_1: kwemeza kwishura(registered phone)",
+			input:    fmt.Sprintf("*662*104*1*%s*1*1#", property.ID),
+			expected: "Murakoze gukoresha serivise za PayPack",
 			end:      0,
 		},
+		{
+			desc:     "action1_1_1_2: kwemeza kwishura(user-provided phone)",
+			input:    fmt.Sprintf("*662*104*1*%s*2*1#", property.ID),
+			expected: "Murakoze gukoresha serivise za PayPack",
+			end:      0,
+		},
+		// action2
+
 		{
 			desc:     "action2: kureba code y' inzu",
 			input:    "*662*104*2#",
@@ -89,8 +141,10 @@ func TestProcess(t *testing.T) {
 			desc:  "action2_1: kureba code y' inzu",
 			input: fmt.Sprintf("*662*104*2*%s#", owner.Phone),
 			expected: fmt.Sprintf(
-				"Amazu abanditseho:\n1.%s:'%s'\n",
+				"Amazu abanditseho:\n1.%s-%s-%s:'%s'\n",
 				property.Address.Sector,
+				property.Address.Cell,
+				property.Address.Village,
 				property.ID,
 			),
 			end: 0,
@@ -98,11 +152,11 @@ func TestProcess(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		req := &ussd.Request{UserInput: tc.input}
+		req.UserInput = tc.input
 		ctx := context.Background()
 		res, err := svc.Process(ctx, req)
 		require.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
-		assert.Equal(t, tc.expected, res.Text, fmt.Sprintf("desc:'%s'\n expected:'%s'\n got:'%s'", tc.desc, tc.expected, res.Text))
+		assert.Equal(t, tc.expected, res.Text, fmt.Sprintf("desc:'%s'\n expected: '%s'\n got: '%s'", tc.desc, tc.expected, res.Text))
 		assert.Equal(t, tc.end, res.End, fmt.Sprintf("desc:'%s' expected '%d' got '%d'", tc.desc, tc.end, res.End))
 	}
 }
@@ -113,15 +167,26 @@ func ownerFixtures(owner owners.Owner) map[string]properties.Owner {
 	return owners
 }
 
-func newService(ps properties.Repository, ows owners.Repository) ussd.Service {
+func newService(
+	ps properties.Repository,
+	ows owners.Repository,
+	inv payment.Invoice,
+	properties []string,
+) ussd.Service {
 	idp := mocks.NewIdentityProvider()
+	invoices := mocks.NewInvoicesRepository(inv, properties)
 	opts := &ussd.Options{
 		IDP:        idp,
 		Prefix:     prefix,
 		Properties: ps, Owners: ows,
-		Payment: newPaymentService(),
+		Payment:  newPaymentService(),
+		Invoices: invoices,
 	}
 	return ussd.New(opts)
+}
+
+func newInvoicesRepository(inv payment.Invoice, properties []string) payment.Repository {
+	return mocks.NewInvoicesRepository(inv, properties)
 }
 
 func newOwnerRepository(owner owners.Owner) (owners.Owner, owners.Repository) {
