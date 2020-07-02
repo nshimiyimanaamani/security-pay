@@ -34,7 +34,7 @@ func (svc *service) Run(ctx context.Context, name string) error {
 func (svc *service) AuditTask(ctx context.Context, name string) error {
 	const op errors.Op = "core/scheduler/service.AuditTask"
 
-	const batch = 50
+	const batch = 20
 
 	var args = make(map[string]interface{})
 
