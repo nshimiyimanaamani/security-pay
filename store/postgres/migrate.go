@@ -590,6 +590,33 @@ func migrateDB(db *sql.DB) error {
 						ADD FOREIGN KEY(namespace) REFERENCES accounts(id) ON UPDATE CASCADE ON DELETE CASCADE;`,
 				},
 			},
+			{
+				Id: "015_replace_udit_func",
+				Up: []string{
+					`
+					CREATE  OR REPLACE FUNCTION audit_func(x INT, y INT) RETURNS INT AS
+					$$
+					DECLARE
+						count INT := 0;
+						rec RECORD;
+					BEGIN
+						FOR rec IN
+							select 
+								id, due 
+							from 
+								one_month_old_properties_view
+							order by id offset x limit y
+						LOOP
+							INSERT INTO invoices (property, amount) VALUES (rec.id, rec.due) ON CONFLICT DO NOTHING;
+							count:= count + 1;
+						END LOOP;
+
+						RETURN count;
+					END;
+					$$ LANGUAGE plpgsql;
+					`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
