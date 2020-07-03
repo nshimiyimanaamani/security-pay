@@ -10,15 +10,16 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/config"
 )
 
-// InitPBackend initialises the payment gateway
-func InitPBackend(ctx context.Context, cfg *config.PaymentConfig) (payment.Backend, error) {
+// InitPaymentClient initialises the payment gateway
+func InitPaymentClient(ctx context.Context, cfg *config.PaymentConfig) payment.Client {
 	opts := &fdi.ClientOptions{
 		URL:       cfg.PaymentURL,
 		AppID:     cfg.AppID,
 		AppSecret: cfg.Secret,
-		Callback:  cfg.Callback,
+		DCallback: cfg.DCallback,
+		CCallback: cfg.CCallback,
 	}
-	return fdi.NewBackend(opts)
+	return fdi.New(opts)
 }
 
 // InitSMSBackend ...

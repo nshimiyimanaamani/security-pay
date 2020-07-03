@@ -12,7 +12,7 @@ import (
 )
 
 func TestPaymentValidate(t *testing.T) {
-	const op errors.Op = "payment.Transaction.Validate"
+	const op errors.Op = "core/payment/Transaction.Validate"
 
 	cases := []struct {
 		desc    string
@@ -55,7 +55,7 @@ func TestPaymentValidate(t *testing.T) {
 }
 
 func TestValidateCallback(t *testing.T) {
-	const op errors.Op = ""
+	const op errors.Op = "core/payment/Callback.Validate"
 
 	cases := []struct {
 		desc     string

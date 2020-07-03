@@ -3,16 +3,14 @@ package fdi_test
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/rugwirobaker/paypack-backend/backends/fdi"
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/core/uuid"
-	"github.com/rugwirobaker/paypack-backend/backends/fdi"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 const timeOut = 30 * time.Second
@@ -25,52 +23,19 @@ var (
 	callback  = "https://codechef-inlets.herokuapp.com"
 )
 
-func newBackend() (payment.Backend, error) {
+func newBackend() payment.Client {
 	opts := &fdi.ClientOptions{
 		URL:       url,
 		AppID:     appID,
 		AppSecret: appSecret,
-		Callback:  callback,
+		DCallback: callback,
 	}
-	return fdi.NewBackend(opts)
-}
-
-func TestStatus(t *testing.T) {
-	t.Skip("Skipping testing with external deps")
-	bck, err := newBackend()
-	require.Nil(t, err, fmt.Sprintf("unexpected error %v", err))
-
-	ctx := context.Background()
-
-	status, err := bck.Status(ctx)
-
-	require.Nil(t, err, fmt.Sprintf("unexpected error %v", err))
-	require.Equal(t, http.StatusOK, status, fmt.Sprintf("expected %d got %d", http.StatusOK, status))
-}
-
-func TestAuth(t *testing.T) {
-	t.Skip("Skipping testing in CI environment")
-	bck, err := newBackend()
-	require.Nil(t, err, fmt.Sprintf("unexpected error %v", err))
-
-	ctx := context.Background()
-
-	status, _ := bck.Status(ctx)
-	require.Equal(t, http.StatusOK, status, fmt.Sprintf("expected %d got %d", http.StatusOK, status))
-
-	_, err = bck.Auth(appID, appSecret)
-	require.Nil(t, err, fmt.Sprintf("unexpected error %v", err))
+	return fdi.New(opts)
 }
 
 func TestPull(t *testing.T) {
 	t.Skip("Skipping testing in CI environment")
-	bck, err := newBackend()
-	require.Nil(t, err, fmt.Sprintf("unexpected error %v", err))
-
-	ctx := context.Background()
-
-	status, _ := bck.Status(ctx)
-	require.Equal(t, http.StatusOK, status, fmt.Sprintf("expected %d got %d", http.StatusOK, status))
+	bck := newBackend()
 
 	cases := []struct {
 		desc        string

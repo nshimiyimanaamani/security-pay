@@ -18,7 +18,8 @@ func (res *authResponse) Validate() error {
 	return validator.Struct(res)
 }
 
-type pullResponse struct {
+// Response ...
+type Response struct {
 	Message string `json:"message,omitempty"`
 	Status  string `json:"status"`
 	Data    Data   `json:"data,omitempty"`

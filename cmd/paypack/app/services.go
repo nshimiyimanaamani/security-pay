@@ -48,7 +48,7 @@ func Init(
 	db *sql.DB,
 	rclient *redis.Client,
 	queue *queue.Queue,
-	p payment.Backend,
+	p payment.Client,
 	s notifications.Backend,
 	secret string,
 	namespace string,
@@ -121,7 +121,7 @@ func bootFeedbackService(db *sql.DB) feedback.Service {
 	return feedback.New(opts)
 }
 
-func bootPaymentService(db *sql.DB, rclient *redis.Client, bc payment.Backend) payment.Service {
+func bootPaymentService(db *sql.DB, rclient *redis.Client, bc payment.Client) payment.Service {
 	idp := uuid.New()
 	repo := postgres.NewPaymentRepo(db)
 	queue := rstore.NewQueue(rclient)
