@@ -93,6 +93,9 @@ func (svc *service) Credit(ctx context.Context, tx Transaction) (Response, error
 	if err := tx.HackyValidation(); err != nil {
 		return failed, errors.E(op, err)
 	}
+
+	tx.ID = svc.idp.ID()
+
 	status, err := svc.backend.Push(ctx, tx)
 	if err != nil {
 		return failed, errors.E(op, err)
