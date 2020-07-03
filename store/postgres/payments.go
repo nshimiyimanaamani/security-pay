@@ -77,11 +77,11 @@ func (repo *paymentRepo) RetrieveProperty(ctx context.Context, code string) (str
 func (repo *paymentRepo) EarliestInvoice(ctx context.Context, property string) (payment.Invoice, error) {
 	const op errors.Op = "store/postgres/paymentRepo.OldestInvoice"
 
-	q := `SELECT id, amount FROM earliest_pending_invoices_view WHERE property=$1;`
+	q := `SELECT id, amount, status FROM earliest_pending_invoices_view WHERE property=$1;`
 
-	invoice := payment.Invoice{}
+	var invoice payment.Invoice
 
-	if err := repo.QueryRow(q, property).Scan(&invoice.ID, &invoice.Amount); err != nil {
+	if err := repo.QueryRow(q, property).Scan(&invoice.ID, &invoice.Amount, &invoice.Status); err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
 			return payment.Invoice{}, errors.E(op, err, "no invoice found", errors.KindNotFound)

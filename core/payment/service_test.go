@@ -62,7 +62,7 @@ func TestInitialize(t *testing.T) {
 			desc:    "initialize payment with invalid amount(different from invoice)",
 			payment: payment.Transaction{Code: code, Amount: 100, Phone: "0784607135", Method: "mtn-momo-rw"},
 			state:   "failed",
-			err:     errors.E(op, "amount doesn't match invoice", errors.KindBadRequest),
+			err:     errors.E(op, "amount doesn't match invoice"),
 		},
 	}
 

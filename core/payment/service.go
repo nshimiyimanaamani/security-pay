@@ -60,17 +60,14 @@ func (svc service) Initilize(ctx context.Context, tx Transaction) (Response, err
 		return failed, errors.E(op, err)
 	}
 
-	//log.Printf("code:%s invoice:%2.f vs entered:%2f", tx.Code, invoice.Amount, tx.Amount)
-
-	if invoice.Amount != tx.Amount {
-		return failed, errors.E(op, "amount doesn't match invoice", errors.KindBadRequest)
+	if err := invoice.Satisfy(tx.Amount); err != nil {
+		return failed, errors.E(op, err)
 	}
 
 	func() {
 		tx.Invoice = invoice.ID
 		tx.ID = svc.idp.ID()
 	}()
-	//identity()
 
 	status, err := svc.backend.Pull(ctx, tx)
 	if err != nil {
