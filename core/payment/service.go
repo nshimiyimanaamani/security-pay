@@ -10,7 +10,7 @@ import (
 // Service is the api interface to the payment module
 type Service interface {
 	// Initialized by the client app
-	Initilize(ctx context.Context, tx Transaction) (Status, error)
+	Initilize(ctx context.Context, tx Transaction) (Response, error)
 
 	// Validattion is
 	Confirm(ctx context.Context, res Callback) error
@@ -19,12 +19,12 @@ type Service interface {
 // Options simplifies New func signature
 type Options struct {
 	Idp     identity.Provider
-	Backend Backend
+	Backend Client
 	Queue   Queue
 	Repo    Repository
 }
 type service struct {
-	backend Backend
+	backend Client
 	idp     identity.Provider
 	queue   Queue
 	repo    Repository
@@ -40,10 +40,10 @@ func New(opts *Options) Service {
 	}
 }
 
-func (svc service) Initilize(ctx context.Context, tx Transaction) (Status, error) {
+func (svc service) Initilize(ctx context.Context, tx Transaction) (Response, error) {
 	const op errors.Op = "app.payment.Initialize"
 
-	failed := Status{TxState: "failed"}
+	failed := Response{TxState: "failed"}
 	if err := tx.Validate(); err != nil {
 		return failed, errors.E(op, err)
 	}

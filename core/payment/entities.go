@@ -25,8 +25,8 @@ const (
 	Successful State = "successful"
 )
 
-// Status ...
-type Status struct {
+// Response ...
+type Response struct {
 	Status  string `json:"status,omitempty"`
 	TxID    string `json:"transaction_id,omitempty"`
 	Message string `json:"message,omitempty"`

@@ -3,6 +3,7 @@ package fdi
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -14,9 +15,10 @@ import (
 // Timeout sets the default client timeout
 const Timeout = 30 * time.Second
 
-type backend struct {
+type client struct {
 	URL      string
-	AppID    string
+	ID       string
+	Secret   string
 	Token    string
 	Callback string
 	client   http.Client
@@ -30,35 +32,29 @@ type ClientOptions struct {
 	Callback  string
 }
 
-// NewBackend ...
-func NewBackend(opts *ClientOptions) (payment.Backend, error) {
-	const op errors.Op = "backend.fdi.NewBackend"
+// New ...
+func New(opts *ClientOptions) payment.Client {
 	if opts == nil {
 		panic("fdi.Backend: absolutely unacceptable backend opts")
 	}
-	client := http.Client{Timeout: Timeout}
-
-	backend := &backend{
+	client := &client{
 		URL:      opts.URL,
 		Callback: opts.Callback,
-		client:   client,
+		ID:       opts.AppID,
+		Secret:   opts.AppSecret,
+		client:   http.Client{Timeout: Timeout},
 	}
-	token, err := backend.Auth(opts.AppID, opts.AppSecret)
-	if err != nil {
-		return nil, errors.E(op, err)
-	}
-	backend.Token = token
-	return backend, nil
+	return client
 }
 
-func (cli *backend) Pull(ctx context.Context, tx payment.Transaction) (payment.Status, error) {
+func (cli *client) Pull(ctx context.Context, tx payment.Transaction) (payment.Response, error) {
 	const op errors.Op = "backend.fdi.Pull"
 
-	empty := payment.Status{}
+	empty := payment.Response{}
 
 	body := pullRequest{
 		TrxRef:      tx.ID,
-		AccountID:   cli.AppID,
+		AccountID:   cli.ID,
 		Msisdn:      tx.Phone,
 		Amount:      tx.Amount,
 		ChannelID:   tx.Method,
@@ -75,8 +71,12 @@ func (cli *backend) Pull(ctx context.Context, tx payment.Transaction) (payment.S
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 
-	token := "Bearer " + cli.Token
-	req.Header.Add("Authorization", token)
+	// add authentication header
+	token, err := cli.auth()
+	if err != nil {
+		return empty, errors.E(op, err)
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
 	resp, err := cli.client.Do(req)
 
@@ -92,7 +92,7 @@ func (cli *backend) Pull(ctx context.Context, tx payment.Transaction) (payment.S
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
-	status := payment.Status{
+	status := payment.Response{
 		Message: res.Message,
 		Status:  res.Status,
 		TxID:    res.Data.TrxRef,
@@ -101,8 +101,14 @@ func (cli *backend) Pull(ctx context.Context, tx payment.Transaction) (payment.S
 	return status, nil
 }
 
-func (cli *backend) Status(ctx context.Context) (int, error) {
-	const op errors.Op = "backend.fdi.Status"
+func (cli *client) Push(ctx context.Context) error {
+	const op errors.Op = "backends/fdi.Push"
+
+	return errors.E(op, errors.KindNotImplemented)
+}
+
+func (cli *client) Status(ctx context.Context) (int, error) {
+	const op errors.Op = "backends/fdi.Status"
 
 	req, err := http.NewRequest(http.MethodGet, cli.URL+"/status", nil)
 	if err != nil {
@@ -128,11 +134,11 @@ func (cli *backend) Status(ctx context.Context) (int, error) {
 	return resp.StatusCode, nil
 }
 
-func (cli *backend) Auth(appID, appSecret string) (string, error) {
-	const op errors.Op = "backends.fdi.Auth"
+func (cli *client) auth() (string, error) {
+	const op errors.Op = "backends/fdi.Auth"
 
 	// assemble request
-	body := &authRequest{AppID: appID, Secret: appSecret}
+	body := &authRequest{AppID: cli.ID, Secret: cli.Secret}
 
 	bs, err := encoding.Serialize(body)
 	if err != nil {
@@ -161,5 +167,7 @@ func (cli *backend) Auth(appID, appSecret string) (string, error) {
 	if token := res.Data.Token; token == "" {
 		return "", errors.E(op, "unable to authenticate client", errors.KindUnexpected)
 	}
-	return res.Data.Token, nil
+	token := res.Data.Token
+
+	return token, nil
 }
