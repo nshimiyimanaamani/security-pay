@@ -107,4 +107,18 @@ func (py *Transaction) Validate() error {
 type Invoice struct {
 	ID     uint64
 	Amount float64
+	Status string
+}
+
+// Satisfy checkes wether the invoice satisfies requirements to be paid
+func (inv *Invoice) Satisfy(amount float64) error {
+	const op errors.Op = "core/payment/Invoice.Satisfy"
+
+	if inv.Status == "payed" {
+		return errors.E(op, "you already payed", errors.KindRateLimit)
+	}
+	if inv.Amount != amount {
+		return errors.E(op, "amount doesn't match invoice", errors.KindBadRequest)
+	}
+	return nil
 }
