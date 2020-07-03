@@ -56,8 +56,9 @@ func NewHandlerOptions(services *Services, lggr *log.Logger) *HandlerOptions {
 		Authenticator: services.Auth,
 	}
 	paymentOpts := &payment.HandlerOpts{
-		Service: services.Payment,
-		Logger:  lggr,
+		Logger:        lggr,
+		Service:       services.Payment,
+		Authenticator: services.Auth,
 	}
 
 	transOpts := &transactions.HandlerOpts{
