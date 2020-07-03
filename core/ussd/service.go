@@ -2,6 +2,7 @@ package ussd
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -24,7 +25,6 @@ type Options struct {
 	IDP        identity.Provider
 	Properties properties.Repository
 	Owners     owners.Repository
-	Invoices   payment.Repository
 	Payment    payment.Service
 }
 
@@ -33,7 +33,6 @@ type service struct {
 	idp        identity.Provider
 	properties properties.Repository
 	owners     owners.Repository
-	invoices   payment.Repository
 	payment    payment.Service
 	mux        *platypus.Mux
 }
@@ -53,7 +52,6 @@ func new(opts *Options) *service {
 		properties: opts.Properties,
 		payment:    opts.Payment,
 		owners:     opts.Owners,
-		invoices:   opts.Invoices,
 	}
 }
 
@@ -87,15 +85,12 @@ func (svc *service) Process(ctx context.Context, req *Request) (Response, error)
 	return respond(svc.idp.ID(), result, req), nil
 }
 
-func (svc *service) MakePayment(ctx context.Context, p properties.Property, phone string) (string, error) {
-	invoice, err := svc.invoices.EarliestInvoice(ctx, p.ID)
-
+func (svc *service) Pay(ctx context.Context, p properties.Property, phone string) (string, error) {
 	tx := payment.Transaction{
-		ID:      svc.idp.ID(),
-		Code:    p.ID,
-		Amount:  p.Due,
-		Invoice: invoice.ID,
-		Method:  SelectMethod(phone),
+		Code:   p.ID,
+		Phone:  phone,
+		Amount: p.Due,
+		Method: SelectMethod(phone),
 	}
 	status, err := svc.payment.Initilize(ctx, tx)
 	if err != nil {
@@ -126,6 +121,8 @@ func respond(ref string, result platypus.Result, req *Request) Response {
 
 // SelectMethod selects payment method based on
 func SelectMethod(phone string) payment.Method {
+	phone = NormalizePhoneNumber(phone)
+
 	if strings.HasPrefix(phone, "25073") || strings.HasPrefix(phone, "25072") {
 		return payment.AIRTEL
 	}
@@ -133,4 +130,16 @@ func SelectMethod(phone string) payment.Method {
 		return payment.MTN
 	}
 	return ""
+}
+
+// NormalizePhoneNumber ...
+func NormalizePhoneNumber(phone string) string {
+	const op errors.Op = "core/ussd/NormalizePhone"
+	if len(phone) < 10 || len(phone) > 12 {
+		return ""
+	}
+	if len(phone) == 10 {
+		return fmt.Sprintf("%s%s", "25", phone)
+	}
+	return phone
 }

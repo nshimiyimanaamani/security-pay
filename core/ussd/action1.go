@@ -110,9 +110,9 @@ func (svc *service) Action1_1_1_1(ctx context.Context, cmd *platypus.Command) (p
 		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
-	_, err = svc.MakePayment(ctx, property, owner.Phone)
+	status, err := svc.Pay(ctx, property, owner.Phone)
 	if err != nil {
-		return platypus.Result{Out: fail, Leaf: leaf}, nil
+		return platypus.Result{Out: status, Leaf: leaf}, nil
 	}
 
 	return platypus.Result{Out: success, Leaf: leaf}, nil
@@ -143,9 +143,9 @@ func (svc *service) Action1_1_1_2(ctx context.Context, cmd *platypus.Command) (p
 		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
-	_, err = svc.MakePayment(ctx, property, cmd.Phone)
+	status, err := svc.Pay(ctx, property, cmd.Phone)
 	if err != nil {
-		return platypus.Result{Out: fail, Leaf: leaf}, nil
+		return platypus.Result{Out: status, Leaf: leaf}, nil
 	}
 	return platypus.Result{Out: success, Leaf: leaf}, nil
 }

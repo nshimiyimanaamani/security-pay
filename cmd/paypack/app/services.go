@@ -50,7 +50,7 @@ func Init(
 	db *sql.DB,
 	rclient *redis.Client,
 	queue *queue.Queue,
-	p payment.Backend,
+	pclient payment.Backend,
 	s notifications.Backend,
 	secret string,
 	namespace string,
@@ -61,7 +61,7 @@ func Init(
 		Feedback:      bootFeedbackService(db),
 		Notifications: bootNotifService(s),
 		Owners:        bootOwnersService(db),
-		Payment:       bootPaymentService(db, rclient, p),
+		Payment:       bootPaymentService(db, rclient, pclient),
 		Properties:    bootPropertiesService(db),
 		Transactions:  bootTransactionsService(db),
 		Users:         bootUserService(db, secret),
@@ -69,7 +69,7 @@ func Init(
 		Invoices:      bootInvoiceService(db),
 		Stats:         bootStatsService(db),
 		Scheduler:     bootScheduler(db, queue),
-		USSD:          bootUSSDService(prefix, db, rclient, p),
+		USSD:          bootUSSDService(prefix, db, rclient, pclient),
 	}
 	return services
 }
@@ -158,18 +158,16 @@ func bootNotifService(sms notifications.Backend) notifications.Service {
 	return notifications.New(opts)
 }
 
-func bootUSSDService(prefix string, db *sql.DB, rclient *redis.Client, bc payment.Backend) ussd.Service {
+func bootUSSDService(prefix string, db *sql.DB, rclient *redis.Client, pclient payment.Backend) ussd.Service {
 	idp := uuid.New()
 	properties := postgres.NewPropertyStore(db)
 	owners := postgres.NewOwnerRepo(db)
-	inv := postgres.NewPaymentRepo(db)
-	payment := bootPaymentService(db, rclient, bc)
+	payment := bootPaymentService(db, rclient, pclient)
 	opts := &ussd.Options{
 		Prefix:     prefix,
 		IDP:        idp,
 		Owners:     owners,
 		Properties: properties,
-		Invoices:   inv,
 		Payment:    payment,
 	}
 	return ussd.New(opts)

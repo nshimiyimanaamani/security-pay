@@ -174,13 +174,11 @@ func newService(
 	properties []string,
 ) ussd.Service {
 	idp := mocks.NewIdentityProvider()
-	invoices := mocks.NewInvoicesRepository(inv, properties)
 	opts := &ussd.Options{
 		IDP:        idp,
 		Prefix:     prefix,
 		Properties: ps, Owners: ows,
-		Payment:  newPaymentService(),
-		Invoices: invoices,
+		Payment: newPaymentService(),
 	}
 	return ussd.New(opts)
 }
