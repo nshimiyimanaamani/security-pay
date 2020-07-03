@@ -22,7 +22,7 @@ func newService(inv payment.Invoice, properties []string) payment.Service {
 	return payment.New(opts)
 }
 
-func TestInitialize(t *testing.T) {
+func TestDebit(t *testing.T) {
 	code := uuid.New().ID()
 	invoice := payment.Invoice{
 		ID:     uint64(1000),
@@ -31,7 +31,7 @@ func TestInitialize(t *testing.T) {
 	properties := []string{code}
 	svc := newService(invoice, properties)
 
-	const op errors.Op = "app.payment.Initialize"
+	const op errors.Op = "core/app/payment/Initialize"
 
 	cases := []struct {
 		desc    string
@@ -68,14 +68,14 @@ func TestInitialize(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		status, err := svc.Initilize(ctx, tc.payment)
+		status, err := svc.Debit(ctx, tc.payment)
 		assert.True(t, errors.ErrEqual(tc.err, err), fmt.Sprintf("%s: expected '%s' got '%s'\n", tc.desc, tc.err, err))
 		assert.Equal(t, tc.state, status.TxState, fmt.Sprintf("%s: expected %s got '%s'\n", tc.desc, tc.state, status.TxState))
 	}
 
 }
 
-func TestConfirm(t *testing.T) {
+func TestConfirmDebit(t *testing.T) {
 	code := uuid.New().ID()
 	invoice := payment.Invoice{
 		ID:     uint64(1000),
@@ -91,10 +91,10 @@ func TestConfirm(t *testing.T) {
 		Method: "mtn-momo-rw",
 	}
 
-	res, err := svc.Initilize(context.Background(), tx)
+	res, err := svc.Debit(context.Background(), tx)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
-	const op errors.Op = "payment.Confirm"
+	const op errors.Op = "core/payment/service.Confirm"
 
 	cases := []struct {
 		desc     string
@@ -128,7 +128,7 @@ func TestConfirm(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		err := svc.Confirm(ctx, tc.callback)
+		err := svc.ProcessDebit(ctx, tc.callback)
 		assert.True(t, errors.ErrEqual(tc.err, err), fmt.Sprintf("%s: expected %s got '%s'\n", tc.desc, tc.err, err))
 	}
 }

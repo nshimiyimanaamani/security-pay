@@ -2,6 +2,9 @@ package payment
 
 // routes
 const (
-	InitializePaymentRoute = "/payment/initialize"
-	ConfirmPaymentRoute    = "/payment/confirm"
+	DebitRoute        = "/payment/initialize"
+	ProcessDebitRoute = "/payment/confirm"
+
+	CreditRoute        = "/payment/credit/initialize"
+	ProcessCreditRoute = "/payment/credit/confirm"
 )

@@ -16,7 +16,8 @@ func InitPaymentClient(ctx context.Context, cfg *config.PaymentConfig) payment.C
 		URL:       cfg.PaymentURL,
 		AppID:     cfg.AppID,
 		AppSecret: cfg.Secret,
-		Callback:  cfg.Callback,
+		DCallback: cfg.DCallback,
+		CCallback: cfg.CCallback,
 	}
 	return fdi.New(opts)
 }

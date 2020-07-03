@@ -3,7 +3,6 @@ package fdi_test
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os"
 	"testing"
 	"time"
@@ -12,7 +11,6 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/core/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 const timeOut = 30 * time.Second
@@ -30,31 +28,14 @@ func newBackend() payment.Client {
 		URL:       url,
 		AppID:     appID,
 		AppSecret: appSecret,
-		Callback:  callback,
+		DCallback: callback,
 	}
 	return fdi.New(opts)
-}
-
-func TestStatus(t *testing.T) {
-	t.Skip("Skipping testing with external deps")
-	cli := newBackend()
-
-	ctx := context.Background()
-
-	status, err := cli.Status(ctx)
-
-	require.Nil(t, err, fmt.Sprintf("unexpected error %v", err))
-	require.Equal(t, http.StatusOK, status, fmt.Sprintf("expected %d got %d", http.StatusOK, status))
 }
 
 func TestPull(t *testing.T) {
 	t.Skip("Skipping testing in CI environment")
 	bck := newBackend()
-
-	ctx := context.Background()
-
-	status, _ := bck.Status(ctx)
-	require.Equal(t, http.StatusOK, status, fmt.Sprintf("expected %d got %d", http.StatusOK, status))
 
 	cases := []struct {
 		desc        string

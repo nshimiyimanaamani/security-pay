@@ -26,13 +26,12 @@ func (bc *backendMock) Pull(ctx context.Context, tx payment.Transaction) (paymen
 	}, nil
 }
 
-func (bc *backendMock) Push(ctx context.Context) error {
+func (bc *backendMock) Push(ctx context.Context, tx payment.Transaction) (payment.Response, error) {
 	const op errors.Op = "core/payment/mocks/backendMock.Push"
-	return errors.E(op, errors.KindNotImplemented)
-}
 
-func (bc *backendMock) Status(context.Context) (int, error) {
-	const op errors.Op = "core/payment/mocks/backendMock.Status"
-
-	return 0, errors.E(op, errors.KindNotImplemented)
+	return payment.Response{
+		TxID:    tx.ID,
+		Status:  "success",
+		TxState: "processing",
+	}, nil
 }

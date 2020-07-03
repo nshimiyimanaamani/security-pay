@@ -50,7 +50,8 @@ type CallBackData struct {
 
 // Validate validats a callback
 func (cb *Callback) Validate() error {
-	const op errors.Op = "payment.Callback.Validate"
+	const op errors.Op = "core/payment/Callback.Validate"
+
 	if cb.Status == "" {
 		return errors.E(op, "status field must not be empty", errors.KindBadRequest)
 	}
@@ -84,10 +85,28 @@ type Transaction struct {
 // Validate returns an error if the Transaction entity doesn't adhere to
 // the requirements
 func (py *Transaction) Validate() error {
-	const op errors.Op = "payment.Transaction.Validate"
+	const op errors.Op = "core/payment/Transaction.Validate"
 	if py.Code == "" {
 		return errors.E(op, "missing house code", errors.KindBadRequest)
 	}
+
+	if py.Phone == "" {
+		return errors.E(op, "missing phone number", errors.KindBadRequest)
+	}
+
+	if py.Amount == float64(0) {
+		return errors.E(op, "amount must be greater than zero", errors.KindBadRequest)
+	}
+
+	if py.Method == "" {
+		return errors.E(op, "payment method must be specified", errors.KindBadRequest)
+	}
+	return nil
+}
+
+// HackyValidation is to satisfy current needs
+func (py *Transaction) HackyValidation() error {
+	const op errors.Op = "core/payment/Transaction.HackyValidation"
 
 	if py.Phone == "" {
 		return errors.E(op, "missing phone number", errors.KindBadRequest)

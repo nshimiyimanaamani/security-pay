@@ -9,11 +9,17 @@ import (
 
 // Service is the api interface to the payment module
 type Service interface {
-	// Initialized by the client app
-	Initilize(ctx context.Context, tx Transaction) (Response, error)
+	// Debit initializes payment from an external account
+	Debit(ctx context.Context, tx Transaction) (Response, error)
 
-	// Validattion is
-	Confirm(ctx context.Context, res Callback) error
+	// Credit  initializes payment to an external account
+	Credit(ctx context.Context, tx Transaction) (Response, error)
+
+	// ProcessDebit processes debit callback
+	ProcessDebit(ctx context.Context, res Callback) error
+
+	// ProcessCredit processes credit callback
+	ProcessCredit(ctx context.Context, res Callback) error
 }
 
 // Options simplifies New func signature
@@ -40,8 +46,8 @@ func New(opts *Options) Service {
 	}
 }
 
-func (svc service) Initilize(ctx context.Context, tx Transaction) (Response, error) {
-	const op errors.Op = "app.payment.Initialize"
+func (svc service) Debit(ctx context.Context, tx Transaction) (Response, error) {
+	const op errors.Op = "core/app/payment/service.Debit"
 
 	failed := Response{TxState: "failed"}
 	if err := tx.Validate(); err != nil {
@@ -79,8 +85,26 @@ func (svc service) Initilize(ctx context.Context, tx Transaction) (Response, err
 	return status, nil
 }
 
-func (svc service) Confirm(ctx context.Context, cb Callback) error {
-	const op errors.Op = "app.payment.Confirm"
+func (svc *service) Credit(ctx context.Context, tx Transaction) (Response, error) {
+	const op errors.Op = "core/app/payment/service.Credit"
+
+	failed := Response{TxState: "failed"}
+
+	if err := tx.HackyValidation(); err != nil {
+		return failed, errors.E(op, err)
+	}
+	status, err := svc.backend.Push(ctx, tx)
+	if err != nil {
+		return failed, errors.E(op, err)
+	}
+	if err := svc.queue.Set(ctx, tx); err != nil {
+		return failed, errors.E(op, err)
+	}
+	return status, nil
+}
+
+func (svc *service) ProcessDebit(ctx context.Context, cb Callback) error {
+	const op errors.Op = "core/app/payment/service.ProcessDebit"
 
 	if err := cb.Validate(); err != nil {
 		return errors.E(op, err)
@@ -96,6 +120,27 @@ func (svc service) Confirm(ctx context.Context, cb Callback) error {
 	}
 
 	if err := svc.repo.Save(ctx, tx); err != nil {
+		return errors.E(op, err)
+	}
+	//remove tx from the cache
+	if err := svc.queue.Remove(ctx, tx.ID); err != nil {
+		return errors.E(op, err)
+	}
+	return nil
+}
+
+func (svc *service) ProcessCredit(ctx context.Context, cb Callback) error {
+	const op errors.Op = "core/app/payment/service.ProcessCredit"
+
+	if err := cb.Validate(); err != nil {
+		return errors.E(op, err)
+	}
+
+	if cb.Data.State != Successful {
+		return errors.E(op, "transaction failed unexpectedly", errors.KindUnexpected)
+	}
+	tx, err := svc.queue.Get(ctx, cb.Data.TrxRef)
+	if err != nil {
 		return errors.E(op, err)
 	}
 	//remove tx from the cache

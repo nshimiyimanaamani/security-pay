@@ -15,13 +15,16 @@ import (
 // Timeout sets the default client timeout
 const Timeout = 30 * time.Second
 
+var _ payment.Client = (*client)(nil)
+
 type client struct {
-	URL      string
-	ID       string
-	Secret   string
-	Token    string
-	Callback string
-	client   http.Client
+	URL       string
+	ID        string
+	Secret    string
+	Token     string
+	DCallback string
+	CCallback string
+	client    http.Client
 }
 
 // ClientOptions collects the NewBackend creattion options
@@ -29,7 +32,8 @@ type ClientOptions struct {
 	URL       string
 	AppSecret string
 	AppID     string
-	Callback  string
+	DCallback string
+	CCallback string
 }
 
 // New ...
@@ -38,41 +42,42 @@ func New(opts *ClientOptions) payment.Client {
 		panic("fdi.Backend: absolutely unacceptable backend opts")
 	}
 	client := &client{
-		URL:      opts.URL,
-		Callback: opts.Callback,
-		ID:       opts.AppID,
-		Secret:   opts.AppSecret,
-		client:   http.Client{Timeout: Timeout},
+		URL:       opts.URL,
+		DCallback: opts.DCallback,
+		CCallback: opts.CCallback,
+		ID:        opts.AppID,
+		Secret:    opts.AppSecret,
+		client:    http.Client{Timeout: Timeout},
 	}
 	return client
 }
 
 func (cli *client) Pull(ctx context.Context, tx payment.Transaction) (payment.Response, error) {
-	const op errors.Op = "backend.fdi.Pull"
+	const op errors.Op = "backends/fdi/client.Pull"
 
-	empty := payment.Response{}
+	var empty payment.Response
 
-	body := pullRequest{
+	body := Request{
 		TrxRef:      tx.ID,
 		AccountID:   cli.ID,
 		Msisdn:      tx.Phone,
 		Amount:      tx.Amount,
 		ChannelID:   tx.Method,
-		CallbackURL: cli.Callback,
+		CallbackURL: cli.DCallback,
 	}
 
-	bits, err := encoding.Serialize(body)
+	raw, err := encoding.Serialize(body)
 	if err != nil {
 		return empty, errors.E(op, err)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, cli.URL+"/momo/pull", bytes.NewReader(bits))
+	req, err := http.NewRequest(http.MethodPost, cli.URL+"/momo/pull", bytes.NewReader(raw))
 
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 
 	// add authentication header
-	token, err := cli.auth()
+	token, err := cli.Auth()
 	if err != nil {
 		return empty, errors.E(op, err)
 	}
@@ -86,7 +91,7 @@ func (cli *client) Pull(ctx context.Context, tx payment.Transaction) (payment.Re
 
 	defer resp.Body.Close()
 
-	res := &pullResponse{}
+	res := &Response{}
 
 	if err := encoding.Deserialize(resp.Body, res); err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
@@ -101,14 +106,55 @@ func (cli *client) Pull(ctx context.Context, tx payment.Transaction) (payment.Re
 	return status, nil
 }
 
-func (cli *client) Push(ctx context.Context) error {
-	const op errors.Op = "backends/fdi.Push"
+func (cli *client) Push(ctx context.Context, tx payment.Transaction) (payment.Response, error) {
+	const op errors.Op = "backends/fdi/client.Push"
 
-	return errors.E(op, errors.KindNotImplemented)
+	var empty payment.Response
+
+	body := Request{
+		TrxRef:      tx.ID,
+		AccountID:   cli.ID,
+		Msisdn:      tx.Phone,
+		Amount:      tx.Amount,
+		ChannelID:   tx.Method,
+		CallbackURL: cli.CCallback,
+	}
+
+	raw, err := encoding.Serialize(body)
+	if err != nil {
+		return empty, errors.E(op, err)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, cli.URL+"/momo/push", bytes.NewReader(raw))
+
+	req.Header.Add("Accept", "application/json")
+
+	// add authentication header
+	token, err := cli.Auth()
+	if err != nil {
+		return empty, errors.E(op, err)
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	resp, err := cli.client.Do(req)
+
+	res := &Response{}
+
+	if err := encoding.Deserialize(resp.Body, res); err != nil {
+		return empty, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	status := payment.Response{
+		Message: res.Message,
+		Status:  res.Status,
+		TxID:    res.Data.TrxRef,
+		TxState: payment.State(res.Data.State),
+	}
+	return status, nil
 }
 
 func (cli *client) Status(ctx context.Context) (int, error) {
-	const op errors.Op = "backends/fdi.Status"
+	const op errors.Op = "backends/fdi/client.Status"
 
 	req, err := http.NewRequest(http.MethodGet, cli.URL+"/status", nil)
 	if err != nil {
@@ -134,11 +180,11 @@ func (cli *client) Status(ctx context.Context) (int, error) {
 	return resp.StatusCode, nil
 }
 
-func (cli *client) auth() (string, error) {
-	const op errors.Op = "backends/fdi.Auth"
+func (cli *client) Auth() (string, error) {
+	const op errors.Op = "backends/fdi/client.Auth"
 
 	// assemble request
-	body := &authRequest{AppID: cli.ID, Secret: cli.Secret}
+	body := &authorization{ID: cli.ID, Secret: cli.Secret}
 
 	bs, err := encoding.Serialize(body)
 	if err != nil {
