@@ -68,7 +68,7 @@ func TestDebit(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		status, err := svc.Debit(ctx, tc.payment)
+		status, err := svc.Pull(ctx, tc.payment)
 		assert.True(t, errors.ErrEqual(tc.err, err), fmt.Sprintf("%s: expected '%s' got '%s'\n", tc.desc, tc.err, err))
 		assert.Equal(t, tc.state, status.TxState, fmt.Sprintf("%s: expected %s got '%s'\n", tc.desc, tc.state, status.TxState))
 	}
@@ -91,7 +91,7 @@ func TestConfirmDebit(t *testing.T) {
 		Method: "mtn-momo-rw",
 	}
 
-	res, err := svc.Debit(context.Background(), tx)
+	res, err := svc.Pull(context.Background(), tx)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
 	const op errors.Op = "core/payment/service.Confirm"
@@ -128,7 +128,7 @@ func TestConfirmDebit(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		err := svc.ProcessDebit(ctx, tc.callback)
+		err := svc.ConfirmPull(ctx, tc.callback)
 		assert.True(t, errors.ErrEqual(tc.err, err), fmt.Sprintf("%s: expected %s got '%s'\n", tc.desc, tc.err, err))
 	}
 }

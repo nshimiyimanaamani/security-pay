@@ -10,7 +10,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/invoices"
 	"github.com/rugwirobaker/paypack-backend/core/metrics"
 	"github.com/rugwirobaker/paypack-backend/core/nanoid"
-	"github.com/rugwirobaker/paypack-backend/core/notifications"
+	"github.com/rugwirobaker/paypack-backend/core/notifs"
 	"github.com/rugwirobaker/paypack-backend/core/owners"
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
@@ -32,7 +32,7 @@ type Services struct {
 	Accounts      accounts.Service
 	Auth          auth.Service
 	Feedback      feedback.Service
-	Notifications notifications.Service
+	Notifications notifs.Service
 	Owners        owners.Service
 	Payment       payment.Service
 	Properties    properties.Service
@@ -49,7 +49,7 @@ func Init(
 	rclient *redis.Client,
 	queue *queue.Queue,
 	p payment.Client,
-	s notifications.Backend,
+	s notifs.Backend,
 	secret string,
 	namespace string,
 ) *Services {
@@ -148,10 +148,10 @@ func bootStatsService(db *sql.DB) metrics.Service {
 	return metrics.New(opts)
 }
 
-func bootNotifService(sms notifications.Backend) notifications.Service {
+func bootNotifService(sms notifs.Backend) notifs.Service {
 	idp := uuid.New()
-	opts := &notifications.Options{Backend: sms, IDP: idp}
-	return notifications.New(opts)
+	opts := &notifs.Options{Backend: sms, IDP: idp}
+	return notifs.New(opts)
 }
 
 func bootScheduler(db *sql.DB, queue *queue.Queue) scheduler.Service {

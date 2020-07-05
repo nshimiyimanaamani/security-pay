@@ -10,7 +10,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/api/http/health"
 	"github.com/rugwirobaker/paypack-backend/api/http/invoices"
 	"github.com/rugwirobaker/paypack-backend/api/http/metrics"
-	"github.com/rugwirobaker/paypack-backend/api/http/notifications"
+	"github.com/rugwirobaker/paypack-backend/api/http/notifs"
 	"github.com/rugwirobaker/paypack-backend/api/http/owners"
 	"github.com/rugwirobaker/paypack-backend/api/http/payment"
 	"github.com/rugwirobaker/paypack-backend/api/http/properties"
@@ -26,7 +26,7 @@ type HandlerOptions struct {
 	AccountsOptions  *accounts.HandlerOpts
 	AuthOptions      *auth.HandlerOpts
 	FeedbackOptions  *feedback.HandlerOpts
-	NotifOptions     *notifications.HandlerOpts
+	NotifOptions     *notifs.HandlerOpts
 	OwnersOptions    *owners.HandlerOpts
 	PayOptions       *payment.HandlerOpts
 	PropsOptions     *properties.HandlerOpts
@@ -93,7 +93,7 @@ func NewHandlerOptions(services *Services, lggr *log.Logger) *HandlerOptions {
 		Service:       services.Stats,
 		Authenticator: services.Auth,
 	}
-	notifOpts := &notifications.HandlerOpts{
+	notifOpts := &notifs.HandlerOpts{
 		Logger:        lggr,
 		Service:       services.Notifications,
 		Authenticator: services.Auth,
@@ -151,7 +151,7 @@ func Register(mux *mux.Router, opts *HandlerOptions) {
 
 	metrics.RegisterHandlers(mux, opts.StatsOptions)
 
-	notifications.RegisterHandlers(mux, opts.NotifOptions)
+	notifs.RegisterHandlers(mux, opts.NotifOptions)
 
 	scheduler.RegisterHandlers(mux, opts.SchedulerOptions)
 }

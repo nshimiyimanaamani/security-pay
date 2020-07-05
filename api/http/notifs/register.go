@@ -1,4 +1,4 @@
-package notifications
+package notifs
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/api/http/middleware"
 	"github.com/rugwirobaker/paypack-backend/core/auth"
-	"github.com/rugwirobaker/paypack-backend/core/notifications"
+	"github.com/rugwirobaker/paypack-backend/core/notifs"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
@@ -24,13 +24,13 @@ func LogEntryHandler(ph ProtocolHandler, opts *HandlerOpts) http.Handler {
 }
 
 // ProtocolHandler adapts the notification service into an http.handler
-type ProtocolHandler func(logger log.Entry, svc notifications.Service) http.Handler
+type ProtocolHandler func(logger log.Entry, svc notifs.Service) http.Handler
 
 // HandlerOpts are the generic options
 // for a ProtocolHandler
 type HandlerOpts struct {
 	Logger        *log.Logger
-	Service       notifications.Service
+	Service       notifs.Service
 	Authenticator auth.Service
 }
 

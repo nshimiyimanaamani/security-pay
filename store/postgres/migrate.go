@@ -617,6 +617,32 @@ func migrateDB(db *sql.DB) error {
 					`,
 				},
 			},
+			{
+				Id: "016_create_sms_notifications_table",
+				Up: []string{
+					`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`,
+
+					`
+					CREATE TABLE IF NOT EXISTS sms_notifications(
+						id 			UUID DEFAULT uuid_generate_v1(),
+						message 	TEXT NOT NULL,
+						sender		VARCHAR NOT NULL,
+						recipients 	TEXT[] NOT NULL,
+						created_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
+						updated_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
+						FOREIGN KEY(sender) references accounts(id),
+						PRIMARY KEY(id)
+					)
+					`,
+
+					`
+					CREATE TRIGGER set_timestamp
+					BEFORE UPDATE ON sms_notifications
+					FOR EACH ROW
+					EXECUTE PROCEDURE trigger_set_timestamp();
+					`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

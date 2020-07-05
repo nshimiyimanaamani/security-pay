@@ -7,16 +7,16 @@ import (
 	"time"
 
 	"github.com/rugwirobaker/paypack-backend/backends/encoding"
-	"github.com/rugwirobaker/paypack-backend/core/notifications"
+	"github.com/rugwirobaker/paypack-backend/core/notifs"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
 // Timeout sets the default client timeout
 const Timeout = 30 * time.Second
 
-var _ (notifications.Backend) = (*Backend)(nil)
+var _ (notifs.Backend) = (*Backend)(nil)
 
-// Sms backend ..
+// Backend ..
 type Backend struct {
 	URL      string
 	Token    string
@@ -25,6 +25,7 @@ type Backend struct {
 	client   *http.Client
 }
 
+// Options ...
 type Options struct {
 	URL       string
 	AppID     string
@@ -32,6 +33,7 @@ type Options struct {
 	SenderID  string
 }
 
+// New ...
 func New(opts *Options) (*Backend, error) {
 	const op errors.Op = "backends/sms/New"
 
@@ -52,6 +54,7 @@ func New(opts *Options) (*Backend, error) {
 	return backend, nil
 }
 
+// Send ...
 func (sms *Backend) Send(ctx context.Context, id, message string, recipients []string) error {
 	const op errors.Op = "backend/sms/backend.Send"
 
