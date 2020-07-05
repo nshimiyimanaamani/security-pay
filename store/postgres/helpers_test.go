@@ -221,7 +221,8 @@ func retrieveInvoice(t *testing.T, db *sql.DB, id string) invoices.Invoice {
 
 func CleanDB(t *testing.T, db *sql.DB) {
 	q := `
-		TRUNCATE TABLE 
+		TRUNCATE TABLE
+			sms_notifications,
 			messages, 
 			transactions, 
 			invoices, 

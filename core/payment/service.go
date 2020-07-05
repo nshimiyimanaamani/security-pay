@@ -10,16 +10,16 @@ import (
 // Service is the api interface to the payment module
 type Service interface {
 	// Debit initializes payment from an external account
-	Debit(ctx context.Context, tx Transaction) (Response, error)
+	Pull(ctx context.Context, tx Transaction) (Response, error)
 
 	// Credit  initializes payment to an external account
-	Credit(ctx context.Context, tx Transaction) (Response, error)
+	Push(ctx context.Context, tx Transaction) (Response, error)
 
-	// ProcessDebit processes debit callback
-	ProcessDebit(ctx context.Context, res Callback) error
+	// ConfirmPull processes debit callback
+	ConfirmPull(ctx context.Context, res Callback) error
 
-	// ProcessCredit processes credit callback
-	ProcessCredit(ctx context.Context, res Callback) error
+	// ConfirmPush processes credit callback
+	ConfirmPush(ctx context.Context, res Callback) error
 }
 
 // Options simplifies New func signature
@@ -46,7 +46,7 @@ func New(opts *Options) Service {
 	}
 }
 
-func (svc service) Debit(ctx context.Context, tx Transaction) (Response, error) {
+func (svc service) Pull(ctx context.Context, tx Transaction) (Response, error) {
 	const op errors.Op = "core/app/payment/service.Debit"
 
 	failed := Response{TxState: "failed"}
@@ -85,7 +85,7 @@ func (svc service) Debit(ctx context.Context, tx Transaction) (Response, error) 
 	return status, nil
 }
 
-func (svc *service) Credit(ctx context.Context, tx Transaction) (Response, error) {
+func (svc *service) Push(ctx context.Context, tx Transaction) (Response, error) {
 	const op errors.Op = "core/app/payment/service.Credit"
 
 	failed := Response{TxState: "failed"}
@@ -106,7 +106,7 @@ func (svc *service) Credit(ctx context.Context, tx Transaction) (Response, error
 	return status, nil
 }
 
-func (svc *service) ProcessDebit(ctx context.Context, cb Callback) error {
+func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
 	const op errors.Op = "core/app/payment/service.ProcessDebit"
 
 	if err := cb.Validate(); err != nil {
@@ -132,7 +132,7 @@ func (svc *service) ProcessDebit(ctx context.Context, cb Callback) error {
 	return nil
 }
 
-func (svc *service) ProcessCredit(ctx context.Context, cb Callback) error {
+func (svc *service) ConfirmPush(ctx context.Context, cb Callback) error {
 	const op errors.Op = "core/app/payment/service.ProcessCredit"
 
 	if err := cb.Validate(); err != nil {

@@ -24,7 +24,7 @@ func Debit(logger log.Entry, svc payment.Service) http.Handler {
 			return
 		}
 
-		res, err := svc.Debit(r.Context(), tx)
+		res, err := svc.Pull(r.Context(), tx)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
@@ -56,7 +56,7 @@ func ProcessDebit(logger log.Entry, svc payment.Service) http.Handler {
 			return
 		}
 
-		err := svc.ProcessDebit(r.Context(), callback)
+		err := svc.ConfirmPull(r.Context(), callback)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
@@ -83,7 +83,7 @@ func Credit(logger log.Entry, svc payment.Service) http.Handler {
 			return
 		}
 
-		res, err := svc.Credit(r.Context(), tx)
+		res, err := svc.Push(r.Context(), tx)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
@@ -115,7 +115,7 @@ func ProcessCredit(logger log.Entry, svc payment.Service) http.Handler {
 			return
 		}
 
-		err := svc.ProcessCredit(r.Context(), callback)
+		err := svc.ConfirmPush(r.Context(), callback)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)

@@ -53,6 +53,6 @@ require (
 	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
 	google.golang.org/genproto v0.0.0-20200303153909-beee998c1893 // indirect
-	gopkg.in/redis.v5 v5.2.9
+	gopkg.in/redis.v5 v5.2.9 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
 )

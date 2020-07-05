@@ -5,7 +5,7 @@ import (
 
 	"github.com/rugwirobaker/paypack-backend/backends/fdi"
 	"github.com/rugwirobaker/paypack-backend/backends/sms"
-	"github.com/rugwirobaker/paypack-backend/core/notifications"
+	"github.com/rugwirobaker/paypack-backend/core/notifs"
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/pkg/config"
 )
@@ -23,7 +23,7 @@ func InitPaymentClient(ctx context.Context, cfg *config.PaymentConfig) payment.C
 }
 
 // InitSMSBackend ...
-func InitSMSBackend(ctx context.Context, cfg *config.SmsConfig) (notifications.Backend, error) {
+func InitSMSBackend(ctx context.Context, cfg *config.SmsConfig) (notifs.Backend, error) {
 	opts := &sms.Options{
 		URL:       cfg.SmsURL,
 		SenderID:  cfg.SenderID,
