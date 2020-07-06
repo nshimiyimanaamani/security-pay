@@ -58,7 +58,7 @@ func Init(
 		Feedback:      bootFeedbackService(db),
 		Notifications: bootNotifService(db, sms),
 		Owners:        bootOwnersService(db),
-		Payment:       bootPaymentService(db, rclient, bootNotifService(db, sms), pclient),
+		Payment:       bootPaymentService(db, rclient, sms, pclient),
 		Properties:    bootPropertiesService(db),
 		Transactions:  bootTransactionsService(db),
 		Users:         bootUserService(db, secret),
@@ -121,16 +121,16 @@ func bootFeedbackService(db *sql.DB) feedback.Service {
 	return feedback.New(opts)
 }
 
-func bootPaymentService(db *sql.DB, rclient *redis.Client, sms notifs.Service, pclient payment.Client) payment.Service {
+func bootPaymentService(db *sql.DB, rclient *redis.Client, nclient notifs.Backend, pclient payment.Client) payment.Service {
 	var opts payment.Options
-	idp := uuid.New()
-	queue := rstore.NewQueue(rclient)
-	opts.Idp = idp
-	opts.SMS = sms
-	opts.Queue = queue
+	opts.Backend = pclient
+	opts.Idp = uuid.New()
+	opts.SMS = bootNotifService(db, nclient)
+	opts.Queue = rstore.NewQueue(rclient)
 	opts.Properties = postgres.NewPropertyStore(db)
 	opts.Owners = postgres.NewOwnerRepo(db)
 	opts.Invoices = postgres.NewInvoiceRepository(db)
+	opts.Transactions = postgres.NewTransactionRepository(db)
 	return payment.New(&opts)
 }
 
