@@ -143,6 +143,8 @@ func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
 		return errors.E(op, err)
 	}
 
+	payment.Namespace = property.Namespace
+
 	transaction := svc.PaymentToTransaction(payment)
 
 	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
