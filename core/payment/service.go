@@ -14,7 +14,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
-const header = "Murakoze kwishyura umusanzu wanyu na Paypack\n"
+const header = "Murakoze kwishyura umusanzu w' umutekano na Paypack\n\n."
 
 // Service is the api interface to the payment module
 type Service interface {
@@ -220,12 +220,12 @@ func formatMessage(payment Payment, own owners.Owner, pr properties.Property) st
 	var buf bytes.Buffer
 
 	buf.WriteString(header)
-	buf.WriteString(fmt.Sprintf("nimero yishuriweho': %s\n", payment.Phone))
-	buf.WriteString(fmt.Sprintf("TxRef:%s\n", payment.ID))
+	buf.WriteString(fmt.Sprintf("Nimero yishuriweho: %s\n", payment.Phone))
 	buf.WriteString(fmt.Sprintf("Nimero ya fagitire: %d\n", payment.Invoice))
-	buf.WriteString(fmt.Sprintf("Umubare w' amafaranga:%f\n", payment.Amount))
-	buf.WriteString(fmt.Sprintf("Mwishyuriye %sinzu yishyuriwe:", pr.ID))
-	buf.WriteString(fmt.Sprintf("ya %s %s\n:", own.Fname, own.Lname))
+	buf.WriteString(fmt.Sprintf("Umubare w' amafaranga: %dRWF\n", int(payment.Amount)))
+	buf.WriteString(fmt.Sprintf("Inzu yishyuriwe ni iya %s %s\n", own.Fname, own.Lname))
+	buf.WriteString(fmt.Sprintf("Code y' inzu ni: %s\n", payment.Code))
+	buf.WriteString(fmt.Sprintf("Umurenge wa: %s", pr.Address.Sector))
 	return buf.String()
 }
 
