@@ -188,10 +188,10 @@ func (svc *service) ConfirmPush(ctx context.Context, cb Callback) error {
 	return nil
 }
 
-func (svc *service) Notify(ctx context.Context, tx Payment) error {
+func (svc *service) Notify(ctx context.Context, payment Payment) error {
 	const op errors.Op = "core/app/payment/service.Notify"
 
-	property, err := svc.properties.RetrieveByID(ctx, tx.Code)
+	property, err := svc.properties.RetrieveByID(ctx, payment.Code)
 	if err != nil {
 		return errors.E(op, err)
 	}
@@ -201,11 +201,11 @@ func (svc *service) Notify(ctx context.Context, tx Payment) error {
 		return errors.E(op, err)
 	}
 
-	message := formatMessage(tx, owner, property)
+	message := formatMessage(payment, owner, property)
 
 	notification := notifs.Notification{
-		Recipients: []string{owner.Phone}, //owners
-		Sender:     property.Namespace,    //account
+		Recipients: []string{owner.Phone, payment.Phone}, //owners
+		Sender:     property.Namespace,                   //account
 		Message:    message,
 	}
 	if _, err := svc.sms.Send(ctx, notification); err != nil {
