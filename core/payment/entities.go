@@ -70,8 +70,8 @@ func (cb *Callback) Validate() error {
 	return nil
 }
 
-// Transaction ...
-type Transaction struct {
+// Payment ...
+type Payment struct {
 	ID         string    `json:"id,omitempty"`
 	Code       string    `json:"code,omitempty"`
 	Amount     float64   `json:"amount,string,omitempty"`
@@ -84,7 +84,7 @@ type Transaction struct {
 
 // Validate returns an error if the Transaction entity doesn't adhere to
 // the requirements
-func (py *Transaction) Validate() error {
+func (py *Payment) Validate() error {
 	const op errors.Op = "core/payment/Transaction.Validate"
 	if py.Code == "" {
 		return errors.E(op, "missing house code", errors.KindBadRequest)
@@ -105,7 +105,7 @@ func (py *Transaction) Validate() error {
 }
 
 // HackyValidation is to satisfy current needs
-func (py *Transaction) HackyValidation() error {
+func (py *Payment) HackyValidation() error {
 	const op errors.Op = "core/payment/Transaction.HackyValidation"
 
 	if py.Phone == "" {

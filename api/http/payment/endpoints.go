@@ -9,12 +9,12 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
-// Debit handles payment initialization
-func Debit(logger log.Entry, svc payment.Service) http.Handler {
-	const op errors.Op = "api/http/payment/Initialize"
+// Pull handles payment initialization
+func Pull(logger log.Entry, svc payment.Service) http.Handler {
+	const op errors.Op = "api/http/payment/Pull"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
-		var tx payment.Transaction
+		var tx payment.Payment
 
 		err := encoding.Decode(r, &tx)
 		if err != nil {
@@ -41,9 +41,9 @@ func Debit(logger log.Entry, svc payment.Service) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-// ProcessDebit handles payment confirmation callback
-func ProcessDebit(logger log.Entry, svc payment.Service) http.Handler {
-	const op errors.Op = "api/http/payment/Validate"
+// ConfirmPull handles payment confirmation callback
+func ConfirmPull(logger log.Entry, svc payment.Service) http.Handler {
+	const op errors.Op = "api/http/payment/ConfirmPull"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
 
@@ -68,12 +68,12 @@ func ProcessDebit(logger log.Entry, svc payment.Service) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-// Credit handles payment initialization
-func Credit(logger log.Entry, svc payment.Service) http.Handler {
-	const op errors.Op = "api/http/payment/Initialize"
+// Push handles payment initialization
+func Push(logger log.Entry, svc payment.Service) http.Handler {
+	const op errors.Op = "api/http/payment/Push"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
-		var tx payment.Transaction
+		var tx payment.Payment
 
 		err := encoding.Decode(r, &tx)
 		if err != nil {
@@ -100,9 +100,9 @@ func Credit(logger log.Entry, svc payment.Service) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-// ProcessCredit handles payment confirmation callback
-func ProcessCredit(logger log.Entry, svc payment.Service) http.Handler {
-	const op errors.Op = "api/http/payment/Validate"
+// ConfirmPush handles payment confirmation callback
+func ConfirmPush(logger log.Entry, svc payment.Service) http.Handler {
+	const op errors.Op = "api/http/payment/ConfirmPush"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
 

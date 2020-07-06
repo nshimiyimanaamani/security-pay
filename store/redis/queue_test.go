@@ -20,17 +20,17 @@ func TestQueueSet(t *testing.T) {
 
 	cases := []struct {
 		desc string
-		tx   payment.Transaction
+		tx   payment.Payment
 		err  error
 	}{
 		{
 			desc: "cache unique transacrion",
-			tx:   payment.Transaction{ID: key},
+			tx:   payment.Payment{ID: key},
 			err:  nil,
 		},
 		{
 			desc: "cache duplicate transaction",
-			tx:   payment.Transaction{ID: key},
+			tx:   payment.Payment{ID: key},
 			err:  nil,
 		},
 	}
@@ -48,7 +48,7 @@ func TestQueuePop(t *testing.T) {
 
 	key := uuid.New().ID()
 
-	tsTx := payment.Transaction{ID: key}
+	tsTx := payment.Payment{ID: key}
 	err := queue.Set(context.Background(), tsTx)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 
@@ -82,7 +82,7 @@ func TestRemove(t *testing.T) {
 
 	key := uuid.New().ID()
 
-	tsTx := payment.Transaction{ID: key}
+	tsTx := payment.Payment{ID: key}
 	err := queue.Set(context.Background(), tsTx)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 

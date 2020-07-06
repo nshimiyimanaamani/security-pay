@@ -52,7 +52,7 @@ func New(opts *ClientOptions) payment.Client {
 	return client
 }
 
-func (cli *client) Pull(ctx context.Context, tx payment.Transaction) (payment.Response, error) {
+func (cli *client) Pull(ctx context.Context, tx payment.Payment) (payment.Response, error) {
 	const op errors.Op = "backends/fdi/client.Pull"
 
 	var empty payment.Response
@@ -106,7 +106,7 @@ func (cli *client) Pull(ctx context.Context, tx payment.Transaction) (payment.Re
 	return status, nil
 }
 
-func (cli *client) Push(ctx context.Context, tx payment.Transaction) (payment.Response, error) {
+func (cli *client) Push(ctx context.Context, tx payment.Payment) (payment.Response, error) {
 	const op errors.Op = "backends/fdi/client.Push"
 
 	var empty payment.Response

@@ -4,63 +4,58 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/rugwirobaker/paypack-backend/core/identity/uuid"
+	"github.com/rugwirobaker/paypack-backend/core/invoices"
+	"github.com/rugwirobaker/paypack-backend/core/notifs"
+	"github.com/rugwirobaker/paypack-backend/core/owners"
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/core/payment/mocks"
+	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func newService(inv payment.Invoice, properties []string) payment.Service {
-	idp := mocks.NewIdentityProvider()
-	backend := mocks.NewBackend()
-	queue := mocks.NewQueue()
-	repo := mocks.NewRepository(inv, properties)
-	opts := &payment.Options{Idp: idp, Backend: backend, Queue: queue, Repo: repo}
-	return payment.New(opts)
-}
+const namespace = "remera"
 
-func TestDebit(t *testing.T) {
-	code := uuid.New().ID()
-	invoice := payment.Invoice{
-		ID:     uint64(1000),
-		Amount: float64(1000),
-	}
-	properties := []string{code}
-	svc := newService(invoice, properties)
+func TestPull(t *testing.T) {
+	const op errors.Op = "core/payment/service.Pull"
 
-	const op errors.Op = "core/app/payment/Initialize"
+	owners, owner := newOwnersStore()
+	properties, property := newPropertiesStore(owner)
+	invoices, invoice := newInvoiceStore(property)
+	svc := newService(owners, properties, invoices)
 
 	cases := []struct {
 		desc    string
-		payment payment.Transaction
+		payment payment.Payment
 		state   payment.State
 		errKind int
 		err     error
 	}{
 		{
 			desc:    "initialize payment with valid data",
-			payment: payment.Transaction{Code: code, Amount: invoice.Amount, Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Code: property.ID, Amount: invoice.Amount, Phone: "0784607135", Method: "mtn-momo-rw"},
 			state:   "processing",
 			err:     nil,
 		},
 		{
 			desc:    "initialize payment with invalid data",
-			payment: payment.Transaction{Code: code, Amount: invoice.Amount, Phone: "0784607135"},
+			payment: payment.Payment{Code: property.ID, Amount: invoice.Amount, Phone: "0784607135"},
 			state:   "failed",
 			err:     errors.E(op, "payment method must be specified"),
 		},
 		{
-			desc:    "initialize payment with unsaved house code",
-			payment: payment.Transaction{Code: uuid.New().ID(), Amount: invoice.Amount, Phone: "0784607135", Method: "mtn-momo-rw"},
+			desc:    "initialize payment with unsaved house property.ID",
+			payment: payment.Payment{Code: uuid.New().ID(), Amount: invoice.Amount, Phone: "0784607135", Method: "mtn-momo-rw"},
 			state:   "failed",
 			err:     errors.E(op, "property not found"),
 		},
 		{
 			desc:    "initialize payment with invalid amount(different from invoice)",
-			payment: payment.Transaction{Code: code, Amount: 100, Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Code: property.ID, Amount: 100, Phone: "0784607135", Method: "mtn-momo-rw"},
 			state:   "failed",
 			err:     errors.E(op, "amount doesn't match invoice"),
 		},
@@ -75,26 +70,23 @@ func TestDebit(t *testing.T) {
 
 }
 
-func TestConfirmDebit(t *testing.T) {
-	code := uuid.New().ID()
-	invoice := payment.Invoice{
-		ID:     uint64(1000),
-		Amount: float64(1000),
-	}
-	properties := []string{code}
-	svc := newService(invoice, properties)
+func TestConfirmPull(t *testing.T) {
+	const op errors.Op = "core/payment/service.ConfirmPull"
 
-	tx := payment.Transaction{
+	owners, owner := newOwnersStore()
+	properties, property := newPropertiesStore(owner)
+	invoices, _ := newInvoiceStore(property)
+	svc := newService(owners, properties, invoices)
+
+	tx := payment.Payment{
 		ID:     uuid.New().ID(),
-		Code:   code,
+		Code:   property.ID,
 		Amount: 1000, Phone: "0784607135",
 		Method: "mtn-momo-rw",
 	}
 
 	res, err := svc.Pull(context.Background(), tx)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
-
-	const op errors.Op = "core/payment/service.Confirm"
 
 	cases := []struct {
 		desc     string
@@ -131,4 +123,58 @@ func TestConfirmDebit(t *testing.T) {
 		err := svc.ConfirmPull(ctx, tc.callback)
 		assert.True(t, errors.ErrEqual(tc.err, err), fmt.Sprintf("%s: expected %s got '%s'\n", tc.desc, tc.err, err))
 	}
+}
+
+func newService(ws owners.Repository, ps properties.Repository, vc invoices.Repository) payment.Service {
+	var opts payment.Options
+	opts.Owners = ws
+	opts.Properties = ps
+	opts.Invoices = vc
+	opts.SMS = newSMSService()
+	opts.Idp = mocks.NewIdentityProvider()
+	opts.Backend = mocks.NewBackend()
+	opts.Queue = mocks.NewQueue()
+	opts.Transactions = mocks.NewTransactionsRepository()
+	return payment.New(&opts)
+}
+
+func newSMSService() notifs.Service {
+	var opts notifs.Options
+	opts.IDP = uuid.New()
+	opts.Backend = mocks.NewSMSBackend()
+	opts.Store = mocks.NewSMSRepository()
+	return notifs.New(&opts)
+}
+
+func newPropertiesStore(owner owners.Owner) (properties.Repository, properties.Property) {
+	var property properties.Property
+	property.ID = uuid.New().ID()
+	property.Due = 1000
+	property.Owner = properties.Owner{ID: owner.ID}
+	store := mocks.NewPropertyRepository()
+	property, _ = store.Save(context.Background(), property)
+	return store, property
+}
+
+func newOwnersStore() (owners.Repository, owners.Owner) {
+	var owner owners.Owner
+	owner.ID = uuid.New().ID()
+	owner.Fname = "Jamie"
+	owner.Lname = "Jones"
+	owner.Phone = "0787205106"
+	store := mocks.NewOwnersRepository()
+	owner, _ = store.Save(context.Background(), owner)
+	return store, owner
+}
+func newInvoiceStore(property properties.Property) (invoices.Repository, invoices.Invoice) {
+	var invoice invoices.Invoice
+	invoice.Status = invoices.Pending
+	invoice.Amount = property.Due
+	invoice.Property = property.ID
+	creation := time.Now()
+	var invs = map[string]invoices.Invoice{
+		property.ID: {ID: 1, Amount: 1000, CreatedAt: creation, UpdatedAt: creation},
+	}
+	store := mocks.NewInvoiceRepository(invs)
+	return store, invoice
 }

@@ -42,6 +42,7 @@ func (repo *txRepository) Save(ctx context.Context, tx transactions.Transaction)
 		tx.OwnerID,
 		tx.Amount,
 		tx.Method,
+		tx.Invoice,
 		tx.Namespace,
 	).Scan(&tx.DateRecorded)
 
