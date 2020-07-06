@@ -1,6 +1,7 @@
 package payment_test
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,12 +10,17 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gorilla/mux"
 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/payment"
+	"github.com/rugwirobaker/paypack-backend/core/invoices"
 	"github.com/rugwirobaker/paypack-backend/core/nanoid"
+	"github.com/rugwirobaker/paypack-backend/core/notifs"
+	"github.com/rugwirobaker/paypack-backend/core/owners"
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/core/payment/mocks"
+	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/core/uuid"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
@@ -52,34 +58,21 @@ func (tr testRequest) make() (*http.Response, error) {
 	return tr.client.Do(req)
 }
 
-func newService(invoice payment.Invoice, properties []string) payment.Service {
-	idp := mocks.NewIdentityProvider()
-	backend := mocks.NewBackend()
-	queue := mocks.NewQueue()
-	repo := mocks.NewRepository(invoice, properties)
-	opts := &payment.Options{Idp: idp, Backend: backend, Queue: queue, Repo: repo}
-	return payment.New(opts)
-}
-
 func newServer(svc payment.Service) *httptest.Server {
 	mux := mux.NewRouter()
-	opts := &endpoints.HandlerOpts{
-		Service: svc,
-		Logger:  log.NoOpLogger(),
-	}
-	endpoints.RegisterHandlers(mux, opts)
+	var opts endpoints.HandlerOpts
+	opts.Service = svc
+	opts.Logger = log.NoOpLogger()
+	endpoints.RegisterHandlers(mux, &opts)
 	return httptest.NewServer(mux)
 }
 
-func TestInitialize(t *testing.T) {
-	code := idprovider.ID()
+func TestPull(t *testing.T) {
+	owners, owner := newOwnersStore()
+	properties, property := newPropertiesStore(owner)
+	invoices, invoice := newInvoiceStore(property)
+	svc := newService(owners, properties, invoices)
 	id := "123e4567-e89b-12d3-a456-000000000001"
-	invoice := payment.Invoice{
-		ID:     uint64(1000),
-		Amount: float64(1000),
-	}
-	properties := []string{code}
-	svc := newService(invoice, properties)
 	srv := newServer(svc)
 
 	defer srv.Close()
@@ -94,8 +87,8 @@ func TestInitialize(t *testing.T) {
 	}{
 		{
 			desc: "initialize valid transaction",
-			req: toJSON(payment.Transaction{
-				Code:   code,
+			req: toJSON(payment.Payment{
+				Code:   property.ID,
 				Amount: invoice.Amount,
 				Phone:  "0785780891",
 				Method: payment.MTN,
@@ -106,8 +99,8 @@ func TestInitialize(t *testing.T) {
 		},
 		{
 			desc: "empty transaction amount",
-			req: toJSON(payment.Transaction{
-				Code:   code,
+			req: toJSON(payment.Payment{
+				Code:   property.ID,
 				Phone:  "0785780891",
 				Method: payment.MTN,
 			}),
@@ -117,7 +110,7 @@ func TestInitialize(t *testing.T) {
 		},
 		{
 			desc: "missing house code",
-			req: toJSON(payment.Transaction{
+			req: toJSON(payment.Payment{
 				Amount: invoice.Amount,
 				Phone:  "0785780891",
 				Method: payment.MTN,
@@ -129,8 +122,8 @@ func TestInitialize(t *testing.T) {
 
 		{
 			desc: "missing payment method",
-			req: toJSON(payment.Transaction{
-				Code:   code,
+			req: toJSON(payment.Payment{
+				Code:   property.ID,
 				Amount: invoice.Amount,
 				Phone:  "0785780891",
 			}),
@@ -140,7 +133,7 @@ func TestInitialize(t *testing.T) {
 		},
 		{
 			desc: "initialize payment with unsaved house code",
-			req: toJSON(payment.Transaction{
+			req: toJSON(payment.Payment{
 				Code:   idprovider.ID(),
 				Amount: invoice.Amount,
 				Phone:  "0785780891",
@@ -174,13 +167,10 @@ func TestInitialize(t *testing.T) {
 }
 
 func TestConfirm(t *testing.T) {
-	code := uuid.New().ID()
-	invoice := payment.Invoice{
-		ID:     uint64(1000),
-		Amount: float64(1000),
-	}
-	properties := []string{code}
-	svc := newService(invoice, properties)
+	owners, owner := newOwnersStore()
+	properties, property := newPropertiesStore(owner)
+	invoices, _ := newInvoiceStore(property)
+	svc := newService(owners, properties, invoices)
 	srv := newServer(svc)
 
 	defer srv.Close()
@@ -217,4 +207,58 @@ func TestConfirm(t *testing.T) {
 func toJSON(data interface{}) string {
 	jsonData, _ := json.Marshal(data)
 	return string(jsonData)
+}
+
+func newService(ws owners.Repository, ps properties.Repository, vc invoices.Repository) payment.Service {
+	var opts payment.Options
+	opts.Owners = ws
+	opts.Properties = ps
+	opts.Invoices = vc
+	opts.SMS = newSMSService()
+	opts.Idp = mocks.NewIdentityProvider()
+	opts.Backend = mocks.NewBackend()
+	opts.Queue = mocks.NewQueue()
+	opts.Transactions = mocks.NewTransactionsRepository()
+	return payment.New(&opts)
+}
+
+func newPropertiesStore(owner owners.Owner) (properties.Repository, properties.Property) {
+	var property properties.Property
+	property.ID = uuid.New().ID()
+	property.Due = 1000
+	property.Owner = properties.Owner{ID: owner.ID}
+	store := mocks.NewPropertyRepository()
+	property, _ = store.Save(context.Background(), property)
+	return store, property
+}
+
+func newOwnersStore() (owners.Repository, owners.Owner) {
+	var owner owners.Owner
+	owner.ID = uuid.New().ID()
+	owner.Fname = "Jamie"
+	owner.Lname = "Jones"
+	owner.Phone = "0787205106"
+	store := mocks.NewOwnersRepository()
+	owner, _ = store.Save(context.Background(), owner)
+	return store, owner
+}
+func newInvoiceStore(property properties.Property) (invoices.Repository, invoices.Invoice) {
+	var invoice invoices.Invoice
+	invoice.Status = invoices.Pending
+	invoice.Amount = property.Due
+	invoice.Property = property.ID
+	creation := time.Now()
+	var invs = map[string]invoices.Invoice{
+		property.ID: {ID: 1, Amount: 1000, CreatedAt: creation, UpdatedAt: creation},
+	}
+	store := mocks.NewInvoiceRepository(invs)
+	return store, invoice
+}
+
+func newSMSService() notifs.Service {
+	var opts notifs.Options
+	opts.IDP = uuid.New()
+	opts.Backend = mocks.NewSMSBackend()
+	opts.Store = mocks.NewSMSRepository()
+	return notifs.New(&opts)
 }

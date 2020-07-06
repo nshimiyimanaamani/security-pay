@@ -4,6 +4,7 @@ import (
 	"context"
 	"sort"
 	"sync"
+	"time"
 
 	"github.com/rugwirobaker/paypack-backend/core/invoices"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
@@ -16,8 +17,8 @@ type repository struct {
 	invoices map[string]invoices.Invoice
 }
 
-// NewRepository ...
-func NewRepository(invs map[string]invoices.Invoice) invoices.Repository {
+// NewInvoiceRepository creates a mock invoice repository
+func NewInvoiceRepository(invs map[string]invoices.Invoice) invoices.Repository {
 	return &repository{
 		invoices: invs,
 	}
@@ -116,7 +117,12 @@ func (repo *repository) Earliest(ctx context.Context, property string) (invoices
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 
-	return invoices.Invoice{}, errors.E(op, errors.KindNotImplemented)
+	for _, vc := range repo.invoices {
+		if vc.CreatedAt.Before(time.Now()) {
+			return vc, nil
+		}
+	}
+	return invoices.Invoice{}, errors.E(op, "no invoices found", errors.KindNotFound)
 }
 
 func (repo *repository) Generate(ctx context.Context) error {

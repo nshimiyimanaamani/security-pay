@@ -16,33 +16,33 @@ func TestPaymentValidate(t *testing.T) {
 
 	cases := []struct {
 		desc    string
-		payment payment.Transaction
+		payment payment.Payment
 		errMsg  string
 		err     error
 	}{
 		{
 			desc:    "validate valid payment",
-			payment: payment.Transaction{Code: nanoid.New(nil).ID(), Amount: 1000, Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Code: nanoid.New(nil).ID(), Amount: 1000, Phone: "0784607135", Method: "mtn-momo-rw"},
 			err:     nil,
 		},
 		{
 			desc:    "validate with missing house code",
-			payment: payment.Transaction{Amount: 1000, Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Amount: 1000, Phone: "0784607135", Method: "mtn-momo-rw"},
 			err:     errors.E(op, "missing house code", errors.KindBadRequest),
 		},
 		{
 			desc:    "validate with zero amount",
-			payment: payment.Transaction{Code: nanoid.New(nil).ID(), Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Code: nanoid.New(nil).ID(), Phone: "0784607135", Method: "mtn-momo-rw"},
 			err:     errors.E(op, "amount must be greater than zero", errors.KindBadRequest),
 		},
 		{
 			desc:    "validate with missing phone payment",
-			payment: payment.Transaction{Code: nanoid.New(nil).ID(), Amount: 1000, Method: payment.MTN},
+			payment: payment.Payment{Code: nanoid.New(nil).ID(), Amount: 1000, Method: payment.MTN},
 			err:     errors.E(op, "missing phone number", errors.KindBadRequest),
 		},
 		{
 			desc:    "validate with missing payment method",
-			payment: payment.Transaction{Code: nanoid.New(nil).ID(), Amount: 1000, Phone: "0784607135"},
+			payment: payment.Payment{Code: nanoid.New(nil).ID(), Amount: 1000, Phone: "0784607135"},
 			err:     errors.E(op, "payment method must be specified", errors.KindBadRequest),
 		},
 	}

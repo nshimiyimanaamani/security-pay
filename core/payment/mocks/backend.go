@@ -16,7 +16,7 @@ func NewBackend() payment.Client {
 	return &backendMock{}
 }
 
-func (bc *backendMock) Pull(ctx context.Context, tx payment.Transaction) (payment.Response, error) {
+func (bc *backendMock) Pull(ctx context.Context, tx payment.Payment) (payment.Response, error) {
 	const op errors.Op = "core/payment/mocks/backendMock.Pull"
 
 	return payment.Response{
@@ -26,7 +26,7 @@ func (bc *backendMock) Pull(ctx context.Context, tx payment.Transaction) (paymen
 	}, nil
 }
 
-func (bc *backendMock) Push(ctx context.Context, tx payment.Transaction) (payment.Response, error) {
+func (bc *backendMock) Push(ctx context.Context, tx payment.Payment) (payment.Response, error) {
 	const op errors.Op = "core/payment/mocks/backendMock.Push"
 
 	return payment.Response{

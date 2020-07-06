@@ -1,19 +1,28 @@
 package payment
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 
 	"github.com/rugwirobaker/paypack-backend/core/identity"
+	"github.com/rugwirobaker/paypack-backend/core/invoices"
+	"github.com/rugwirobaker/paypack-backend/core/notifs"
+	"github.com/rugwirobaker/paypack-backend/core/owners"
+	"github.com/rugwirobaker/paypack-backend/core/properties"
+	"github.com/rugwirobaker/paypack-backend/core/transactions"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
+const header = "Murakoze kwishyura umusanzu wanyu na Paypack\n"
+
 // Service is the api interface to the payment module
 type Service interface {
-	// Debit initializes payment from an external account
-	Pull(ctx context.Context, tx Transaction) (Response, error)
+	// Pull initializes payment from an external account
+	Pull(ctx context.Context, tx Payment) (Response, error)
 
-	// Credit  initializes payment to an external account
-	Push(ctx context.Context, tx Transaction) (Response, error)
+	// Push  initializes payment to an external account
+	Push(ctx context.Context, tx Payment) (Response, error)
 
 	// ConfirmPull processes debit callback
 	ConfirmPull(ctx context.Context, res Callback) error
@@ -24,90 +33,141 @@ type Service interface {
 
 // Options simplifies New func signature
 type Options struct {
-	Idp     identity.Provider
-	Backend Client
-	Queue   Queue
-	Repo    Repository
+	Idp          identity.Provider
+	Backend      Client
+	Queue        Queue
+	SMS          notifs.Service
+	Owners       owners.Repository
+	Properties   properties.Repository
+	Invoices     invoices.Repository
+	Transactions transactions.Repository
 }
 type service struct {
-	backend Client
-	idp     identity.Provider
-	queue   Queue
-	repo    Repository
+	backend      Client
+	idp          identity.Provider
+	queue        Queue
+	sms          notifs.Service
+	owners       owners.Repository
+	properties   properties.Repository
+	transactions transactions.Repository
+	invoices     invoices.Repository
 }
 
 // New initializes the payment service
 func New(opts *Options) Service {
 	return &service{
-		queue:   opts.Queue,
-		idp:     opts.Idp,
-		backend: opts.Backend,
-		repo:    opts.Repo,
+		queue:        opts.Queue,
+		idp:          opts.Idp,
+		backend:      opts.Backend,
+		owners:       opts.Owners,
+		properties:   opts.Properties,
+		sms:          opts.SMS,
+		invoices:     opts.Invoices,
+		transactions: opts.Transactions,
 	}
 }
 
-func (svc service) Pull(ctx context.Context, tx Transaction) (Response, error) {
-	const op errors.Op = "core/app/payment/service.Debit"
+func (svc service) Pull(ctx context.Context, py Payment) (Response, error) {
+	const op errors.Op = "core/app/payment/service.Push"
 
 	failed := Response{TxState: "failed"}
-	if err := tx.Validate(); err != nil {
+	if err := py.Validate(); err != nil {
 		return failed, errors.E(op, err)
 	}
 
-	code, err := svc.repo.RetrieveProperty(ctx, tx.Code)
+	property, err := svc.properties.RetrieveByID(ctx, py.Code)
 	if err != nil {
 		return failed, errors.E(op, err)
 	}
 
-	tx.Code = code
-
-	invoice, err := svc.repo.EarliestInvoice(ctx, tx.Code)
+	invoice, err := svc.invoices.Earliest(ctx, property.ID)
 	if err != nil {
 		return failed, errors.E(op, err)
 	}
 
-	if err := invoice.Satisfy(tx.Amount); err != nil {
+	if err := invoice.Verify(py.Amount); err != nil {
 		return failed, errors.E(op, err)
 	}
 
-	func() {
-		tx.Invoice = invoice.ID
-		tx.ID = svc.idp.ID()
-	}()
+	py.Invoice = invoice.ID
+	py.ID = svc.idp.ID()
 
-	status, err := svc.backend.Pull(ctx, tx)
+	status, err := svc.backend.Pull(ctx, py)
 	if err != nil {
 		return failed, errors.E(op, err)
 	}
-	if err := svc.queue.Set(ctx, tx); err != nil {
+	if err := svc.queue.Set(ctx, py); err != nil {
 		return failed, errors.E(op, err)
 	}
 	return status, nil
 }
 
-func (svc *service) Push(ctx context.Context, tx Transaction) (Response, error) {
-	const op errors.Op = "core/app/payment/service.Credit"
+func (svc *service) Push(ctx context.Context, py Payment) (Response, error) {
+	const op errors.Op = "core/app/payment/service.Push"
 
 	failed := Response{TxState: "failed"}
 
-	if err := tx.HackyValidation(); err != nil {
+	if err := py.HackyValidation(); err != nil {
 		return failed, errors.E(op, err)
 	}
 
-	tx.ID = svc.idp.ID()
+	py.ID = svc.idp.ID()
 
-	status, err := svc.backend.Push(ctx, tx)
+	status, err := svc.backend.Push(ctx, py)
 	if err != nil {
 		return failed, errors.E(op, err)
 	}
-	if err := svc.queue.Set(ctx, tx); err != nil {
+	if err := svc.queue.Set(ctx, py); err != nil {
 		return failed, errors.E(op, err)
 	}
 	return status, nil
 }
 
 func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
-	const op errors.Op = "core/app/payment/service.ProcessDebit"
+	const op errors.Op = "core/app/payment/service. ConfirmPull"
+
+	if err := cb.Validate(); err != nil {
+		return errors.E(op, err)
+	}
+
+	if cb.Data.State != Successful {
+		return errors.E(op, "transaction failed unexpectedly", errors.KindUnexpected)
+	}
+
+	payment, err := svc.queue.Get(ctx, cb.Data.TrxRef)
+	if err != nil {
+		return errors.E(op, err)
+	}
+	property, err := svc.properties.RetrieveByID(ctx, payment.Code)
+	if err != nil {
+		return errors.E(op, err)
+	}
+
+	transaction := svc.PaymentToTransaction(payment)
+
+	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
+	if err != nil {
+		return errors.E(op, err)
+	}
+	transaction.OwnerID = owner.ID
+
+	err = svc.Notify(ctx, payment)
+	if err != nil {
+		return errors.E(op, err)
+	}
+
+	if _, err := svc.transactions.Save(ctx, transaction); err != nil {
+		return errors.E(op, err)
+	}
+	//remove tx from the cache
+	if err := svc.queue.Remove(ctx, payment.ID); err != nil {
+		return errors.E(op, err)
+	}
+	return nil
+}
+
+func (svc *service) ConfirmPush(ctx context.Context, cb Callback) error {
+	const op errors.Op = "core/app/payment/service. ConfirmPush"
 
 	if err := cb.Validate(); err != nil {
 		return errors.E(op, err)
@@ -119,10 +179,6 @@ func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
 
 	tx, err := svc.queue.Get(ctx, cb.Data.TrxRef)
 	if err != nil {
-		return errors.E(op, err)
-	}
-
-	if err := svc.repo.Save(ctx, tx); err != nil {
 		return errors.E(op, err)
 	}
 	//remove tx from the cache
@@ -132,23 +188,54 @@ func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
 	return nil
 }
 
-func (svc *service) ConfirmPush(ctx context.Context, cb Callback) error {
-	const op errors.Op = "core/app/payment/service.ProcessCredit"
+func (svc *service) Notify(ctx context.Context, tx Payment) error {
+	const op errors.Op = "core/app/payment/service.Notify"
 
-	if err := cb.Validate(); err != nil {
-		return errors.E(op, err)
-	}
-
-	if cb.Data.State != Successful {
-		return errors.E(op, "transaction failed unexpectedly", errors.KindUnexpected)
-	}
-	tx, err := svc.queue.Get(ctx, cb.Data.TrxRef)
+	property, err := svc.properties.RetrieveByID(ctx, tx.Code)
 	if err != nil {
 		return errors.E(op, err)
 	}
-	//remove tx from the cache
-	if err := svc.queue.Remove(ctx, tx.ID); err != nil {
+
+	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
+	if err != nil {
+		return errors.E(op, err)
+	}
+
+	message := formatMessage(tx, owner, property)
+
+	notification := notifs.Notification{
+		Recipients: []string{owner.Phone}, //owners
+		Sender:     property.Namespace,    //account
+		Message:    message,
+	}
+	if _, err := svc.sms.Send(ctx, notification); err != nil {
 		return errors.E(op, err)
 	}
 	return nil
+}
+
+func formatMessage(payment Payment, own owners.Owner, pr properties.Property) string {
+	var buf bytes.Buffer
+
+	buf.WriteString(header)
+	buf.WriteString(fmt.Sprintf("nimero yishuriweho': %s\n", payment.Phone))
+	buf.WriteString(fmt.Sprintf("TxRef:%s\n", payment.ID))
+	buf.WriteString(fmt.Sprintf("Nimero ya fagitire: %d\n", payment.Invoice))
+	buf.WriteString(fmt.Sprintf("Umubare w' amafaranga:%f\n", payment.Amount))
+	buf.WriteString(fmt.Sprintf("Mwishyuriye %sinzu yishyuriwe:", pr.ID))
+	buf.WriteString(fmt.Sprintf("ya %s %s\n:", own.Fname, own.Lname))
+	return buf.String()
+}
+
+func (svc *service) PaymentToTransaction(tx Payment) transactions.Transaction {
+	return transactions.Transaction{
+		ID:           tx.ID,
+		MadeFor:      tx.Code,
+		OwnerID:      tx.ID,
+		Amount:       tx.Amount,
+		Invoice:      tx.Invoice,
+		Method:       tx.Method,
+		Namespace:    tx.Namespace,
+		DateRecorded: tx.RecordedAt,
+	}
 }

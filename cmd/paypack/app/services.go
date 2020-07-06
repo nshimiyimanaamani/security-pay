@@ -48,17 +48,17 @@ func Init(
 	db *sql.DB,
 	rclient *redis.Client,
 	queue *queue.Queue,
-	p payment.Client,
-	s notifs.Backend,
+	pclient payment.Client,
+	sms notifs.Backend,
 	secret string,
 	namespace string,
 ) *Services {
 	services := &Services{
 		Accounts:      bootAccountsService(db),
 		Feedback:      bootFeedbackService(db),
-		Notifications: bootNotifService(s),
+		Notifications: bootNotifService(db, sms),
 		Owners:        bootOwnersService(db),
-		Payment:       bootPaymentService(db, rclient, p),
+		Payment:       bootPaymentService(db, rclient, bootNotifService(db, sms), pclient),
 		Properties:    bootPropertiesService(db),
 		Transactions:  bootTransactionsService(db),
 		Users:         bootUserService(db, secret),
@@ -121,12 +121,17 @@ func bootFeedbackService(db *sql.DB) feedback.Service {
 	return feedback.New(opts)
 }
 
-func bootPaymentService(db *sql.DB, rclient *redis.Client, bc payment.Client) payment.Service {
+func bootPaymentService(db *sql.DB, rclient *redis.Client, sms notifs.Service, pclient payment.Client) payment.Service {
+	var opts payment.Options
 	idp := uuid.New()
-	repo := postgres.NewPaymentRepo(db)
 	queue := rstore.NewQueue(rclient)
-	opts := &payment.Options{Idp: idp, Backend: bc, Repo: repo, Queue: queue}
-	return payment.New(opts)
+	opts.Idp = idp
+	opts.SMS = sms
+	opts.Queue = queue
+	opts.Properties = postgres.NewPropertyStore(db)
+	opts.Owners = postgres.NewOwnerRepo(db)
+	opts.Invoices = postgres.NewInvoiceRepository(db)
+	return payment.New(&opts)
 }
 
 func bootAccountsService(db *sql.DB) accounts.Service {
@@ -148,10 +153,12 @@ func bootStatsService(db *sql.DB) metrics.Service {
 	return metrics.New(opts)
 }
 
-func bootNotifService(sms notifs.Backend) notifs.Service {
-	idp := uuid.New()
-	opts := &notifs.Options{Backend: sms, IDP: idp}
-	return notifs.New(opts)
+func bootNotifService(db *sql.DB, client notifs.Backend) notifs.Service {
+	var opts notifs.Options
+	opts.IDP = uuid.New()
+	opts.Backend = client
+	opts.Store = postgres.NewNotifsRepository(db)
+	return notifs.New(&opts)
 }
 
 func bootScheduler(db *sql.DB, queue *queue.Queue) scheduler.Service {

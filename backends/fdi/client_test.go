@@ -39,13 +39,13 @@ func TestPull(t *testing.T) {
 
 	cases := []struct {
 		desc        string
-		transaction payment.Transaction
+		transaction payment.Payment
 		state       string
 		err         error
 	}{
 		{
 			desc:        "pull payment request with valid data",
-			transaction: payment.Transaction{ID: uuid.New().ID(), Amount: 5, Phone: "0785447001"},
+			transaction: payment.Payment{ID: uuid.New().ID(), Amount: 5, Phone: "0785447001"},
 			state:       "processing",
 			err:         nil,
 		},
