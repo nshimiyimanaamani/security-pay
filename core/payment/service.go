@@ -153,14 +153,15 @@ func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
 	}
 	transaction.OwnerID = owner.ID
 
+	if _, err := svc.transactions.Save(ctx, transaction); err != nil {
+		return errors.E(op, err)
+	}
+
 	err = svc.Notify(ctx, payment)
 	if err != nil {
 		return errors.E(op, err)
 	}
 
-	if _, err := svc.transactions.Save(ctx, transaction); err != nil {
-		return errors.E(op, err)
-	}
 	//remove tx from the cache
 	if err := svc.queue.Remove(ctx, payment.ID); err != nil {
 		return errors.E(op, err)
