@@ -67,15 +67,15 @@ func New(opts *Options) Service {
 	}
 }
 
-func (svc service) Pull(ctx context.Context, py Payment) (Response, error) {
+func (svc service) Pull(ctx context.Context, payment Payment) (Response, error) {
 	const op errors.Op = "core/app/payment/service.Push"
 
 	failed := Response{TxState: "failed"}
-	if err := py.Validate(); err != nil {
+	if err := payment.Validate(); err != nil {
 		return failed, errors.E(op, err)
 	}
 
-	property, err := svc.properties.RetrieveByID(ctx, py.Code)
+	property, err := svc.properties.RetrieveByID(ctx, payment.Code)
 	if err != nil {
 		return failed, errors.E(op, err)
 	}
@@ -85,18 +85,21 @@ func (svc service) Pull(ctx context.Context, py Payment) (Response, error) {
 		return failed, errors.E(op, err)
 	}
 
-	if err := invoice.Verify(py.Amount); err != nil {
+	if err := invoice.Verify(payment.Amount); err != nil {
 		return failed, errors.E(op, err)
 	}
 
-	py.Invoice = invoice.ID
-	py.ID = svc.idp.ID()
+	payment.Invoice = invoice.ID
+	payment.ID = svc.idp.ID()
 
-	status, err := svc.backend.Pull(ctx, py)
+	status, err := svc.backend.Pull(ctx, payment)
 	if err != nil {
 		return failed, errors.E(op, err)
 	}
-	if err := svc.queue.Set(ctx, py); err != nil {
+
+	transaction := svc.PaymentToTransaction(payment)
+
+	if _, err = svc.transactions.Save(ctx, transaction); err != nil {
 		return failed, errors.E(op, err)
 	}
 	return status, nil
@@ -134,36 +137,32 @@ func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
 		return errors.E(op, "transaction failed unexpectedly", errors.KindUnexpected)
 	}
 
-	payment, err := svc.queue.Get(ctx, cb.Data.TrxRef)
-	if err != nil {
-		return errors.E(op, err)
-	}
-	property, err := svc.properties.RetrieveByID(ctx, payment.Code)
+	tx, err := svc.transactions.RetrieveByID(ctx, cb.Data.TrxRef)
 	if err != nil {
 		return errors.E(op, err)
 	}
 
-	payment.Namespace = property.Namespace
+	property, err := svc.properties.RetrieveByID(ctx, tx.MadeFor)
+	if err != nil {
+		return errors.E(op, err)
+	}
 
-	transaction := svc.PaymentToTransaction(payment)
+	tx.Namespace = property.Namespace
 
 	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
 	if err != nil {
 		return errors.E(op, err)
 	}
-	transaction.OwnerID = owner.ID
+	tx.OwnerID = owner.ID
 
-	if _, err := svc.transactions.Save(ctx, transaction); err != nil {
+	tx.Confirm()
+
+	if err := svc.transactions.Update(ctx, tx); err != nil {
 		return errors.E(op, err)
 	}
 
-	err = svc.Notify(ctx, payment)
+	err = svc.Notify(ctx, tx)
 	if err != nil {
-		return errors.E(op, err)
-	}
-
-	//remove tx from the cache
-	if err := svc.queue.Remove(ctx, payment.ID); err != nil {
 		return errors.E(op, err)
 	}
 	return nil
@@ -191,24 +190,24 @@ func (svc *service) ConfirmPush(ctx context.Context, cb Callback) error {
 	return nil
 }
 
-func (svc *service) Notify(ctx context.Context, payment Payment) error {
+func (svc *service) Notify(ctx context.Context, tx transactions.Transaction) error {
 	const op errors.Op = "core/app/payment/service.Notify"
 
-	property, err := svc.properties.RetrieveByID(ctx, payment.Code)
+	property, err := svc.properties.RetrieveByID(ctx, tx.MadeFor)
 	if err != nil {
 		return errors.E(op, err)
 	}
 
-	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
+	owner, err := svc.owners.Retrieve(ctx, tx.OwnerID)
 	if err != nil {
 		return errors.E(op, err)
 	}
 
-	message := formatMessage(payment, owner, property)
+	message := formatMessage(tx, owner, property)
 
 	notification := notifs.Notification{
-		Recipients: []string{owner.Phone, payment.Phone}, //owners
-		Sender:     property.Namespace,                   //account
+		Recipients: []string{owner.Phone, tx.MSISDN}, //owners
+		Sender:     property.Namespace,               //account
 		Message:    message,
 	}
 	if _, err := svc.sms.Send(ctx, notification); err != nil {
@@ -217,16 +216,16 @@ func (svc *service) Notify(ctx context.Context, payment Payment) error {
 	return nil
 }
 
-func formatMessage(payment Payment, own owners.Owner, pr properties.Property) string {
+func formatMessage(tx transactions.Transaction, own owners.Owner, pr properties.Property) string {
 	var buf bytes.Buffer
 
 	buf.WriteString(header)
 	buf.WriteString(fmt.Sprintf("%s.\n\n", pr.Address.Sector))
-	buf.WriteString(fmt.Sprintf("Nimero yishyuriweho: %s\n", payment.Phone))
-	buf.WriteString(fmt.Sprintf("Nimero ya fagitire: %d\n", payment.Invoice))
-	buf.WriteString(fmt.Sprintf("Umubare w' amafaranga: %dRWF\n", int(payment.Amount)))
+	buf.WriteString(fmt.Sprintf("Nimero yishyuriweho: %s\n", tx.MSISDN))
+	buf.WriteString(fmt.Sprintf("Nimero ya fagitire: %d\n", tx.Invoice))
+	buf.WriteString(fmt.Sprintf("Umubare w' amafaranga: %dRWF\n", int(tx.Amount)))
 	buf.WriteString(fmt.Sprintf("Inzu yishyuriwe ni iya %s %s\n", own.Fname, own.Lname))
-	buf.WriteString(fmt.Sprintf("Code y' inzu ni: %s\n\n", payment.Code))
+	buf.WriteString(fmt.Sprintf("Code y' inzu ni: %s\n\n", tx.MadeFor))
 	buf.WriteString("Binyuze muri Paypack")
 	return buf.String()
 }
@@ -236,10 +235,11 @@ func (svc *service) PaymentToTransaction(tx Payment) transactions.Transaction {
 		ID:           tx.ID,
 		MadeFor:      tx.Code,
 		OwnerID:      tx.ID,
+		MSISDN:       tx.Phone,
 		Amount:       tx.Amount,
 		Invoice:      tx.Invoice,
 		Method:       tx.Method,
 		Namespace:    tx.Namespace,
-		DateRecorded: tx.RecordedAt,
+		DateRecorded: tx.CreatedAt,
 	}
 }

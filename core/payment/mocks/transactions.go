@@ -33,9 +33,20 @@ func (str *transactionRepoMock) Save(ctx context.Context, tx transactions.Transa
 	defer str.mu.Unlock()
 
 	str.counter++
-	tx.ID = strconv.FormatUint(str.counter, 10)
+	// tx.ID = strconv.FormatUint(str.counter, 10)
 	str.transactions[tx.ID] = tx
 	return tx.ID, nil
+}
+
+func (str *transactionRepoMock) Update(ctx context.Context, tx transactions.Transaction) error {
+	const op errors.Op = "app/transactions/mocks/repository.Update"
+	str.mu.Lock()
+	defer str.mu.Unlock()
+
+	if _, ok := str.transactions[tx.ID]; !ok {
+		return errors.E(op, "transaction not found", errors.KindNotFound)
+	}
+	return nil
 }
 
 func (str *transactionRepoMock) RetrieveByID(ctx context.Context, id string) (transactions.Transaction, error) {
