@@ -8,6 +8,10 @@ type Repository interface {
 	// if the operation is successful or otherwise an error.
 	Save(ctx context.Context, tx Transaction) (string, error)
 
+	// Update changes the state of an existing transaction
+	// if the operation is successful or otherwise an error.
+	Update(ctx context.Context, tx Transaction) error
+
 	// RetrieveByID retreives a transaction identified by the given id.
 	RetrieveByID(ctx context.Context, id string) (Transaction, error)
 

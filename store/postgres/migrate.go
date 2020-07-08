@@ -643,6 +643,13 @@ func migrateDB(db *sql.DB) error {
 					`,
 				},
 			},
+			{
+				Id: "017_update_transactions_rename_is_valid_column",
+				Up: []string{
+					`ALTER TABLE transactions RENAME COLUMN is_valid TO confirmed;`,
+					`ALTER TABLE transactions ADD COLUMN msisdn VARCHAR(15) NOT NULL;`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

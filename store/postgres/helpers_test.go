@@ -48,8 +48,10 @@ func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) transactions.
 			amount,
 			method, 
 			invoice,
-			namespace
-		) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING created_at;
+			namespace,
+			confirmed,
+			msisdn    
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING created_at;
 	`
 
 	err := db.QueryRow(q,
@@ -60,6 +62,8 @@ func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) transactions.
 		tx.Method,
 		tx.Invoice,
 		tx.Namespace,
+		tx.Confirmed,
+		tx.MSISDN,
 	).Scan(&tx.DateRecorded)
 
 	if err != nil {
