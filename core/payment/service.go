@@ -240,6 +240,6 @@ func (svc *service) PaymentToTransaction(tx Payment) transactions.Transaction {
 		Invoice:      tx.Invoice,
 		Method:       tx.Method,
 		Namespace:    tx.Namespace,
-		DateRecorded: tx.UpdatedAt,
+		DateRecorded: tx.CreatedAt,
 	}
 }
