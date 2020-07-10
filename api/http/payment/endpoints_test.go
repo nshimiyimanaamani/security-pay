@@ -106,7 +106,7 @@ func TestPull(t *testing.T) {
 			}),
 			status:      http.StatusBadRequest,
 			contentType: contentType,
-			res:         toJSON(map[string]string{"error": "amount must be greater than zero"}),
+			res:         toJSON(map[string]string{"error": "amount doesn't match invoice"}),
 		},
 		{
 			desc: "missing house code",

@@ -650,6 +650,19 @@ func migrateDB(db *sql.DB) error {
 					`ALTER TABLE transactions ADD COLUMN msisdn VARCHAR(15) NOT NULL DEFAULT 'not set';`,
 				},
 			},
+			{
+				Id: "018_update_trigger_set_invoice_status",
+				Up: []string{
+					`
+					DROP TRIGGER IF EXISTS set_invoice_status on transactions;
+					CREATE TRIGGER set_invoice_status
+					  AFTER UPDATE
+					  ON transactions
+					  FOR EACH ROW
+					  EXECUTE PROCEDURE trigger_set_invoice_status();
+					`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
