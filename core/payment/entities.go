@@ -72,73 +72,41 @@ func (cb *Callback) Validate() error {
 
 // Payment ...
 type Payment struct {
-	ID        string    `json:"id,omitempty"`
-	Code      string    `json:"code,omitempty"`
-	Amount    float64   `json:"amount,string,omitempty"`
-	Phone     string    `json:"phone,omitempty"`
-	Invoice   uint64    `json:"invoce_id,omitempty"`
-	Method    string    `json:"payment_method,omitempty"`
-	Namespace string    `json:"namespace,omitempty"`
-	CreatedAt time.Time `json:"recorded_at,omitempty"`
-	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	ID     string  `json:"id,omitempty"`
+	Code   string  `json:"code,omitempty"`
+	Amount float64 `json:"amount,string,omitempty"`
+	Phone  string  `json:"phone,omitempty"`
+	Method string  `json:"payment_method,omitempty"`
+	// Invoice uint64  `json:"invoce_id,omitempty"`
+	// Namespace string    `json:"namespace,omitempty"`
+	// CreatedAt time.Time `json:"recorded_at,omitempty"`
+	// UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
 
-// Validate returns an error if the Transaction entity doesn't adhere to
-// the requirements
-func (py *Payment) Validate() error {
-	const op errors.Op = "core/payment/Transaction.Validate"
-	if py.Code == "" {
+// HasCode checks whether a pull payment at least has the a property code
+func (p *Payment) HasCode() error {
+	const op errors.Op = "core/payment/Payment.Validate"
+
+	if p.Code == "" {
 		return errors.E(op, "missing house code", errors.KindBadRequest)
 	}
-
-	if py.Phone == "" {
-		return errors.E(op, "missing phone number", errors.KindBadRequest)
-	}
-
-	if py.Amount == float64(0) {
-		return errors.E(op, "amount must be greater than zero", errors.KindBadRequest)
-	}
-
-	if py.Method == "" {
-		return errors.E(op, "payment method must be specified", errors.KindBadRequest)
-	}
 	return nil
 }
 
-// HackyValidation is to satisfy current needs
-func (py *Payment) HackyValidation() error {
-	const op errors.Op = "core/payment/Transaction.HackyValidation"
+// Ready to send be sent to the payment gateway
+func (p *Payment) Ready() error {
+	const op errors.Op = "core/payment/Payment.Ready"
 
-	if py.Phone == "" {
+	if p.Phone == "" {
 		return errors.E(op, "missing phone number", errors.KindBadRequest)
 	}
 
-	if py.Amount == float64(0) {
+	if p.Amount == float64(0) {
 		return errors.E(op, "amount must be greater than zero", errors.KindBadRequest)
 	}
 
-	if py.Method == "" {
+	if p.Method == "" {
 		return errors.E(op, "payment method must be specified", errors.KindBadRequest)
-	}
-	return nil
-}
-
-// Invoice ...
-type Invoice struct {
-	ID     uint64
-	Amount float64
-	Status string
-}
-
-// Satisfy checkes wether the invoice satisfies requirements to be paid
-func (inv *Invoice) Satisfy(amount float64) error {
-	const op errors.Op = "core/payment/Invoice.Satisfy"
-
-	if inv.Status == "payed" {
-		return errors.E(op, "you already payed", errors.KindRateLimit)
-	}
-	if inv.Amount != amount {
-		return errors.E(op, "amount doesn't match invoice", errors.KindBadRequest)
 	}
 	return nil
 }

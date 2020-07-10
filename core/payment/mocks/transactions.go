@@ -27,7 +27,7 @@ func NewTransactionsRepository() transactions.Repository {
 }
 
 func (str *transactionRepoMock) Save(ctx context.Context, tx transactions.Transaction) (string, error) {
-	const op errors.Op = "app/transactions/mocks/repository.Save"
+	const op errors.Op = "core/payment/mocks/repository.Save"
 
 	str.mu.Lock()
 	defer str.mu.Unlock()
@@ -39,7 +39,8 @@ func (str *transactionRepoMock) Save(ctx context.Context, tx transactions.Transa
 }
 
 func (str *transactionRepoMock) Update(ctx context.Context, tx transactions.Transaction) error {
-	const op errors.Op = "app/transactions/mocks/repository.Update"
+	const op errors.Op = "core/payment/mocks/repository.Update"
+
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
@@ -50,7 +51,7 @@ func (str *transactionRepoMock) Update(ctx context.Context, tx transactions.Tran
 }
 
 func (str *transactionRepoMock) RetrieveByID(ctx context.Context, id string) (transactions.Transaction, error) {
-	const op errors.Op = "app/transactions/mocks/repository.RetrieveByID"
+	const op errors.Op = "core/payment/mocks/repository.RetrieveByID("
 
 	str.mu.Lock()
 	defer str.mu.Unlock()
@@ -65,7 +66,7 @@ func (str *transactionRepoMock) RetrieveByID(ctx context.Context, id string) (tr
 }
 
 func (str *transactionRepoMock) RetrieveAll(ctx context.Context, offset, limit uint64) (transactions.TransactionPage, error) {
-	const op errors.Op = "app/transactions/mocks/repository.RetrieveAll"
+	const op errors.Op = "core/payment/mocks/repository.RetrieveAll"
 
 	str.mu.Lock()
 	defer str.mu.Unlock()
@@ -99,7 +100,7 @@ func (str *transactionRepoMock) RetrieveAll(ctx context.Context, offset, limit u
 }
 
 func (str *transactionRepoMock) RetrieveByProperty(ctx context.Context, p string, offset, limit uint64) (transactions.TransactionPage, error) {
-	const op errors.Op = "app/transactions/mocks/repository.RetrieveByProperty"
+	const op errors.Op = "core/payment/mocks/repository.RetrieveByProperty"
 
 	str.mu.Lock()
 	defer str.mu.Unlock()
@@ -133,7 +134,7 @@ func (str *transactionRepoMock) RetrieveByProperty(ctx context.Context, p string
 }
 
 func (str *transactionRepoMock) RetrieveByPropertyR(ctx context.Context, p string) (transactions.TransactionPage, error) {
-	const op errors.Op = "app/transactions/mocks/repository.RetrieveByProperty"
+	const op errors.Op = "core/payment/mocks/repository.RetrieveByPropertyR"
 
 	str.mu.Lock()
 	defer str.mu.Unlock()
@@ -159,7 +160,7 @@ func (str *transactionRepoMock) RetrieveByPropertyR(ctx context.Context, p strin
 }
 
 func (str *transactionRepoMock) RetrieveByMethod(ctx context.Context, m string, offset, limit uint64) (transactions.TransactionPage, error) {
-	const op errors.Op = "app/transactions/mocks/repository.RetrieveByMethod"
+	const op errors.Op = "core/payment/mocks/repository.RetrieveByMethod"
 
 	str.mu.Lock()
 	defer str.mu.Unlock()

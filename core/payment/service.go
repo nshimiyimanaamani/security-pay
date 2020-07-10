@@ -68,14 +68,21 @@ func New(opts *Options) Service {
 }
 
 func (svc service) Pull(ctx context.Context, payment Payment) (Response, error) {
-	const op errors.Op = "core/app/payment/service.Push"
+	const op errors.Op = "core/payment/service.Pull"
 
 	failed := Response{TxState: "failed"}
-	if err := payment.Validate(); err != nil {
+
+	// check the bare minimum
+	if err := payment.HasCode(); err != nil {
 		return failed, errors.E(op, err)
 	}
 
 	property, err := svc.properties.RetrieveByID(ctx, payment.Code)
+	if err != nil {
+		return failed, errors.E(op, err)
+	}
+
+	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
 	if err != nil {
 		return failed, errors.E(op, err)
 	}
@@ -85,19 +92,27 @@ func (svc service) Pull(ctx context.Context, payment Payment) (Response, error) 
 		return failed, errors.E(op, err)
 	}
 
+	// verify invoice
 	if err := invoice.Verify(payment.Amount); err != nil {
 		return failed, errors.E(op, err)
 	}
-
-	payment.Invoice = invoice.ID
 	payment.ID = svc.idp.ID()
+
+	// validate payment
+	if err := payment.Ready(); err != nil {
+		return failed, errors.E(op, err)
+	}
 
 	status, err := svc.backend.Pull(ctx, payment)
 	if err != nil {
 		return failed, errors.E(op, err)
 	}
 
-	transaction := svc.PaymentToTransaction(payment)
+	// validate transaction
+	transaction := svc.NewTransaction(payment, property, owner, invoice)
+	if err := transaction.Validate(); err != nil {
+		return failed, errors.E(op, err)
+	}
 
 	if _, err = svc.transactions.Save(ctx, transaction); err != nil {
 		return failed, errors.E(op, err)
@@ -105,29 +120,29 @@ func (svc service) Pull(ctx context.Context, payment Payment) (Response, error) 
 	return status, nil
 }
 
-func (svc *service) Push(ctx context.Context, py Payment) (Response, error) {
-	const op errors.Op = "core/app/payment/service.Push"
+func (svc *service) Push(ctx context.Context, payment Payment) (Response, error) {
+	const op errors.Op = "core/payment/service.Push"
 
 	failed := Response{TxState: "failed"}
 
-	if err := py.HackyValidation(); err != nil {
+	if err := payment.Ready(); err != nil {
 		return failed, errors.E(op, err)
 	}
 
-	py.ID = svc.idp.ID()
+	payment.ID = svc.idp.ID()
 
-	status, err := svc.backend.Push(ctx, py)
+	status, err := svc.backend.Push(ctx, payment)
 	if err != nil {
 		return failed, errors.E(op, err)
 	}
-	if err := svc.queue.Set(ctx, py); err != nil {
+	if err := svc.queue.Set(ctx, payment); err != nil {
 		return failed, errors.E(op, err)
 	}
 	return status, nil
 }
 
 func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
-	const op errors.Op = "core/app/payment/service. ConfirmPull"
+	const op errors.Op = "core/payment/service.ConfirmPull"
 
 	if err := cb.Validate(); err != nil {
 		return errors.E(op, err)
@@ -137,31 +152,17 @@ func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
 		return errors.E(op, "transaction failed unexpectedly", errors.KindUnexpected)
 	}
 
-	tx, err := svc.transactions.RetrieveByID(ctx, cb.Data.TrxRef)
+	transaction, err := svc.transactions.RetrieveByID(ctx, cb.Data.TrxRef)
 	if err != nil {
 		return errors.E(op, err)
 	}
+	transaction.Confirm()
 
-	property, err := svc.properties.RetrieveByID(ctx, tx.MadeFor)
-	if err != nil {
+	if err := svc.transactions.Update(ctx, transaction); err != nil {
 		return errors.E(op, err)
 	}
 
-	tx.Namespace = property.Namespace
-
-	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
-	if err != nil {
-		return errors.E(op, err)
-	}
-	tx.OwnerID = owner.ID
-
-	tx.Confirm()
-
-	if err := svc.transactions.Update(ctx, tx); err != nil {
-		return errors.E(op, err)
-	}
-
-	err = svc.Notify(ctx, tx)
+	err = svc.Notify(ctx, transaction)
 	if err != nil {
 		return errors.E(op, err)
 	}
@@ -169,7 +170,7 @@ func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
 }
 
 func (svc *service) ConfirmPush(ctx context.Context, cb Callback) error {
-	const op errors.Op = "core/app/payment/service. ConfirmPush"
+	const op errors.Op = "core/payment/service.ConfirmPush"
 
 	if err := cb.Validate(); err != nil {
 		return errors.E(op, err)
@@ -230,16 +231,21 @@ func formatMessage(tx transactions.Transaction, own owners.Owner, pr properties.
 	return buf.String()
 }
 
-func (svc *service) PaymentToTransaction(tx Payment) transactions.Transaction {
+func (svc *service) NewTransaction(
+	payment Payment,
+	property properties.Property,
+	owner owners.Owner,
+	invoice invoices.Invoice,
+
+) transactions.Transaction {
 	return transactions.Transaction{
-		ID:           tx.ID,
-		MadeFor:      tx.Code,
-		OwnerID:      tx.ID,
-		MSISDN:       tx.Phone,
-		Amount:       tx.Amount,
-		Invoice:      tx.Invoice,
-		Method:       tx.Method,
-		Namespace:    tx.Namespace,
-		DateRecorded: tx.CreatedAt,
+		ID:        payment.ID,
+		MadeFor:   property.ID,
+		OwnerID:   owner.ID,
+		MSISDN:    payment.Phone,
+		Amount:    payment.Amount,
+		Invoice:   invoice.ID,
+		Method:    payment.Method,
+		Namespace: property.Namespace,
 	}
 }

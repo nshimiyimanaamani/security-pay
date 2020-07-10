@@ -32,7 +32,6 @@ func TestPull(t *testing.T) {
 		desc    string
 		payment payment.Payment
 		state   payment.State
-		errKind int
 		err     error
 	}{
 		{
@@ -64,7 +63,7 @@ func TestPull(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		status, err := svc.Pull(ctx, tc.payment)
-		assert.True(t, errors.ErrEqual(tc.err, err), fmt.Sprintf("%s: expected '%s' got '%s'\n", tc.desc, tc.err, err))
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 		assert.Equal(t, tc.state, status.TxState, fmt.Sprintf("%s: expected %s got '%s'\n", tc.desc, tc.state, status.TxState))
 	}
 
@@ -121,6 +120,98 @@ func TestConfirmPull(t *testing.T) {
 	for _, tc := range cases {
 		ctx := context.Background()
 		err := svc.ConfirmPull(ctx, tc.callback)
+		assert.True(t, errors.ErrEqual(tc.err, err), fmt.Sprintf("%s: expected %s got '%s'\n", tc.desc, tc.err, err))
+	}
+}
+
+func TestPush(t *testing.T) {
+	const op errors.Op = "core/payment/service.Push"
+
+	owners, owner := newOwnersStore()
+	properties, property := newPropertiesStore(owner)
+	invoices, _ := newInvoiceStore(property)
+	svc := newService(owners, properties, invoices)
+
+	cases := []struct {
+		desc    string
+		payment payment.Payment
+		state   payment.State
+		err     error
+	}{
+		{
+			desc:    "initialize payment with valid data",
+			payment: payment.Payment{Code: property.ID, Amount: 5000, Phone: "0784607135", Method: "mtn-momo-rw"},
+			state:   "processing",
+			err:     nil,
+		},
+		{
+			desc:    "initialize payment with invalid method",
+			payment: payment.Payment{Code: property.ID, Amount: 5000, Phone: "0784607135"},
+			state:   "failed",
+			err:     errors.E(op, "payment method must be specified"),
+		},
+	}
+
+	for _, tc := range cases {
+		ctx := context.Background()
+		status, err := svc.Push(ctx, tc.payment)
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
+		assert.Equal(t, tc.state, status.TxState, fmt.Sprintf("%s: expected %s got '%s'\n", tc.desc, tc.state, status.TxState))
+	}
+
+}
+
+func TestConfirmPush(t *testing.T) {
+	const op errors.Op = "core/payment/service.ConfirmPush"
+
+	owners, owner := newOwnersStore()
+	properties, property := newPropertiesStore(owner)
+	invoices, _ := newInvoiceStore(property)
+	svc := newService(owners, properties, invoices)
+
+	tx := payment.Payment{
+		ID:     uuid.New().ID(),
+		Code:   property.ID,
+		Amount: 1000, Phone: "0784607135",
+		Method: "mtn-momo-rw",
+	}
+
+	res, err := svc.Push(context.Background(), tx)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+
+	cases := []struct {
+		desc     string
+		callback payment.Callback
+		err      error
+	}{
+		{
+			desc: "confirm valid callback",
+			callback: payment.Callback{
+				Status: "success",
+				Data: payment.CallBackData{
+					GwRef:  uuid.New().ID(),
+					TrxRef: res.TxID,
+					State:  payment.Successful,
+				},
+			},
+			err: nil,
+		},
+		{
+			desc: "confirm invalid callback",
+			callback: payment.Callback{
+				Data: payment.CallBackData{
+					GwRef:  uuid.New().ID(),
+					TrxRef: uuid.New().ID(),
+					State:  payment.Successful,
+				},
+			},
+			err: errors.E(op, "status field must not be empty"),
+		},
+	}
+
+	for _, tc := range cases {
+		ctx := context.Background()
+		err := svc.ConfirmPush(ctx, tc.callback)
 		assert.True(t, errors.ErrEqual(tc.err, err), fmt.Sprintf("%s: expected %s got '%s'\n", tc.desc, tc.err, err))
 	}
 }
