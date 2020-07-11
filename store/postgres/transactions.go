@@ -33,8 +33,7 @@ func (repo *transactionsStore) Save(ctx context.Context, tx transactions.Transac
 			method,
 			invoice,
 			namespace,
-			msisdn    
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING created_at
+		) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING created_at
 	`
 
 	err := repo.QueryRow(q,
