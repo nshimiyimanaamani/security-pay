@@ -32,7 +32,7 @@ func (repo *transactionsStore) Save(ctx context.Context, tx transactions.Transac
 			amount, 
 			method,
 			invoice,
-			namespace,
+			namespace
 		) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING created_at
 	`
 
