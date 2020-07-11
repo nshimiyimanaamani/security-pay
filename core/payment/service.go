@@ -96,6 +96,11 @@ func (svc service) Pull(ctx context.Context, payment Payment) (Response, error) 
 	}
 	payment.ID = svc.idp.ID()
 
+	payment.Invoice = invoice.ID
+	if err := payment.HasInvoice(); err != nil {
+		return failed, errors.E(op, err)
+	}
+
 	// validate payment
 	if err := payment.Ready(); err != nil {
 		return failed, errors.E(op, err)
