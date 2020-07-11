@@ -169,7 +169,7 @@ func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
 		return errors.E(op, err)
 	}
 
-	owner, err := svc.owners.Retrieve(ctx, payment.Code)
+	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
 	if err != nil {
 		return errors.E(op, err)
 	}
@@ -195,7 +195,7 @@ func (svc *service) ConfirmPush(ctx context.Context, cb Callback) error {
 	}
 
 	if cb.Data.State != Successful {
-		return errors.E(op, "transaction failed unexpectedly", errors.KindUnexpected)
+		return errors.E(op, cb.Data.Message, errors.KindUnexpected)
 	}
 
 	//retrieve from payments instead
