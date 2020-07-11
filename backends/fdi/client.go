@@ -60,7 +60,7 @@ func (cli *client) Pull(ctx context.Context, tx payment.Payment) (payment.Respon
 	body := Request{
 		TrxRef:      tx.ID,
 		AccountID:   cli.ID,
-		Msisdn:      tx.Phone,
+		Msisdn:      tx.MSISDN,
 		Amount:      tx.Amount,
 		ChannelID:   tx.Method,
 		CallbackURL: cli.DCallback,
@@ -114,7 +114,7 @@ func (cli *client) Push(ctx context.Context, tx payment.Payment) (payment.Respon
 	body := Request{
 		TrxRef:      tx.ID,
 		AccountID:   cli.ID,
-		Msisdn:      tx.Phone,
+		Msisdn:      tx.MSISDN,
 		Amount:      tx.Amount,
 		ChannelID:   tx.Method,
 		CallbackURL: cli.CCallback,

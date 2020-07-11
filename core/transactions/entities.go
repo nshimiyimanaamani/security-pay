@@ -20,8 +20,6 @@ type Transaction struct {
 	Method       string    `json:"method,omitempty"`
 	Invoice      uint64    `json:"invoice,omitempty"`
 	Namespace    string    `json:"namespace,omitempty"`
-	Confirmed    bool      `json:"confirmed,omitempty"`
-	MSISDN       string    `json:"msisdn  ,omitempty"`
 	DateRecorded time.Time `json:"date_recorded,omitempty"`
 }
 
@@ -47,9 +45,4 @@ func (tr *Transaction) Validate() error {
 		return errors.E(op, "invalid transaction", errors.KindBadRequest)
 	}
 	return nil
-}
-
-// Confirm transaction
-func (tr *Transaction) Confirm() {
-	tr.Confirmed = true
 }

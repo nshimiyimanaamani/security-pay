@@ -36,25 +36,25 @@ func TestPull(t *testing.T) {
 	}{
 		{
 			desc:    "initialize payment with valid data",
-			payment: payment.Payment{Code: property.ID, Amount: invoice.Amount, Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Code: property.ID, Amount: invoice.Amount, MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			state:   "processing",
 			err:     nil,
 		},
 		{
 			desc:    "initialize payment with invalid data",
-			payment: payment.Payment{Code: property.ID, Amount: invoice.Amount, Phone: "0784607135"},
+			payment: payment.Payment{Code: property.ID, Amount: invoice.Amount, MSISDN: "0784607135"},
 			state:   "failed",
 			err:     errors.E(op, "payment method must be specified"),
 		},
 		{
 			desc:    "initialize payment with unsaved house property.ID",
-			payment: payment.Payment{Code: uuid.New().ID(), Amount: invoice.Amount, Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Code: uuid.New().ID(), Amount: invoice.Amount, MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			state:   "failed",
 			err:     errors.E(op, "property not found"),
 		},
 		{
 			desc:    "initialize payment with invalid amount(different from invoice)",
-			payment: payment.Payment{Code: property.ID, Amount: 100, Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Code: property.ID, Amount: 100, MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			state:   "failed",
 			err:     errors.E(op, "amount doesn't match invoice"),
 		},
@@ -80,7 +80,7 @@ func TestConfirmPull(t *testing.T) {
 	tx := payment.Payment{
 		ID:     uuid.New().ID(),
 		Code:   property.ID,
-		Amount: 1000, Phone: "0784607135",
+		Amount: 1000, MSISDN: "0784607135",
 		Method: "mtn-momo-rw",
 	}
 
@@ -140,13 +140,13 @@ func TestPush(t *testing.T) {
 	}{
 		{
 			desc:    "initialize payment with valid data",
-			payment: payment.Payment{Code: property.ID, Amount: 5000, Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Code: property.ID, Amount: 5000, MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			state:   "processing",
 			err:     nil,
 		},
 		{
 			desc:    "initialize payment with invalid method",
-			payment: payment.Payment{Code: property.ID, Amount: 5000, Phone: "0784607135"},
+			payment: payment.Payment{Code: property.ID, Amount: 5000, MSISDN: "0784607135"},
 			state:   "failed",
 			err:     errors.E(op, "payment method must be specified"),
 		},
@@ -172,7 +172,7 @@ func TestConfirmPush(t *testing.T) {
 	tx := payment.Payment{
 		ID:     uuid.New().ID(),
 		Code:   property.ID,
-		Amount: 1000, Phone: "0784607135",
+		Amount: 1000, MSISDN: "0784607135",
 		Method: "mtn-momo-rw",
 	}
 
@@ -221,6 +221,7 @@ func newService(ws owners.Repository, ps properties.Repository, vc invoices.Repo
 	opts.Owners = ws
 	opts.Properties = ps
 	opts.Invoices = vc
+	opts.Repository = mocks.NewPaymentRepository()
 	opts.SMS = newSMSService()
 	opts.Idp = mocks.NewIdentityProvider()
 	opts.Backend = mocks.NewBackend()

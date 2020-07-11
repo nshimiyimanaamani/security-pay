@@ -41,6 +41,7 @@ type Options struct {
 	Properties   properties.Repository
 	Invoices     invoices.Repository
 	Transactions transactions.Repository
+	Repository   Repository
 }
 type service struct {
 	backend      Client
@@ -51,6 +52,7 @@ type service struct {
 	properties   properties.Repository
 	transactions transactions.Repository
 	invoices     invoices.Repository
+	repository   Repository
 }
 
 // New initializes the payment service
@@ -64,6 +66,7 @@ func New(opts *Options) Service {
 		sms:          opts.SMS,
 		invoices:     opts.Invoices,
 		transactions: opts.Transactions,
+		repository:   opts.Repository,
 	}
 }
 
@@ -78,11 +81,6 @@ func (svc service) Pull(ctx context.Context, payment Payment) (Response, error) 
 	}
 
 	property, err := svc.properties.RetrieveByID(ctx, payment.Code)
-	if err != nil {
-		return failed, errors.E(op, err)
-	}
-
-	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
 	if err != nil {
 		return failed, errors.E(op, err)
 	}
@@ -108,13 +106,9 @@ func (svc service) Pull(ctx context.Context, payment Payment) (Response, error) 
 		return failed, errors.E(op, err)
 	}
 
-	// validate transaction
-	transaction := svc.NewTransaction(payment, property, owner, invoice)
-	if err := transaction.Validate(); err != nil {
-		return failed, errors.E(op, err)
-	}
+	payment.Confirmed = false
 
-	if _, err = svc.transactions.Save(ctx, transaction); err != nil {
+	if err := svc.repository.Save(ctx, payment); err != nil {
 		return failed, errors.E(op, err)
 	}
 	return status, nil
@@ -135,6 +129,7 @@ func (svc *service) Push(ctx context.Context, payment Payment) (Response, error)
 	if err != nil {
 		return failed, errors.E(op, err)
 	}
+	//save instead to payments
 	if err := svc.queue.Set(ctx, payment); err != nil {
 		return failed, errors.E(op, err)
 	}
@@ -152,17 +147,35 @@ func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
 		return errors.E(op, "transaction failed unexpectedly", errors.KindUnexpected)
 	}
 
-	transaction, err := svc.transactions.RetrieveByID(ctx, cb.Data.TrxRef)
+	//retrieve from payments
+	payment, err := svc.repository.Find(ctx, cb.Data.TrxRef)
 	if err != nil {
 		return errors.E(op, err)
 	}
-	transaction.Confirm()
 
-	if err := svc.transactions.Update(ctx, transaction); err != nil {
+	//confirm payment
+	payment.Confirm()
+	if err := svc.repository.Update(ctx, payment); err != nil {
 		return errors.E(op, err)
 	}
 
-	err = svc.Notify(ctx, transaction)
+	property, err := svc.properties.RetrieveByID(ctx, payment.Code)
+	if err != nil {
+		return errors.E(op, err)
+	}
+
+	owner, err := svc.owners.Retrieve(ctx, payment.Code)
+	if err != nil {
+		return errors.E(op, err)
+	}
+
+	tx := svc.NewTransaction(payment, property, owner)
+
+	if _, err := svc.transactions.Save(ctx, tx); err != nil {
+		return errors.E(op, err)
+	}
+
+	err = svc.Notify(ctx, payment, tx)
 	if err != nil {
 		return errors.E(op, err)
 	}
@@ -180,6 +193,7 @@ func (svc *service) ConfirmPush(ctx context.Context, cb Callback) error {
 		return errors.E(op, "transaction failed unexpectedly", errors.KindUnexpected)
 	}
 
+	//retrieve from payments instead
 	tx, err := svc.queue.Get(ctx, cb.Data.TrxRef)
 	if err != nil {
 		return errors.E(op, err)
@@ -191,7 +205,7 @@ func (svc *service) ConfirmPush(ctx context.Context, cb Callback) error {
 	return nil
 }
 
-func (svc *service) Notify(ctx context.Context, tx transactions.Transaction) error {
+func (svc *service) Notify(ctx context.Context, py Payment, tx transactions.Transaction) error {
 	const op errors.Op = "core/app/payment/service.Notify"
 
 	property, err := svc.properties.RetrieveByID(ctx, tx.MadeFor)
@@ -204,10 +218,10 @@ func (svc *service) Notify(ctx context.Context, tx transactions.Transaction) err
 		return errors.E(op, err)
 	}
 
-	message := formatMessage(tx, owner, property)
+	message := formatMessage(tx, py, owner, property)
 
 	notification := notifs.Notification{
-		Recipients: []string{owner.Phone, tx.MSISDN}, //owners
+		Recipients: []string{owner.Phone, py.MSISDN}, //owners
 		Sender:     property.Namespace,               //account
 		Message:    message,
 	}
@@ -217,12 +231,12 @@ func (svc *service) Notify(ctx context.Context, tx transactions.Transaction) err
 	return nil
 }
 
-func formatMessage(tx transactions.Transaction, own owners.Owner, pr properties.Property) string {
+func formatMessage(tx transactions.Transaction, py Payment, own owners.Owner, pr properties.Property) string {
 	var buf bytes.Buffer
 
 	buf.WriteString(header)
 	buf.WriteString(fmt.Sprintf("%s.\n\n", pr.Address.Sector))
-	buf.WriteString(fmt.Sprintf("Nimero yishyuriweho: %s\n", tx.MSISDN))
+	buf.WriteString(fmt.Sprintf("Nimero yishyuriweho: %s\n", py.MSISDN))
 	buf.WriteString(fmt.Sprintf("Nimero ya fagitire: %d\n", tx.Invoice))
 	buf.WriteString(fmt.Sprintf("Umubare w' amafaranga: %dRWF\n", int(tx.Amount)))
 	buf.WriteString(fmt.Sprintf("Inzu yishyuriwe ni iya %s %s\n", own.Fname, own.Lname))
@@ -235,16 +249,13 @@ func (svc *service) NewTransaction(
 	payment Payment,
 	property properties.Property,
 	owner owners.Owner,
-	invoice invoices.Invoice,
-
 ) transactions.Transaction {
 	return transactions.Transaction{
 		ID:        payment.ID,
 		MadeFor:   property.ID,
 		OwnerID:   owner.ID,
-		MSISDN:    payment.Phone,
 		Amount:    payment.Amount,
-		Invoice:   invoice.ID,
+		Invoice:   payment.Invoice,
 		Method:    payment.Method,
 		Namespace: property.Namespace,
 	}

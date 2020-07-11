@@ -7,6 +7,7 @@ import (
 
 	"github.com/rugwirobaker/paypack-backend/core/accounts"
 	"github.com/rugwirobaker/paypack-backend/core/invoices"
+	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/core/transactions"
 	"github.com/rugwirobaker/paypack-backend/core/users"
@@ -48,10 +49,8 @@ func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) transactions.
 			amount,
 			method, 
 			invoice,
-			namespace,
-			confirmed,
-			msisdn    
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING created_at;
+			namespace
+		) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING created_at;
 	`
 
 	err := db.QueryRow(q,
@@ -62,8 +61,6 @@ func saveTx(t *testing.T, db *sql.DB, tx transactions.Transaction) transactions.
 		tx.Method,
 		tx.Invoice,
 		tx.Namespace,
-		tx.Confirmed,
-		tx.MSISDN,
 	).Scan(&tx.DateRecorded)
 
 	if err != nil {
@@ -229,6 +226,7 @@ func CleanDB(t *testing.T, db *sql.DB) {
 			sms_notifications,
 			messages, 
 			transactions, 
+			payments,
 			invoices, 
 			properties,
 			owners, 
@@ -245,4 +243,31 @@ func CleanDB(t *testing.T, db *sql.DB) {
 
 	_, err := db.Exec(q)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
+}
+
+func savePayment(t *testing.T, db *sql.DB, payment payment.Payment) payment.Payment {
+	q := `INSERT INTO payments(
+		id,
+		amount,
+		msisdn,
+		method,
+		invoice,
+		property,
+		confirmed
+	) VALUES($1, $2, $3, $4, $5, $6, $7)
+`
+	_, err := db.Exec(q,
+		payment.ID,
+		payment.Amount,
+		payment.MSISDN,
+		payment.Method,
+		payment.Invoice,
+		payment.Code,
+		payment.Confirmed,
+	)
+
+	if err != nil {
+		t.Fatalf("err: %v", err)
+	}
+	return payment
 }

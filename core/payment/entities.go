@@ -72,15 +72,20 @@ func (cb *Callback) Validate() error {
 
 // Payment ...
 type Payment struct {
-	ID     string  `json:"id,omitempty"`
-	Code   string  `json:"code,omitempty"`
-	Amount float64 `json:"amount,string,omitempty"`
-	Phone  string  `json:"phone,omitempty"`
-	Method string  `json:"payment_method,omitempty"`
-	// Invoice uint64  `json:"invoce_id,omitempty"`
-	// Namespace string    `json:"namespace,omitempty"`
-	// CreatedAt time.Time `json:"recorded_at,omitempty"`
-	// UpdatedAt time.Time `json:"updated_at,omitempty"`
+	ID        string    `json:"id,omitempty"`
+	Code      string    `json:"code,omitempty"`
+	Amount    float64   `json:"amount,string,omitempty"`
+	MSISDN    string    `json:"phone,omitempty"`
+	Method    string    `json:"payment_method,omitempty"`
+	Invoice   uint64    `json:"invoce_id,omitempty"`
+	Confirmed bool      `json:"confirmed,omitempty"`
+	CreatedAt time.Time `json:"recorded_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+}
+
+// Confirm payment
+func (p *Payment) Confirm() {
+	p.Confirmed = true
 }
 
 // HasCode checks whether a pull payment at least has the a property code
@@ -97,7 +102,7 @@ func (p *Payment) HasCode() error {
 func (p *Payment) Ready() error {
 	const op errors.Op = "core/payment/Payment.Ready"
 
-	if p.Phone == "" {
+	if p.MSISDN == "" {
 		return errors.E(op, "missing phone number", errors.KindBadRequest)
 	}
 

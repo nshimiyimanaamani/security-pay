@@ -45,7 +45,6 @@ func (repo *transactionsStore) Save(ctx context.Context, tx transactions.Transac
 		tx.Method,
 		tx.Invoice,
 		tx.Namespace,
-		tx.MSISDN,
 	).Scan(&tx.DateRecorded)
 
 	if err != nil {
@@ -61,34 +60,6 @@ func (repo *transactionsStore) Save(ctx context.Context, tx transactions.Transac
 		return "", errors.E(op, err, errors.KindUnexpected)
 	}
 	return tx.ID, nil
-}
-
-func (repo *transactionsStore) Update(ctx context.Context, tx transactions.Transaction) error {
-	const op errors.Op = "app/transactions/mocks/repository.Update"
-
-	q := `UPDATE transactions SET confirmed=$1 WHERE id=$2`
-
-	res, err := repo.Exec(q, tx.Confirmed, tx.ID)
-
-	if err != nil {
-		pqErr, ok := err.(*pq.Error)
-		if ok {
-			switch pqErr.Code.Name() {
-			case errInvalid, errTruncation:
-				return errors.E(op, err, "transaction not found", errors.KindNotFound)
-			}
-		}
-		return errors.E(op, err, errors.KindUnexpected)
-	}
-
-	cnt, err := res.RowsAffected()
-	if err != nil {
-		return errors.E(op, err, errors.KindUnexpected)
-	}
-	if cnt == 0 {
-		return errors.E(op, err, "transaction not found", errors.KindNotFound)
-	}
-	return nil
 }
 
 //seletect tx[id, amount, method, recorded]; properties[sector, cell, village] owner[fname, lname]
@@ -164,8 +135,6 @@ func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, l
 		owners ON transactions.madeby=owners.id 
 	WHERE
 		transactions.namespace=$1 
-	AND 
-		transactions.confirmed=true
 	ORDER BY transactions.id LIMIT $2 OFFSET $3
 	`
 	empty := transactions.TransactionPage{}
@@ -193,7 +162,7 @@ func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, l
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM transactions WHERE namespace=$1 AND confirmed=true`
+	q = `SELECT COUNT(*) FROM transactions WHERE namespace=$1`
 
 	var total uint64
 	if err := repo.QueryRow(q, creds.Account).Scan(&total); err != nil {
@@ -229,8 +198,6 @@ func (repo *transactionsStore) RetrieveByProperty(ctx context.Context, property 
 		transactions.madefor = $1 
 	AND 
 		transactions.namespace=$2
-	AND
-		transactions.confirmed=true
 	ORDER BY 
 		transactions.id LIMIT $3 OFFSET $4
 	`
@@ -259,7 +226,7 @@ func (repo *transactionsStore) RetrieveByProperty(ctx context.Context, property 
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM transactions WHERE madefor = $1 AND namespace=$2  AND confirmed=true`
+	q = `SELECT COUNT(*) FROM transactions WHERE madefor = $1 AND namespace=$2`
 
 	var total uint64
 	if err := repo.QueryRow(q, property, creds.Account).Scan(&total); err != nil {
@@ -303,8 +270,6 @@ func (repo *transactionsStore) RetrieveByMethod(ctx context.Context, method stri
 			transactions.method = $1 
 		AND 
 			transactions.namespace
-		AND
-			transactions.confirmed=true
 		ORDER BY 
 			transactions.id LIMIT $2 OFFSET $3
 	`
@@ -385,8 +350,6 @@ func (repo *transactionsStore) RetrieveByPropertyR(ctx context.Context, property
 		owners ON transactions.madeby=owners.id 
 	WHERE 
 		transactions.madefor=$1
-	AND
-		transactions.confirmed=true
 	ORDER BY transactions.id
 `
 
@@ -414,7 +377,7 @@ func (repo *transactionsStore) RetrieveByPropertyR(ctx context.Context, property
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM transactions WHERE madefor=$1 AND transactions.confirmed=true`
+	q = `SELECT COUNT(*) FROM transactions WHERE madefor=$1`
 
 	var total uint64
 	if err := repo.QueryRow(q, property).Scan(&total); err != nil {

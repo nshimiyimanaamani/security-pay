@@ -82,8 +82,6 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 		Method:    method,
 		Invoice:   invoice.ID,
 		Namespace: account.ID,
-		MSISDN:    "078450210",
-		Confirmed: true,
 	}
 	saveTx(t, db, transaction)
 
@@ -117,98 +115,6 @@ func TestSingleTransactionRetrieveByID(t *testing.T) {
 		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 
-}
-
-func TestUpdateTransaction(t *testing.T) {
-	const op errors.Op = "app/transactions/mocks/repository.Update"
-
-	repo := postgres.NewTransactionRepository(db)
-
-	defer CleanDB(t, db)
-
-	account := accounts.Account{
-		ID:            "paypack.developers",
-		Name:          "remera",
-		NumberOfSeats: 10,
-		Type:          accounts.Devs,
-	}
-	account = saveAccount(t, db, account)
-
-	agent := users.Agent{
-		Telephone: random(15),
-		FirstName: "first",
-		LastName:  "last",
-		Password:  "password",
-		Cell:      "cell",
-		Sector:    "Sector",
-		Village:   "village",
-		Role:      users.Dev,
-		Account:   account.ID,
-	}
-
-	agent = saveAgent(t, db, agent)
-
-	owner := properties.Owner{
-		ID:    uuid.New().ID(),
-		Fname: "rugwiro",
-		Lname: "james",
-		Phone: "0784677882",
-	}
-	owner = saveOwner(t, db, owner)
-
-	property := properties.Property{
-		ID:         nanoid.New(nil).ID(),
-		Owner:      properties.Owner{ID: owner.ID},
-		Due:        float64(1000),
-		Namespace:  account.ID,
-		RecordedBy: agent.Telephone,
-		Occupied:   true,
-	}
-	property = saveProperty(t, db, property)
-
-	invoice := retrieveInvoice(t, db, property.ID)
-
-	method := "kcb"
-
-	transaction := transactions.Transaction{
-		ID:        uuid.New().ID(),
-		OwnerID:   owner.ID,
-		MadeFor:   property.ID,
-		Amount:    invoice.Amount,
-		Method:    method,
-		Invoice:   invoice.ID,
-		Namespace: account.ID,
-		MSISDN:    "078450210",
-	}
-	saveTx(t, db, transaction)
-
-	cases := []struct {
-		desc string
-		tx   transactions.Transaction
-		err  error
-	}{
-		{
-			desc: "update existing transaction",
-			tx:   transactions.Transaction{ID: transaction.ID, Confirmed: true},
-			err:  nil,
-		},
-		{
-			desc: "update non existing transaction",
-			tx:   transactions.Transaction{ID: uuid.New().ID(), Confirmed: true},
-			err:  errors.E(op, "transaction not found", errors.KindNotFound),
-		},
-		{
-			desc: "update with malformed id",
-			tx:   transactions.Transaction{ID: "invalid", Confirmed: true},
-			err:  errors.E(op, "transaction not found", errors.KindNotFound),
-		},
-	}
-
-	for _, tc := range cases {
-		ctx := context.Background()
-		err := repo.Update(ctx, tc.tx)
-		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
-	}
 }
 
 func TestRetrieveAll(t *testing.T) {
@@ -263,8 +169,6 @@ func TestRetrieveAll(t *testing.T) {
 			Method:    "mtn",
 			Invoice:   invoice.ID,
 			Namespace: account.ID,
-			Confirmed: true,
-			MSISDN:    "078450210",
 		}
 		saveTx(t, db, tx)
 	}
@@ -371,8 +275,6 @@ func TestRetrieveByProperty(t *testing.T) {
 			Invoice:   invoice.ID,
 			Method:    "airtel",
 			Namespace: account.ID,
-			Confirmed: true,
-			MSISDN:    "078450210",
 		}
 		saveTx(t, db, tx)
 	}
@@ -484,8 +386,6 @@ func TestRetrieveByPropertyR(t *testing.T) {
 			Invoice:   invoice.ID,
 			Method:    "airtel",
 			Namespace: account.ID,
-			Confirmed: true,
-			MSISDN:    "078450210",
 		}
 		saveTx(t, db, tx)
 	}
@@ -575,7 +475,6 @@ func TestRetrieveByMethod(t *testing.T) {
 			Amount:  invoice.Amount,
 			Invoice: invoice.ID,
 			Method:  "mtn",
-			MSISDN:  "078450210",
 		}
 
 		saveTx(t, db, tx)

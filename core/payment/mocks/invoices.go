@@ -10,21 +10,21 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
-var _ (invoices.Repository) = (*repository)(nil)
+var _ (invoices.Repository) = (*invoicesMock)(nil)
 
-type repository struct {
+type invoicesMock struct {
 	mu       sync.Mutex
 	invoices map[string]invoices.Invoice
 }
 
 // NewInvoiceRepository creates a mock invoice repository
 func NewInvoiceRepository(invs map[string]invoices.Invoice) invoices.Repository {
-	return &repository{
+	return &invoicesMock{
 		invoices: invs,
 	}
 }
 
-func (repo *repository) ListAll(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
+func (repo *invoicesMock) ListAll(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
 	const op errors.Op = "app/invoices/mocks/repository.ListAll"
 
 	repo.mu.Lock()
@@ -53,7 +53,7 @@ func (repo *repository) ListAll(ctx context.Context, property string, months uin
 	return page, nil
 }
 
-func (repo *repository) ListPayed(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
+func (repo *invoicesMock) ListPayed(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
 	const op errors.Op = "app/invoices/mocks/repository.ListPayed"
 
 	repo.mu.Lock()
@@ -82,7 +82,7 @@ func (repo *repository) ListPayed(ctx context.Context, property string, months u
 	return page, nil
 }
 
-func (repo *repository) ListPending(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
+func (repo *invoicesMock) ListPending(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
 	const op errors.Op = "app/invoices/mocks/repository.ListPending"
 
 	repo.mu.Lock()
@@ -111,7 +111,7 @@ func (repo *repository) ListPending(ctx context.Context, property string, months
 	return page, nil
 }
 
-func (repo *repository) Earliest(ctx context.Context, property string) (invoices.Invoice, error) {
+func (repo *invoicesMock) Earliest(ctx context.Context, property string) (invoices.Invoice, error) {
 	const op errors.Op = "app/invoices/mocks/repository.Earliest"
 
 	repo.mu.Lock()
@@ -125,7 +125,7 @@ func (repo *repository) Earliest(ctx context.Context, property string) (invoices
 	return invoices.Invoice{}, errors.E(op, "no invoices found", errors.KindNotFound)
 }
 
-func (repo *repository) Generate(ctx context.Context) error {
+func (repo *invoicesMock) Generate(ctx context.Context) error {
 	const op errors.Op = "app/invoices/mocks/repository.Retrieve"
 
 	return errors.E(op, errors.KindNotImplemented)
