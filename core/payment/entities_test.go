@@ -22,12 +22,12 @@ func TestPaymentHasCode(t *testing.T) {
 	}{
 		{
 			desc:    "validate valid payment",
-			payment: payment.Payment{Code: nanoid.New(nil).ID(), Amount: 1000, Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Code: nanoid.New(nil).ID(), Amount: 1000, MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			err:     nil,
 		},
 		{
 			desc:    "validate with missing house code",
-			payment: payment.Payment{Amount: 1000, Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Amount: 1000, MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			err:     errors.E(op, "missing house code", errors.KindBadRequest),
 		},
 	}
@@ -50,12 +50,12 @@ func TestPaymentReady(t *testing.T) {
 	}{
 		{
 			desc:    "validate valid payment",
-			payment: payment.Payment{Code: nanoid.New(nil).ID(), Amount: 1000, Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Code: nanoid.New(nil).ID(), Amount: 1000, MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			err:     nil,
 		},
 		{
 			desc:    "validate with zero amount",
-			payment: payment.Payment{Code: nanoid.New(nil).ID(), Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Code: nanoid.New(nil).ID(), MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			err:     errors.E(op, "amount must be greater than zero", errors.KindBadRequest),
 		},
 		{
@@ -65,7 +65,7 @@ func TestPaymentReady(t *testing.T) {
 		},
 		{
 			desc:    "validate with missing payment method",
-			payment: payment.Payment{Code: nanoid.New(nil).ID(), Amount: 1000, Phone: "0784607135"},
+			payment: payment.Payment{Code: nanoid.New(nil).ID(), Amount: 1000, MSISDN: "0784607135"},
 			err:     errors.E(op, "payment method must be specified", errors.KindBadRequest),
 		},
 	}

@@ -90,7 +90,7 @@ func TestPull(t *testing.T) {
 			req: toJSON(payment.Payment{
 				Code:   property.ID,
 				Amount: invoice.Amount,
-				Phone:  "0785780891",
+				MSISDN: "0785780891",
 				Method: payment.MTN,
 			}),
 			status:      http.StatusOK,
@@ -101,7 +101,7 @@ func TestPull(t *testing.T) {
 			desc: "empty transaction amount",
 			req: toJSON(payment.Payment{
 				Code:   property.ID,
-				Phone:  "0785780891",
+				MSISDN: "0785780891",
 				Method: payment.MTN,
 			}),
 			status:      http.StatusBadRequest,
@@ -112,7 +112,7 @@ func TestPull(t *testing.T) {
 			desc: "missing house code",
 			req: toJSON(payment.Payment{
 				Amount: invoice.Amount,
-				Phone:  "0785780891",
+				MSISDN: "0785780891",
 				Method: payment.MTN,
 			}),
 			status:      http.StatusBadRequest,
@@ -125,7 +125,7 @@ func TestPull(t *testing.T) {
 			req: toJSON(payment.Payment{
 				Code:   property.ID,
 				Amount: invoice.Amount,
-				Phone:  "0785780891",
+				MSISDN: "0785780891",
 			}),
 			status:      http.StatusBadRequest,
 			contentType: contentType,
@@ -136,7 +136,7 @@ func TestPull(t *testing.T) {
 			req: toJSON(payment.Payment{
 				Code:   idprovider.ID(),
 				Amount: invoice.Amount,
-				Phone:  "0785780891",
+				MSISDN: "0785780891",
 				Method: payment.MTN,
 			}),
 			status:      http.StatusNotFound,
@@ -214,6 +214,7 @@ func newService(ws owners.Repository, ps properties.Repository, vc invoices.Repo
 	opts.Owners = ws
 	opts.Properties = ps
 	opts.Invoices = vc
+	opts.Repository = mocks.NewPaymentRepository()
 	opts.SMS = newSMSService()
 	opts.Idp = mocks.NewIdentityProvider()
 	opts.Backend = mocks.NewBackend()

@@ -663,6 +663,36 @@ func migrateDB(db *sql.DB) error {
 					`,
 				},
 			},
+			{
+				Id: "019_create_payments_table",
+				Up: []string{
+					`CREATE TABLE IF NOT EXISTS payments(
+						id 			UUID,
+						amount		NUMERIC (9, 2) NOT NULL DEFAULT (0),
+						msisdn 		VARCHAR(15) NOT NULL,
+						method 		VARCHAR(254),
+						invoice		SERIAL,
+						property 	TEXT,
+						confirmed	BOOLEAN DEFAULT false,
+						created_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
+						updated_at 	TIMESTAMP NOT NULL DEFAULT NOW(),
+						FOREIGN KEY(invoice, amount) references invoices(id, amount) ON DELETE CASCADE ON UPDATE CASCADE,
+						FOREIGN KEY(property) references properties(id) ON DELETE CASCADE ON UPDATE CASCADE,
+						PRIMARY KEY(id)
+					)`,
+
+					`
+					CREATE TRIGGER set_timestamp
+					BEFORE UPDATE ON payments
+					FOR EACH ROW
+					EXECUTE PROCEDURE trigger_set_timestamp();
+					`,
+					`
+					ALTER TABLE transactions DROP COLUMN confirmed;
+					ALTER TABLE transactions DROP COLUMN msisdn;
+					`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

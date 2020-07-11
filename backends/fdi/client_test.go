@@ -45,7 +45,7 @@ func TestPull(t *testing.T) {
 	}{
 		{
 			desc:        "pull payment request with valid data",
-			transaction: payment.Payment{ID: uuid.New().ID(), Amount: 5, Phone: "0785447001"},
+			transaction: payment.Payment{ID: uuid.New().ID(), Amount: 5, MSISDN: "0785447001"},
 			state:       "processing",
 			err:         nil,
 		},

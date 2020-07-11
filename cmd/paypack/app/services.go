@@ -125,6 +125,7 @@ func bootPaymentService(db *sql.DB, rclient *redis.Client, nclient notifs.Backen
 	var opts payment.Options
 	opts.Backend = pclient
 	opts.Idp = uuid.New()
+	opts.Repository = postgres.NewPaymentRepository(db)
 	opts.SMS = bootNotifService(db, nclient)
 	opts.Queue = rstore.NewQueue(rclient)
 	opts.Properties = postgres.NewPropertyStore(db)
