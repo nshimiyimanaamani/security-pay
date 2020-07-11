@@ -373,7 +373,7 @@ export default {
         if (total !== this.originalData.length) this.state.reloadData = true;
 
       if (this.state.reloadData === false) {
-        const properties = JSON.parse(localStorage.getItem("Properties"));
+        const properties = JSON.parse(sessionStorage.getItem("Properties"));
         if (properties && properties.length > 0) {
           this.filteredData = properties;
           this.originalData = Object.freeze(properties);
@@ -390,8 +390,8 @@ export default {
           this.originalData = Object.freeze(res.data.Properties);
           this.pagination.totalRows = res.data.Properties.length;
           this.filterByLocation();
-          localStorage.removeItem("Properties");
-          localStorage.setItem(
+          sessionStorage.removeItem("Properties");
+          sessionStorage.setItem(
             "Properties",
             JSON.stringify(res.data.Properties)
           );
@@ -400,7 +400,7 @@ export default {
         })
         .catch(err => {
           console.log(err.request);
-          const properties = JSON.parse(localStorage.getItem("Properties"));
+          const properties = JSON.parse(sessionStorage.getItem("Properties"));
           if (properties && properties.length > 0) {
             this.filteredData = properties;
             this.originalData = Object.freeze(properties);
