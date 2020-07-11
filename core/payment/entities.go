@@ -90,10 +90,20 @@ func (p *Payment) Confirm() {
 
 // HasCode checks whether a pull payment at least has the a property code
 func (p *Payment) HasCode() error {
-	const op errors.Op = "core/payment/Payment.Validate"
+	const op errors.Op = "core/payment/Payment.HasCode"
 
 	if p.Code == "" {
 		return errors.E(op, "missing house code", errors.KindBadRequest)
+	}
+	return nil
+}
+
+// HasInvoice verfies invoice
+func (p *Payment) HasInvoice() error {
+	const op errors.Op = "core/payment/Payment.HasInvoice"
+
+	if p.Invoice == 0 {
+		return errors.E(op, "invoice id not set", errors.KindBadRequest)
 	}
 	return nil
 }

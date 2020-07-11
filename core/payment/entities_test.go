@@ -12,7 +12,7 @@ import (
 )
 
 func TestPaymentHasCode(t *testing.T) {
-	const op errors.Op = "core/payment/Payment.Validate"
+	const op errors.Op = "core/payment/Payment.HasCode"
 
 	cases := []struct {
 		desc    string
