@@ -14,7 +14,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
-const header = "Murakoze kwishyura umusanzu w' umutekano mu murenge wa "
+const header = "Murakoze kwishyura umusanzu wanyu mu murenge wa "
 
 // Service is the api interface to the payment module
 type Service interface {
