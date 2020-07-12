@@ -10,47 +10,48 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
-var _ (transactions.Repository) = (*repository)(nil)
+var _ (transactions.Repository) = (*transactionRepoMock)(nil)
 
-type repository struct {
+type transactionRepoMock struct {
 	mu           sync.Mutex
 	counter      uint64
 	transactions map[string]transactions.Transaction
 }
 
-// NewRepository creates TransactiobStore mirror
-func NewRepository() transactions.Repository {
-	return &repository{
+// NewTransactionsRepository creates a memory backed
+// transactions.Repository mock.
+func NewTransactionsRepository() transactions.Repository {
+	return &transactionRepoMock{
 		transactions: make(map[string]transactions.Transaction),
 	}
 }
 
-func (str *repository) Save(ctx context.Context, tx transactions.Transaction) (string, error) {
-	const op errors.Op = "app/transactions/mocks/repository.Save"
+func (str *transactionRepoMock) Save(ctx context.Context, tx transactions.Transaction) (string, error) {
+	const op errors.Op = "core/payment/mocks/repository.Save"
 
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
 	str.counter++
-	tx.ID = strconv.FormatUint(str.counter, 10)
+	// tx.ID = strconv.FormatUint(str.counter, 10)
 	str.transactions[tx.ID] = tx
 	return tx.ID, nil
 }
 
-func (str *repository) Update(ctx context.Context, tx transactions.Transaction) error {
-	const op errors.Op = "app/transactions/mocks/repository.Update"
+func (str *transactionRepoMock) Update(ctx context.Context, tx transactions.Transaction) error {
+	const op errors.Op = "core/payment/mocks/repository.Update"
+
 	str.mu.Lock()
 	defer str.mu.Unlock()
 
 	if _, ok := str.transactions[tx.ID]; !ok {
 		return errors.E(op, "transaction not found", errors.KindNotFound)
 	}
-
 	return nil
 }
 
-func (str *repository) RetrieveByID(ctx context.Context, id string) (transactions.Transaction, error) {
-	const op errors.Op = "app/transactions/mocks/repository.RetrieveByID"
+func (str *transactionRepoMock) RetrieveByID(ctx context.Context, id string) (transactions.Transaction, error) {
+	const op errors.Op = "core/payment/mocks/repository.RetrieveByID("
 
 	str.mu.Lock()
 	defer str.mu.Unlock()
@@ -64,8 +65,8 @@ func (str *repository) RetrieveByID(ctx context.Context, id string) (transaction
 	return val, nil
 }
 
-func (str *repository) RetrieveAll(ctx context.Context, offset, limit uint64) (transactions.TransactionPage, error) {
-	const op errors.Op = "app/transactions/mocks/repository.RetrieveAll"
+func (str *transactionRepoMock) RetrieveAll(ctx context.Context, offset, limit uint64) (transactions.TransactionPage, error) {
+	const op errors.Op = "core/payment/mocks/repository.RetrieveAll"
 
 	str.mu.Lock()
 	defer str.mu.Unlock()
@@ -98,8 +99,8 @@ func (str *repository) RetrieveAll(ctx context.Context, offset, limit uint64) (t
 	return page, nil
 }
 
-func (str *repository) RetrieveByProperty(ctx context.Context, p string, offset, limit uint64) (transactions.TransactionPage, error) {
-	const op errors.Op = "app/transactions/mocks/repository.RetrieveByProperty"
+func (str *transactionRepoMock) RetrieveByProperty(ctx context.Context, p string, offset, limit uint64) (transactions.TransactionPage, error) {
+	const op errors.Op = "core/payment/mocks/repository.RetrieveByProperty"
 
 	str.mu.Lock()
 	defer str.mu.Unlock()
@@ -132,8 +133,8 @@ func (str *repository) RetrieveByProperty(ctx context.Context, p string, offset,
 	return page, nil
 }
 
-func (str *repository) RetrieveByPropertyR(ctx context.Context, p string) (transactions.TransactionPage, error) {
-	const op errors.Op = "app/transactions/mocks/repository.RetrieveByProperty"
+func (str *transactionRepoMock) RetrieveByPropertyR(ctx context.Context, p string) (transactions.TransactionPage, error) {
+	const op errors.Op = "core/payment/mocks/repository.RetrieveByPropertyR"
 
 	str.mu.Lock()
 	defer str.mu.Unlock()
@@ -158,8 +159,8 @@ func (str *repository) RetrieveByPropertyR(ctx context.Context, p string) (trans
 	return page, nil
 }
 
-func (str *repository) RetrieveByMethod(ctx context.Context, m string, offset, limit uint64) (transactions.TransactionPage, error) {
-	const op errors.Op = "app/transactions/mocks/repository.RetrieveByMethod"
+func (str *transactionRepoMock) RetrieveByMethod(ctx context.Context, m string, offset, limit uint64) (transactions.TransactionPage, error) {
+	const op errors.Op = "core/payment/mocks/repository.RetrieveByMethod"
 
 	str.mu.Lock()
 	defer str.mu.Unlock()

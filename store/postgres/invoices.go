@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/lib/pq"
 	"github.com/rugwirobaker/paypack-backend/core/invoices"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
@@ -187,6 +188,41 @@ func (repo *invoiceRepository) ListPayed(ctx context.Context, property string, m
 		},
 	}
 	return page, nil
+}
+
+func (repo *invoiceRepository) Earliest(ctx context.Context, property string) (invoices.Invoice, error) {
+	const op errors.Op = "store/postgres/invoiceRepository.Earliest"
+
+	q := `
+		SELECT 
+			id, 
+			amount, 
+			property, 
+			status, 
+			created_at, 
+			updated_at 
+		FROM 
+			earliest_pending_invoices_view 
+		WHERE property=$1;
+	`
+	var invoice invoices.Invoice
+
+	err := repo.QueryRow(q, property).Scan(
+		&invoice.ID,
+		&invoice.Amount,
+		&invoice.Property,
+		&invoice.Status,
+		&invoice.CreatedAt,
+		&invoice.UpdatedAt,
+	)
+	if err != nil {
+		pqErr, ok := err.(*pq.Error)
+		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
+			return invoices.Invoice{}, errors.E(op, err, "no invoice found", errors.KindNotFound)
+		}
+		return invoices.Invoice{}, errors.E(op, err, errors.KindUnexpected)
+	}
+	return invoice, nil
 }
 
 func (repo *invoiceRepository) Generate(ctx context.Context) error {

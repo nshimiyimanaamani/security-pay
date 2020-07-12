@@ -1,35 +1,35 @@
-package notifications_test
+package notifs_test
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/rugwirobaker/paypack-backend/core/notifications"
+	"github.com/rugwirobaker/paypack-backend/core/notifs"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestValidatePayload(t *testing.T) {
-	const op errors.Op = "core/notifications/Payload.Validate"
+	const op errors.Op = "core/notifs/Notification.Validate"
 
 	cases := []struct {
 		desc    string
-		payload notifications.Payload
+		payload notifs.Notification
 		err     error
 	}{
 		{
 			desc:    "validate valid account",
-			payload: notifications.Payload{Message: "message", Recipients: []string{"recipient"}},
+			payload: notifs.Notification{Message: "message", Recipients: []string{"recipient"}},
 			err:     nil,
 		},
 		{
 			desc:    "validate valid account",
-			payload: notifications.Payload{Recipients: []string{"recipient"}},
+			payload: notifs.Notification{Recipients: []string{"recipient"}},
 			err:     errors.E(op, "invalid payload: message is required", errors.KindBadRequest),
 		},
 		{
 			desc:    "validate valid account",
-			payload: notifications.Payload{Message: "message"},
+			payload: notifs.Notification{Message: "message"},
 			err:     errors.E(op, "invalid payload: recipients must be a non empty array", errors.KindBadRequest),
 		},
 	}

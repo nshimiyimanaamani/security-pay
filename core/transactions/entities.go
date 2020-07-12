@@ -8,12 +8,11 @@ import (
 
 //Transaction defines a payment made for a property(i.e house).
 type Transaction struct {
-	ID         string `json:"id,omitempty"`
-	MadeFor    string `json:"madefor,omitempty"`
-	OwnerID    string `json:"owner_id,omitempty"`
-	OwneFname  string `json:"owner_firstname,omitempty"`
-	OwnerLname string `json:"owner_lastname,omitempty"`
-	// Address      map[string]string `json:"address,omitempty"`
+	ID           string    `json:"id,omitempty"`
+	MadeFor      string    `json:"madefor,omitempty"`
+	OwnerID      string    `json:"owner_id,omitempty"`
+	OwneFname    string    `json:"owner_firstname,omitempty"`
+	OwnerLname   string    `json:"owner_lastname,omitempty"`
 	Cell         string    `json:"cell,omitempty"`
 	Sector       string    `json:"sector,omitempty"`
 	Village      string    `json:"village,omitempty"`

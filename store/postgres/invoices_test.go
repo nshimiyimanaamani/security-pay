@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/rugwirobaker/paypack-backend/core/accounts"
+	"github.com/rugwirobaker/paypack-backend/core/invoices"
 	"github.com/rugwirobaker/paypack-backend/core/nanoid"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/core/users"
@@ -266,5 +267,83 @@ func TestListPayed(t *testing.T) {
 		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected total:'%d; got '%d'\n", tc.desc, tc.total, page.Total))
 
+	}
+}
+
+func TestEarliest(t *testing.T) {
+	const op errors.Op = "store/postgres/invoiceRepository.Earliest"
+
+	repo := postgres.NewInvoiceRepository(db)
+
+	defer CleanDB(t, db)
+
+	account := accounts.Account{
+		ID:            "paypack.developers",
+		Name:          "remera",
+		NumberOfSeats: 10,
+		Type:          accounts.Devs,
+	}
+	account = saveAccount(t, db, account)
+
+	agent := users.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Role:      users.Dev,
+		Account:   account.ID,
+	}
+	agent = saveAgent(t, db, agent)
+
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
+	owner = saveOwner(t, db, owner)
+
+	property := properties.Property{
+		ID:    nanoid.New(nil).ID(),
+		Owner: properties.Owner{ID: owner.ID},
+		Address: properties.Address{
+			Sector:  "Remera",
+			Cell:    "Gishushu",
+			Village: "Ingabo",
+		},
+		Namespace:  account.ID,
+		Due:        float64(1000),
+		RecordedBy: agent.Telephone,
+		Occupied:   true,
+	}
+	property = saveProperty(t, db, property)
+
+	invoice := invoices.Invoice{Amount: property.Due, Property: property.ID, Status: invoices.Pending}
+	invoice = saveInvoice(t, db, invoice)
+
+	cases := []struct {
+		desc     string
+		property string
+		err      error
+	}{
+		{
+			desc:     "retrieve oldest invoice for existing property",
+			property: invoice.Property,
+			err:      nil,
+		},
+		{
+			desc:     "retrieve oldest invoice for existing property",
+			property: "invalid",
+			err:      errors.E(op, "no invoice found", errors.KindNotFound),
+		},
+	}
+
+	for _, tc := range cases {
+		ctx := context.Background()
+		_, err := repo.Earliest(ctx, tc.property)
+		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error: '%v' got '%v'\n", tc.desc, tc.err, err))
 	}
 }

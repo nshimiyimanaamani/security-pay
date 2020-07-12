@@ -1,6 +1,6 @@
-package notifications
+package notifs
 
-//  holds a queue of message callback responses to be sent yo users.
+// Pubsub  holds a queue of message callback responses to be sent yo users.
 type Pubsub interface {
 	// Subscribe to incoming callbacks
 	Subscribe()

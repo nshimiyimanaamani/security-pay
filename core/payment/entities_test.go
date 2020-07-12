@@ -11,51 +11,74 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPaymentValidate(t *testing.T) {
-	const op errors.Op = "payment.Transaction.Validate"
+func TestPaymentHasCode(t *testing.T) {
+	const op errors.Op = "core/payment/Payment.HasCode"
 
 	cases := []struct {
 		desc    string
-		payment payment.Transaction
+		payment payment.Payment
 		errMsg  string
 		err     error
 	}{
 		{
 			desc:    "validate valid payment",
-			payment: payment.Transaction{Code: nanoid.New(nil).ID(), Amount: 1000, Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Code: nanoid.New(nil).ID(), Amount: 1000, MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			err:     nil,
 		},
 		{
 			desc:    "validate with missing house code",
-			payment: payment.Transaction{Amount: 1000, Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Amount: 1000, MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			err:     errors.E(op, "missing house code", errors.KindBadRequest),
+		},
+	}
+
+	for _, tc := range cases {
+		err := tc.payment.HasCode()
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
+
+	}
+}
+
+func TestPaymentReady(t *testing.T) {
+	const op errors.Op = "core/payment/Payment.Ready"
+
+	cases := []struct {
+		desc    string
+		payment payment.Payment
+		errMsg  string
+		err     error
+	}{
+		{
+			desc:    "validate valid payment",
+			payment: payment.Payment{Code: nanoid.New(nil).ID(), Amount: 1000, MSISDN: "0784607135", Method: "mtn-momo-rw"},
+			err:     nil,
 		},
 		{
 			desc:    "validate with zero amount",
-			payment: payment.Transaction{Code: nanoid.New(nil).ID(), Phone: "0784607135", Method: "mtn-momo-rw"},
+			payment: payment.Payment{Code: nanoid.New(nil).ID(), MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			err:     errors.E(op, "amount must be greater than zero", errors.KindBadRequest),
 		},
 		{
 			desc:    "validate with missing phone payment",
-			payment: payment.Transaction{Code: nanoid.New(nil).ID(), Amount: 1000, Method: payment.MTN},
+			payment: payment.Payment{Code: nanoid.New(nil).ID(), Amount: 1000, Method: payment.MTN},
 			err:     errors.E(op, "missing phone number", errors.KindBadRequest),
 		},
 		{
 			desc:    "validate with missing payment method",
-			payment: payment.Transaction{Code: nanoid.New(nil).ID(), Amount: 1000, Phone: "0784607135"},
+			payment: payment.Payment{Code: nanoid.New(nil).ID(), Amount: 1000, MSISDN: "0784607135"},
 			err:     errors.E(op, "payment method must be specified", errors.KindBadRequest),
 		},
 	}
 
 	for _, tc := range cases {
-		err := tc.payment.Validate()
+		err := tc.payment.Ready()
 		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 
 	}
 }
 
 func TestValidateCallback(t *testing.T) {
-	const op errors.Op = ""
+	const op errors.Op = "core/payment/Callback.Validate"
 
 	cases := []struct {
 		desc     string

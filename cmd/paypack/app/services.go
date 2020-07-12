@@ -10,7 +10,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/invoices"
 	"github.com/rugwirobaker/paypack-backend/core/metrics"
 	"github.com/rugwirobaker/paypack-backend/core/nanoid"
-	"github.com/rugwirobaker/paypack-backend/core/notifications"
+	"github.com/rugwirobaker/paypack-backend/core/notifs"
 	"github.com/rugwirobaker/paypack-backend/core/owners"
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
@@ -33,7 +33,7 @@ type Services struct {
 	Accounts      accounts.Service
 	Auth          auth.Service
 	Feedback      feedback.Service
-	Notifications notifications.Service
+	Notifications notifs.Service
 	Owners        owners.Service
 	Payment       payment.Service
 	Properties    properties.Service
@@ -50,8 +50,8 @@ func Init(
 	db *sql.DB,
 	rclient *redis.Client,
 	queue *queue.Queue,
-	pclient payment.Backend,
-	s notifications.Backend,
+	pclient payment.Client,
+	sms notifs.Backend,
 	secret string,
 	namespace string,
 	prefix string,
@@ -59,9 +59,9 @@ func Init(
 	services := &Services{
 		Accounts:      bootAccountsService(db),
 		Feedback:      bootFeedbackService(db),
-		Notifications: bootNotifService(s),
+		Notifications: bootNotifService(db, sms),
 		Owners:        bootOwnersService(db),
-		Payment:       bootPaymentService(db, rclient, pclient),
+		Payment:       bootPaymentService(db, rclient, sms, pclient),
 		Properties:    bootPropertiesService(db),
 		Transactions:  bootTransactionsService(db),
 		Users:         bootUserService(db, secret),
@@ -125,12 +125,18 @@ func bootFeedbackService(db *sql.DB) feedback.Service {
 	return feedback.New(opts)
 }
 
-func bootPaymentService(db *sql.DB, rclient *redis.Client, bc payment.Backend) payment.Service {
-	idp := uuid.New()
-	repo := postgres.NewPaymentRepo(db)
-	queue := rstore.NewQueue(rclient)
-	opts := &payment.Options{Idp: idp, Backend: bc, Repo: repo, Queue: queue}
-	return payment.New(opts)
+func bootPaymentService(db *sql.DB, rclient *redis.Client, nclient notifs.Backend, pclient payment.Client) payment.Service {
+	var opts payment.Options
+	opts.Backend = pclient
+	opts.Idp = uuid.New()
+	opts.Repository = postgres.NewPaymentRepository(db)
+	opts.SMS = bootNotifService(db, nclient)
+	opts.Queue = rstore.NewQueue(rclient)
+	opts.Properties = postgres.NewPropertyStore(db)
+	opts.Owners = postgres.NewOwnerRepo(db)
+	opts.Invoices = postgres.NewInvoiceRepository(db)
+	opts.Transactions = postgres.NewTransactionRepository(db)
+	return payment.New(&opts)
 }
 
 func bootAccountsService(db *sql.DB) accounts.Service {
@@ -152,10 +158,12 @@ func bootStatsService(db *sql.DB) metrics.Service {
 	return metrics.New(opts)
 }
 
-func bootNotifService(sms notifications.Backend) notifications.Service {
-	idp := uuid.New()
-	opts := &notifications.Options{Backend: sms, IDP: idp}
-	return notifications.New(opts)
+func bootNotifService(db *sql.DB, client notifs.Backend) notifs.Service {
+	var opts notifs.Options
+	opts.IDP = uuid.New()
+	opts.Backend = client
+	opts.Store = postgres.NewNotifsRepository(db)
+	return notifs.New(&opts)
 }
 
 func bootUSSDService(prefix string, db *sql.DB, rclient *redis.Client, pclient payment.Backend) ussd.Service {

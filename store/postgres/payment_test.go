@@ -17,12 +17,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSaveTransaction(t *testing.T) {
-	repo := postgres.NewPaymentRepo(db)
+func TestSavePayment(t *testing.T) {
+	const op errors.Op = "store/postgres/paymentStore.Save"
+	repo := postgres.NewPaymentRepository(db)
 
 	defer CleanDB(t, db)
-
-	const op errors.Op = "store/postgres/paymentRepo.Save"
 
 	account := accounts.Account{
 		ID:            "paypack.developers",
@@ -75,39 +74,59 @@ func TestSaveTransaction(t *testing.T) {
 
 	cases := []struct {
 		desc string
-		tx   payment.Transaction
+		pmt  payment.Payment
 		err  error
 	}{
 		{
-			desc: "save new transaction",
-			tx:   payment.Transaction{ID: id, Code: property.ID, Amount: invoice.Amount, Invoice: invoice.ID, Method: payment.MTN},
-			err:  nil,
+			desc: "save new payment",
+			pmt: payment.Payment{
+				ID:        id,
+				Code:      property.ID,
+				Amount:    invoice.Amount,
+				Invoice:   invoice.ID,
+				Method:    method,
+				Confirmed: false,
+			},
+			err: nil,
 		},
 		{
-			desc: "save duplicate transaction",
-			tx:   payment.Transaction{ID: id, Code: property.ID, Amount: invoice.Amount, Invoice: invoice.ID, Method: payment.MTN},
-			err:  errors.E(op, "duplicate transaction", errors.KindAlreadyExists),
+			desc: "save duplicate payment",
+			pmt: payment.Payment{
+				ID:        id,
+				Code:      property.ID,
+				Amount:    invoice.Amount,
+				Invoice:   invoice.ID,
+				Method:    method,
+				Confirmed: false,
+			},
+			err: errors.E(op, "duplicate payment id", errors.KindAlreadyExists),
 		},
 		{
-			desc: "save owner with invalid id",
-			tx:   payment.Transaction{ID: "invalid", Code: property.ID, Amount: invoice.Amount, Invoice: invoice.ID, Method: payment.MTN},
-			err:  errors.E(op, "invalid transaction entity", errors.KindBadRequest),
+			desc: "save payment with invalid id",
+			pmt: payment.Payment{
+				ID:        "invalid",
+				Code:      property.ID,
+				Amount:    invoice.Amount,
+				Invoice:   invoice.ID,
+				Method:    method,
+				Confirmed: false,
+			},
+			err: errors.E(op, "invalid payment entity", errors.KindBadRequest),
 		},
 	}
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		err := repo.Save(ctx, tc.tx)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error: '%v' got '%v'\n", tc.desc, tc.err, err))
+		err := repo.Save(ctx, tc.pmt)
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }
 
-func TestRetrieveProperty(t *testing.T) {
-	repo := postgres.NewPaymentRepo(db)
+func TestFindPayment(t *testing.T) {
+	const op errors.Op = "store/postgres/paymentStore.Find"
 
+	repo := postgres.NewPaymentRepository(db)
 	defer CleanDB(t, db)
-
-	const op errors.Op = "store/postgres/paymentRepo.RetrieveProperty"
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 	account = saveAccount(t, db, account)
@@ -146,8 +165,25 @@ func TestRetrieveProperty(t *testing.T) {
 		RecordedBy: agent.Telephone,
 		Occupied:   true,
 	}
-
 	property = saveProperty(t, db, property)
+
+	invoice := invoices.Invoice{
+		Amount:   property.Due,
+		Property: property.ID,
+		Status:   invoices.Pending,
+	}
+
+	invoice = saveInvoice(t, db, invoice)
+
+	pmt := payment.Payment{
+		ID:        uuid.New().ID(),
+		Code:      property.ID,
+		Amount:    invoice.Amount,
+		Invoice:   invoice.ID,
+		Method:    "mtn",
+		Confirmed: false,
+	}
+	savePayment(t, db, pmt)
 
 	cases := []struct {
 		desc string
@@ -155,35 +191,41 @@ func TestRetrieveProperty(t *testing.T) {
 		err  error
 	}{
 		{
-			desc: "retrieve existing property",
-			id:   property.ID,
+			desc: "retrieve existing payment",
+			id:   pmt.ID,
 			err:  nil,
 		},
 		{
-			desc: "retrieve non-existing property",
+			desc: "retrieve non-existing payment",
 			id:   nanoid.New(nil).ID(),
-			err:  errors.E(op, "property not found", errors.KindNotFound),
+			err:  errors.E(op, "payment not found", errors.KindNotFound),
 		},
 		{
 			desc: "retrieve with malformed id",
 			id:   wrongValue,
-			err:  errors.E(op, "property not found", errors.KindNotFound),
+			err:  errors.E(op, "payment not found", errors.KindNotFound),
 		},
 	}
 	for _, tc := range cases {
 		ctx := context.Background()
-		_, err := repo.RetrieveProperty(ctx, tc.id)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error: '%s' got '%s'\n", tc.desc, tc.err, err))
+		_, err := repo.Find(ctx, tc.id)
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 
 }
 
-func TestOldestInvoice(t *testing.T) {
-	repo := postgres.NewPaymentRepo(db)
+func TestUpdatePayment(t *testing.T) {
+	const op errors.Op = "store/postgres/paymentStore.Update"
 
+	repo := postgres.NewPaymentRepository(db)
 	defer CleanDB(t, db)
 
-	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account := accounts.Account{
+		ID:            "paypack.developers",
+		Name:          "remera",
+		NumberOfSeats: 10,
+		Type:          accounts.Devs,
+	}
 	account = saveAccount(t, db, account)
 
 	agent := users.Agent{
@@ -205,11 +247,11 @@ func TestOldestInvoice(t *testing.T) {
 		Lname: "james",
 		Phone: "0784677882",
 	}
-	owner = saveOwner(t, db, owner)
+	sown := saveOwner(t, db, owner)
 
 	property := properties.Property{
 		ID:    nanoid.New(nil).ID(),
-		Owner: properties.Owner{ID: owner.ID},
+		Owner: properties.Owner{ID: sown.ID},
 		Address: properties.Address{
 			Sector:  "Remera",
 			Cell:    "Gishushu",
@@ -222,31 +264,58 @@ func TestOldestInvoice(t *testing.T) {
 	}
 	property = saveProperty(t, db, property)
 
-	invoice := invoices.Invoice{Amount: property.Due, Property: property.ID, Status: invoices.Pending}
+	invoice := invoices.Invoice{
+		Amount:   property.Due,
+		Property: property.ID,
+		Status:   invoices.Pending,
+	}
+
 	invoice = saveInvoice(t, db, invoice)
 
-	const op errors.Op = "store/postgres/paymentRepo.OldestInvoice"
+	pmt := payment.Payment{
+		ID:        uuid.New().ID(),
+		Code:      property.ID,
+		Amount:    invoice.Amount,
+		Invoice:   invoice.ID,
+		Method:    "mtn",
+		Confirmed: false,
+	}
+	savePayment(t, db, pmt)
 
 	cases := []struct {
-		desc     string
-		property string
-		err      error
+		desc string
+		pmt  payment.Payment
+		err  error
 	}{
 		{
-			desc:     "retrieve oldest invoice for existing property",
-			property: invoice.Property,
-			err:      nil,
+			desc: "update existing new payment",
+			pmt: payment.Payment{
+				ID:        pmt.ID,
+				Confirmed: false,
+			},
+			err: nil,
 		},
 		{
-			desc:     "retrieve oldest invoice for existing property",
-			property: "invalid",
-			err:      errors.E(op, "no invoice found", errors.KindNotFound),
+			desc: "update non saved payment",
+			pmt: payment.Payment{
+				ID:        uuid.New().ID(),
+				Confirmed: false,
+			},
+			err: errors.E(op, "payment not found", errors.KindNotFound),
+		},
+		{
+			desc: "update payment with invalid id",
+			pmt: payment.Payment{
+				ID:        "invalid",
+				Confirmed: false,
+			},
+			err: errors.E(op, "payment not found", errors.KindNotFound),
 		},
 	}
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		_, err := repo.EarliestInvoice(ctx, tc.property)
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error: '%v' got '%v'\n", tc.desc, tc.err, err))
+		err := repo.Update(ctx, tc.pmt)
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }

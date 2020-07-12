@@ -18,9 +18,7 @@ require (
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/hibiken/asynq v0.7.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/kr/pretty v0.2.0 // indirect
-	github.com/lib/pq v1.6.0
-	github.com/magiconair/properties v1.8.0
+	github.com/lib/pq v1.7.0
 	github.com/matoous/go-nanoid v1.3.0
 	github.com/matryer/is v1.3.0
 	github.com/mattn/go-isatty v0.0.12 // indirect
@@ -32,13 +30,14 @@ require (
 	github.com/rugwirobaker/platypus v0.0.4
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.6.0
+	github.com/sqs/goreturns v0.0.0-20181028201513-538ac6014518 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
 	github.com/ttacon/libphonenumber v1.1.0
 	github.com/vmihailenco/msgpack/v4 v4.3.11
 	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
-	golang.org/x/sys v0.0.0-20200124204421-9fbb57f87de9 // indirect
-	gopkg.in/yaml.v2 v2.2.8 // indirect
+	google.golang.org/genproto v0.0.0-20200303153909-beee998c1893 // indirect
+	gopkg.in/redis.v5 v5.2.9 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
 )

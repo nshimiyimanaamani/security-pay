@@ -13,17 +13,17 @@ var _ (payment.Queue) = (*mockQueue)(nil)
 // mock is a payment.Queue implementation that doesn't support concurency
 type mockQueue struct {
 	mu  sync.Mutex
-	txs map[string]payment.Transaction
+	txs map[string]payment.Payment
 }
 
 // NewQueue initialises the mockQueue
 func NewQueue() payment.Queue {
 	return &mockQueue{
-		txs: make(map[string]payment.Transaction),
+		txs: make(map[string]payment.Payment),
 	}
 }
 
-func (q *mockQueue) Set(ctx context.Context, tx payment.Transaction) error {
+func (q *mockQueue) Set(ctx context.Context, tx payment.Payment) error {
 	const op errors.Op = "mocksQueue.Set"
 
 	q.mu.Lock()
@@ -38,7 +38,7 @@ func (q *mockQueue) Set(ctx context.Context, tx payment.Transaction) error {
 	return nil
 }
 
-func (q *mockQueue) Get(ctx context.Context, uid string) (payment.Transaction, error) {
+func (q *mockQueue) Get(ctx context.Context, uid string) (payment.Payment, error) {
 	const op errors.Op = "mocksQueue.Get"
 
 	q.mu.Lock()
@@ -46,7 +46,7 @@ func (q *mockQueue) Get(ctx context.Context, uid string) (payment.Transaction, e
 
 	val, ok := q.txs[uid]
 	if !ok {
-		return payment.Transaction{}, errors.E(op, "transaction not found", errors.KindNotFound)
+		return payment.Payment{}, errors.E(op, "transaction not found", errors.KindNotFound)
 	}
 
 	return val, nil

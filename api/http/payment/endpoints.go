@@ -9,12 +9,12 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
-// Initialize handles payment initialization
-func Initialize(logger log.Entry, svc payment.Service) http.Handler {
-	const op errors.Op = "api/http/payment/Initialize"
+// Pull handles payment initialization
+func Pull(logger log.Entry, svc payment.Service) http.Handler {
+	const op errors.Op = "api/http/payment/Pull"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
-		tx := payment.Transaction{}
+		var tx payment.Payment
 
 		err := encoding.Decode(r, &tx)
 		if err != nil {
@@ -24,7 +24,7 @@ func Initialize(logger log.Entry, svc payment.Service) http.Handler {
 			return
 		}
 
-		res, err := svc.Initilize(r.Context(), tx)
+		res, err := svc.Pull(r.Context(), tx)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
@@ -41,9 +41,9 @@ func Initialize(logger log.Entry, svc payment.Service) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-// Confirm handles payment confirmation callback
-func Confirm(logger log.Entry, svc payment.Service) http.Handler {
-	const op errors.Op = "api/http/payment/Validate"
+// ConfirmPull handles payment confirmation callback
+func ConfirmPull(logger log.Entry, svc payment.Service) http.Handler {
+	const op errors.Op = "api/http/payment/ConfirmPull"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
 
@@ -56,7 +56,66 @@ func Confirm(logger log.Entry, svc payment.Service) http.Handler {
 			return
 		}
 
-		err := svc.Confirm(r.Context(), callback)
+		err := svc.ConfirmPull(r.Context(), callback)
+		if err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(err)
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+	return http.HandlerFunc(f)
+}
+
+// Push handles payment initialization
+func Push(logger log.Entry, svc payment.Service) http.Handler {
+	const op errors.Op = "api/http/payment/Push"
+
+	f := func(w http.ResponseWriter, r *http.Request) {
+		var tx payment.Payment
+
+		err := encoding.Decode(r, &tx)
+		if err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(errors.E(op, err))
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
+
+		res, err := svc.Push(r.Context(), tx)
+		if err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(err)
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
+		if err := encoding.Encode(w, http.StatusOK, res); err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(errors.E(op, err))
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
+	}
+	return http.HandlerFunc(f)
+}
+
+// ConfirmPush handles payment confirmation callback
+func ConfirmPush(logger log.Entry, svc payment.Service) http.Handler {
+	const op errors.Op = "api/http/payment/ConfirmPush"
+
+	f := func(w http.ResponseWriter, r *http.Request) {
+
+		var callback payment.Callback
+
+		if err := encoding.Decode(r, &callback); err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(err)
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
+
+		err := svc.ConfirmPush(r.Context(), callback)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)

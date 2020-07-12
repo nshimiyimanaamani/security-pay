@@ -10,18 +10,18 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
-var _ (transactions.Repository) = (*txRepository)(nil)
+var _ (transactions.Repository) = (*transactionsStore)(nil)
 
-type txRepository struct {
+type transactionsStore struct {
 	*sql.DB
 }
 
 // NewTransactionRepository instanctiates a new transactions.Repository interface
 func NewTransactionRepository(db *sql.DB) transactions.Repository {
-	return &txRepository{db}
+	return &transactionsStore{db}
 }
 
-func (repo *txRepository) Save(ctx context.Context, tx transactions.Transaction) (string, error) {
+func (repo *transactionsStore) Save(ctx context.Context, tx transactions.Transaction) (string, error) {
 	const op errors.Op = "store/postgres/transactionsRepository.Save"
 
 	q := `
@@ -42,6 +42,7 @@ func (repo *txRepository) Save(ctx context.Context, tx transactions.Transaction)
 		tx.OwnerID,
 		tx.Amount,
 		tx.Method,
+		tx.Invoice,
 		tx.Namespace,
 	).Scan(&tx.DateRecorded)
 
@@ -61,7 +62,7 @@ func (repo *txRepository) Save(ctx context.Context, tx transactions.Transaction)
 }
 
 //seletect tx[id, amount, method, recorded]; properties[sector, cell, village] owner[fname, lname]
-func (repo *txRepository) RetrieveByID(ctx context.Context, id string) (transactions.Transaction, error) {
+func (repo *transactionsStore) RetrieveByID(ctx context.Context, id string) (transactions.Transaction, error) {
 	const op errors.Op = "store/postgres/transactionsRepository.RetrieveByID"
 
 	q := `
@@ -117,7 +118,7 @@ func (repo *txRepository) RetrieveByID(ctx context.Context, id string) (transact
 	return tx, nil
 }
 
-func (repo *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit uint64) (transactions.TransactionPage, error) {
+func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, limit uint64) (transactions.TransactionPage, error) {
 	const op errors.Op = "store/postgres/transactionsRepository.RetrieveAll"
 
 	q := `
@@ -132,7 +133,7 @@ func (repo *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit 
 	INNER JOIN 
 		owners ON transactions.madeby=owners.id 
 	WHERE
-		transactions.namespace=$1
+		transactions.namespace=$1 
 	ORDER BY transactions.id LIMIT $2 OFFSET $3
 	`
 	empty := transactions.TransactionPage{}
@@ -178,7 +179,7 @@ func (repo *txRepository) RetrieveAll(ctx context.Context, offset uint64, limit 
 	return page, nil
 }
 
-func (repo *txRepository) RetrieveByProperty(ctx context.Context, property string, offset, limit uint64) (transactions.TransactionPage, error) {
+func (repo *transactionsStore) RetrieveByProperty(ctx context.Context, property string, offset, limit uint64) (transactions.TransactionPage, error) {
 	const op errors.Op = "store/postgres/transactionsRepository.RetrieveByProperty"
 
 	q := `
@@ -193,7 +194,9 @@ func (repo *txRepository) RetrieveByProperty(ctx context.Context, property strin
 	INNER JOIN 
 		owners ON transactions.madeby=owners.id 
 	WHERE 
-		transactions.madefor = $1 AND transactions.namespace=$2
+		transactions.madefor = $1 
+	AND 
+		transactions.namespace=$2
 	ORDER BY 
 		transactions.id LIMIT $3 OFFSET $4
 	`
@@ -240,7 +243,7 @@ func (repo *txRepository) RetrieveByProperty(ctx context.Context, property strin
 	return page, nil
 }
 
-func (repo *txRepository) RetrieveByMethod(ctx context.Context, method string, offset, limit uint64) (transactions.TransactionPage, error) {
+func (repo *transactionsStore) RetrieveByMethod(ctx context.Context, method string, offset, limit uint64) (transactions.TransactionPage, error) {
 	const op errors.Op = "store/postgres/transactionsRepository.RetrieveByMethod"
 
 	q := `
@@ -263,7 +266,9 @@ func (repo *txRepository) RetrieveByMethod(ctx context.Context, method string, o
 		INNER JOIN 
 			owners ON transactions.madeby=owners.id
 		WHERE 
-			transactions.method = $1 AND transactions.namespace
+			transactions.method = $1 
+		AND 
+			transactions.namespace
 		ORDER BY 
 			transactions.id LIMIT $2 OFFSET $3
 	`
@@ -319,7 +324,7 @@ func (repo *txRepository) RetrieveByMethod(ctx context.Context, method string, o
 	return page, nil
 }
 
-func (repo *txRepository) RetrieveByPropertyR(ctx context.Context, property string) (transactions.TransactionPage, error) {
+func (repo *transactionsStore) RetrieveByPropertyR(ctx context.Context, property string) (transactions.TransactionPage, error) {
 	const op errors.Op = "store/postgres/transactionsRepository.RetrieveByProperty"
 
 	q := `

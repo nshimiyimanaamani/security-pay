@@ -28,8 +28,8 @@ const (
 	Successful State = "successful"
 )
 
-// Status ...
-type Status struct {
+// Response ...
+type Response struct {
 	Status  string `json:"status,omitempty"`
 	TxID    string `json:"transaction_id,omitempty"`
 	Message string `json:"message,omitempty"`
@@ -53,7 +53,8 @@ type CallBackData struct {
 
 // Validate validats a callback
 func (cb *Callback) Validate() error {
-	const op errors.Op = "payment.Callback.Validate"
+	const op errors.Op = "core/payment/Callback.Validate"
+
 	if cb.Status == "" {
 		return errors.E(op, "status field must not be empty", errors.KindBadRequest)
 	}
@@ -72,42 +73,58 @@ func (cb *Callback) Validate() error {
 	return nil
 }
 
-// Transaction ...
-type Transaction struct {
-	ID         string    `json:"id,omitempty"`
-	Code       string    `json:"code,omitempty"`
-	Amount     float64   `json:"amount,string,omitempty"`
-	Phone      string    `json:"phone,omitempty"`
-	Invoice    uint64    `json:"invoce_id,omitempty"`
-	Method     Method    `json:"payment_method,omitempty"`
-	Namespace  string    `json:"namespace,omitempty"`
-	RecordedAt time.Time `json:"recorded_at,omitempty"`
+// Payment ...
+type Payment struct {
+	ID        string    `json:"id,omitempty"`
+	Code      string    `json:"code,omitempty"`
+	Amount    float64   `json:"amount,string,omitempty"`
+	MSISDN    string    `json:"phone,omitempty"`
+	Method    string    `json:"payment_method,omitempty"`
+	Invoice   uint64    `json:"invoce_id,omitempty"`
+	Confirmed bool      `json:"confirmed,omitempty"`
+	CreatedAt time.Time `json:"recorded_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
 
-// Validate returns an error if the Transaction entity doesn't adhere to
-// the requirements
-func (py *Transaction) Validate() error {
-	const op errors.Op = "payment.Transaction.Validate"
-	if py.Code == "" {
+// Confirm payment
+func (p *Payment) Confirm() {
+	p.Confirmed = true
+}
+
+// HasCode checks whether a pull payment at least has the a property code
+func (p *Payment) HasCode() error {
+	const op errors.Op = "core/payment/Payment.HasCode"
+
+	if p.Code == "" {
 		return errors.E(op, "missing house code", errors.KindBadRequest)
-	}
-
-	if py.Phone == "" {
-		return errors.E(op, "missing phone number", errors.KindBadRequest)
-	}
-
-	if py.Amount == float64(0) {
-		return errors.E(op, "amount must be greater than zero", errors.KindBadRequest)
-	}
-
-	if py.Method == "" {
-		return errors.E(op, "payment method must be specified", errors.KindBadRequest)
 	}
 	return nil
 }
 
-// Invoice ...
-type Invoice struct {
-	ID     uint64
-	Amount float64
+// HasInvoice verfies invoice
+func (p *Payment) HasInvoice() error {
+	const op errors.Op = "core/payment/Payment.HasInvoice"
+
+	if p.Invoice == 0 {
+		return errors.E(op, "invoice id not set", errors.KindBadRequest)
+	}
+	return nil
+}
+
+// Ready to send be sent to the payment gateway
+func (p *Payment) Ready() error {
+	const op errors.Op = "core/payment/Payment.Ready"
+
+	if p.MSISDN == "" {
+		return errors.E(op, "missing phone number", errors.KindBadRequest)
+	}
+
+	if p.Amount == float64(0) {
+		return errors.E(op, "amount must be greater than zero", errors.KindBadRequest)
+	}
+
+	if p.Method == "" {
+		return errors.E(op, "payment method must be specified", errors.KindBadRequest)
+	}
+	return nil
 }

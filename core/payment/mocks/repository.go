@@ -2,69 +2,66 @@ package mocks
 
 import (
 	"context"
-	"strconv"
 	"sync"
-	"time"
 
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
-type repoMock struct {
-	counter    uint64
-	mu         sync.Mutex
-	txs        map[string]payment.Transaction
-	properties []string
-	invoice    payment.Invoice
+type repositoryMock struct {
+	mu       sync.Mutex
+	counter  uint64
+	payments map[string]payment.Payment
 }
 
-// NewRepository ...
-func NewRepository(inv payment.Invoice, properties []string) payment.Repository {
-	return &repoMock{
-		txs:        make(map[string]payment.Transaction),
-		properties: properties,
-		invoice:    inv,
+// NewPaymentRepository creates an in memory mock of payment.Repository
+func NewPaymentRepository() payment.Repository {
+	return &repositoryMock{
+		payments: make(map[string]payment.Payment),
 	}
 }
 
-func (repo *repoMock) Save(ctx context.Context, tx payment.Transaction) error {
-	const op errors.Op = "app/mocks/repoMock.Save"
+func (repo *repositoryMock) Save(ctx context.Context, payment payment.Payment) error {
+	const op errors.Op = "core/payment/mocks/repositoryMock.Save"
 
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 
-	for _, saved := range repo.txs {
-		if saved.ID == tx.ID {
-			return errors.E(op, "transaction already exist", errors.KindAlreadyExists)
+	for _, py := range repo.payments {
+		if py.ID == payment.ID {
+			return errors.E(op, "payment not found", errors.KindNotFound)
 		}
 	}
 
-	tx.RecordedAt = time.Now()
-
 	repo.counter++
-	tx.ID = strconv.FormatUint(repo.counter, 10)
-	repo.txs[tx.ID] = tx
+	repo.payments[payment.ID] = payment
+
 	return nil
 }
 
-func (repo *repoMock) RetrieveProperty(ctx context.Context, code string) (string, error) {
-	const op errors.Op = "app/mocks/repoMock.RetrieveProperty"
+func (repo *repositoryMock) Find(ctx context.Context, id string) (payment.Payment, error) {
+	const op errors.Op = "core/payment/mocks/repositoryMock.Find"
 
-	for _, id := range repo.properties {
-		if id == code {
-			return code, nil
-		}
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	val, ok := repo.payments[id]
+	if !ok {
+		return payment.Payment{}, errors.E(op, "payment not found", errors.KindNotFound)
 	}
-	return "", errors.E(op, "property not found", errors.KindNotFound)
+	return val, nil
 }
 
-func (repo *repoMock) EarliestInvoice(ctx context.Context, property string) (payment.Invoice, error) {
-	const op errors.Op = "app/mocks/repoMock.OldestInvoice"
+func (repo *repositoryMock) Update(ctx context.Context, payment payment.Payment) error {
+	const op errors.Op = "core/payment/mocks/repositoryMock.Update"
 
-	for _, val := range repo.properties {
-		if val == property {
-			return repo.invoice, nil
-		}
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	if _, ok := repo.payments[payment.ID]; !ok {
+		return errors.E(op, "payment not found", errors.KindNotFound)
 	}
-	return payment.Invoice{}, errors.E(op, "no invoice found", errors.KindNotFound)
+
+	repo.payments[payment.ID] = payment
+	return nil
 }
