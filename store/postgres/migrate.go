@@ -693,6 +693,19 @@ func migrateDB(db *sql.DB) error {
 					`,
 				},
 			},
+			{
+				Id: "020_update_trigger_set_invoice_status",
+				Up: []string{
+					`
+					DROP TRIGGER IF EXISTS set_invoice_status on transactions;
+					CREATE TRIGGER set_invoice_status
+					  AFTER INSERT
+					  ON transactions
+					  FOR EACH ROW
+					  EXECUTE PROCEDURE trigger_set_invoice_status();
+					`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
