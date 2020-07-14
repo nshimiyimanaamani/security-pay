@@ -260,6 +260,8 @@ func (svc *service) NewTransaction(
 		MadeFor:   property.ID,
 		OwnerID:   owner.ID,
 		Amount:    payment.Amount,
+		Invoice:   payment.Invoice,
+		Method:    string(payment.Method),
 		Namespace: property.Namespace,
 	}
 }
