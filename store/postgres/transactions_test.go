@@ -23,7 +23,89 @@ import (
 var (
 	amount     = 2000.00
 	wrongValue = "wrong"
+	method     = "mtn"
 )
+
+func TestSaveTransaction(t *testing.T) {
+	repo := postgres.NewTransactionRepository(db)
+
+	defer CleanDB(t, db)
+
+	defer CleanDB(t, db)
+
+	account := accounts.Account{
+		ID:            "paypack.developers",
+		Name:          "remera",
+		NumberOfSeats: 10,
+		Type:          accounts.Devs,
+	}
+	account = saveAccount(t, db, account)
+
+	agent := users.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Role:      users.Dev,
+		Account:   account.ID,
+	}
+
+	agent = saveAgent(t, db, agent)
+
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
+	owner = saveOwner(t, db, owner)
+
+	property := properties.Property{
+		ID:         nanoid.New(nil).ID(),
+		Owner:      properties.Owner{ID: owner.ID},
+		Due:        float64(1000),
+		Namespace:  account.ID,
+		RecordedBy: agent.Telephone,
+		Occupied:   true,
+	}
+	property = saveProperty(t, db, property)
+
+	invoice := retrieveInvoice(t, db, property.ID)
+
+	cases := []struct {
+		desc   string
+		tx     transactions.Transaction
+		status invoices.Status
+		err    error
+	}{
+		{
+			desc: "save a valid transactions",
+			tx: transactions.Transaction{
+				ID:        uuid.New().ID(),
+				OwnerID:   owner.ID,
+				MadeFor:   property.ID,
+				Amount:    invoice.Amount,
+				Method:    method,
+				Invoice:   invoice.ID,
+				Namespace: account.ID,
+			},
+			status: invoices.Payed,
+			err:    nil,
+		},
+	}
+
+	for _, tc := range cases {
+		ctx := context.Background()
+		_, err := repo.Save(ctx, tc.tx)
+		invoice := retrieveInvoice(t, db, property.ID)
+		status := invoice.Status
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
+		assert.Equal(t, tc.status, status, fmt.Sprintf("%s: expected invoice status '%s' got '%s'", tc.desc, tc.status, status))
+	}
+}
 
 func TestSingleTransactionRetrieveByID(t *testing.T) {
 	repo := postgres.NewTransactionRepository(db)
