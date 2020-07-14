@@ -2,18 +2,11 @@ package encoding
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 )
 
-var (
-	contentType               = "application/json"
-	errUnsupportedContentType = errors.New("unsupported content type")
-)
-
-// Encode response
 func Encode(w http.ResponseWriter, code int, response interface{}) error {
-	w.Header().Set("Content-Type", contentType)
+	w.Header().Set("Content-Type", "application/json")
 
 	w.WriteHeader(code)
 	return json.NewEncoder(w).Encode(response)

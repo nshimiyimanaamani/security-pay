@@ -17,6 +17,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/api/http/scheduler"
 	"github.com/rugwirobaker/paypack-backend/api/http/transactions"
 	"github.com/rugwirobaker/paypack-backend/api/http/users"
+	"github.com/rugwirobaker/paypack-backend/api/http/ussd"
 	"github.com/rugwirobaker/paypack-backend/api/http/version"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
@@ -35,6 +36,7 @@ type HandlerOptions struct {
 	InvoiceOptions   *invoices.HandlerOpts
 	StatsOptions     *metrics.HandlerOpts
 	SchedulerOptions *scheduler.HandlerOpts
+	USSDOptions      *ussd.HandlerOpts
 }
 
 // NewHandlerOptions ...
@@ -98,6 +100,10 @@ func NewHandlerOptions(services *Services, lggr *log.Logger) *HandlerOptions {
 		Service:       services.Notifications,
 		Authenticator: services.Auth,
 	}
+	ussdOpts := &ussd.HandlerOpts{
+		Service: services.USSD,
+		Logger:  lggr,
+	}
 	scOptions := &scheduler.HandlerOpts{
 		Logger:        lggr,
 		Service:       services.Scheduler,
@@ -117,6 +123,7 @@ func NewHandlerOptions(services *Services, lggr *log.Logger) *HandlerOptions {
 		StatsOptions:     statsOpts,
 		NotifOptions:     notifOpts,
 		SchedulerOptions: scOptions,
+		USSDOptions:      ussdOpts,
 	}
 	return opts
 }
@@ -152,6 +159,8 @@ func Register(mux *mux.Router, opts *HandlerOptions) {
 	metrics.RegisterHandlers(mux, opts.StatsOptions)
 
 	notifs.RegisterHandlers(mux, opts.NotifOptions)
+
+	ussd.RegisterHandlers(mux, opts.USSDOptions)
 
 	scheduler.RegisterHandlers(mux, opts.SchedulerOptions)
 }

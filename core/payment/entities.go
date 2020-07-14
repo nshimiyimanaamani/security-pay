@@ -9,10 +9,13 @@ import (
 // TxExpiration is the time it takes for a non confirmed treansaction to expire
 const TxExpiration = time.Minute * 10
 
-// payment methods
+// Method payment method
+type Method string
+
+// supported payment methods
 const (
-	MTN    = "mtn"
-	AIRTEL = "airtel"
+	MTN    Method = "momo-mtn-rw"
+	AIRTEL Method = "momo-airtel-rw"
 )
 
 // State defines transaction states
@@ -76,7 +79,7 @@ type Payment struct {
 	Code      string    `json:"code,omitempty"`
 	Amount    float64   `json:"amount,string,omitempty"`
 	MSISDN    string    `json:"phone,omitempty"`
-	Method    string    `json:"payment_method,omitempty"`
+	Method    Method    `json:"payment_method,omitempty"`
 	Invoice   uint64    `json:"invoce_id,omitempty"`
 	Confirmed bool      `json:"confirmed,omitempty"`
 	CreatedAt time.Time `json:"recorded_at,omitempty"`

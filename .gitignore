@@ -22,3 +22,6 @@ data
 
 #temp test scripts
 scripts/local
+
+# test output
+coverage.out

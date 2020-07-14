@@ -8,6 +8,7 @@ type SSLConfig struct {
 	Certificate string
 }
 
+// Validate SSL configuration
 func (conf *SSLConfig) Validate() error {
 	validator := validate.New()
 	return validator.Struct(conf)

@@ -17,6 +17,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/scheduler"
 	"github.com/rugwirobaker/paypack-backend/core/transactions"
 	"github.com/rugwirobaker/paypack-backend/core/users"
+	"github.com/rugwirobaker/paypack-backend/core/ussd"
 	"github.com/rugwirobaker/paypack-backend/core/uuid"
 	"github.com/rugwirobaker/paypack-backend/pkg/encrypt"
 	"github.com/rugwirobaker/paypack-backend/pkg/passwords/bcrypt"
@@ -40,6 +41,7 @@ type Services struct {
 	Users         users.Service
 	Invoices      invoices.Service
 	Stats         metrics.Service
+	USSD          ussd.Service
 	Scheduler     scheduler.Service
 }
 
@@ -52,6 +54,7 @@ func Init(
 	sms notifs.Backend,
 	secret string,
 	namespace string,
+	prefix string,
 ) *Services {
 	services := &Services{
 		Accounts:      bootAccountsService(db),
@@ -66,6 +69,7 @@ func Init(
 		Invoices:      bootInvoiceService(db),
 		Stats:         bootStatsService(db),
 		Scheduler:     bootScheduler(db, queue),
+		USSD:          bootUSSDService(prefix, db, rclient, sms, pclient),
 	}
 	return services
 }
@@ -160,6 +164,21 @@ func bootNotifService(db *sql.DB, client notifs.Backend) notifs.Service {
 	opts.Backend = client
 	opts.Store = postgres.NewNotifsRepository(db)
 	return notifs.New(&opts)
+}
+
+func bootUSSDService(prefix string, db *sql.DB, rclient *redis.Client, sms notifs.Backend, pclient payment.Client) ussd.Service {
+	idp := uuid.New()
+	properties := postgres.NewPropertyStore(db)
+	owners := postgres.NewOwnerRepo(db)
+	payment := bootPaymentService(db, rclient, sms, pclient)
+	opts := &ussd.Options{
+		Prefix:     prefix,
+		IDP:        idp,
+		Owners:     owners,
+		Properties: properties,
+		Payment:    payment,
+	}
+	return ussd.New(opts)
 }
 
 func bootScheduler(db *sql.DB, queue *queue.Queue) scheduler.Service {

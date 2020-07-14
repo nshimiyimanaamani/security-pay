@@ -71,7 +71,6 @@ func TestSavePayment(t *testing.T) {
 	invoice = saveInvoice(t, db, invoice)
 
 	id := uuid.New().ID()
-	method := "bk"
 
 	cases := []struct {
 		desc string
@@ -85,7 +84,7 @@ func TestSavePayment(t *testing.T) {
 				Code:      property.ID,
 				Amount:    invoice.Amount,
 				Invoice:   invoice.ID,
-				Method:    method,
+				Method:    payment.MTN,
 				Confirmed: false,
 			},
 			err: nil,
@@ -97,7 +96,7 @@ func TestSavePayment(t *testing.T) {
 				Code:      property.ID,
 				Amount:    invoice.Amount,
 				Invoice:   invoice.ID,
-				Method:    method,
+				Method:    payment.MTN,
 				Confirmed: false,
 			},
 			err: errors.E(op, "duplicate payment id", errors.KindAlreadyExists),
@@ -109,7 +108,7 @@ func TestSavePayment(t *testing.T) {
 				Code:      property.ID,
 				Amount:    invoice.Amount,
 				Invoice:   invoice.ID,
-				Method:    method,
+				Method:    payment.MTN,
 				Confirmed: false,
 			},
 			err: errors.E(op, "invalid payment entity", errors.KindBadRequest),

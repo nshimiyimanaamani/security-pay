@@ -18,7 +18,8 @@ type Config struct {
 	Postgres     *PostgresConfig
 	Redis        *RedisConfig
 	Payment      *PaymentConfig
-	SMS          *SmsConfig
+	SMS          *SMSConfig
+	USSD         *USSDConfig
 }
 
 //default config
@@ -41,6 +42,7 @@ func Load(prefix string) (*Config, error) {
 	return &c, nil
 }
 
+// Validate configuration
 func Validate(conf *Config) error {
 	const op errors.Op = "pkg/config/Config.Validate"
 

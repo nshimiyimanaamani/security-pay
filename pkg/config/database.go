@@ -7,6 +7,7 @@ type PostgresConfig struct {
 	URL string `validate:"required" envconfig:"PAYPACK_POSTGRES_URL"`
 }
 
+// Validate database configuration
 func (conf *PostgresConfig) Validate() error {
 	validator := validate.New()
 	return validator.Struct(conf)

@@ -359,12 +359,12 @@ func TestRetrieveByOwner(t *testing.T) {
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
 	account = saveAccount(t, db, account)
 
-	creds := auth.Credentials{
-		Username: "username",
-		Password: "password",
-		Role:     auth.Dev,
-		Account:  account.ID,
-	}
+	// creds := auth.Credentials{
+	// 	Username: "username",
+	// 	Password: "password",
+	// 	Role:     auth.Dev,
+	// 	Account:  account.ID,
+	// }
 
 	agent := users.Agent{
 		Telephone: random(15),
@@ -446,7 +446,7 @@ func TestRetrieveByOwner(t *testing.T) {
 
 	for desc, tc := range cases {
 		ctx := context.Background()
-		ctx = auth.SetECredetialsInContext(ctx, &creds)
+		// ctx = auth.SetECredetialsInContext(ctx, &creds)
 		page, err := props.RetrieveByOwner(ctx, tc.owner, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))

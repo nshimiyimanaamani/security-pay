@@ -15,14 +15,14 @@ var _ (properties.Repository) = (*repository)(nil)
 type repository struct {
 	mu         sync.Mutex
 	counter    uint64
-	owner      string
+	owners     map[string]properties.Owner
 	properties map[string]properties.Property
 }
 
-// NewRepository creates Repositorymirror
-func NewRepository(owner string) properties.Repository {
+// NewPropertyRepository creates Repositorymirror
+func NewPropertyRepository(owners map[string]properties.Owner) properties.Repository {
 	return &repository{
-		owner:      owner,
+		owners:     owners,
 		properties: make(map[string]properties.Property),
 	}
 }
@@ -34,7 +34,7 @@ func (str *repository) Save(ctx context.Context, property properties.Property) (
 
 	empty := properties.Property{}
 
-	if str.owner != property.Owner.ID {
+	if _, ok := str.owners[property.Owner.ID]; !ok {
 		return empty, errors.E(op, "owner not found", errors.KindNotFound)
 	}
 

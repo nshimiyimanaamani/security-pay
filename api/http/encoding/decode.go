@@ -11,7 +11,7 @@ import (
 
 // Decode request
 func Decode(r *http.Request, v interface{}) error {
-	const op errors.Op = "api/http/accounts.Decode"
+	const op errors.Op = "api/http/Decode"
 
 	defer r.Body.Close()
 
@@ -22,7 +22,7 @@ func Decode(r *http.Request, v interface{}) error {
 	if err := json.NewDecoder(r.Body).Decode(v); err != nil {
 		switch err {
 		case io.EOF:
-			return errors.E(op, "invalid request: wrong data format", errors.KindBadRequest)
+			return errors.E(op, err, errors.KindBadRequest)
 		default:
 			switch err.(type) {
 			case *json.SyntaxError:
