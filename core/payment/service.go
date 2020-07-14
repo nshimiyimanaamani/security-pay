@@ -261,7 +261,7 @@ func (svc *service) NewTransaction(
 		OwnerID:   owner.ID,
 		Amount:    payment.Amount,
 		Invoice:   payment.Invoice,
-		Method:    payment.Method,
+		Method:    string(payment.Method),
 		Namespace: property.Namespace,
 	}
 }

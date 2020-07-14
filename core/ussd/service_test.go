@@ -42,13 +42,9 @@ func TestProcess(t *testing.T) {
 	}
 	property, properties := newPropertyRepository(property)
 
-	invoice := payment.Invoice{
-		ID:     uint64(1000),
-		Amount: float64(1000),
-	}
 	props := []string{property.ID}
 
-	svc := newService(properties, owners, invoice, props)
+	svc := newService(properties, owners, props)
 
 	req := &ussd.Request{
 		SessionID:   "session",
@@ -170,7 +166,6 @@ func ownerFixtures(owner owners.Owner) map[string]properties.Owner {
 func newService(
 	ps properties.Repository,
 	ows owners.Repository,
-	inv payment.Invoice,
 	properties []string,
 ) ussd.Service {
 	idp := mocks.NewIdentityProvider()
@@ -181,10 +176,6 @@ func newService(
 		Payment: newPaymentService(),
 	}
 	return ussd.New(opts)
-}
-
-func newInvoicesRepository(inv payment.Invoice, properties []string) payment.Repository {
-	return mocks.NewInvoicesRepository(inv, properties)
 }
 
 func newOwnerRepository(owner owners.Owner) (owners.Owner, owners.Repository) {

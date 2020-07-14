@@ -79,7 +79,7 @@ type Payment struct {
 	Code      string    `json:"code,omitempty"`
 	Amount    float64   `json:"amount,string,omitempty"`
 	MSISDN    string    `json:"phone,omitempty"`
-	Method    string    `json:"payment_method,omitempty"`
+	Method    Method    `json:"payment_method,omitempty"`
 	Invoice   uint64    `json:"invoce_id,omitempty"`
 	Confirmed bool      `json:"confirmed,omitempty"`
 	CreatedAt time.Time `json:"recorded_at,omitempty"`

@@ -69,7 +69,7 @@ func Init(
 		Invoices:      bootInvoiceService(db),
 		Stats:         bootStatsService(db),
 		Scheduler:     bootScheduler(db, queue),
-		USSD:          bootUSSDService(prefix, db, rclient, pclient),
+		USSD:          bootUSSDService(prefix, db, rclient, sms, pclient),
 	}
 	return services
 }
@@ -166,11 +166,11 @@ func bootNotifService(db *sql.DB, client notifs.Backend) notifs.Service {
 	return notifs.New(&opts)
 }
 
-func bootUSSDService(prefix string, db *sql.DB, rclient *redis.Client, pclient payment.Backend) ussd.Service {
+func bootUSSDService(prefix string, db *sql.DB, rclient *redis.Client, sms notifs.Backend, pclient payment.Client) ussd.Service {
 	idp := uuid.New()
 	properties := postgres.NewPropertyStore(db)
 	owners := postgres.NewOwnerRepo(db)
-	payment := bootPaymentService(db, rclient, pclient)
+	payment := bootPaymentService(db, rclient, sms, pclient)
 	opts := &ussd.Options{
 		Prefix:     prefix,
 		IDP:        idp,

@@ -86,13 +86,13 @@ func (svc *service) Process(ctx context.Context, req *Request) (Response, error)
 }
 
 func (svc *service) Pay(ctx context.Context, p properties.Property, phone string) (string, error) {
-	tx := payment.Transaction{
+	tx := payment.Payment{
 		Code:   p.ID,
-		Phone:  phone,
+		MSISDN: phone,
 		Amount: p.Due,
 		Method: SelectMethod(phone),
 	}
-	status, err := svc.payment.Initilize(ctx, tx)
+	status, err := svc.payment.Pull(ctx, tx)
 	if err != nil {
 		return status.Message, err
 	}
