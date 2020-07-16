@@ -27,7 +27,7 @@ func (svc *service) Action1(ctx context.Context, cmd *platypus.Command) (platypu
 func (svc *service) Action1_1(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
 	const op errors.Op = "core/ussd/service.Action1_1_1"
 
-	const success = "Numero yo kwishyura\n 1. Iyanditsweho inzu\n2.Iyo uri gukoresha\n"
+	const success = "Numero yo kwishyura\n 1. Iyanditsweho inzu\n 2. Iyo uri gukoresha\n"
 
 	const fail = "Mwongere mugerageze habaye ikibazo"
 
