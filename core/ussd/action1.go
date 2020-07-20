@@ -18,7 +18,7 @@ func (svc *service) Action1(ctx context.Context, cmd *platypus.Command) (platypu
 
 	leaf, err := params.GetBool("isleaf")
 	if err != nil {
-		return platypus.Result{}, errors.E(op, err, errors.KindNotFound)
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	return platypus.Result{Out: menu, Leaf: leaf}, nil
@@ -35,7 +35,7 @@ func (svc *service) Action1_1(ctx context.Context, cmd *platypus.Command) (platy
 
 	leaf, err := params.GetBool("isleaf")
 	if err != nil {
-		return platypus.Result{}, errors.E(op, err, errors.KindNotFound)
+		return platypus.Result{Out: fail, Leaf: leaf}, errors.E(op, err, errors.KindNotFound)
 	}
 	return platypus.Result{Out: success, Leaf: leaf}, nil
 }
@@ -44,11 +44,13 @@ func (svc *service) Action1_1(ctx context.Context, cmd *platypus.Command) (platy
 func (svc *service) ActionPreview(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
 	const op errors.Op = "core/ussd/service.Action1_1_1_2_1"
 
+	const fail = "code mwanditse nibaho"
+
 	params := platypus.ParamsFromContext(ctx)
 
 	leaf, err := params.GetBool("isleaf")
 	if err != nil {
-		return platypus.Result{}, errors.E(op, err, errors.KindNotFound)
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	var property properties.Property
@@ -60,7 +62,7 @@ func (svc *service) ActionPreview(ctx context.Context, cmd *platypus.Command) (p
 
 	property, err = svc.properties.RetrieveByID(ctx, property.ID)
 	if err != nil {
-		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+		return platypus.Result{Out: fail, Leaf: leaf}, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
@@ -97,22 +99,22 @@ func (svc *service) Action1_1_1_1(ctx context.Context, cmd *platypus.Command) (p
 
 	property.ID, err = params.GetString("id")
 	if err != nil {
-		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+		return platypus.Result{Out: fail, Leaf: leaf}, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	property, err = svc.properties.RetrieveByID(ctx, property.ID)
 	if err != nil {
-		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+		return platypus.Result{}, errors.E(op, err)
 	}
 
 	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
 	if err != nil {
-		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+		return platypus.Result{}, errors.E(op, err)
 	}
 
 	status, err := svc.Pay(ctx, property, owner.Phone)
 	if err != nil {
-		return platypus.Result{Out: status, Leaf: leaf}, nil
+		return platypus.Result{Out: status, Leaf: leaf}, errors.E(op, err)
 	}
 
 	return platypus.Result{Out: status, Leaf: leaf}, nil
@@ -140,12 +142,12 @@ func (svc *service) Action1_1_1_2(ctx context.Context, cmd *platypus.Command) (p
 
 	property, err = svc.properties.RetrieveByID(ctx, property.ID)
 	if err != nil {
-		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+		return platypus.Result{}, errors.E(op, err)
 	}
 
 	status, err := svc.Pay(ctx, property, cmd.Phone)
 	if err != nil {
-		return platypus.Result{Out: status, Leaf: leaf}, nil
+		return platypus.Result{Out: status, Leaf: leaf}, errors.E(op, err)
 	}
 	return platypus.Result{Out: status, Leaf: leaf}, nil
 }
