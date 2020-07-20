@@ -142,7 +142,7 @@ func (svc *service) Action1_1_1_2(ctx context.Context, cmd *platypus.Command) (p
 
 	property, err = svc.properties.RetrieveByID(ctx, property.ID)
 	if err != nil {
-		return platypus.Result{}, errors.E(op, err)
+		return platypus.Result{Out: fail, Leaf: leaf}, errors.E(op, err)
 	}
 
 	status, err := svc.Pay(ctx, property, cmd.Phone)
