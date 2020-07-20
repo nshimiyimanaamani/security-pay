@@ -115,7 +115,7 @@ func (svc *service) Action1_1_1_1(ctx context.Context, cmd *platypus.Command) (p
 		return platypus.Result{Out: status, Leaf: leaf}, nil
 	}
 
-	return platypus.Result{Out: success, Leaf: leaf}, nil
+	return platypus.Result{Out: status, Leaf: leaf}, nil
 }
 
 func (svc *service) Action1_1_1_2(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
@@ -147,5 +147,5 @@ func (svc *service) Action1_1_1_2(ctx context.Context, cmd *platypus.Command) (p
 	if err != nil {
 		return platypus.Result{Out: status, Leaf: leaf}, nil
 	}
-	return platypus.Result{Out: success, Leaf: leaf}, nil
+	return platypus.Result{Out: status, Leaf: leaf}, nil
 }
