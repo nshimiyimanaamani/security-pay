@@ -35,7 +35,7 @@ func (svc *service) Action1_1(ctx context.Context, cmd *platypus.Command) (platy
 
 	leaf, err := params.GetBool("isleaf")
 	if err != nil {
-		return platypus.Result{Out: fail, Leaf: leaf}, errors.E(op, err, errors.KindNotFound)
+		return platypus.Result{Out: fail, Leaf: leaf}, errors.E(op, err, errors.KindUnexpected)
 	}
 	return platypus.Result{Out: success, Leaf: leaf}, nil
 }
@@ -92,7 +92,7 @@ func (svc *service) Action1_1_1_1(ctx context.Context, cmd *platypus.Command) (p
 
 	leaf, err := params.GetBool("isleaf")
 	if err != nil {
-		return platypus.Result{}, errors.E(op, err, errors.KindNotFound)
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	var property properties.Property
@@ -130,7 +130,7 @@ func (svc *service) Action1_1_1_2(ctx context.Context, cmd *platypus.Command) (p
 
 	leaf, err := params.GetBool("isleaf")
 	if err != nil {
-		return platypus.Result{}, errors.E(op, err, errors.KindNotFound)
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	var property properties.Property

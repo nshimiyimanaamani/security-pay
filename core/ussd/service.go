@@ -80,7 +80,7 @@ func (svc *service) Process(ctx context.Context, req *Request) (Response, error)
 	result, err := svc.mux.Process(ctx, cmd)
 
 	if err != nil {
-		return Response{}, errors.E(op, err, errors.KindUnexpected)
+		return respond(svc.idp.ID(), result, req), errors.E(op, err, errors.KindUnexpected)
 	}
 	return respond(svc.idp.ID(), result, req), nil
 }
