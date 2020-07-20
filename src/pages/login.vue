@@ -77,7 +77,7 @@ export default {
         .then(res => {
           sessionStorage.setItem("token", res.data.token);
           location.reload();
-          localStorage.clear()
+          sessionStorage.clear();
         })
         .catch(err => {
           this.loading = false;

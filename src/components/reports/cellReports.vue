@@ -370,7 +370,7 @@ export default {
                 },
                 {
                   header: `No of Paid Properties`,
-                  dataKey: "payedAmount"
+                  dataKey: "payed"
                 },
                 { header: `Paid Amount`, dataKey: "payedAmount" },
                 {
