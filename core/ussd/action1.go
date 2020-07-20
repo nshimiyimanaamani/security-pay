@@ -145,7 +145,7 @@ func (svc *service) Action1_1_1_2(ctx context.Context, cmd *platypus.Command) (p
 		return platypus.Result{Out: fail, Leaf: leaf}, errors.E(op, err)
 	}
 
-	status, err := svc.Pay(ctx, property, cmd.Phone)
+	_, err = svc.Pay(ctx, property, cmd.Phone)
 	if err != nil {
 		return platypus.Result{Out: err.Error(), Leaf: leaf}, errors.E(op, err)
 	}
