@@ -72,9 +72,9 @@ func register(prefix string, svc *service, mux *platypus.Mux) *platypus.Mux {
 func (svc *service) Process(ctx context.Context, req *Request) (Response, error) {
 	const op errors.Op = "core/ussd/service.Process"
 
-	if err := req.Validate(); err != nil {
-		return Response{}, errors.E(op, err)
-	}
+	// if err := req.Validate(); err != nil {
+	// 	return Response{}, errors.E(op, err)
+	// }
 	cmd := platypus.NewCommand(req.Msisdn, req.UserInput)
 
 	result, err := svc.mux.Process(ctx, cmd)
