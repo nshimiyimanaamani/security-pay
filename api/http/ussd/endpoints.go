@@ -32,7 +32,7 @@ func Process(lgger log.Entry, svc ussd.Service) http.Handler {
 		res, err := svc.Process(r.Context(), &req)
 		if err != nil {
 			lgger.SystemErr(err)
-			encoding.Encode(w, errors.Kind(err), res)
+			encoding.Encode(w, http.StatusOK, res)
 			return
 		}
 
