@@ -62,12 +62,12 @@ func (svc *service) ActionPreview(ctx context.Context, cmd *platypus.Command) (p
 
 	property, err = svc.properties.RetrieveByID(ctx, property.ID)
 	if err != nil {
-		return platypus.Result{Out: fail, Leaf: leaf}, errors.E(op, err, errors.KindUnexpected)
+		return platypus.Result{Out: fail, Leaf: leaf}, errors.E(op, err)
 	}
 
 	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
 	if err != nil {
-		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+		return platypus.Result{}, errors.E(op, err)
 	}
 	out := fmt.Sprintf(
 		"Ugiye kwishyurira inzu ifite '%s' ya %s %s iri mu murenge: '%s' akagari: '%s' umudugudu '%s' yishyura:%dRWF\n1. Kwemeza",

@@ -11,6 +11,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/owners"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/core/transactions"
+	"github.com/rugwirobaker/paypack-backend/pkg/clock"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
@@ -223,7 +224,7 @@ func (svc *service) Notify(ctx context.Context, py Payment, tx transactions.Tran
 		return errors.E(op, err)
 	}
 
-	message := formatMessage(tx, py, owner, property)
+	message := FormatMessage(tx, py, owner, property)
 
 	notification := notifs.Notification{
 		Recipients: []string{owner.Phone, py.MSISDN}, //owners
@@ -236,12 +237,18 @@ func (svc *service) Notify(ctx context.Context, py Payment, tx transactions.Tran
 	return nil
 }
 
-func formatMessage(tx transactions.Transaction, py Payment, own owners.Owner, pr properties.Property) string {
+// FormatMessage creates sms message
+func FormatMessage(tx transactions.Transaction, py Payment, own owners.Owner, pr properties.Property) string {
 	var buf bytes.Buffer
+
+	date := clock.TimeIn(tx.DateRecorded, clock.Rwanda)
+
+	dateString := clock.Format(date, clock.LayoutCustom)
 
 	buf.WriteString(header)
 	buf.WriteString(fmt.Sprintf("%s.\n\n", pr.Address.Sector))
 	buf.WriteString(fmt.Sprintf("Nimero yishyuriweho: %s\n", py.MSISDN))
+	buf.WriteString(fmt.Sprintf("Itariki: %s\n", dateString))
 	buf.WriteString(fmt.Sprintf("Nimero ya fagitire: %d\n", tx.Invoice))
 	buf.WriteString(fmt.Sprintf("Umubare w' amafaranga: %dRWF\n", int(tx.Amount)))
 	buf.WriteString(fmt.Sprintf("Inzu yishyuriwe ni iya %s %s\n", own.Fname, own.Lname))
