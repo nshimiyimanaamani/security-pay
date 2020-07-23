@@ -248,7 +248,7 @@ func FormatMessage(tx transactions.Transaction, py Payment, own owners.Owner, pr
 	buf.WriteString(header)
 	buf.WriteString(fmt.Sprintf("%s.\n\n", pr.Address.Sector))
 	buf.WriteString(fmt.Sprintf("Nimero yishyuriweho: %s\n", py.MSISDN))
-	buf.WriteString(fmt.Sprintf("Itariki: %s", dateString))
+	buf.WriteString(fmt.Sprintf("Itariki: %s\n", dateString))
 	buf.WriteString(fmt.Sprintf("Nimero ya fagitire: %d\n", tx.Invoice))
 	buf.WriteString(fmt.Sprintf("Umubare w' amafaranga: %dRWF\n", int(tx.Amount)))
 	buf.WriteString(fmt.Sprintf("Inzu yishyuriwe ni iya %s %s\n", own.Fname, own.Lname))
