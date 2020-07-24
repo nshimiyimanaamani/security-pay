@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/rugwirobaker/paypack-backend/core/identity"
 	"github.com/rugwirobaker/paypack-backend/core/invoices"
@@ -241,14 +242,13 @@ func (svc *service) Notify(ctx context.Context, py Payment, tx transactions.Tran
 func FormatMessage(tx transactions.Transaction, py Payment, own owners.Owner, pr properties.Property) string {
 	var buf bytes.Buffer
 
-	date := clock.TimeIn(tx.DateRecorded, clock.Rwanda)
-
-	dateString := clock.Format(date, clock.LayoutCustom)
+	sentAt := clock.TimeIn(time.Now(), clock.Rwanda)
+	date := clock.Format(sentAt, clock.LayoutCustom)
 
 	buf.WriteString(header)
 	buf.WriteString(fmt.Sprintf("%s.\n\n", pr.Address.Sector))
 	buf.WriteString(fmt.Sprintf("Nimero yishyuriweho: %s\n", py.MSISDN))
-	buf.WriteString(fmt.Sprintf("Itariki: %s\n", dateString))
+	buf.WriteString(fmt.Sprintf("Itariki: %s\n", date))
 	buf.WriteString(fmt.Sprintf("Nimero ya fagitire: %d\n", tx.Invoice))
 	buf.WriteString(fmt.Sprintf("Umubare w' amafaranga: %dRWF\n", int(tx.Amount)))
 	buf.WriteString(fmt.Sprintf("Inzu yishyuriwe ni iya %s %s\n", own.Fname, own.Lname))
