@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <vue-snotify class="text-capitalize secondary-font fsize-sm"></vue-snotify>
-    <b-alert :show="offline" variant="danger" class="offline-indicator secondary-font" dismissible>
+    <vue-snotify class="text-capitalize primary-font fsize-sm"></vue-snotify>
+    <b-alert :show="offline" variant="danger" class="offline-indicator primary-font" dismissible>
       <b>OFFLINE!</b> Please check your internet connection...
     </b-alert>
     <div class="app-loading secondary-font" v-if="appLoading">

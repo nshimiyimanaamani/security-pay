@@ -3,7 +3,7 @@
     v-model="show"
     hide-footer
     title="Create Account for Developer"
-    content-class="secondary-font"
+    content-class="primary-font"
     body-class="createDevAccount-modal"
     centered
     @hide="$emit('close')"

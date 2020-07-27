@@ -14,27 +14,49 @@
       height: 48.5px;
     }
     .sidebar-links {
-      a {
-        text-decoration: none;
-        li {
-          margin: 2px 0;
-        }
-        &.router-link-exact-active.router-link-active {
-          li {
-            background: white;
-            color: #017db3;
-          }
-        }
-      }
+      max-height: calc(100vh - 50px - 5rem);
+      overflow: auto;
       li {
+        margin: 2px 0;
         list-style: none;
         color: whitesmoke;
         padding: 10px 15px;
         text-decoration: none;
         cursor: pointer;
         text-transform: uppercase;
+
+        &.active-link {
+          background: white;
+          color: #017db3;
+        }
+      }
+      ul.collapse-links {
+        padding: 0;
+        background: transparent;
+        li {
+          font-size: 0.9rem;
+          transition: 0.2s ease-in;
+        }
+      }
+      .sidebarCollapse {
+        transition: height 0.2s linear;
+        height: 0;
+        overflow: hidden;
+        border-radius: 3px;
+        margin: 0 0.25rem;
+        background: #cdcdcd7d;
+        cursor: pointer;
+
+        &.collapse {
+          display: block !important;
+        }
+
+        &.show {
+          height: fit-content;
+        }
       }
     }
+
     .powered {
       bottom: 0;
       margin: 0;

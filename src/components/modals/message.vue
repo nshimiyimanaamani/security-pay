@@ -2,7 +2,7 @@
   <b-modal
     @hidden="$emit('modal-closed')"
     v-model="state.show"
-    content-class="secondary-font"
+    content-class="primary-font"
     body-class="px-4 py-3 message-wrapper"
     hide-footer
   >

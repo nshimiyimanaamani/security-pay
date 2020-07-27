@@ -2,7 +2,7 @@
   <div class="message-container px-5 py-3">
     <div class="tabs-wrapper">
       <b-tabs
-        content-class="secondary-font"
+        content-class="primary-font"
         justified
         card
         pills
@@ -13,7 +13,7 @@
         <b-tab title="SECTOR" active v-if="isAdmin">
           <div class="sector-body">
             <h3
-              class="message-title secondary-font"
+              class="message-title primary-font"
             >Send message to all payers in {{activeSector ? activeSector : "Sector"}}</h3>
             <label for="textarea" class="message-label">Message:</label>
             <textarea
@@ -40,7 +40,7 @@
         <b-tab title="CELL" :active="!isAdmin">
           <div class="cell-body">
             <h3
-              class="message-title secondary-font"
+              class="message-title primary-font"
             >Send message to all payers in {{select.cell ? select.cell : "Cell"}}</h3>
             <div class="control mb-4" v-if="isAdmin">
               <label class="message-label" for="select">Select a cell:</label>
@@ -77,7 +77,7 @@
         <b-tab title="VILLAGE">
           <div class="village-body">
             <h3
-              class="message-title secondary-font"
+              class="message-title primary-font"
             >Send message to all payers in {{select.village ? select.village : "Village"}}</h3>
             <div class="control mb-4">
               <div class="cell-select">

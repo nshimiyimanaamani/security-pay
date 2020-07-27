@@ -2,67 +2,106 @@
   <div class="admin-wrapper d-flex">
     <div class="admin-sidebar">
       <h1
-        class="text-white secondary-font m-0 w-100 d-flex justify-content-center align-items-center"
+        class="text-white primary-font m-0 w-100 d-flex justify-content-center align-items-center"
       >P A Y P A C K</h1>
       <hr class="m-0" />
-      <ul class="sidebar-links secondary-font p-0 mt-5">
-        <router-link v-if="isAdmin" to="/dashboard">
-          <li class="hover-color">SECTOR</li>
-        </router-link>
+      <ul class="sidebar-links primary-font p-0 mt-5 scrollBar">
+        <router-link
+          tag="li"
+          active-class="active-link"
+          class="hover-color"
+          v-if="isAdmin"
+          to="/dashboard"
+        >SECTOR</router-link>
 
-        <router-link v-if="!isAdmin" to="/cells">
-          <li class="cursor-pointer hover-color">cells</li>
-        </router-link>
+        <router-link
+          tag="li"
+          active-class="active-link"
+          class="hover-color"
+          v-if="!isAdmin"
+          to="/cells"
+        >cells</router-link>
 
-        <li v-if="isAdmin" v-b-toggle.changecells class="cursor-pointer hover-color">Cells</li>
-        <b-collapse id="changecells" accordion="changecells" role="tabpanel" v-if="isAdmin">
-          <b-card no-body class="border-0 bg-transparent">
-            <router-link to="/cells" v-for="cell in cellsOptions" :key="cell">
-              <ul
-                @click="update({toUpdate: 'cell', changed: cell})"
-                class="text-white py-1 px-3 fsize-sm hover-color cursor-pointer"
-              >{{cell}}</ul>
-              <hr class="m-0" />
-            </router-link>
+        <li
+          v-if="isAdmin"
+          v-b-toggle.changecells
+          class="cursor-pointer hover-color"
+          :class="{'active-link':highlightCellTag}"
+        >Cells</li>
+        <b-collapse
+          id="changecells"
+          class="sidebarCollapse"
+          accordion="changecells"
+          role="tabpanel"
+          v-if="isAdmin"
+        >
+          <b-card tag="ul" no-body class="collapse-links">
+            <router-link
+              tag="li"
+              class="hover-color"
+              to="/cells"
+              v-for="cell in cellsOptions"
+              :key="cell"
+              @click="update({toUpdate: 'cell', changed: cell})"
+            >{{cell}}</router-link>
           </b-card>
         </b-collapse>
 
-        <li v-b-toggle.changevillage class="cursor-pointer hover-color">Village</li>
-        <b-collapse id="changevillage" accordion="changecells" role="tabpanel">
-          <b-card no-body class="border-0 bg-transparent">
-            <router-link to="/village" v-for="village in villageOptions" :key="village">
-              <ul
-                @click="update({toUpdate: 'village', changed: village})"
-                class="text-white py-1 px-3 fsize-sm hover-color cursor-pointer"
-              >{{village}}</ul>
-              <hr class="m-0" />
-            </router-link>
+        <li
+          v-b-toggle.changevillage
+          class="cursor-pointer hover-color"
+          :class="{'active-link':highlightVillageTag}"
+        >Villages</li>
+        <b-collapse
+          id="changevillage"
+          class="sidebarCollapse"
+          accordion="changeVillage"
+          role="tabpanel"
+        >
+          <b-card tag="ul" no-body class="collapse-links">
+            <router-link
+              tag="li"
+              class="hover-color collapse-links"
+              to="/village"
+              v-for="village in villageOptions"
+              :key="village"
+              @click="update({toUpdate: 'village', changed: village})"
+            >{{village}}</router-link>
           </b-card>
         </b-collapse>
 
-        <router-link to="/transactions">
-          <li class="hover-color">Bank Accounts</li>
-        </router-link>
+        <router-link
+          tag="li"
+          active-class="active-link"
+          class="hover-color"
+          to="/transactions"
+        >Bank Accounts</router-link>
 
-        <router-link to="/properties">
-          <li class="hover-color">Properties</li>
-        </router-link>
+        <router-link
+          tag="li"
+          active-class="active-link"
+          class="hover-color"
+          to="/properties"
+        >Properties</router-link>
 
-        <router-link to="/reports">
-          <li class="hover-color">REPORTS</li>
-        </router-link>
+        <router-link tag="li" active-class="active-link" class="hover-color" to="/reports">REPORTS</router-link>
 
-        <router-link to="/feedbacks">
-          <li class="hover-color">Feedbacks</li>
-        </router-link>
+        <router-link
+          tag="li"
+          active-class="active-link"
+          class="hover-color"
+          to="/feedbacks"
+        >Feedbacks</router-link>
 
-        <router-link to="/create" v-if="isAdmin">
-          <li class="hover-color">Accounts</li>
-        </router-link>
+        <router-link
+          tag="li"
+          active-class="active-link"
+          class="hover-color"
+          to="/create"
+          v-if="isAdmin"
+        >Accounts</router-link>
 
-        <router-link to="/message">
-          <li class="hover-color">Messages</li>
-        </router-link>
+        <router-link tag="li" active-class="active-link" class="hover-color" to="/message">Messages</router-link>
       </ul>
       <p class="powered secondary-font">
         Powered By
@@ -73,7 +112,7 @@
       <nav
         class="navbar navbar-expand-lg navbar-light bg-light border-bottom d-flex justify-content-end flex-nowrap"
       >
-        <b-button class="ml-2 secondary-font br-2" variant="info" @click.prevent="logout">
+        <b-button class="ml-2 primary-font br-2" variant="info" @click.prevent="logout">
           <i class="fa fa-sign-out-alt" />
           Logout
         </b-button>
@@ -106,7 +145,13 @@ export default {
     isAdmin() {
       if (this.user.role === "admin") return true;
       return false;
-    }
+    },
+    highlightCellTag() {
+      return this.$route.path == "/cells";
+    },
+    highlightVillageTag() {
+      return this.$route.path == "/village";
+    },
   },
   methods: {
     update(res) {
@@ -114,8 +159,11 @@ export default {
     },
     logout() {
       this.$store.dispatch("logout");
-    }
-  }
+    },
+  },
+  mounted() {
+    console.log(this.$route);
+  },
 };
 </script>
 <style lang="scss" scoped>

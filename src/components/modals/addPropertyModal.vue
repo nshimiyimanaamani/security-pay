@@ -1,5 +1,5 @@
 <template>
-  <div class="add-property-modal secondary-font" v-show="show">
+  <div class="add-property-modal primary-font" v-show="show">
     <!-- Modal content -->
     <b-card class="mb-2 modal-content p-0" no-body>
       <header class="modal-header">

@@ -1,10 +1,10 @@
 <template>
   <div class="dev-wrapper">
     <div class="stats">
-      <header class="secondary-font">Developers in Numbers</header>
+      <header class="primary-font">Developers in Numbers</header>
       <div class="custom-loader" v-if="state.loading">
         <i class="fa fa-spinner fa-spin" />
-        <p class="secondary-font">Loading...</p>
+        <p class="primary-font">Loading...</p>
       </div>
       <div class="cards" v-else>
         <div class="custom-card">
@@ -28,7 +28,7 @@
       </div>
     </div>
     <div class="account-table">
-      <header class="secondary-font custom-header">
+      <header class="primary-font custom-header">
         <h5>Developers Accounts</h5>
         <div class="add" @click="state.show.createAccount_modal=true">
           <i class="fa fa-plus" />
@@ -46,9 +46,9 @@
           :fields="fields"
           :busy="state.loading"
           head-variant="light"
-          thead-class="table-header"
+          thead-class="table-header primary-font"
           tbody-tr-class="table-row"
-          table-class="secondary-font"
+          tbody-class="secondary-font"
         >
           <template v-slot:cell(updated_at)="data">
             <div class="d-flex align-items-center position-relative">
@@ -66,7 +66,7 @@
           <template v-slot:table-busy>
             <div class="custom-loader">
               <i class="fa fa-spinner fa-spin" />
-              <p class="secondary-font">Loading...</p>
+              <p class="primary-font">Loading...</p>
             </div>
           </template>
         </b-table>
@@ -80,7 +80,7 @@
           ref="dev-updateAccount-modal"
           hide-footer
           title="Update Account"
-          content-class="secondary-font"
+          content-class="primary-font"
           centered
           @hide="modalClosed"
         >

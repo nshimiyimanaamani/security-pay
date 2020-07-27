@@ -2,8 +2,8 @@
   <b-container class="table-container px-5 py-3" fluid>
     <vue-title title="Paypack | Properties" />
     <header>
-      <h4 class="secondary-font">List of properties in {{selected}}</h4>
-      <b-button class="br-2 secondary-font" variant="info" @click="addProperty.show = true">
+      <h4 class="primary-font">List of properties in {{selected}}</h4>
+      <b-button class="br-2 primary-font" variant="info" @click="addProperty.show = true">
         <i class="fa fa-plus-circle mr-1" />Property
       </b-button>
     </header>
@@ -15,8 +15,8 @@
         id="dropdown-dropright"
         variant="info"
         ref="dropdown"
-        toggle-class="br-2 secondary-font"
-        class="filter-dropdown mr-auto secondary-font"
+        toggle-class="br-2 primary-font"
+        class="filter-dropdown mr-auto primary-font"
         text="Filter By"
       >
         <b-dropdown-form>
@@ -80,7 +80,7 @@
       <div class="ml-2">
         <b-form-input
           placeholder="search user..."
-          class="br-2 secondary-font"
+          class="br-2 primary-font"
           type="search"
           v-model="search.name"
         ></b-form-input>
@@ -92,7 +92,7 @@
         @click="downloadList"
         :disabled="filteredData.length ? false:true"
         variant="info"
-        class="ml-2 br-2 secondary-font"
+        class="ml-2 br-2 primary-font"
       >
         Download
         <i class="fa fa-download" />
@@ -112,7 +112,8 @@
       :sort-by.sync="sortBy"
       :busy="loading.request"
       @row-contextmenu="editHouse"
-      thead-class="secondary-font"
+      thead-class="primary-font"
+      tbody-class="secondary-font"
       :show-empty="!loading.request"
       :per-page="pagination.perPage"
       :current-page="pagination.currentPage"
@@ -128,11 +129,11 @@
         <article class="text-center">{{data.index + 1}}</article>
       </template>
       <template v-slot:table-busy>
-        <vue-load class="secondary-font" />
+        <vue-load class="primary-font" />
       </template>
       <template v-slot:empty>
         <h6
-          class="text-center font-weight-bold p-5 w-100 secondary-font"
+          class="text-center font-weight-bold p-5 w-100 primary-font"
         >{{search.name ? search.name +' "is not available in this property list"':'There are no properties available to show at the moment!'}}</h6>
       </template>
       <template v-slot:custom-foot v-if="!loading.request">
@@ -167,7 +168,7 @@
     />
     <b-modal id="updateModal" v-model="updateModal.show" hide-footer body-class="px-4 py-3">
       <template v-slot:modal-title>
-        <header class="secondary-font">Modify House</header>
+        <header class="primary-font">Modify House</header>
       </template>
       <update-house
         v-if="updateModal.show"
@@ -547,7 +548,7 @@ export default {
           okTitle: "yes! delete",
           cancelTitle: "NO",
           footerClass: "p-2",
-          contentClass: "secondary-font",
+          contentClass: "primary-font",
           hideHeaderClose: false
         })
         .then(value => {

@@ -1,8 +1,8 @@
 <template>
   <div class="managers-wrapper">
     <div class="stats">
-      <header class="secondary-font">Managers in Numbers</header>
-      <vue-load v-if="state.loading" class="custom-load secondary-font" />
+      <header class="primary-font">Managers in Numbers</header>
+      <vue-load v-if="state.loading" class="custom-load primary-font" />
       <div class="cards" v-else>
         <div class="custom-card">
           <div class="card-content">
@@ -34,7 +34,7 @@
       </div>
     </div>
     <div class="account-table">
-      <header class="secondary-font custom-header">
+      <header class="primary-font custom-header">
         <h5>Managers Accounts</h5>
         <div class="add" @click="state.show.createAccount_modal=true">
           <i class="fa fa-plus" />
@@ -52,9 +52,9 @@
           :fields="fields"
           :busy="state.loading"
           head-variant="light"
-          thead-class="table-header text-truncate"
+          thead-class="table-header text-truncate primary-font"
           tbody-tr-class="table-row text-truncate"
-          table-class="secondary-font"
+          tbody-class="secondary-font"
         >
           <template v-slot:cell(updated_at)="data">
             <div class="d-flex align-items-center position-relative">

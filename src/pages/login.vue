@@ -56,8 +56,8 @@ export default {
       loading: false,
       form: {
         email: null,
-        password: null
-      }
+        password: null,
+      },
     };
   },
   destroyed() {
@@ -70,16 +70,16 @@ export default {
       this.loading = true;
       const user = {
         username: this.form.email.trim(),
-        password: this.form.password.trim()
+        password: this.form.password.trim(),
       };
       this.axios
         .post("/accounts/login", user)
-        .then(res => {
+        .then((res) => {
+          sessionStorage.clear();
           sessionStorage.setItem("token", res.data.token);
           location.reload();
-          localStorage.clear()
         })
-        .catch(err => {
+        .catch((err) => {
           this.loading = false;
           sessionStorage.removeItem("token");
           console.log(err, err.response, err.request);
@@ -91,8 +91,8 @@ export default {
             );
           }
         });
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss">

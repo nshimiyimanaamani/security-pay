@@ -1,14 +1,14 @@
 <template>
   <b-container class="accounts-page h-100" fluid>
     <vue-title title="Paypack | create accounts" />
-    <header class="secondary-font">ACCOUNT REGISTRATION</header>
+    <header class="primary-font">ACCOUNT REGISTRATION</header>
     <b-card no-body class="nav-controls">
       <b-tabs
         pills
         card
         vertical
         lazy
-        class="text-uppercase secondary-font flex-nowrap h-100"
+        class="text-uppercase primary-font flex-nowrap h-100"
         content-class="text-capitalize"
         nav-wrapper-class="accounts-nav"
         active-nav-item-class="app-color text-white"
@@ -37,7 +37,7 @@ export default {
   components: {
     "add-agent": addAgent,
     "add-manager": addManager,
-    "add-admin": addAdmin
+    "add-admin": addAdmin,
   },
   data() {
     return {
@@ -46,9 +46,9 @@ export default {
         select: {
           sector: null,
           cell: null,
-          village: null
-        }
-      }
+          village: null,
+        },
+      },
     };
   },
   computed: {
@@ -80,26 +80,26 @@ export default {
     },
     location() {
       return this.$store.getters.location;
-    }
+    },
   },
   mounted() {
-    const el = this.$createElement;
-    var message = "Hello just testing a modal";
-    var title = "This is going to be the title";
-    const messageNode = el("div", [message]);
-    this.$bvModal.msgBoxConfirm(messageNode, {
-      title: title,
-      okTitle: "YES",
-      centered: true,
-      cancelTitle: "NO",
-      okVariant: "danger",
-      modalClass: "__custom-modal",
-      footerClass: "__custom-modal-footer",
-      headerClass: "__custom-modal-header",
-      bodyClass: "__custom-modal-body",
-      contentClass: "secondary-font"
-    });
-  }
+    // const el = this.$createElement;
+    // var message = "Hello just testing a modal";
+    // var title = "This is going to be the title";
+    // const messageNode = el("div", [message]);
+    // this.$bvModal.msgBoxConfirm(messageNode, {
+    //   title: title,
+    //   okTitle: "YES",
+    //   centered: true,
+    //   cancelTitle: "NO",
+    //   okVariant: "danger",
+    //   modalClass: "__custom-modal",
+    //   footerClass: "__custom-modal-footer",
+    //   headerClass: "__custom-modal-header",
+    //   bodyClass: "__custom-modal-body",
+    //   contentClass: "primary-font"
+    // });
+  },
 };
 </script>
 

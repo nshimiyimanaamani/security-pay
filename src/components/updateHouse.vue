@@ -1,5 +1,5 @@
 <template>
-  <b-form class="secondary-font" @submit.prevent="update">
+  <b-form @submit.prevent="update">
     <b-row class="pb-1">
       <b-col>
         <b-form-group label="First name:">

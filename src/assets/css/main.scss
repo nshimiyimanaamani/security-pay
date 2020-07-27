@@ -11,32 +11,35 @@ $grey: #bdbdbd;
 
 html,
 body {
-  font-family: "Roboto", sans-serif !important;
   font-size: 14px;
   margin: 0;
   padding: 0;
 }
-
+//fonts
+.primary-font {
+  font-family: "Montserrat", Arial, Helvetica, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", "Noto Sans", sans-serif;
+}
+.secondary-font {
+  font-family: "Open Sans", Arial, Helvetica, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", "Noto Sans", sans-serif;
+}
 * {
   outline: none;
   letter-spacing: 0.5px;
   -webkit-font-smoothing: antialiased !important;
   -moz-osx-font-smoothing: grayscale !important;
+  font-family: inherit;
 }
 
 #app {
   min-height: 100vh;
-}
-
-//fonts
-.primary-font {
-  font-family: "Roboto", sans-serif !important;
-}
-.secondary-font {
   font-family: "Montserrat", Arial, Helvetica, -apple-system, BlinkMacSystemFont,
     "Helvetica Neue", "Noto Sans", sans-serif;
 }
-
+table .secondary-font {
+  color: #404041;
+}
 //font-size
 .fsize-sm {
   font-size: 14px !important;
@@ -85,6 +88,22 @@ body {
 }
 .list-style-none {
   list-style: none;
+}
+.scrollBar {
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #ffffffbf;
+    outline: 1px solid #ffffffbf;
+    border-radius: 1px;
+    border-right: 1px solid #03a9f4;
+  }
 }
 
 //resets

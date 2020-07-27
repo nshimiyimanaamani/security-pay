@@ -1,8 +1,8 @@
 <template>
   <div class="admins-wrapper">
     <div class="stats">
-      <header class="secondary-font">Administrators in Numbers</header>
-      <vue-load class="bg-light secondary-font" v-if="state.loading" />
+      <header class="primary-font">Administrators in Numbers</header>
+      <vue-load class="bg-light primary-font" v-if="state.loading" />
       <div class="cards" v-else>
         <div class="custom-card">
           <div class="card-content">
@@ -34,7 +34,7 @@
       </div>
     </div>
     <div class="account-table">
-      <header class="secondary-font custom-header">
+      <header class="primary-font custom-header">
         <h5>Administrators Accounts</h5>
         <div class="add" @click="state.show.createAccount_modal=true">
           <i class="fa fa-plus" />
@@ -52,9 +52,9 @@
           :fields="fields"
           :busy.sync="state.loading"
           head-variant="light"
-          thead-class="table-header"
+          thead-class="table-header primary-font"
           tbody-tr-class="table-row"
-          table-class="secondary-font"
+          tbody-class="secondary-class"
         >
           <template v-slot:cell(updated_at)="data">
             <div class="d-flex align-items-center position-relative">
@@ -83,7 +83,7 @@
           ref="dev-updateAccount-modal"
           hide-footer
           title="Update Account"
-          content-class="secondary-font"
+          content-class="primary-font"
           centered
           @hide="modalClosed"
         >
