@@ -2,7 +2,7 @@
   <b-modal
     hide-footer
     title="Update Account"
-    content-class="secondary-font"
+    content-class="primary-font"
     centered
     @hide="$emit('close')"
     v-model="show"

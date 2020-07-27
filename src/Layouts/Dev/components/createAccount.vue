@@ -3,7 +3,7 @@
     v-model="show"
     hide-footer
     title="Create Account"
-    content-class="secondary-font"
+    content-class="primary-font"
     centered
     @hide="modalClosed"
   >

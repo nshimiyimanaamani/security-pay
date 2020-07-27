@@ -2,7 +2,7 @@
   <b-modal
     hide-footer
     title="Create Manager Account"
-    content-class="secondary-font"
+    content-class="primary-font"
     centered
     @hide="$emit('close')"
     v-model="show"
@@ -159,8 +159,8 @@ export default {
             .msgBoxOk(`Password: ${res.data.password}`, {
               title: "Account created successfully!",
               headerClass:
-                "pt-5 pb-1 border-bottom-0 justify-content-center secondary-font",
-              contentClass: "text-center p-0 pb-5 secondary-font",
+                "pt-5 pb-1 border-bottom-0 justify-content-center primary-font",
+              contentClass: "text-center p-0 pb-5 primary-font",
               footerClass: "d-none",
               centered: true
             })

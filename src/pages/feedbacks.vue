@@ -1,14 +1,14 @@
 <template>
-  <b-container class="p-4 feedback-page" fluid>
+  <b-container class="p-4 feedback-page bg-light" fluid>
     <vue-title title="Paypack | Feedbacks" />
     <header>
       <h4 class="mb-0">FEEDBACKS</h4>
-      <b-button @click="loadData" variant="info" class="secondary-font br-2">
+      <b-button @click="loadData" variant="info" class="primary-font br-2">
         Refresh
         <i class="fa fa-sync-alt" :class="{'fa-spin': state.loading}" />
       </b-button>
     </header>
-    <vue-load v-if="state.loading" class="secondary-font" />
+    <vue-load v-if="state.loading" class="primary-font feedbacks-loading" />
     <div class="feedbacks" v-if="!state.loading">
       <feedback v-for="(feedback,index) in feedbacks" :key="index" :feedback="feedback" />
     </div>
@@ -24,14 +24,14 @@ import feedbackCard from "../components/feedbacks/feedbackCard.vue";
 export default {
   name: "feedbacks",
   components: {
-    feedback: feedbackCard
+    feedback: feedbackCard,
   },
   data() {
     return {
       state: {
-        loading: true
+        loading: true,
       },
-      feedbacks: []
+      feedbacks: [],
     };
   },
 
@@ -44,13 +44,12 @@ export default {
       const Total = await this.getTotal("/feedback?offset=0&limit=0");
       this.axios
         .get("/feedback?offset=0&limit=" + Total)
-        .then(res => {
-          console.log(res.data);
+        .then((res) => {
           this.feedbacks = res.data.Messages.sort((a, b) => {
             return new Date(b.update_at) - new Date(a.update_at);
           });
         })
-        .catch(err => {
+        .catch((err) => {
           this.feedbacks = [];
           const error = err.response
             ? err.response.data.error || err.response.data
@@ -64,16 +63,18 @@ export default {
     getTotal(endpoint) {
       return this.axios
         .get(endpoint)
-        .then(res => res.data.Total)
-        .catch(err => 0);
-    }
-  }
+        .then((res) => res.data.Total)
+        .catch((err) => 0);
+    },
+  },
 };
 </script>
 
 <style lang="scss">
 .feedback-page {
   min-width: 500px;
+  height: 100%;
+
   & > header {
     display: flex;
     justify-content: space-between;
@@ -94,8 +95,12 @@ export default {
     padding: 3rem;
     border-radius: 2px;
     p {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
     }
+  }
+  .feedbacks-loading {
+    border: 1px solid #dee2e6;
+    
   }
 }
 </style>

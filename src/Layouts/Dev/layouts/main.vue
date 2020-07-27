@@ -20,7 +20,7 @@
           <li>Managers</li>
         </router-link>
       </ul>
-      <b-button class="custom-button secondary-font" @click="logout">Logout</b-button>
+      <b-button class="custom-button primary-font" @click="logout">Logout</b-button>
     </nav>
     <div class="dev-body">
       <b-container>

@@ -89,13 +89,13 @@
       :options="rightMenu.options"
       :ref="'agent_rightMenu'"
       @option-clicked="optionClicked"
-      class="secondary-font"
+      class="primary-font"
     />
     <b-modal
       v-model="change_pswd_modal.show"
       title="Change Password"
       hide-footer
-      content-class="secondary-font"
+      content-class="primary-font"
       header-class="align-items-center"
     >
       <b-form @submit.prevent="changePassword">
@@ -242,7 +242,7 @@ export default {
                 footerClass: "d-none",
                 headerClass: "d-none",
                 bodyClass: "__custom-modal-body",
-                contentClass: "secondary-font"
+                contentClass: "primary-font"
               })
               .then(() => {
                 this.$snotify.info("Agent successfully created...");

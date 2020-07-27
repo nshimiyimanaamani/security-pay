@@ -1,7 +1,7 @@
 <template>
   <div class="position-relative transaction-page">
     <vue-title title="Paypack | Transactions" />
-    <div class="totals">
+    <div class="totals primary-font">
       <b-row>
         <b-col
           cols="6"
@@ -24,10 +24,10 @@
         </b-col>
       </b-row>
     </div>
-    <div class="transaction-table max-width">
-      <header class="secondary-font mb-3 table-header">
+    <div class="transaction-table max-width bg-light">
+      <header class="primary-font mb-3 table-header">
         <h3>All Transactions</h3>
-        <b-button variant="info" @click="requestItems" :disabled="loading">
+        <b-button variant="info" @click="requestItems" :disabled="loading" class="br-2">
           Refresh
           <i class="fa fa-sync-alt" />
         </b-button>
@@ -37,11 +37,14 @@
         :fields="table.fields"
         :busy="loading"
         head-variant="light"
-        thead-class="secondary-font"
+        table-class="bg-white"
+        thead-class="primary-font"
+        tbody-class="secondary-font"
         show-empty
         responsive
         bordered
         hover
+        striped
       >
         <template v-slot:cell(method)="data">
           <div :class="data.value=='momo-mtn-rw'? 'mtn' : data.value">
@@ -75,7 +78,7 @@
 import loader from "../components/loader";
 export default {
   components: {
-    loader
+    loader,
   },
   data() {
     return {
@@ -87,37 +90,37 @@ export default {
             key: "owner_firstname",
             label: "Names",
             sortable: true,
-            tdClass: "table-name"
+            tdClass: "table-name",
           },
           {
             key: "madefor",
             label: "Paid for",
-            sortable: true
+            sortable: true,
           },
           {
             key: "method",
             label: "Paid With",
             sortable: true,
             thClass: "text-center",
-            tdClass: "text-center"
+            tdClass: "text-center",
           },
           {
             key: "amount",
             label: "Amount",
             sortable: true,
             thClass: "text-right",
-            tdClass: "text-right"
+            tdClass: "text-right",
           },
           {
             key: "date_recorded",
             label: "Date",
             sortable: true,
             thClass: "text-right",
-            tdClass: "text-right"
-          }
+            tdClass: "text-right",
+          },
         ],
-        items: []
-      }
+        items: [],
+      },
     };
   },
   computed: {
@@ -126,16 +129,16 @@ export default {
     },
     user() {
       return this.$store.getters.userDetails;
-    }
+    },
   },
   filters: {
-    number: num => {
+    number: (num) => {
       return Number(num).toLocaleString();
     },
-    date: date => {
+    date: (date) => {
       const options = { year: "numeric", month: "long", day: "numeric" };
       return new Date(date).toLocaleDateString("en-EN", options);
-    }
+    },
   },
   mounted() {
     this.requestItems();
@@ -146,16 +149,16 @@ export default {
       const total = await this.$getTotal("/transactions?offset=0&limit=0");
       this.axios
         .get("/transactions?offset=0&limit=" + total)
-        .then(res => {
+        .then((res) => {
           if (this.user.role === "basic") {
             this.table.items = res.data.Transactions.filter(
-              item => item.cell == this.activeCell
+              (item) => item.cell == this.activeCell
             );
           } else {
             this.table.items = res.data.Transactions;
           }
         })
-        .catch(err => {
+        .catch((err) => {
           this.table.items = [];
           const error = err.response
             ? err.response.data.error || err.response.data
@@ -169,38 +172,40 @@ export default {
     total() {
       if (this.table.items.length < 1) return 0;
       let total = 0;
-      this.table.items.forEach(element => {
+      this.table.items.forEach((element) => {
         total += element.amount;
       });
       return total;
     },
     mtnTotal() {
       let total = 0;
-      const filtered = this.table.items.filter(data =>
+      const filtered = this.table.items.filter((data) =>
         data.method.includes("mtn")
       );
-      filtered.forEach(element => {
+      filtered.forEach((element) => {
         total += element.amount;
       });
       return total;
     },
     airtelTotal() {
       let total = 0;
-      const filtered = this.table.items.filter(data => data.method == "airtel");
-      filtered.forEach(element => {
+      const filtered = this.table.items.filter(
+        (data) => data.method == "airtel"
+      );
+      filtered.forEach((element) => {
         total += element.amount;
       });
       return total;
     },
     bkTotal() {
       let total = 0;
-      const filtered = this.table.items.filter(data => data.method == "bk");
-      filtered.forEach(element => {
+      const filtered = this.table.items.filter((data) => data.method == "bk");
+      filtered.forEach((element) => {
         total += element.amount;
       });
       return total;
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

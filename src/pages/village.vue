@@ -14,7 +14,7 @@
               <b-input
                 type="search"
                 size="sm"
-                class="left br-2 secondary-font"
+                class="left br-2 primary-font"
                 placeholder="search user..."
                 v-model="search.name"
               />
@@ -40,9 +40,9 @@
       </b-card>
       <section class="error" v-show="!houses.length">
         <div v-if="!state.loading" class="village-empty">
-          <p class="secondary-font">No House found in {{activeVillage}} village</p>
+          <p class="primary-font">No House found in {{activeVillage}} village</p>
         </div>
-        <vue-load v-if="state.loading" class="secondary-font" />
+        <vue-load v-if="state.loading" class="primary-font" />
       </section>
     </div>
   </div>

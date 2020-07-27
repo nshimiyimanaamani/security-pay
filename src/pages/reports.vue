@@ -7,7 +7,7 @@
         card
         vertical
         lazy
-        class="reports-tabs mh-100 h-100 secondary-font"
+        class="reports-tabs mh-100 h-100 primary-font"
         content-class=" reports-content"
         active-tab-class="h-100 p-0"
         active-nav-item-class="app-color text-white"

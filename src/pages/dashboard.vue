@@ -37,9 +37,9 @@
               />
               <div class="chart-center-text" v-if="!chart2.state.error">{{chart2.percentage}}%</div>
             </div>
-            <vue-load v-if="chart2.state.loading" class="secondary-font chart-loader" />
+            <vue-load v-if="chart2.state.loading" class="primary-font chart-loader" />
             <div
-              class="chart-error secondary-font"
+              class="chart-error primary-font"
               v-if="chart2.state.error"
             >{{chart2.state.errorMessage||'No data available to display at this moment!'}}</div>
           </div>
@@ -66,9 +66,9 @@
                 :style="style"
               />
             </div>
-            <vue-load v-if="chart3.state.loading" class="secondary-font chart-loader" />
+            <vue-load v-if="chart3.state.loading" class="primary-font chart-loader" />
             <div
-              class="chart-error secondary-font"
+              class="chart-error primary-font"
               v-if="chart3.state.error"
             >{{chart3.state.errorMessage||'No data available to display at this moment!'}}</div>
           </div>
