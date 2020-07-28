@@ -23,7 +23,7 @@ FROM alpine
 
 COPY --from=builder /bin/paypack /bin/paypack
 
-RUN apk add --update ca-certificates tini
+RUN apk add --update ca-certificates tini  tzdata
 
 ENV GO_ENV=production
 
