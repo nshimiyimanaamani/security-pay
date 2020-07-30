@@ -22,7 +22,6 @@ import (
 const prefix = "*662*104#"
 
 func TestProcess(t *testing.T) {
-	t.Skip()
 	owner := owners.Owner{
 		Fname: "Karori",
 		Lname: "Dan",
@@ -68,7 +67,7 @@ func TestProcess(t *testing.T) {
 		{
 			desc:     "action0: main menu",
 			input:    "*662*104#",
-			expected: "Murakaza neza kuri paypack\n1. kwishyura\n2. reba code y' inzu yawe\n",
+			expected: "Murakaza neza kuri paypack\nUbufasha: 0781192910\n1. kwishyura\n2. reba code y' inzu yawe\n",
 			end:      1,
 		},
 		{
@@ -80,7 +79,7 @@ func TestProcess(t *testing.T) {
 		{
 			desc:     "action1_1: guhitamo uwishyura",
 			input:    fmt.Sprintf("*662*104*1*%s#", property.ID),
-			expected: "Numero yo kwishyura\n 1. Iyanditsweho inzu\n2.Iyo uri gukoresha\n",
+			expected: "Numero yo kwishyura\n1. Iyanditsweho inzu\n2. Iyo uri gukoresha\n",
 			end:      1,
 		},
 		{
