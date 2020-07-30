@@ -1,13 +1,23 @@
 <template>
   <b-container class="cells-page h-100 p-3" fluid>
     <vue-title title="Paypack | Cells" />
+    <form class="location-selector" @submit.prevent="updated">
+      <b-form-group class="control">
+        <b-form-select class="br-2" v-model="select.cell" :options="cellsOptions" required>
+          <template v-slot:first>
+            <option :value="null" disabled>select cell</option>
+          </template>
+        </b-form-select>
+        <b-button type="submit" variant="info">Go</b-button>
+      </b-form-group>
+    </form>
     <div class="charts">
       <b-row class="has-columns">
         <!-- first chart -->
         <div class="chart-container">
           <header class="chart-header">
             <i class="fa fa-th-large" />
-            <h1 class>{{activeCell || 'CELL'}} COLLECTING ACCOUNT</h1>
+            <h1 class>{{cellName || 'CELL'}} COLLECTING ACCOUNT</h1>
             <i class="fa fa-cog" />
           </header>
           <div class="chart-body">
@@ -29,13 +39,14 @@
               @click="loadData2"
               :class="{'fa-spin':chart2.state.loading}"
             />
-            <h1>{{activeCell||'CELL'}} TOTAL COLLECTED</h1>
+            <h1>{{cellName||'CELL'}} TOTAL COLLECTED</h1>
             <selector :object="config" v-on:ok="updated" />
           </header>
           <div class="chart-body px-5">
             <div v-if="!chart2.state.loading" class="h-100">
               <doughnut-chart
                 :chart-data="chart2.data"
+                s
                 v-if="chart2.data"
                 :options="options.chart2"
                 :style="style"
@@ -58,7 +69,7 @@
               @click="loadData3"
               :class="{'fa-spin':chart3.state.loading}"
             />
-            <h1>{{activeCell||""}} CELL</h1>
+            <h1>{{cellName||""}} CELL</h1>
             <selector :object="config" v-on:ok="updated" />
           </header>
           <div class="chart-body">
@@ -97,14 +108,14 @@ export default {
     DoughnutChart,
     LineChart,
     loader,
-    selector: yearSelectorVue
+    selector: yearSelectorVue,
   },
   data() {
     return {
       config: {
         configuring: false,
         year: new Date().getFullYear(),
-        month: new Date().getMonth() + 1
+        month: new Date().getMonth() + 1,
       },
       options: options,
       chart2: {
@@ -113,37 +124,44 @@ export default {
         state: {
           loading: true,
           error: false,
-          errorMessage: null
-        }
+          errorMessage: null,
+        },
       },
       chart3: {
         data: null,
         state: {
           loading: false,
           error: false,
-          errorMessage: null
-        }
+          errorMessage: null,
+        },
       },
       chart1Data: null,
       chart2Data: null,
       chart3Data: null,
       chart3AdditionalData: {
         abishyuye: this.getRandomInt(),
-        abatarishyura: this.getRandomInt()
-      }
+        abatarishyura: this.getRandomInt(),
+      },
+      select: {
+        cell: null,
+      },
+      cellName: "",
     };
   },
   computed: {
     activeCell() {
       return this.$store.getters.getActiveCell;
     },
-    cellArray() {
-      console.log(this.$store.getters.location);
-      return this.$store.getters.getCellsArray;
+    location() {
+      return this.$store.getters.location;
+    },
+    cellsOptions() {
+      const { province, district, sector } = this.location;
+      return this.$cells(province, district, sector);
     },
     style() {
       return {
-        height: "100%"
+        height: "100%",
       };
     },
     months() {
@@ -159,20 +177,27 @@ export default {
     },
     currentMonth() {
       return new Date().getMonth() + 1;
-    }
+    },
   },
-  watch: {
-    activeCell() {
-      handler: {
-        this.updated();
-      }
-    }
-  },
-  mounted() {
+  async mounted() {
+    this.select.cell =
+      (await this.location) && this.location.cell
+        ? this.location.cell
+        : this.activeCell;
+    await this.$set(
+      this,
+      "cellName",
+      this.select.cell ? this.select.cell : this.activeCell
+    );
     this.updated();
   },
   methods: {
-    updated() {
+    async updated() {
+      await this.$set(
+        this,
+        "cellName",
+        this.select.cell ? this.select.cell : this.activeCell
+      );
       this.clear();
       this.fetchData();
       this.loadData2();
@@ -186,9 +211,9 @@ export default {
       const month = this.config.month;
       this.axios
         .get(
-          `/metrics/ratios/cells/${this.activeCell}?year=${year}&month=${month}`
+          `/metrics/ratios/cells/${this.cellName}?year=${year}&month=${month}`
         )
-        .then(res => {
+        .then((res) => {
           const data = res.data.data;
           const percentage = (data.payed * 100) / (data.payed + data.pending);
           this.chart2.percentage = percentage.toFixed();
@@ -199,12 +224,12 @@ export default {
                 label: res.data.label,
                 backgroundColor: ["#008b8bb3", "#e4e4ec"],
                 borderColor: "white",
-                data: [data.payed, data.pending]
-              }
-            ]
+                data: [data.payed, data.pending],
+              },
+            ],
           };
         })
-        .catch(err => {
+        .catch((err) => {
           this.chart2.state.error = true;
           this.chart2.state.errorMessage = err.response
             ? err.response.data.error || err.response.data
@@ -221,12 +246,12 @@ export default {
       const month = this.config.month;
       this.axios
         .get(
-          `/metrics/ratios/cells/all/${this.activeCell}?year=${year}&month=${month}`
+          `/metrics/ratios/cells/all/${this.cellName}?year=${year}&month=${month}`
         )
-        .then(res => {
+        .then((res) => {
           const data = res.data;
           if (data.length > 0) {
-            let labels = data.map(item => item.label);
+            let labels = data.map((item) => item.label);
             this.chart3.data = {
               labels: labels,
               datasets: [
@@ -235,7 +260,7 @@ export default {
                   barPercentage: 0.95,
                   categoryPercentage: 1,
                   backgroundColor: "#008b8bb3",
-                  data: this.getDataByLabels(data)
+                  data: this.getDataByLabels(data),
                 },
                 {
                   label: "Data",
@@ -244,16 +269,16 @@ export default {
                   borderColor: "#095252ad",
                   pointRadius: 5,
                   borderDash: [10],
-                  data: this.getDataByLabels(data)
-                }
-              ]
+                  data: this.getDataByLabels(data),
+                },
+              ],
             };
           } else {
             this.chart3.state.error = true;
             this.chart3.state.errorMessage = "NO DATA FOUND FOR THIS CELL";
           }
         })
-        .catch(err => {
+        .catch((err) => {
           this.chart3.state.error = true;
           this.chart3.state.errorMessage = err.response
             ? err.response.data.error || err.response.data
@@ -265,7 +290,7 @@ export default {
       window.Chart.defaults.global.defaultFontSize = 13.5;
       this.chart1Data = this.fillData(["BK", "MTN", "AIRTEL"]);
       this.chart2Data = this.fill2Data(["Paid", "unPaid"]);
-      this.chart3Data = this.fillData(this.cellArray);
+      this.chart3Data = this.fillData(this.cellsOptions);
       this.chart3Data.datasets.push({
         label: "Data",
         backgroundColor: "transparent",
@@ -273,7 +298,7 @@ export default {
         pointRadius: 5,
         borderDash: [10],
         data: this.chart3Data.datasets[0].data,
-        type: "line"
+        type: "line",
       });
     },
     fillData(labels) {
@@ -285,9 +310,9 @@ export default {
             barPercentage: 0.95,
             categoryPercentage: 1,
             backgroundColor: "#008b8bb3",
-            data: this.getData(labels)
-          }
-        ]
+            data: this.getData(labels),
+          },
+        ],
       };
       return data;
     },
@@ -298,9 +323,9 @@ export default {
           {
             label: "Data",
             backgroundColor: ["#008b8bb3", "#e4e4ec"],
-            data: this.getData(labels)
-          }
-        ]
+            data: this.getData(labels),
+          },
+        ],
       };
       return data;
     },
@@ -309,14 +334,14 @@ export default {
     },
     getData(labels) {
       let array = [];
-      labels.forEach(element => {
+      labels.forEach((element) => {
         array.push(this.getRandomInt());
       });
       return array;
     },
     getDataByLabels(data) {
       let array = [];
-      data.forEach(item => {
+      data.forEach((item) => {
         const percentage =
           (item.data.payed * 100) / (item.data.payed + item.data.pending);
         array.push(percentage);
@@ -331,8 +356,8 @@ export default {
       this.chart2.state.errorMessage = null;
       this.chart3.state.error = false;
       this.chart3.state.errorMessage = null;
-    }
-  }
+    },
+  },
 };
 </script>
 

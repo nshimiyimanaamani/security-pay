@@ -4,12 +4,9 @@
       <p>{{house.owner.fname +' '+ house.owner.lname}}</p>
       <p class="d-block text-truncate">{{house.id}}</p>
     </b-card-header>
-    <b-card-footer class="d-flex justify-content-between py-2 align-items-end bg-white">
-      <article class="d-flex flex-column w-100 pr-1">
-        <span v-show="house.percentage" class="completed fsize-sm">completed</span>
-        <span class="details fsize-sm">{{house.due}} Rwf per month</span>
-        <b-progress class="w-100" :value="0" :max="100"></b-progress>
-      </article>
+    <b-card-footer class="d-flex justify-content-between pt-2 pb-1 align-items-center bg-white">
+      <span class="details fsize-sm">{{house.due}} Rwf per month</span>
+
       <i
         class="fa fa-ellipsis-v cursor-pointer"
         :class="state.show ? null : 'collapsed'"
@@ -68,24 +65,24 @@ export default {
   name: "usercard",
   props: {
     house: Object,
-    index: Number
+    index: Number,
   },
   components: {
-    loader
+    loader,
   },
   data() {
     return {
       state: {
         show: false,
-        loading: false
+        loading: false,
       },
       invoices: null,
       fields: [
         { key: "created_at", label: "Month" },
         { key: "property", label: "House ID" },
         { key: "status", label: "Status" },
-        { key: "amount", label: "Amount" }
-      ]
+        { key: "amount", label: "Amount" },
+      ],
     };
   },
   mounted() {
@@ -105,7 +102,7 @@ export default {
     availableMonths() {
       const createdYear = new Date(this.house.created_at);
       return 12 * (this.currentYear - createdYear.getFullYear() + 1);
-    }
+    },
   },
   methods: {
     showCollapse() {
@@ -122,11 +119,11 @@ export default {
           .get(
             `/billing/invoices?property=${this.house.id}&months=${this.availableMonths}`
           )
-          .then(res => {
+          .then((res) => {
             this.state.show = true;
             this.invoices = res.data.Invoices;
           })
-          .catch(err => {
+          .catch((err) => {
             const error = err.response
               ? err.response.data.error || err.response.data
               : null;
@@ -136,8 +133,8 @@ export default {
             this.state.loading = false;
           });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

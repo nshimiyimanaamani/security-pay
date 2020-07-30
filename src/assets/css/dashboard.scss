@@ -1,5 +1,29 @@
 .cells-page,
 .sector-page {
+  form.location-selector {
+    margin-left: auto;
+    width: fit-content;
+
+    fieldset > div {
+      display: flex;
+      align-items: flex-end;
+      flex-wrap: nowrap;
+
+      label {
+        margin-bottom: 0;
+        font-size: 1.1rem;
+      }
+      select {
+        cursor: pointer;
+        margin: 0 0.75rem;
+        max-width: 250px;
+        min-width: 200px;
+      }
+      button {
+        border-radius: 3px;
+      }
+    }
+  }
   .charts {
     display: grid;
     grid-template-columns: 100%;

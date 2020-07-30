@@ -18,57 +18,11 @@
           tag="li"
           active-class="active-link"
           class="hover-color"
-          v-if="!isAdmin"
+          v-if="isAdmin"
           to="/cells"
         >cells</router-link>
 
-        <li
-          v-if="isAdmin"
-          v-b-toggle.changecells
-          class="cursor-pointer hover-color"
-          :class="{'active-link':highlightCellTag}"
-        >Cells</li>
-        <b-collapse
-          id="changecells"
-          class="sidebarCollapse"
-          accordion="changecells"
-          role="tabpanel"
-          v-if="isAdmin"
-        >
-          <b-card tag="ul" no-body class="collapse-links">
-            <router-link
-              tag="li"
-              class="hover-color"
-              to="/cells"
-              v-for="cell in cellsOptions"
-              :key="cell"
-              @click="update({toUpdate: 'cell', changed: cell})"
-            >{{cell}}</router-link>
-          </b-card>
-        </b-collapse>
-
-        <li
-          v-b-toggle.changevillage
-          class="cursor-pointer hover-color"
-          :class="{'active-link':highlightVillageTag}"
-        >Villages</li>
-        <b-collapse
-          id="changevillage"
-          class="sidebarCollapse"
-          accordion="changeVillage"
-          role="tabpanel"
-        >
-          <b-card tag="ul" no-body class="collapse-links">
-            <router-link
-              tag="li"
-              class="hover-color collapse-links"
-              to="/village"
-              v-for="village in villageOptions"
-              :key="village"
-              @click="update({toUpdate: 'village', changed: village})"
-            >{{village}}</router-link>
-          </b-card>
-        </b-collapse>
+        <router-link tag="li" active-class="active-link" class="hover-color" to="/village">Villages</router-link>
 
         <router-link
           tag="li"
@@ -130,12 +84,6 @@
 export default {
   name: "dashboard-layout",
   computed: {
-    cellsOptions() {
-      return this.$store.getters.getCellsArray;
-    },
-    villageOptions() {
-      return this.$store.getters.getVillageArray;
-    },
     activeSector() {
       return this.$store.getters.getActiveSector;
     },
@@ -143,26 +91,13 @@ export default {
       return this.$store.getters.userDetails;
     },
     isAdmin() {
-      if (this.user.role === "admin") return true;
-      return false;
-    },
-    highlightCellTag() {
-      return this.$route.path == "/cells";
-    },
-    highlightVillageTag() {
-      return this.$route.path == "/village";
+      return this.user.role.toLowerCase() == "admin";
     },
   },
   methods: {
-    update(res) {
-      this.$store.dispatch("updatePlace", res);
-    },
     logout() {
       this.$store.dispatch("logout");
     },
-  },
-  mounted() {
-    console.log(this.$route);
   },
 };
 </script>
