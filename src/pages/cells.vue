@@ -161,7 +161,7 @@ export default {
     },
     villageOptions() {
       const { province, district, sector } = this.location;
-      return this.$villaged(province, district, sector, this.select.cell);
+      return this.$villages(province, district, sector, this.select.cell);
     },
     style() {
       return {
