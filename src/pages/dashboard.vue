@@ -89,14 +89,14 @@ export default {
     BarChart,
     DoughnutChart,
     LineChart,
-    selector: yearSelectorVue
+    selector: yearSelectorVue,
   },
   data() {
     return {
       config: {
         configuring: false,
         year: new Date().getFullYear(),
-        month: new Date().getMonth() + 1
+        month: new Date().getMonth() + 1,
       },
       options: options,
       chart2: {
@@ -105,24 +105,24 @@ export default {
         state: {
           loading: true,
           error: false,
-          errorMessage: null
-        }
+          errorMessage: null,
+        },
       },
       chart3: {
         data: null,
         state: {
           loading: true,
           error: false,
-          errorMessage: null
-        }
+          errorMessage: null,
+        },
       },
       chart1Data: null,
       chart2Data: null,
       chart3Data: null,
       chart3AdditionalData: {
         abishyuye: this.getRandomInt(),
-        abatarishyura: this.getRandomInt()
-      }
+        abatarishyura: this.getRandomInt(),
+      },
     };
   },
   computed: {
@@ -132,7 +132,6 @@ export default {
     },
     cellArray() {
       const { province, district, sector } = this.location;
-      console.log(province, district, sector);
       return this.$cells(province, district, sector) || [];
     },
     location() {
@@ -152,15 +151,14 @@ export default {
     style() {
       return {
         position: "relative",
-        height: "100%"
+        height: "100%",
       };
-    }
+    },
   },
   mounted() {
     this.loadData2();
     this.loadData3();
     this.fetchData();
-    console.log(this.cellArray);
   },
   methods: {
     updated() {
@@ -179,7 +177,7 @@ export default {
         .get(
           `/metrics/ratios/sectors/${this.activeSector}?year=${year}&month=${month}`
         )
-        .then(res => {
+        .then((res) => {
           const data = res.data.data;
           const percentage = (data.payed * 100) / (data.payed + data.pending);
           this.chart2.percentage = percentage.toFixed();
@@ -190,12 +188,12 @@ export default {
                 label: res.data.label,
                 backgroundColor: ["#008b8bb3", "#e4e4ec"],
                 borderColor: "white",
-                data: [data.payed, data.pending]
-              }
-            ]
+                data: [data.payed, data.pending],
+              },
+            ],
           };
         })
-        .catch(err => {
+        .catch((err) => {
           this.chart2.state.error = true;
           this.chart2.state.errorMessage = err.response
             ? err.response.data.error || err.response.data
@@ -214,10 +212,12 @@ export default {
         .get(
           `/metrics/ratios/sectors/all/${this.activeSector}?year=${year}&month=${month}`
         )
-        .then(res => {
-          const data = res.data;
+        .then((res) => {
+          const data = res.data.filter(
+            (item) => this.cellArray.indexOf(item.label) != -1
+          );
           if (data.length > 0) {
-            let labels = data.map(item => item.label);
+            let labels = data.map((item) => item.label);
             this.chart3.data = {
               labels: labels,
               datasets: [
@@ -226,7 +226,7 @@ export default {
                   barPercentage: 0.95,
                   categoryPercentage: 1,
                   backgroundColor: "#008b8bb3",
-                  data: this.getDataByLabels(data)
+                  data: this.getDataByLabels(data),
                 },
                 {
                   label: "Data",
@@ -235,16 +235,18 @@ export default {
                   borderColor: "#095252ad",
                   pointRadius: 5,
                   borderDash: [10],
-                  data: this.getDataByLabels(data)
-                }
-              ]
+                  data: this.getDataByLabels(data),
+                },
+              ],
             };
           } else {
             this.chart3.state.error = true;
             this.chart3.state.errorMessage = "NO DATA FOUND FOR THIS SECTOR";
           }
+          console.log(data);
+          console.log(this.chart3);
         })
-        .catch(err => {
+        .catch((err) => {
           this.chart3.state.error = true;
           this.chart3.state.errorMessage = err.response
             ? err.response.data.error || err.response.data
@@ -263,7 +265,7 @@ export default {
         pointRadius: 5,
         borderDash: [10],
         data: this.chart3Data.datasets[0].data,
-        type: "line"
+        type: "line",
       });
     },
     fillData(labels, num) {
@@ -275,9 +277,9 @@ export default {
             backgroundColor: "#008b8bb3",
             barPercentage: 0.95,
             categoryPercentage: 1,
-            data: this.getRandomInt(num)
-          }
-        ]
+            data: this.getRandomInt(num),
+          },
+        ],
       };
       return data;
     },
@@ -289,9 +291,9 @@ export default {
             label: "Data",
             backgroundColor: ["#008b8bb3", "#e4e4ec"],
             borderColor: "white",
-            data: this.getRandomInt(num)
-          }
-        ]
+            data: this.getRandomInt(num),
+          },
+        ],
       };
       return data;
     },
@@ -307,14 +309,14 @@ export default {
     },
     getDataByLabels(data) {
       let array = [];
-      data.forEach(item => {
+      data.forEach((item) => {
         const percentage =
           (item.data.payed * 100) / (item.data.payed + item.data.pending);
         array.push(percentage.toFixed(2));
       });
       return array;
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss">
