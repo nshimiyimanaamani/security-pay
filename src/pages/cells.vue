@@ -159,6 +159,10 @@ export default {
       const { province, district, sector } = this.location;
       return this.$cells(province, district, sector);
     },
+    villageOptions() {
+      const { province, district, sector } = this.location;
+      return this.$villaged(province, district, sector, this.select.cell);
+    },
     style() {
       return {
         height: "100%",
@@ -249,7 +253,9 @@ export default {
           `/metrics/ratios/cells/all/${this.cellName}?year=${year}&month=${month}`
         )
         .then((res) => {
-          const data = res.data;
+          const data = res.data.filter(
+            (item) => this.villageOptions.indexOf(item.label) != -1
+          );
           if (data.length > 0) {
             let labels = data.map((item) => item.label);
             this.chart3.data = {

@@ -113,7 +113,7 @@ export default {
           },
           {
             key: "date_recorded",
-            label: "Date",
+            label: "Date & Time",
             sortable: true,
             thClass: "text-right",
             tdClass: "text-right",
@@ -136,8 +136,14 @@ export default {
       return Number(num).toLocaleString();
     },
     date: (date) => {
-      const options = { year: "numeric", month: "long", day: "numeric" };
-      return new Date(date).toLocaleDateString("en-EN", options);
+      return new Intl.DateTimeFormat("en-US", {
+        hour12: false,
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
+        hour: "numeric",
+        minute: "numeric",
+      }).format(new Date(date));
     },
   },
   mounted() {
@@ -150,12 +156,15 @@ export default {
       this.axios
         .get("/transactions?offset=0&limit=" + total)
         .then((res) => {
+          const data = res.data.Transactions.sort((a, b) => {
+            return new Date(b.date_recorded) - new Date(a.date_recorded);
+          });
           if (this.user.role === "basic") {
-            this.table.items = res.data.Transactions.filter(
+            this.table.items = data.filter(
               (item) => item.cell == this.activeCell
             );
           } else {
-            this.table.items = res.data.Transactions;
+            this.table.items = data;
           }
         })
         .catch((err) => {
@@ -171,39 +180,43 @@ export default {
     },
     total() {
       if (this.table.items.length < 1) return 0;
-      let total = 0;
-      this.table.items.forEach((element) => {
-        total += element.amount;
-      });
-      return total;
+      try {
+        return this.table.items.reduce(
+          (a, b) => Number(a.amount || a) + Number(b.amount)
+        );
+      } catch {
+        return 0;
+      }
     },
     mtnTotal() {
-      let total = 0;
-      const filtered = this.table.items.filter((data) =>
-        data.method.includes("mtn")
-      );
-      filtered.forEach((element) => {
-        total += element.amount;
-      });
-      return total;
+      if (this.table.items.length < 1) return 0;
+      try {
+        return this.table.items
+          .filter((data) => data.method.includes("mtn"))
+          .reduce((a, b) => Number(a.amount || a) + Number(b.amount));
+      } catch {
+        return 0;
+      }
     },
     airtelTotal() {
-      let total = 0;
-      const filtered = this.table.items.filter(
-        (data) => data.method == "airtel"
-      );
-      filtered.forEach((element) => {
-        total += element.amount;
-      });
-      return total;
+      if (this.table.items.length < 1) return 0;
+      try {
+        return this.table.items
+          .filter((data) => data.method.includes("airtel"))
+          .reduce((a, b) => Number(a.amount || a) + Number(b.amount));
+      } catch {
+        return 0;
+      }
     },
     bkTotal() {
-      let total = 0;
-      const filtered = this.table.items.filter((data) => data.method == "bk");
-      filtered.forEach((element) => {
-        total += element.amount;
-      });
-      return total;
+      if (this.table.items.length < 1) return 0;
+      try {
+        return this.table.items
+          .filter((data) => data.method.includes("bk"))
+          .reduce((a, b) => Number(a.amount || a) + Number(b.amount));
+      } catch {
+        return 0;
+      }
     },
   },
 };

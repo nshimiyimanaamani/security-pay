@@ -276,8 +276,9 @@ export default {
       return [this.activeSector] || [];
     },
     cellOptions() {
+      const {province, district, sector} = this.location
       if (this.select.sector)
-        return this.$cells("Kigali", "Gasabo", this.select.sector);
+        return this.$cells(province, district , this.select.sector);
       return [];
     },
     villageOptions() {
