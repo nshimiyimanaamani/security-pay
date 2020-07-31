@@ -1,5 +1,5 @@
 <template>
-  <div class="position-relative transaction-page">
+  <div class="position-relative transaction-page bg-light">
     <vue-title title="Paypack | Transactions" />
     <div class="totals primary-font">
       <b-row>
@@ -7,33 +7,45 @@
           cols="6"
           class="text-white ml-auto py-2 text-overflow"
           style="font-size: 40px"
-        >RWF &nbsp;{{total() | number}}</b-col>
+        >RWF &nbsp;{{GrandTotal() | number}}</b-col>
       </b-row>
       <b-row class="text-white">
-        <b-col cols="2" class="ml-auto">
-          <p class="text-overflow">BK ACC.</p>
-          <p>RWF {{bkTotal() | number}}</p>
+        <b-col cols="3" class="ml-auto">
+          <p class="text-overflow">Total {{selectedMonth}}</p>
+          <p>RWF {{MonthTotal() | number}}</p>
         </b-col>
-        <b-col cols="2" class="m-0">
+        <b-col cols="3" class="m-0">
           <p class="text-overflow">MTN MoMo</p>
           <p>RWF {{mtnTotal() | number}}</p>
-        </b-col>
-        <b-col cols="2" class="m-0">
-          <p class="text-overflow">AIRTEL MONEY</p>
-          <p>RWF {{airtelTotal() | number}}</p>
         </b-col>
       </b-row>
     </div>
     <div class="transaction-table max-width bg-light">
       <header class="primary-font mb-3 table-header">
         <h3>All Transactions</h3>
+        <fieldset class="control">
+          <div v-show="!loading">
+            <b-form-select class="br-2" v-model="select.year" :disabled="loading">
+              <template v-slot:first>
+                <option :value="null" disabled>select year</option>
+              </template>
+              <b-select-option v-for="year in YearsOptions" :key="year" :value="year">{{year}}</b-select-option>
+            </b-form-select>
+            <b-form-select class="br-2" v-model="select.month" :disabled="loading">
+              <template v-slot:first>
+                <option :value="null" disabled>select month</option>
+              </template>
+              <b-select-option v-for="(month,i) in MonthsOptions" :key="i" :value="i">{{month}}</b-select-option>
+            </b-form-select>
+          </div>
+        </fieldset>
         <b-button variant="info" @click="requestItems" :disabled="loading" class="br-2">
           Refresh
           <i class="fa fa-sync-alt" />
         </b-button>
       </header>
       <b-table
-        :items="table.items"
+        :items="shownData"
         :fields="table.fields"
         :busy="loading"
         head-variant="light"
@@ -67,7 +79,11 @@
           </div>
         </template>
         <template v-slot:empty>
-          <label class="table-empty">No records of transactions found!</label>
+          <label
+            class="table-empty"
+            v-if="!no_data"
+          >No records of transactions for the month of {{selectedMonth}}!</label>
+          <label class="table-empty" v-else>No records of transactions found !</label>
         </template>
       </b-table>
     </div>
@@ -83,7 +99,7 @@ export default {
   data() {
     return {
       loading: false,
-      transactionData: [],
+      transactionData: {},
       table: {
         fields: [
           {
@@ -121,6 +137,10 @@ export default {
         ],
         items: [],
       },
+      select: {
+        year: new Date().getFullYear(),
+        month: new Date().getMonth(),
+      },
     };
   },
   computed: {
@@ -130,20 +150,50 @@ export default {
     user() {
       return this.$store.getters.userDetails;
     },
+    isManager() {
+      return this.user.role === "basic";
+    },
+    shownData() {
+      const { year, month } = this.select;
+      if (Object.keys(this.transactionData).length < 1) return [];
+      else {
+        return this.transactionData[year][month] || [];
+      }
+    },
+    MonthsOptions() {
+      return this.$store.getters.getMonths;
+    },
+    YearsOptions() {
+      if (Object.keys(this.transactionData).length < 1) return [];
+      return Object.keys(this.transactionData).filter(
+        (year) => Number(year) != NaN
+      );
+    },
+    no_data() {
+      return Object.keys(this.transactionData).length < 1;
+    },
+    selectedMonth() {
+      return this.MonthsOptions[this.select.month];
+    },
   },
   filters: {
     number: (num) => {
       return Number(num).toLocaleString();
     },
     date: (date) => {
-      return new Intl.DateTimeFormat("en-US", {
-        hour12: false,
-        year: "numeric",
-        month: "long",
-        day: "2-digit",
-        hour: "numeric",
-        minute: "numeric",
-      }).format(new Date(date));
+      try {
+        const o = new Date(date);
+        return new Intl.DateTimeFormat("en-US", {
+          hour12: false,
+          year: "numeric",
+          month: "long",
+          day: "2-digit",
+          hour: "numeric",
+          minute: "numeric",
+        }).format(o);
+      } catch {
+        return date;
+      }
     },
   },
   mounted() {
@@ -156,18 +206,24 @@ export default {
       this.axios
         .get("/transactions?offset=0&limit=" + total)
         .then((res) => {
-          const data = res.data.Transactions.sort((a, b) => {
-            return new Date(b.date_recorded) - new Date(a.date_recorded);
-          });
-          if (this.user.role === "basic") {
-            this.table.items = data.filter(
+          this.transactionData = {};
+          let DataToClean = res.data.Transactions;
+          if (this.isManager) {
+            DataToClean = DataToClean.filter(
               (item) => item.cell == this.activeCell
             );
-          } else {
-            this.table.items = data;
+          }
+          for (let { date_recorded: date } of DataToClean) {
+            const year = new Date(date).getFullYear();
+            const month = new Date(date).getMonth();
+            if (!this.transactionData[year]) this.transactionData[year] = {};
+            this.SortByMonth(this.transactionData, year, month, DataToClean, [
+              "date_recorded",
+            ]);
           }
         })
         .catch((err) => {
+          console.log(err);
           this.table.items = [];
           const error = err.response
             ? err.response.data.error || err.response.data
@@ -178,45 +234,53 @@ export default {
           this.loading = false;
         });
     },
-    total() {
-      if (this.table.items.length < 1) return 0;
+    GrandTotal() {
+      if (this.transactionData.length < 1) return 0;
+      let total = 0;
+
       try {
-        return this.table.items.reduce(
-          (a, b) => Number(a.amount || a) + Number(b.amount)
-        );
+        this.YearsOptions.forEach((year) => {
+          total += Object.values(this.transactionData[year])
+            .flat()
+            .reduce((a, b) => a + Number(b.amount), 0);
+        });
+        return total;
+      } catch {
+        return 0;
+      }
+    },
+    MonthTotal() {
+      if (this.shownData.length < 1) return 0;
+      try {
+        return this.shownData.reduce((a, b) => Number(a) + Number(b.amount), 0);
       } catch {
         return 0;
       }
     },
     mtnTotal() {
-      if (this.table.items.length < 1) return 0;
+      if (this.shownData.length < 1) return 0;
       try {
-        return this.table.items
+        return this.shownData
           .filter((data) => data.method.includes("mtn"))
-          .reduce((a, b) => Number(a.amount || a) + Number(b.amount));
+          .reduce((a, b) => Number(a) + Number(b.amount), 0);
       } catch {
         return 0;
       }
     },
-    airtelTotal() {
-      if (this.table.items.length < 1) return 0;
-      try {
-        return this.table.items
-          .filter((data) => data.method.includes("airtel"))
-          .reduce((a, b) => Number(a.amount || a) + Number(b.amount));
-      } catch {
-        return 0;
-      }
+    GetObjectValue(array, obj) {
+      array.forEach((key) => {
+        obj = obj[key];
+      });
+      return obj;
     },
-    bkTotal() {
-      if (this.table.items.length < 1) return 0;
-      try {
-        return this.table.items
-          .filter((data) => data.method.includes("bk"))
-          .reduce((a, b) => Number(a.amount || a) + Number(b.amount));
-      } catch {
-        return 0;
-      }
+    SortByMonth(o, year, month, array, key) {
+      o[year] = {
+        [month]: array.filter(
+          (item) =>
+            new Date(this.GetObjectValue(key, item)).getFullYear() === year &&
+            new Date(this.GetObjectValue(key, item)).getMonth() === month
+        ),
+      };
     },
   },
 };
