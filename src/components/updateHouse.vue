@@ -52,7 +52,7 @@
         <vue-slider
           v-model="house.due"
           :marks="slider.marks"
-          :interval="500"
+          :interval="100"
           :process="true"
           :tooltip="'none'"
           :min="500"

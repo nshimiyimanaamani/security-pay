@@ -65,7 +65,7 @@
           <vue-slider
             v-model="form.due"
             :marks="slider.marks"
-            :interval="500"
+            :interval="100"
             :process="true"
             :tooltip="'none'"
             :min="500"
@@ -77,7 +77,7 @@
             </template>
           </vue-slider>
         </b-form-group>
-        <b-form-group label="Inzu ituwemo?" v-if="state.switch">
+        <b-form-group label="Inzu Irakodeshwa (Rented)?" v-if="state.switch">
           <b-form-radio-group
             v-model="form.occupied"
             :options="occupiedOptions"
@@ -125,7 +125,7 @@
 export default {
   name: "addPropertModal",
   props: {
-    show: Boolean
+    show: Boolean,
   },
   data() {
     return {
@@ -133,7 +133,7 @@ export default {
       btnContent: "Search",
       occupiedOptions: [
         { text: "oya", value: false },
-        { text: "yego", value: true }
+        { text: "yego", value: true },
       ],
       form: {
         fname: null,
@@ -141,20 +141,20 @@ export default {
         phone: null,
         id: null,
         due: "500",
-        occupied: null
+        occupied: null,
       },
       slider: {
-        marks: val => val % 10000 === 0
+        marks: (val) => val % 10000 === 0,
       },
       address: {
         sector: null,
         cell: null,
-        village: null
+        village: null,
       },
       state: {
         adding: false,
-        switch: false
-      }
+        switch: false,
+      },
     };
   },
   computed: {
@@ -207,7 +207,7 @@ export default {
         }
       }
       return false;
-    }
+    },
   },
   methods: {
     search_user() {
@@ -225,25 +225,25 @@ export default {
               "&phone=" +
               phone
           )
-          .then(res => {
+          .then((res) => {
             this.state.adding = false;
             this.state.switch = true;
             this.btnContent = "Register";
             this.form.id = res.data.id;
           })
-          .catch(err => {
+          .catch((err) => {
             this.state.adding = false;
             const message = `${fname} ${lname} is not registered! Do you want to register this user?`;
-            this.confirm(message).then(state => {
+            this.confirm(message).then((state) => {
               if (state === true) {
                 this.state.adding = true;
                 this.axios
                   .post(`/owners`, {
                     fname: fname,
                     lname: lname,
-                    phone: phone
+                    phone: phone,
                   })
-                  .then(res => {
+                  .then((res) => {
                     this.state.adding = false;
                     this.state.switch = true;
                     this.btnContent = "Register";
@@ -252,7 +252,7 @@ export default {
                       `User created. proceeding to registration...`
                     );
                   })
-                  .catch(err => {
+                  .catch((err) => {
                     console.log(err, err.response);
                     try {
                       this.$snotify.error(
@@ -271,24 +271,24 @@ export default {
         this.axios
           .post("/properties", {
             owner: {
-              id: this.form.id
+              id: this.form.id,
             },
             address: {
               cell: this.address.cell,
               village: this.address.village,
-              sector: this.activeSector
+              sector: this.activeSector,
             },
             namespace: this.userDetails.account,
             due: this.form.due.toString(),
             occupied: this.form.occupied.toString(),
-            recorded_by: this.userDetails.username
+            recorded_by: this.userDetails.username,
           })
-          .then(res => {
+          .then((res) => {
             this.resetModal();
             this.$emit("added");
             this.$snotify.info(`Property Registered successfully!`);
           })
-          .catch(err => {
+          .catch((err) => {
             try {
               this.$snotify.error(err.response.data.error || err.response.data);
             } catch {
@@ -321,10 +321,10 @@ export default {
         cancelTitle: "NO",
         footerClass: "p-3",
         hideHeaderClose: false,
-        centered: true
+        centered: true,
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

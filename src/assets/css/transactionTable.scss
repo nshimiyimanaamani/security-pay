@@ -1,4 +1,5 @@
 .transaction-page {
+  height: 100%;
   .transaction-table {
     padding: 2rem;
     .table-header {
@@ -9,6 +10,28 @@
         font-size: 1.4rem;
         text-transform: uppercase;
         margin: 0;
+        flex: 1;
+      }
+      fieldset > div {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: flex-end;
+        flex-wrap: nowrap;
+
+        select {
+          cursor: pointer;
+          margin: 0 0.75rem 0 0;
+          max-width: 200px;
+          min-width: 150px;
+
+          &:last-child {
+            margin-right: 0.75rem;
+          }
+          &:first-child {
+            margin-left: 0.75rem;
+          }
+        }
       }
     }
     .table-loader {
