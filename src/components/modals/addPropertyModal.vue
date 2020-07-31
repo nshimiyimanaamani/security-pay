@@ -55,7 +55,7 @@
               <b-input
                 v-model="form.due"
                 required
-                step="500"
+                step="100"
                 min="500"
                 type="number"
                 class="w-auto mx-1"

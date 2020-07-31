@@ -67,7 +67,7 @@
               <b-input
                 v-model="form.due"
                 required
-                step="500"
+                step="100"
                 min="500"
                 size="sm"
                 type="number"
@@ -81,7 +81,7 @@
             type="range"
             min="500"
             max="10000"
-            step="500"
+            step="100"
             size="sm"
             class="border-0"
           />

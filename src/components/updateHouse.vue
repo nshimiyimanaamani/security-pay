@@ -40,7 +40,7 @@
           <b-input
             v-model="house.due"
             required
-            step="500"
+            step="100"
             min="500"
             size="sm"
             type="number"
