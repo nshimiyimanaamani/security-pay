@@ -706,6 +706,16 @@ func migrateDB(db *sql.DB) error {
 					`,
 				},
 			},
+			{
+				Id: "021_update_invoice_status_check_constraint",
+				Up: []string{
+					`
+					ALTER TABLE invoices 
+						DROP CONSTRAINT invoices_status_check,
+						ADD  CONSTRAINT invoices_status_check CHECK(status in ('pending', 'payed', 'expired'))
+					`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
