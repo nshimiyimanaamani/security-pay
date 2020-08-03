@@ -2,7 +2,7 @@ package queue
 
 import (
 	"context"
-	"fmt"
+	"time"
 
 	"github.com/hibiken/asynq"
 	"github.com/rugwirobaker/paypack-backend/core/scheduler"
@@ -45,11 +45,9 @@ func New(opts *Options) *Queue {
 // Enqueue new task
 func (queue *Queue) Enqueue(ctx context.Context, name string, args map[string]interface{}) error {
 
-	fmt.Println(args["properties"])
-
 	task := asynq.NewTask(name, args)
 
-	if _, err := queue.cli.Enqueue(task, asynq.MaxRetry(-1)); err != nil {
+	if _, err := queue.cli.Enqueue(task, asynq.MaxRetry(-1), asynq.Timeout(25*time.Minute)); err != nil {
 		return err
 	}
 	return nil
