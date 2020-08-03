@@ -6,6 +6,7 @@ import (
 
 	"github.com/hibiken/asynq"
 	"github.com/rugwirobaker/paypack-backend/core/scheduler"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
 var _ (scheduler.Queue) = (*Queue)(nil)
@@ -44,11 +45,12 @@ func New(opts *Options) *Queue {
 
 // Enqueue new task
 func (queue *Queue) Enqueue(ctx context.Context, name string, args map[string]interface{}) error {
+	const op errors.Op = "pkg/tasks/queue/Queue.Enqueue"
 
 	task := asynq.NewTask(name, args)
 
 	if _, err := queue.cli.Enqueue(task, asynq.MaxRetry(-1), asynq.Timeout(40*time.Minute)); err != nil {
-		return err
+		return errors.E(op, err)
 	}
 	return nil
 }
