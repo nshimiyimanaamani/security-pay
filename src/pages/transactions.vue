@@ -141,6 +141,7 @@ export default {
         year: new Date().getFullYear(),
         month: new Date().getMonth(),
       },
+      a: 0,
     };
   },
   computed: {
@@ -161,7 +162,9 @@ export default {
       }
     },
     MonthsOptions() {
-      return this.$store.getters.getMonths;
+      return this.$store.getters.getMonths.sort(
+        (a, b) => a.date_recorded - b.date_recorded
+      );
     },
     YearsOptions() {
       if (Object.keys(this.transactionData).length < 1) return [];
@@ -217,6 +220,8 @@ export default {
             const year = new Date(date).getFullYear();
             const month = new Date(date).getMonth();
             if (!this.transactionData[year]) this.transactionData[year] = {};
+            if (!this.transactionData[year][month])
+              this.transactionData[year][month] = [];
             this.SortByMonth(this.transactionData, year, month, DataToClean, [
               "date_recorded",
             ]);
@@ -274,13 +279,11 @@ export default {
       return obj;
     },
     SortByMonth(o, year, month, array, key) {
-      o[year] = {
-        [month]: array.filter(
-          (item) =>
-            new Date(this.GetObjectValue(key, item)).getFullYear() === year &&
-            new Date(this.GetObjectValue(key, item)).getMonth() === month
-        ),
-      };
+      o[year][month] = array.filter(
+        (item) =>
+          new Date(this.GetObjectValue(key, item)).getFullYear() === year &&
+          new Date(this.GetObjectValue(key, item)).getMonth() === month
+      );
     },
   },
 };
