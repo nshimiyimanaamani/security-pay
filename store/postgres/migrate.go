@@ -716,6 +716,36 @@ func migrateDB(db *sql.DB) error {
 					`,
 				},
 			},
+
+			{
+				Id: "022_create_archive_func",
+				Up: []string{
+					`
+					CREATE  OR REPLACE FUNCTION archive_func() 
+					RETURNS INT AS $$
+					
+					DECLARE count INT := 0;
+					BEGIN
+						UPDATE invoices SET status='expired' WHERE id IN(
+							select 
+								id
+							from 
+								invoices
+							where 
+								status='pending' 
+							AND 
+								created_at < date_trunc('month', now())::date
+							ORDER BY id OFFSET 0 LIMIT 50
+						);
+
+						GET DIAGNOSTICS count = ROW_COUNT;
+
+						RETURN count;
+					END;
+					$$ LANGUAGE plpgsql;
+					`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

@@ -182,7 +182,9 @@ func bootUSSDService(prefix string, db *sql.DB, rclient *redis.Client, sms notif
 }
 
 func bootScheduler(db *sql.DB, queue *queue.Queue) scheduler.Service {
-	counter := postgres.NewCounter(db)
-	opts := &scheduler.Options{Queue: queue, Auditable: counter}
-	return scheduler.New(opts)
+	var opts scheduler.Options
+	opts.Queue = queue
+	opts.Counter = postgres.NewAuditableCounter(db)
+	opts.Invoices = postgres.NewInvoiceRepository(db)
+	return scheduler.New(&opts)
 }

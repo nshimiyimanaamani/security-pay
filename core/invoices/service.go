@@ -1,12 +1,13 @@
 package invoices
 
-import "context"
+import (
+	"context"
 
-import "github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+)
 
 // Service ...
 type Service interface {
-	Create(ctx context.Context) error
 	RetrieveAll(ctx context.Context, property string, months uint) (InvoicePage, error)
 	RetrievePending(ctx context.Context, property string, months uint) (InvoicePage, error)
 	RetrievePayed(ctx context.Context, property string, months uint) (InvoicePage, error)
@@ -31,7 +32,7 @@ func New(opts *Options) Service {
 func (svc *service) RetrieveAll(ctx context.Context, property string, months uint) (InvoicePage, error) {
 	const op errors.Op = "app/invoices/service.RetrieveAll"
 
-	page, err := svc.repo.ListAll(ctx, property, months)
+	page, err := svc.repo.All(ctx, property, months)
 	if err != nil {
 		return InvoicePage{}, errors.E(op, err)
 	}
@@ -41,7 +42,7 @@ func (svc *service) RetrieveAll(ctx context.Context, property string, months uin
 func (svc *service) RetrievePending(ctx context.Context, property string, months uint) (InvoicePage, error) {
 	const op errors.Op = "app/invoices/service.RetrievePending"
 
-	page, err := svc.repo.ListPending(ctx, property, months)
+	page, err := svc.repo.Pending(ctx, property, months)
 	if err != nil {
 		return InvoicePage{}, errors.E(op, err)
 	}
@@ -51,15 +52,9 @@ func (svc *service) RetrievePending(ctx context.Context, property string, months
 func (svc *service) RetrievePayed(ctx context.Context, property string, months uint) (InvoicePage, error) {
 	const op errors.Op = "app/invoices/service.RetrievePayed"
 
-	page, err := svc.repo.ListPayed(ctx, property, months)
+	page, err := svc.repo.Payed(ctx, property, months)
 	if err != nil {
 		return InvoicePage{}, errors.E(op, err)
 	}
 	return page, nil
-}
-
-func (svc *service) Create(ctx context.Context) error {
-	const op errors.Op = "app/invoices/service.Create"
-
-	return errors.E(op, errors.KindNotImplemented)
 }

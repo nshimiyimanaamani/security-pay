@@ -11,9 +11,9 @@ type Status string
 
 // possible invoice states
 const (
-	Pending  Status = "pending"
-	Payed    Status = "payed"
-	Expired  Status = "expired"
+	Pending Status = "pending"
+	Payed   Status = "payed"
+	Expired Status = "expired"
 )
 
 // Invoice ...

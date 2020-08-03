@@ -17,7 +17,7 @@ import (
 )
 
 func TestCountAuditable(t *testing.T) {
-	auditable := postgres.NewCounter(db)
+	auditable := postgres.NewAuditableCounter(db)
 
 	defer CleanDB(t, db)
 
