@@ -23,8 +23,8 @@ func NewRepository(invs map[string]invoices.Invoice) invoices.Repository {
 	}
 }
 
-func (repo *repository) ListAll(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
-	const op errors.Op = "app/invoices/mocks/repository.ListAll"
+func (repo *repository) All(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
+	const op errors.Op = "app/invoices/mocks/repository.All"
 
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
@@ -52,8 +52,8 @@ func (repo *repository) ListAll(ctx context.Context, property string, months uin
 	return page, nil
 }
 
-func (repo *repository) ListPayed(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
-	const op errors.Op = "app/invoices/mocks/repository.ListPayed"
+func (repo *repository) Payed(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
+	const op errors.Op = "app/invoices/mocks/repository.Payed"
 
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
@@ -81,8 +81,8 @@ func (repo *repository) ListPayed(ctx context.Context, property string, months u
 	return page, nil
 }
 
-func (repo *repository) ListPending(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
-	const op errors.Op = "app/invoices/mocks/repository.ListPending"
+func (repo *repository) Pending(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
+	const op errors.Op = "app/invoices/mocks/repository.Pending"
 
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
@@ -119,8 +119,8 @@ func (repo *repository) Earliest(ctx context.Context, property string) (invoices
 	return invoices.Invoice{}, errors.E(op, errors.KindNotImplemented)
 }
 
-func (repo *repository) Generate(ctx context.Context) error {
-	const op errors.Op = "app/invoices/mocks/repository.Retrieve"
+func (repo *repository) Archivable(ctx context.Context) (invoices.InvoicePage, error) {
+	const op errors.Op = "app/invoices/mocks/repository.Archivable"
 
-	return errors.E(op, errors.KindNotImplemented)
+	return invoices.InvoicePage{}, errors.E(op, errors.KindNotImplemented)
 }

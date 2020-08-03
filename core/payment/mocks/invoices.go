@@ -24,8 +24,8 @@ func NewInvoiceRepository(invs map[string]invoices.Invoice) invoices.Repository 
 	}
 }
 
-func (repo *invoicesMock) ListAll(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
-	const op errors.Op = "app/invoices/mocks/repository.ListAll"
+func (repo *invoicesMock) All(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
+	const op errors.Op = "app/invoices/mocks/repository.All"
 
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
@@ -53,8 +53,8 @@ func (repo *invoicesMock) ListAll(ctx context.Context, property string, months u
 	return page, nil
 }
 
-func (repo *invoicesMock) ListPayed(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
-	const op errors.Op = "app/invoices/mocks/repository.ListPayed"
+func (repo *invoicesMock) Payed(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
+	const op errors.Op = "app/invoices/mocks/repository.Payed"
 
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
@@ -82,8 +82,8 @@ func (repo *invoicesMock) ListPayed(ctx context.Context, property string, months
 	return page, nil
 }
 
-func (repo *invoicesMock) ListPending(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
-	const op errors.Op = "app/invoices/mocks/repository.ListPending"
+func (repo *invoicesMock) Pending(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
+	const op errors.Op = "app/invoices/mocks/repository.Pending"
 
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
@@ -125,8 +125,11 @@ func (repo *invoicesMock) Earliest(ctx context.Context, property string) (invoic
 	return invoices.Invoice{}, errors.E(op, "no invoices found", errors.KindNotFound)
 }
 
-func (repo *invoicesMock) Generate(ctx context.Context) error {
-	const op errors.Op = "app/invoices/mocks/repository.Retrieve"
+func (repo *invoicesMock) Archivable(ctx context.Context) (invoices.InvoicePage, error) {
+	const op errors.Op = "app/invoices/mocks/repository.Archivable"
 
-	return errors.E(op, errors.KindNotImplemented)
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	return invoices.InvoicePage{}, errors.E(op, errors.KindNotImplemented)
 }

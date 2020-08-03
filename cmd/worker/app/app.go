@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/hibiken/asynq"
-	"github.com/rugwirobaker/paypack-backend/api/work/auditor"
 	"github.com/rugwirobaker/paypack-backend/pkg/config"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 	"github.com/sirupsen/logrus"
@@ -26,14 +25,13 @@ func Bootstrap(conf *config.Config) (*asynq.ServeMux, error) {
 	}
 	lggr := log.New(conf.CloudRuntime, logLvl)
 
-	opts := &auditor.HandlerOpts{
-		Logger:  lggr,
-		Service: bootAuditor(db),
-	}
+	services := ProvideServices(db)
+
+	handlerOpts := ProvideHandlerOptions(services, lggr)
 
 	mux := asynq.NewServeMux()
 
-	auditor.RegisterHandlers(mux, opts)
+	Register(mux, handlerOpts)
 
 	return mux, nil
 }

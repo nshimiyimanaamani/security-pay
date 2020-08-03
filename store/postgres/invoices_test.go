@@ -91,7 +91,7 @@ func TestListAll(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		page, err := repo.ListAll(context.Background(), tc.property, tc.months)
+		page, err := repo.All(context.Background(), tc.property, tc.months)
 		size := uint(len(page.Invoices))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected invoices: '%d' got '%d'\n", tc.desc, tc.size, size))
 		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
@@ -176,7 +176,7 @@ func TestListPending(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		page, err := repo.ListPending(context.Background(), tc.property, tc.months)
+		page, err := repo.Pending(context.Background(), tc.property, tc.months)
 		size := uint(len(page.Invoices))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected invoices: '%d' got '%d'\n", tc.desc, tc.size, size))
 		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
@@ -261,7 +261,7 @@ func TestListPayed(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		page, err := repo.ListPayed(context.Background(), tc.property, tc.months)
+		page, err := repo.Payed(context.Background(), tc.property, tc.months)
 		size := uint(len(page.Invoices))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected invoices: '%d' got '%d'\n", tc.desc, tc.size, size))
 		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))

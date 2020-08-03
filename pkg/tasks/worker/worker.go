@@ -27,8 +27,8 @@ func defaultOpts() *Options {
 }
 
 // New ...
-func New(opts *Options) *asynq.Background {
-	bg := asynq.NewBackground(opts.RedisOpts, &asynq.Config{
+func New(opts *Options) *asynq.Server {
+	bg := asynq.NewServer(opts.RedisOpts, asynq.Config{
 		Concurrency: concurrency,
 	})
 	return bg

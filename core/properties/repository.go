@@ -31,4 +31,7 @@ type Repository interface {
 
 	// RetrieveByVillage retrieves the subset of properties within a given Village.
 	RetrieveByVillage(ctx context.Context, Village string, offset, limit uint64) (PropertyPage, error)
+
+	// Auditable counts the number of properties that need an invoice
+	//Auditable(ctx context.Context) (int, error)
 }

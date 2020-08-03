@@ -18,8 +18,8 @@ func NewInvoiceRepository(db *sql.DB) invoices.Repository {
 	return &invoiceRepository{db}
 }
 
-func (repo *invoiceRepository) ListAll(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
-	const op errors.Op = "store/postgres/invoiceRepository.Retrieve"
+func (repo *invoiceRepository) All(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
+	const op errors.Op = "store/postgres/invoices.Retrieve"
 
 	q := `
 		SELECT 
@@ -74,8 +74,8 @@ func (repo *invoiceRepository) ListAll(ctx context.Context, property string, mon
 	return page, nil
 }
 
-func (repo *invoiceRepository) ListPending(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
-	const op errors.Op = "store/postgres/invoiceRepository.ListPending"
+func (repo *invoiceRepository) Pending(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
+	const op errors.Op = "store/postgres/invoices.Pending"
 
 	q := `
 		SELECT 
@@ -132,8 +132,8 @@ func (repo *invoiceRepository) ListPending(ctx context.Context, property string,
 	return page, nil
 }
 
-func (repo *invoiceRepository) ListPayed(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
-	const op errors.Op = "store/postgres/invoiceRepository.ListPayed"
+func (repo *invoiceRepository) Payed(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
+	const op errors.Op = "store/postgres/invoices.Payed"
 
 	q := `
 		SELECT 
@@ -225,8 +225,57 @@ func (repo *invoiceRepository) Earliest(ctx context.Context, property string) (i
 	return invoice, nil
 }
 
-func (repo *invoiceRepository) Generate(ctx context.Context) error {
-	const op errors.Op = "store/postgres/invoiceRepository.Retrieve"
+func (repo *invoiceRepository) Archivable(ctx context.Context) (invoices.InvoicePage, error) {
+	const op errors.Op = "store/postgres/invoices.Archivable"
 
-	return errors.E(op, errors.KindNotImplemented)
+	q := `
+		select 
+			id,
+			amount,
+			property,
+			status,
+			created_at,
+			updated_at
+		FROM 
+			invoices
+		WHERE 
+			status='pending' 
+		AND 
+			created_at < date_trunc('month', now())::date
+		ORDER BY id
+	`
+
+	var items []invoices.Invoice
+
+	rows, err := repo.Query(q)
+	if err != nil {
+		return invoices.InvoicePage{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		c := invoices.Invoice{}
+
+		if err := rows.Scan(&c.ID, &c.Amount, &c.Property, &c.Status, &c.CreatedAt, &c.UpdatedAt); err != nil {
+			return invoices.InvoicePage{}, errors.E(op, err, errors.KindUnexpected)
+		}
+		items = append(items, c)
+	}
+
+	q = `SELECT COUNT(*) FROM invoices WHERE status='pending' AND created_at < date_trunc('month', now())::date;`
+
+	var total uint
+
+	if err := repo.QueryRow(q).Scan(&total); err != nil {
+		return invoices.InvoicePage{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	page := invoices.InvoicePage{
+		Invoices: items,
+		PageMetadata: invoices.PageMetadata{
+			Total: total,
+		},
+	}
+	return page, nil
 }

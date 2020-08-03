@@ -3,6 +3,7 @@ package scheduler
 import (
 	"context"
 
+	"github.com/rugwirobaker/paypack-backend/core/invoices"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
@@ -16,20 +17,22 @@ type Queue interface {
 	Enqueue(ctx context.Context, name string, args map[string]interface{}) error
 }
 
-// Auditable  a given collection's items in a datasource
-type Auditable interface {
+// Counter  a given collection's items in a datasource
+type Counter interface {
 	Count(context.Context) (int, error)
 }
 
 // Options to configure a new scheduler service
 type Options struct {
-	Queue
-	Auditable
+	Queue    Queue
+	Counter  Counter
+	Invoices invoices.Repository
 }
 
 type service struct {
 	queue    Queue
-	auditble Auditable
+	auditble Counter
+	invoices invoices.Repository
 	tasks    map[string]Task
 }
 
@@ -37,7 +40,8 @@ type service struct {
 func New(opts *Options) Service {
 	svc := &service{
 		queue:    opts.Queue,
-		auditble: opts.Auditable,
+		auditble: opts.Counter,
+		invoices: opts.Invoices,
 	}
 	return svc
 }
