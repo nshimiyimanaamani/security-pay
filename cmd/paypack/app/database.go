@@ -29,6 +29,8 @@ func RedisConnect(config *config.RedisConfig) (*redis.Client, error) {
 		return nil, errors.E(op, err, errors.KindUnexpected)
 	}
 
+	opts.Username = ""
+
 	client := redis.NewClient(opts)
 	if _, err := client.Ping().Result(); err != nil {
 		return nil, errors.E(op, err, errors.KindUnexpected)
