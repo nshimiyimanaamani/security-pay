@@ -163,7 +163,7 @@ func TestArchiveFunc(t *testing.T) {
 
 	var start, end = 0, 10
 
-	exp := 10
+	exp := 20
 
 	got, err := exec.ArchiveFunc(context.Background(), start, end)
 
