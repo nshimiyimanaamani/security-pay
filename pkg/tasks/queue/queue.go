@@ -47,7 +47,7 @@ func (queue *Queue) Enqueue(ctx context.Context, name string, args map[string]in
 
 	task := asynq.NewTask(name, args)
 
-	if _, err := queue.cli.Enqueue(task, asynq.MaxRetry(-1), asynq.Timeout(25*time.Minute)); err != nil {
+	if _, err := queue.cli.Enqueue(task, asynq.MaxRetry(-1), asynq.Timeout(40*time.Minute)); err != nil {
 		return err
 	}
 	return nil
