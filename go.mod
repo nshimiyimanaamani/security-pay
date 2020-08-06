@@ -21,7 +21,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.7.0
 	github.com/matoous/go-nanoid v1.4.1
-	github.com/matryer/is v1.3.0
+	github.com/matryer/is v1.4.0
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
