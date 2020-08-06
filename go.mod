@@ -12,7 +12,7 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/fatih/color v1.9.0
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/go-playground/validator/v10 v10.2.0
+	github.com/go-playground/validator/v10 v10.3.0
 	github.com/go-redis/redis/v7 v7.2.0
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.4
