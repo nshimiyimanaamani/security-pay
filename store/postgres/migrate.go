@@ -746,6 +746,92 @@ func migrateDB(db *sql.DB) error {
 					`,
 				},
 			},
+			{
+				Id: "023_update_payment_metrics",
+				Up: []string{
+					`
+					CREATE OR REPLACE VIEW payment_metrics AS
+						SELECT 
+							property,
+							properties.sector,
+							properties.cell,
+							properties.village,
+							date_trunc('month', invoices.created_at) AS period,
+							COUNT(*) filter (WHERE status='pending') AS pending,
+							COUNT(*) filter (WHERE status='payed') AS payed,
+							COALESCE(SUM(amount) FILTER(WHERE status='pending'), 0) AS pending_amount,
+							COALESCE(SUM(amount) FILTER(WHERE status='payed'), 0) AS payed_amount,
+							COUNT(*) filter (WHERE status='expired') AS expired,
+							COALESCE(SUM(amount) FILTER(WHERE status='expired'), 0) AS expired_amount
+						FROM invoices
+							JOIN properties on invoices.property=properties.id
+						GROUP BY 
+							property,
+							period,
+							properties.sector, 
+							properties.cell, 
+							properties.village
+						ORDER BY property; 
+					`,
+
+					`
+					DROP MATERIALIZED VIEW sector_payment_metrics;
+
+					CREATE MATERIALIZED VIEW IF NOT EXISTS sector_payment_metrics AS
+						SELECT
+							sector,
+							period,
+							SUM(pending) as pending_count,
+							SUM(payed) as payed_count,
+					        SUM(expired) as expired_count,
+							COALESCE(sum(pending_amount),0) AS pending_amount,
+							COALESCE(sum(payed_amount),0) AS payed_amount,
+							COALESCE(sum(expired_amount),0) AS expired_amount
+						FROM payment_metrics GROUP BY sector, period;
+						
+					`,
+
+					`create unique index on  sector_payment_metrics(sector, period);`,
+
+					`
+					DROP MATERIALIZED VIEW cell_payment_metrics;
+
+					CREATE MATERIALIZED VIEW IF NOT EXISTS cell_payment_metrics as
+						SELECT
+							cell,
+							sector,
+							period,
+							SUM(pending) as pending_count,
+							SUM(payed) as payed_count,
+							SUM(expired) as expired_count,
+							COALESCE(SUM(pending_amount),0) as pending_amount,
+							COALESCE(SUM(payed_amount),0) as payed_amount,
+							COALESCE(SUM(expired_amount),0) AS expired_amount
+						FROM payment_metrics GROUP by cell, sector, period;
+					`,
+
+					`CREATE unique index on cell_payment_metrics(cell, sector, period);`,
+
+					`
+					DROP MATERIALIZED VIEW village_payment_metrics;
+
+					CREATE MATERIALIZED VIEW IF NOT EXISTS village_payment_metrics AS
+						SELECT
+							village,
+							cell,
+							period,
+							SUM(pending) as pending_count,
+							SUM(payed) as payed_count,
+					     SUM(expired) as expired_count,
+							COALESCE(SUM(pending_amount),0) AS pending_amount,
+							COALESCE(SUM(payed_amount),0) AS payed_amount,
+							COALESCE(SUM(expired_amount),0) AS expired_amount
+						FROM payment_metrics GROUP BY village, cell, period;
+					`,
+
+					`CREATE unique index on village_payment_metrics(village, cell, period);`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
