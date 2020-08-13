@@ -19,22 +19,23 @@ func NewStatsRepository(db *sql.DB) metrics.Repository {
 }
 
 func (repo *statsRepository) FindSectorRatio(ctx context.Context, sector string, y, m uint) (metrics.Chart, error) {
-	const op errors.Op = "store/postgres/statsRepository.FindSectorRatio"
+	const op errors.Op = "store/postgres/stats.FindSectorRatio"
 
 	q := `
 		select 
 			sector, 
 			pending_count, 
-			payed_count 
+			payed_count, 
+			expired_count
 		from 
 			sector_payment_metrics 
 		where sector=$1 and extract(year from period)=$2 and extract(month from period)=$3;
 	`
 	var label string
 
-	var payed, pending uint64
+	var payed, pending, expired uint64
 
-	err := repo.QueryRowContext(ctx, q, sector, y, m).Scan(&label, &pending, &payed)
+	err := repo.QueryRowContext(ctx, q, sector, y, m).Scan(&label, &pending, &payed, &expired)
 	if err != nil {
 		empty := metrics.Chart{}
 		pqErr, ok := err.(*pq.Error)
@@ -46,28 +47,29 @@ func (repo *statsRepository) FindSectorRatio(ctx context.Context, sector string,
 
 	chart := metrics.Chart{
 		Label: label,
-		Data:  map[string]uint64{"payed": payed, "pending": pending},
+		Data:  map[string]uint64{"payed": payed, "pending": pending, "expired": expired},
 	}
 
 	return chart, nil
 }
 func (repo *statsRepository) FindCellRatio(ctx context.Context, cell string, y, m uint) (metrics.Chart, error) {
-	const op errors.Op = "store/postgres/statsRepository.FindCellRatio"
+	const op errors.Op = "store/postgres/stats.FindCellRatio"
 
 	var label string
 
-	var payed, pending uint64
+	var payed, pending, expired uint64
 
 	q := `
 		select 
 			cell, 
 			pending_count, 
-			payed_count 
+			payed_count,
+			expired_count
 		from  
 			cell_payment_metrics 
 		where cell=$1 and extract(year from period)=$2 and extract(month from period)=$3;
 	`
-	err := repo.QueryRowContext(ctx, q, cell, y, m).Scan(&label, &pending, &payed)
+	err := repo.QueryRowContext(ctx, q, cell, y, m).Scan(&label, &pending, &payed, &expired)
 	if err != nil {
 
 		empty := metrics.Chart{}
@@ -81,29 +83,30 @@ func (repo *statsRepository) FindCellRatio(ctx context.Context, cell string, y, 
 
 	chart := metrics.Chart{
 		Label: label,
-		Data:  map[string]uint64{"payed": payed, "pending": pending},
+		Data:  map[string]uint64{"payed": payed, "pending": pending, "expired": expired},
 	}
 
 	return chart, nil
 }
 
 func (repo *statsRepository) FindVillageRatio(ctx context.Context, village string, y, m uint) (metrics.Chart, error) {
-	const op errors.Op = "store/postgres/statsRepository.FindVillageRatio"
+	const op errors.Op = "store/postgres/stats.FindVillageRatio"
 
 	q := `
 		select 
 			village, 
 			pending_count, 
-			payed_count 
+			payed_count,
+			expired_count 
 		from  
 			village_payment_metrics 
 		where village=$1 and extract(year from period)=$2 and extract(month from period)=$3;
 	`
 	var label string
 
-	var payed, pending uint64
+	var payed, pending, expired uint64
 
-	err := repo.QueryRowContext(ctx, q, village, y, m).Scan(&label, &pending, &payed)
+	err := repo.QueryRowContext(ctx, q, village, y, m).Scan(&label, &pending, &payed, &expired)
 	if err != nil {
 		empty := metrics.Chart{}
 
@@ -115,19 +118,20 @@ func (repo *statsRepository) FindVillageRatio(ctx context.Context, village strin
 	}
 	chart := metrics.Chart{
 		Label: label,
-		Data:  map[string]uint64{"payed": payed, "pending": pending},
+		Data:  map[string]uint64{"payed": payed, "pending": pending, "expired": expired},
 	}
 	return chart, nil
 }
 
 func (repo *statsRepository) ListSectorRatios(ctx context.Context, sector string, y, m uint) ([]metrics.Chart, error) {
-	const op errors.Op = "store/postgres/statsRepository.ListSectorRatios"
+	const op errors.Op = "store/postgres/stats.ListSectorRatios"
 
 	q := `
 		select 
 			cell, 
 			pending_count, 
-			payed_count 
+			payed_count,
+			expired_count
 		from 
 			cell_payment_metrics 
 		where sector=$1 and extract(year from period)=$2 and extract(month from period)=$3;
@@ -145,15 +149,15 @@ func (repo *statsRepository) ListSectorRatios(ctx context.Context, sector string
 	for rows.Next() {
 		var label string
 
-		var payed, pending uint64
+		var payed, pending, expired uint64
 
-		if err := rows.Scan(&label, &pending, &payed); err != nil {
+		if err := rows.Scan(&label, &pending, &payed, &expired); err != nil {
 			return nil, errors.E(op, err, errors.KindUnexpected)
 		}
 
 		chart := metrics.Chart{
 			Label: label,
-			Data:  map[string]uint64{"payed": payed, "pending": pending},
+			Data:  map[string]uint64{"payed": payed, "pending": pending, "expired": expired},
 		}
 
 		items = append(items, chart)
@@ -163,13 +167,14 @@ func (repo *statsRepository) ListSectorRatios(ctx context.Context, sector string
 }
 
 func (repo *statsRepository) ListCellRatios(ctx context.Context, cell string, y, m uint) ([]metrics.Chart, error) {
-	const op errors.Op = "store/postgres/statsRepository.ListCellRatios"
+	const op errors.Op = "store/postgres/stats.ListCellRatios"
 
 	q := `
 		select 
 			village, 
 			pending_count, 
-			payed_count 
+			payed_count,
+			expired_amount 
 		from 
 			village_payment_metrics 
 		where cell=$1 and extract(year from period)=$2 and extract(month from period)=$3;
@@ -187,15 +192,15 @@ func (repo *statsRepository) ListCellRatios(ctx context.Context, cell string, y,
 	for rows.Next() {
 		var label string
 
-		var payed, pending uint64
+		var payed, pending, expired uint64
 
-		if err := rows.Scan(&label, &pending, &payed); err != nil {
+		if err := rows.Scan(&label, &pending, &payed, &expired); err != nil {
 			return nil, errors.E(op, err, errors.KindUnexpected)
 		}
 
 		chart := metrics.Chart{
 			Label: label,
-			Data:  map[string]uint64{"payed": payed, "pending": pending},
+			Data:  map[string]uint64{"payed": payed, "pending": pending, "expired": expired},
 		}
 
 		items = append(items, chart)
@@ -210,7 +215,8 @@ func (repo *statsRepository) FindSectorBalance(ctx context.Context, sector strin
 		select 
 			sector, 
 			pending_amount, 
-			payed_amount
+			payed_amount,
+			expired_amount
 		from 
 			sector_payment_metrics 
 		where sector=$1 and extract(year from period)=$2 and extract(month from period)=$3;
@@ -218,9 +224,9 @@ func (repo *statsRepository) FindSectorBalance(ctx context.Context, sector strin
 
 	var label string
 
-	var payed, pending float64
+	var payed, pending, expired float64
 
-	err := repo.QueryRowContext(ctx, q, sector, y, m).Scan(&label, &pending, &payed)
+	err := repo.QueryRowContext(ctx, q, sector, y, m).Scan(&label, &pending, &payed, &expired)
 	if err != nil {
 		empty := metrics.Chart{}
 		pqErr, ok := err.(*pq.Error)
@@ -235,6 +241,7 @@ func (repo *statsRepository) FindSectorBalance(ctx context.Context, sector strin
 		Data: map[string]uint64{
 			"payed":   uint64(payed),
 			"pending": uint64(pending),
+			"expired": uint64(expired),
 		},
 	}
 
@@ -248,7 +255,8 @@ func (repo *statsRepository) FindCellBalance(ctx context.Context, cell string, y
 		select 
 			cell, 
 			pending_amount, 
-			payed_amount
+			payed_amount,
+			expired_amount
 		from 
 			cell_payment_metrics 
 		where cell=$1 and extract(year from period)=$2 and extract(month from period)=$3;
@@ -256,9 +264,9 @@ func (repo *statsRepository) FindCellBalance(ctx context.Context, cell string, y
 
 	var label string
 
-	var payed, pending float64
+	var payed, pending, expired float64
 
-	err := repo.QueryRowContext(ctx, q, cell, y, m).Scan(&label, &pending, &payed)
+	err := repo.QueryRowContext(ctx, q, cell, y, m).Scan(&label, &pending, &payed, &expired)
 	if err != nil {
 		empty := metrics.Chart{}
 		pqErr, ok := err.(*pq.Error)
@@ -273,6 +281,7 @@ func (repo *statsRepository) FindCellBalance(ctx context.Context, cell string, y
 		Data: map[string]uint64{
 			"payed":   uint64(payed),
 			"pending": uint64(pending),
+			"expired": uint64(expired),
 		},
 	}
 
@@ -286,7 +295,8 @@ func (repo *statsRepository) FindVillageBalance(ctx context.Context, cell string
 		select 
 			village, 
 			pending_amount, 
-			payed_amount
+			payed_amount,
+			expired_amount
 		from 
 			village_payment_metrics 
 		where village=$1 and extract(year from period)=$2 and extract(month from period)=$3;
@@ -294,9 +304,9 @@ func (repo *statsRepository) FindVillageBalance(ctx context.Context, cell string
 
 	var label string
 
-	var payed, pending float64
+	var payed, pending, expired float64
 
-	err := repo.QueryRowContext(ctx, q, cell, y, m).Scan(&label, &pending, &payed)
+	err := repo.QueryRowContext(ctx, q, cell, y, m).Scan(&label, &pending, &payed, &expired)
 	if err != nil {
 		empty := metrics.Chart{}
 		pqErr, ok := err.(*pq.Error)
@@ -311,6 +321,7 @@ func (repo *statsRepository) FindVillageBalance(ctx context.Context, cell string
 		Data: map[string]uint64{
 			"payed":   uint64(payed),
 			"pending": uint64(pending),
+			"expired": uint64(expired),
 		},
 	}
 
@@ -324,7 +335,8 @@ func (repo *statsRepository) ListSectorBalances(ctx context.Context, sector stri
 		select 
 			cell, 
 			pending_amount, 
-			payed_amount 
+			payed_amount,
+			expired_amount
 		from 
 			cell_payment_metrics 
 		where sector=$1 and extract(year from period)=$2 and extract(month from period)=$3;
@@ -342,15 +354,19 @@ func (repo *statsRepository) ListSectorBalances(ctx context.Context, sector stri
 	for rows.Next() {
 		var label string
 
-		var payed, pending float64
+		var payed, pending, expired float64
 
-		if err := rows.Scan(&label, &pending, &payed); err != nil {
+		if err := rows.Scan(&label, &pending, &payed, &expired); err != nil {
 			return nil, errors.E(op, err, errors.KindUnexpected)
 		}
 
 		chart := metrics.Chart{
 			Label: label,
-			Data:  map[string]uint64{"payed": uint64(payed), "pending": uint64(pending)},
+			Data: map[string]uint64{
+				"payed":   uint64(payed),
+				"pending": uint64(pending),
+				"expired": uint64(expired),
+			},
 		}
 
 		items = append(items, chart)
@@ -365,7 +381,8 @@ func (repo *statsRepository) ListCellBalances(ctx context.Context, cell string, 
 		select 
 			village, 
 			pending_amount, 
-			payed_amount 
+			payed_amount, 
+			expired_amount
 		from 
 			village_payment_metrics 
 		where cell=$1 and extract(year from period)=$2 and extract(month from period)=$3;
@@ -383,15 +400,19 @@ func (repo *statsRepository) ListCellBalances(ctx context.Context, cell string, 
 	for rows.Next() {
 		var label string
 
-		var payed, pending float64
+		var payed, pending, expired float64
 
-		if err := rows.Scan(&label, &pending, &payed); err != nil {
+		if err := rows.Scan(&label, &pending, &payed, &expired); err != nil {
 			return nil, errors.E(op, err, errors.KindUnexpected)
 		}
 
 		chart := metrics.Chart{
 			Label: label,
-			Data:  map[string]uint64{"payed": uint64(payed), "pending": uint64(pending)},
+			Data: map[string]uint64{
+				"payed":   uint64(payed),
+				"pending": uint64(pending),
+				"expired": uint64(expired),
+			},
 		}
 
 		items = append(items, chart)

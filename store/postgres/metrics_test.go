@@ -17,6 +17,8 @@ import (
 )
 
 func TestRetrieveSectorPayRatio(t *testing.T) {
+	const op errors.Op = "store/postgres/stats.FindSectorRatio"
+
 	repo := postgres.NewStatsRepository(db)
 
 	defer CleanDB(t, db)
@@ -60,8 +62,6 @@ func TestRetrieveSectorPayRatio(t *testing.T) {
 	}
 	property = saveProperty(t, db, property)
 
-	const op errors.Op = "store/postgres/statsRepository.FindSectorRatio"
-
 	cases := []struct {
 		desc    string
 		sector  string
@@ -70,6 +70,7 @@ func TestRetrieveSectorPayRatio(t *testing.T) {
 		label   string
 		payed   uint64
 		pending uint64
+		expired uint64
 		err     error
 	}{
 		{
@@ -80,6 +81,7 @@ func TestRetrieveSectorPayRatio(t *testing.T) {
 			year:    uint(property.CreatedAt.Year()),
 			payed:   uint64(0),
 			pending: uint64(1),
+			expired: uint64(0),
 			err:     nil,
 		},
 		{
@@ -89,6 +91,7 @@ func TestRetrieveSectorPayRatio(t *testing.T) {
 			year:    uint(property.CreatedAt.Year()),
 			payed:   uint64(0),
 			pending: uint64(0),
+			expired: uint64(0),
 			err:     errors.E(op, "no data found for this sector", errors.KindNotFound),
 		},
 	}
@@ -106,6 +109,8 @@ func TestRetrieveSectorPayRatio(t *testing.T) {
 }
 
 func TestRetrieveCellPayRatio(t *testing.T) {
+	const op errors.Op = "store/postgres/stats.FindCellRatio"
+
 	repo := postgres.NewStatsRepository(db)
 
 	defer CleanDB(t, db)
@@ -149,8 +154,6 @@ func TestRetrieveCellPayRatio(t *testing.T) {
 	}
 	property = saveProperty(t, db, property)
 
-	const op errors.Op = "store/postgres/statsRepository.FindCellRatio"
-
 	cases := []struct {
 		desc    string
 		cell    string
@@ -159,6 +162,7 @@ func TestRetrieveCellPayRatio(t *testing.T) {
 		label   string
 		payed   uint64
 		pending uint64
+		expired uint64
 		err     error
 	}{
 		{
@@ -169,6 +173,7 @@ func TestRetrieveCellPayRatio(t *testing.T) {
 			year:    uint(property.CreatedAt.Year()),
 			payed:   uint64(0),
 			pending: uint64(1),
+			expired: uint64(0),
 			err:     nil,
 		},
 		{
@@ -178,6 +183,7 @@ func TestRetrieveCellPayRatio(t *testing.T) {
 			year:    uint(property.CreatedAt.Year()),
 			payed:   uint64(0),
 			pending: uint64(0),
+			expired: uint64(0),
 			err:     errors.E(op, "no data found for this cell", errors.KindNotFound),
 		},
 	}
@@ -196,6 +202,8 @@ func TestRetrieveCellPayRatio(t *testing.T) {
 }
 
 func TestRetrieveVillagePayRatio(t *testing.T) {
+	const op errors.Op = "store/postgres/stats.FindVillageRatio"
+
 	repo := postgres.NewStatsRepository(db)
 
 	defer CleanDB(t, db)
@@ -239,8 +247,6 @@ func TestRetrieveVillagePayRatio(t *testing.T) {
 	}
 	property = saveProperty(t, db, property)
 
-	const op errors.Op = "store/postgres/statsRepository.FindVillageRatio"
-
 	cases := []struct {
 		desc    string
 		village string
@@ -249,6 +255,7 @@ func TestRetrieveVillagePayRatio(t *testing.T) {
 		label   string
 		payed   uint64
 		pending uint64
+		expired uint64
 		err     error
 	}{
 		{
@@ -259,6 +266,7 @@ func TestRetrieveVillagePayRatio(t *testing.T) {
 			year:    uint(property.CreatedAt.Year()),
 			payed:   uint64(0),
 			pending: uint64(1),
+			expired: uint64(0),
 			err:     nil,
 		},
 		{
@@ -268,6 +276,7 @@ func TestRetrieveVillagePayRatio(t *testing.T) {
 			year:    uint(property.CreatedAt.Year()),
 			payed:   uint64(0),
 			pending: uint64(0),
+			expired: uint64(0),
 			err:     errors.E(op, "no data found for this village", errors.KindNotFound),
 		},
 	}
@@ -493,6 +502,7 @@ func TestRetrieveSectorBalance(t *testing.T) {
 		label   string
 		payed   uint64
 		pending uint64
+		expired uint64
 		err     error
 	}{
 
@@ -504,6 +514,7 @@ func TestRetrieveSectorBalance(t *testing.T) {
 			year:    uint(property.CreatedAt.Year()),
 			pending: uint64(property.Due),
 			payed:   0,
+			expired: 0,
 			err:     nil,
 		},
 		{
@@ -513,6 +524,7 @@ func TestRetrieveSectorBalance(t *testing.T) {
 			year:    uint(property.CreatedAt.Year()),
 			pending: 0,
 			payed:   0,
+			expired: 0,
 			err:     errors.E(op, "no data found for this sector", errors.KindNotFound),
 		},
 	}
@@ -583,6 +595,7 @@ func TestRetrieveCellBalance(t *testing.T) {
 		label   string
 		payed   uint64
 		pending uint64
+		expired uint64
 		err     error
 	}{
 
@@ -594,6 +607,7 @@ func TestRetrieveCellBalance(t *testing.T) {
 			year:    uint(property.CreatedAt.Year()),
 			pending: uint64(property.Due),
 			payed:   0,
+			expired: 0,
 			err:     nil,
 		},
 		{
@@ -603,6 +617,7 @@ func TestRetrieveCellBalance(t *testing.T) {
 			year:    uint(property.CreatedAt.Year()),
 			pending: 0,
 			payed:   0,
+			expired: 0,
 			err:     errors.E(op, "no data found for this cell", errors.KindNotFound),
 		},
 	}
@@ -672,6 +687,7 @@ func TestRetrieveVillageBalance(t *testing.T) {
 		label   string
 		payed   uint64
 		pending uint64
+		expired uint64
 		err     error
 	}{
 
@@ -683,6 +699,7 @@ func TestRetrieveVillageBalance(t *testing.T) {
 			year:    uint(property.CreatedAt.Year()),
 			pending: uint64(property.Due),
 			payed:   0,
+			expired: 0,
 			err:     nil,
 		},
 		{
@@ -692,6 +709,7 @@ func TestRetrieveVillageBalance(t *testing.T) {
 			year:    uint(property.CreatedAt.Year()),
 			pending: 0,
 			payed:   0,
+			expired: 0,
 			err:     errors.E(op, "no data found for this village", errors.KindNotFound),
 		},
 	}
