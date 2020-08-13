@@ -219,7 +219,8 @@ export default {
         )
         .then((res) => {
           const data = res.data.data;
-          const percentage = (data.payed * 100) / (data.payed + data.pending);
+          const percentage =
+            (data.payed * 100) / (data.payed + data.pending + data.expired);
           this.chart2.percentage = percentage.toFixed();
           this.chart2.data = {
             labels: Object.keys(data),
@@ -228,7 +229,7 @@ export default {
                 label: res.data.label,
                 backgroundColor: ["#008b8bb3", "#e4e4ec"],
                 borderColor: "white",
-                data: [data.payed, data.pending],
+                data: [data.payed, data.pending + data.expired],
               },
             ],
           };
@@ -350,9 +351,7 @@ export default {
       data.forEach((item) => {
         const percentage =
           (item.data.payed * 100) /
-          (item.data.payed + item.data.expired
-            ? item.data.expired
-            : item.data.pending);
+          (item.data.payed + item.data.expired + item.data.pending);
         array.push(percentage);
       });
       return array;
