@@ -349,7 +349,10 @@ export default {
       let array = [];
       data.forEach((item) => {
         const percentage =
-          (item.data.payed * 100) / (item.data.payed + item.data.pending);
+          (item.data.payed * 100) /
+          (item.data.payed + item.data.expired
+            ? item.data.expired
+            : item.data.pending);
         array.push(percentage);
       });
       return array;
