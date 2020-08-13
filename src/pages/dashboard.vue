@@ -243,8 +243,6 @@ export default {
             this.chart3.state.error = true;
             this.chart3.state.errorMessage = "NO DATA FOUND FOR THIS SECTOR";
           }
-          console.log(data);
-          console.log(this.chart3);
         })
         .catch((err) => {
           this.chart3.state.error = true;
@@ -311,7 +309,7 @@ export default {
       let array = [];
       data.forEach((item) => {
         const percentage =
-          (item.data.payed * 100) / (item.data.payed + item.data.pending);
+          (item.data.payed * 100) / (item.data.payed + item.data.expired ? item.data.expired : item.data.pending);
         array.push(percentage.toFixed(2));
       });
       return array;

@@ -46,7 +46,7 @@
         <template v-slot:empty>
           <article class="text-center p-3">No payment records found.</article>
         </template>
-        <template v-slot:cell(amount)="data">{{ Number(data.item.amount).toLocaleString() }} Rwf</template>
+        <template v-slot:cell(amount)="data">{{data.item.amount | number }} Rwf</template>
         <template v-slot:cell(month)="data">{{months[new Date(data.item.date_recorded).getMonth()]}}</template>
         <template v-slot:cell(year)="data">{{new Date(data.item.date_recorded).getFullYear()}}</template>
         <template v-slot:cell(owner)="data">
@@ -72,21 +72,21 @@ export default {
   name: "agentPaymentView",
   components: {
     loader: () => import("../loader"),
-    selector: () => import("../agent-yearSelector")
+    selector: () => import("../agent-yearSelector"),
   },
   props: {
-    user: Object
+    user: Object,
   },
   data() {
     return {
       searchItem: "",
       state: {
         search: false,
-        loading: false
+        loading: false,
       },
       date: {
         year: new Date().getFullYear(),
-        month: new Date().getMonth() + 1
+        month: new Date().getMonth() + 1,
       },
       table: {
         items: null,
@@ -100,10 +100,10 @@ export default {
           { key: "cell", label: "Cell", sortable: true },
           { key: "village", label: "Village", sortable: true },
           { key: "method", label: "Method", sortable: true },
-          { key: "amount", label: "Amount", sortable: false }
+          { key: "amount", label: "Amount", sortable: false },
         ],
-        sortBy: "owner"
-      }
+        sortBy: "owner",
+      },
     };
   },
   computed: {
@@ -112,17 +112,19 @@ export default {
     },
     shownItems() {
       if (this.table.items) {
-        return this.table.items.filter(item => {
+        return this.table.items.filter((item) => {
           return (item.owner_firstname + " " + item.owner_lastname)
             .toLowerCase()
             .includes(this.searchItem.toLowerCase());
         });
       } else [];
-    }
+    },
   },
+  filters: {},
   mounted() {
     this.state.loader = false;
     console.log(this.date.month);
+    console.log(this.user);
     this.loadData();
   },
   methods: {
@@ -136,30 +138,38 @@ export default {
         if (total && this.user.village) {
           this.axios
             .get(url + total)
-            .then(res => {
+            .then((res) => {
+              console.log(res.data.Transactions);
               let filteredItems = res.data.Transactions;
               if (this.user.village) {
                 filteredItems = filteredItems.filter(
-                  item => item.village === this.user.village
+                  (item) => item.village === this.user.village
                 );
               }
-              if (this.date.month) {
-                filteredItems = filteredItems.filter(
-                  item =>
-                    new Date(item.date_recorded).getMonth() + 1 ==
-                    this.date.month
+              console.log(filteredItems);
+              filteredItems.forEach((item) => {
+                console.log(
+                  new Date(item.date_recorded).getMonth() + 1,
+                  this.date.month
                 );
-              }
+              });
               if (this.date.year) {
                 filteredItems = filteredItems.filter(
-                  item =>
+                  (item) =>
                     new Date(item.date_recorded).getFullYear() ===
                     this.date.year
                 );
               }
+              if (this.date.month) {
+                filteredItems = filteredItems.filter(
+                  (item) =>
+                    new Date(item.date_recorded).getMonth() + 1 ==
+                    this.date.month
+                );
+              }
               this.table.items = filteredItems;
             })
-            .catch(err => {
+            .catch((err) => {
               console.log(err, err.response);
             })
             .finally(() => {
@@ -171,14 +181,14 @@ export default {
     getTotal(url) {
       return this.axios
         .get(url)
-        .then(res => res.data.Total)
-        .catch(err => null);
+        .then((res) => res.data.Total)
+        .catch((err) => null);
     },
     closeSearch() {
       this.searchItem = "";
       this.state.search = false;
-    }
-  }
+    },
+  },
 };
 </script>
 
