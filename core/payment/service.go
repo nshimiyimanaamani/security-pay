@@ -16,8 +16,6 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
-const header = "Murakoze kwishyura umusanzu w' umutekano mu murenge wa "
-
 // Service is the api interface to the payment module
 type Service interface {
 	// Pull initializes payment from an external account
@@ -240,12 +238,16 @@ func (svc *service) Notify(ctx context.Context, py Payment, tx transactions.Tran
 
 // FormatMessage creates sms message
 func FormatMessage(tx transactions.Transaction, py Payment, own owners.Owner, pr properties.Property) string {
+	const header = "Murakoze kwishyura umusanzu w' "
+
 	var buf bytes.Buffer
 
 	sentAt := clock.TimeIn(time.Now(), clock.Rwanda)
 	date := clock.Format(sentAt, clock.LayoutCustom)
 
 	buf.WriteString(header)
+	buf.WriteString(selectActivity(pr.Address.Sector))
+	buf.WriteString("umutekano mu murenge wa")
 	buf.WriteString(fmt.Sprintf("%s.\n\n", pr.Address.Sector))
 	buf.WriteString(fmt.Sprintf("Nimero yishyuriweho: %s\n", py.MSISDN))
 	buf.WriteString(fmt.Sprintf("Itariki: %s\n", date))
@@ -255,6 +257,16 @@ func FormatMessage(tx transactions.Transaction, py Payment, own owners.Owner, pr
 	buf.WriteString(fmt.Sprintf("Code y' inzu ni: %s\n\n", tx.MadeFor))
 	buf.WriteString("Binyuze muri Paypack")
 	return buf.String()
+}
+
+// temp hack
+func selectActivity(sector string) string {
+	switch sector {
+	case "Remera":
+		return "umutekano"
+	default:
+		return "isuku"
+	}
 }
 
 func (svc *service) NewTransaction(
