@@ -247,7 +247,7 @@ func FormatMessage(tx transactions.Transaction, py Payment, own owners.Owner, pr
 
 	buf.WriteString(header)
 	buf.WriteString(selectActivity(pr.Address.Sector))
-	buf.WriteString("umutekano mu murenge wa")
+	buf.WriteString(" mu murenge wa")
 	buf.WriteString(fmt.Sprintf("%s.\n\n", pr.Address.Sector))
 	buf.WriteString(fmt.Sprintf("Nimero yishyuriweho: %s\n", py.MSISDN))
 	buf.WriteString(fmt.Sprintf("Itariki: %s\n", date))
