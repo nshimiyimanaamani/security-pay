@@ -16,6 +16,82 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestFindInvoice(t *testing.T) {
+	const op errors.Op = "store/postgres/invoices.Find"
+
+	t.Skip()
+
+	repo := postgres.NewInvoiceRepository(db)
+
+	defer CleanDB(t, db)
+
+	// save account
+	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
+	account = saveAccount(t, db, account)
+
+	// save agent
+	agent := users.Agent{
+		Telephone: random(15),
+		FirstName: "first",
+		LastName:  "last",
+		Password:  "password",
+		Cell:      "cell",
+		Sector:    "Sector",
+		Village:   "village",
+		Role:      users.Dev,
+		Account:   account.ID,
+	}
+	agent = saveAgent(t, db, agent)
+
+	//save owner
+	owner := properties.Owner{
+		ID:    uuid.New().ID(),
+		Fname: "rugwiro",
+		Lname: "james",
+		Phone: "0784677882",
+	}
+	owner = saveOwner(t, db, owner)
+
+	//save property
+	property := properties.Property{
+		ID:    nanoid.New(nil).ID(),
+		Owner: properties.Owner{ID: owner.ID},
+		Address: properties.Address{
+			Sector:  "Remera",
+			Cell:    "Gishushu",
+			Village: "Ingabo",
+		},
+		Namespace:  account.ID,
+		Due:        float64(1000),
+		RecordedBy: agent.Telephone,
+		Occupied:   true,
+	}
+	property = saveProperty(t, db, property)
+
+	cases := []struct {
+		desc string
+		id   uint64
+		err  error
+	}{
+		{
+			desc: "retrieve existing invoice record",
+			id:   1,
+			err:  nil,
+		},
+		{
+			desc: "retrieve non existing invoice record",
+			id:   10,
+			err:  errors.E(op, "invoice not found", errors.KindNotFound),
+		},
+	}
+
+	for _, tc := range cases {
+		ctx := context.Background()
+		_, err := repo.Find(ctx, tc.id)
+		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
+	}
+}
+
 func TestListAll(t *testing.T) {
 	repo := postgres.NewInvoiceRepository(db)
 

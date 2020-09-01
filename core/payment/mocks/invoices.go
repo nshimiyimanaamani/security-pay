@@ -3,6 +3,7 @@ package mocks
 import (
 	"context"
 	"sort"
+	"strconv"
 	"sync"
 	"time"
 
@@ -22,6 +23,19 @@ func NewInvoiceRepository(invs map[string]invoices.Invoice) invoices.Repository 
 	return &invoicesMock{
 		invoices: invs,
 	}
+}
+
+func (repo *invoicesMock) Find(ctx context.Context, id uint64) (invoices.Invoice, error) {
+	const op errors.Op = "app/invoices/mocks/repository.Find"
+
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	val, ok := repo.invoices[strconv.FormatUint(id, 10)]
+	if !ok {
+		return invoices.Invoice{}, errors.E(op, "invoice not found", errors.KindNotFound)
+	}
+	return val, nil
 }
 
 func (repo *invoicesMock) All(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {

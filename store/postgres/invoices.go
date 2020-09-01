@@ -18,8 +18,59 @@ func NewInvoiceRepository(db *sql.DB) invoices.Repository {
 	return &invoiceRepository{db}
 }
 
+func (repo *invoiceRepository) Find(ctx context.Context, id uint64) (invoices.Invoice, error) {
+	const op errors.Op = "store/postgres/invoices.Find"
+
+	q := `
+		SELECT 
+			id, 
+			amount, 
+			property, 
+			status, 
+			created_at, 
+			updated_at 
+		FROM invoices WHERE id=$1 
+	`
+	var invoice = invoices.Invoice{}
+
+	tx, err := repo.BeginTx(ctx, &sql.TxOptions{
+		Isolation: sql.LevelDefault,
+	})
+
+	if err != nil {
+		return invoices.Invoice{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	err = tx.QueryRow(q, id).Scan(
+		&invoice.ID,
+		&invoice.Amount,
+		&invoice.Property,
+		&invoice.Status,
+		&invoice.CreatedAt,
+		&invoice.UpdatedAt,
+	)
+
+	if err != nil {
+		var empty = invoices.Invoice{}
+
+		if err := tx.Rollback(); err != nil {
+			return empty, errors.E(op, err, errors.KindUnexpected)
+		}
+
+		pqErr, ok := err.(*pq.Error)
+		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
+			return empty, errors.E(op, "invoice not found", errors.KindNotFound)
+		}
+		return empty, errors.E(op, err, errors.KindUnexpected)
+	}
+	if err := tx.Commit(); err != nil {
+		return invoices.Invoice{}, errors.E(op, errors.E(op, errors.KindUnexpected))
+	}
+	return invoice, nil
+}
+
 func (repo *invoiceRepository) All(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
-	const op errors.Op = "store/postgres/invoices.Retrieve"
+	const op errors.Op = "store/postgres/invoices.All"
 
 	q := `
 		SELECT 

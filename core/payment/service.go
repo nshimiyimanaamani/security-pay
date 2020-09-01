@@ -223,7 +223,12 @@ func (svc *service) Notify(ctx context.Context, py Payment, tx transactions.Tran
 		return errors.E(op, err)
 	}
 
-	message := FormatMessage(tx, py, owner, property)
+	invoice, err := svc.invoices.Find(ctx, py.Invoice)
+	if err != nil {
+		return errors.E(op, err)
+	}
+
+	message := FormatMessage(tx, invoice, py, owner, property, timestamp())
 
 	notification := notifs.Notification{
 		Recipients: []string{owner.Phone, py.MSISDN}, //owners
@@ -237,26 +242,35 @@ func (svc *service) Notify(ctx context.Context, py Payment, tx transactions.Tran
 }
 
 // FormatMessage creates sms message
-func FormatMessage(tx transactions.Transaction, py Payment, own owners.Owner, pr properties.Property) string {
+func FormatMessage(
+	tx transactions.Transaction,
+	inv invoices.Invoice,
+	py Payment,
+	own owners.Owner,
+	pr properties.Property,
+	timestamp string,
+) string {
 	const header = "Murakoze kwishyura umusanzu w' "
 
 	var buf bytes.Buffer
-
-	sentAt := clock.TimeIn(time.Now(), clock.Rwanda)
-	date := clock.Format(sentAt, clock.LayoutCustom)
 
 	buf.WriteString(header)
 	buf.WriteString(selectActivity(pr.Address.Sector))
 	buf.WriteString(" mu murenge wa ")
 	buf.WriteString(fmt.Sprintf("%s.\n\n", pr.Address.Sector))
 	buf.WriteString(fmt.Sprintf("Nimero yishyuriweho: %s\n", py.MSISDN))
-	buf.WriteString(fmt.Sprintf("Itariki: %s\n", date))
+	buf.WriteString(fmt.Sprintf("Itariki: %s\n", timestamp))
+	buf.WriteString(fmt.Sprintf("Wishyuriye Ukwezi kwa: %d\n", inv.CreatedAt.Month()))
 	buf.WriteString(fmt.Sprintf("Nimero ya fagitire: %d\n", tx.Invoice))
 	buf.WriteString(fmt.Sprintf("Umubare w' amafaranga: %dRWF\n", int(tx.Amount)))
 	buf.WriteString(fmt.Sprintf("Inzu yishyuriwe ni iya %s %s\n", own.Fname, own.Lname))
-	buf.WriteString(fmt.Sprintf("Code y' inzu ni: %s\n\n", tx.MadeFor))
-	buf.WriteString("Binyuze muri Paypack")
+	buf.WriteString(fmt.Sprintf("Code y' inzu ni: %s", tx.MadeFor))
 	return buf.String()
+}
+
+func timestamp() string {
+	at := clock.TimeIn(time.Now(), clock.Rwanda)
+	return clock.Format(at, clock.LayoutCustom)
 }
 
 // temp hack

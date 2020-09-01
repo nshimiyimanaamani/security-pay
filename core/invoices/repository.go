@@ -4,6 +4,8 @@ import "context"
 
 // Repository ...
 type Repository interface {
+	//Find single invoice by id.
+	Find(ctx context.Context, id uint64) (Invoice, error)
 	// All retrieves all off the invoices of a house
 	All(ctx context.Context, property string, months uint) (InvoicePage, error)
 	// Earliest retrieves the earliest invoice of house
