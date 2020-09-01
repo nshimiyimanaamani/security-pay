@@ -13,6 +13,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/core/payment/mocks"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
+	"github.com/rugwirobaker/paypack-backend/core/transactions"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -214,6 +215,53 @@ func TestConfirmPush(t *testing.T) {
 		err := svc.ConfirmPush(ctx, tc.callback)
 		assert.True(t, errors.ErrEqual(tc.err, err), fmt.Sprintf("%s: expected %s got '%s'\n", tc.desc, tc.err, err))
 	}
+}
+
+func TestFormatMessage(t *testing.T) {
+
+	p := properties.Property{
+		ID: "22C95179",
+		Address: properties.Address{
+			Sector: "Remera",
+		},
+		Due: 1000,
+	}
+
+	in := invoices.Invoice{
+		ID:     234,
+		Amount: p.Due,
+	}
+
+	tx := transactions.Transaction{
+		ID:      "1",
+		Amount:  p.Due,
+		MadeFor: "22C95179",
+		Invoice: in.ID,
+	}
+
+	py := payment.Payment{
+		Amount: in.Amount,
+		MSISDN: "0788123501",
+	}
+
+	owner := owners.Owner{
+		Fname: "Todd",
+		Lname: "Cantwell",
+	}
+
+	expected := `Murakoze kwishyura umusanzu w' umutekano mu murenge wa Remera.
+
+Nimero yishyuriweho: 0788123501
+Itariki: 1 Sep 2020 08:56
+Wishyuriye Ukwezi kwa: 1
+Nimero ya fagitire: 234
+Umubare w' amafaranga: 1000RWF
+Inzu yishyuriwe ni iya Todd Cantwell
+Code y' inzu ni: 22C95179`
+
+	got := payment.FormatMessage(tx, in, py, owner, p, "1 Sep 2020 08:56")
+
+	assert.Equal(t, expected, got, fmt.Sprintf("expected '%s', got '%s'", expected, got))
 }
 
 func newService(ws owners.Repository, ps properties.Repository, vc invoices.Repository) payment.Service {

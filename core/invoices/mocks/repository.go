@@ -23,6 +23,12 @@ func NewRepository(invs map[string]invoices.Invoice) invoices.Repository {
 	}
 }
 
+func (repo *repository) Find(ctx context.Context, id uint64) (invoices.Invoice, error) {
+	const op errors.Op = "app/invoices/mocks/repository.Find"
+
+	return invoices.Invoice{}, errors.E(op, errors.KindNotImplemented)
+}
+
 func (repo *repository) All(ctx context.Context, property string, months uint) (invoices.InvoicePage, error) {
 	const op errors.Op = "app/invoices/mocks/repository.All"
 
