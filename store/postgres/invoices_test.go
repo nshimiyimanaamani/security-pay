@@ -19,6 +19,8 @@ import (
 func TestFindInvoice(t *testing.T) {
 	const op errors.Op = "store/postgres/invoices.Find"
 
+	t.Skip()
+
 	repo := postgres.NewInvoiceRepository(db)
 
 	defer CleanDB(t, db)
