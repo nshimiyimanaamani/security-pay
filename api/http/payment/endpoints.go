@@ -1,6 +1,8 @@
 package payment
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/rugwirobaker/paypack-backend/api/http/encoding"
@@ -49,8 +51,11 @@ func ConfirmPull(logger log.Entry, svc payment.Service) http.Handler {
 
 		callback := payment.Callback{}
 
-		if err := encoding.Decode(r, &callback); err != nil {
-			err = errors.E(op, err)
+		b, _ := ioutil.ReadAll(r.Body)
+		logger.Debugf("request-body: '%s'", string(b))
+
+		if err := json.Unmarshal(b, &callback); err != nil {
+			err = errors.E(op, err, errors.KindBadRequest)
 			logger.SystemErr(err)
 			encoding.EncodeError(w, errors.Kind(err), err)
 			return
