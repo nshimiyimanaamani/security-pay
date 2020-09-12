@@ -43,7 +43,10 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 
 	authenticator := middleware.Authenticate(opts.Logger, opts.Authenticator)
 
-	r.Handle(ProcessDebitRoute, LogEntryHandler(ConfirmPull, opts)).Methods(http.MethodPost)
+	//temporary
+	validator := middleware.ValidateRequestHeaders()
+
+	r.Handle(ProcessDebitRoute, validator(LogEntryHandler(ConfirmPull, opts))).Methods(http.MethodPost)
 	r.Handle(DebitRoute, LogEntryHandler(Pull, opts)).Methods(http.MethodPost)
 
 	r.Handle(ProcessCreditRoute, LogEntryHandler(ConfirmPush, opts)).Methods(http.MethodPost)
