@@ -10,7 +10,7 @@ import (
 func (svc *service) Action0(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
 	const op errors.Op = "core/ussd/service.Action0"
 
-	const menu = "Murakaza neza kuri paypack\nUbufasha: 0781192910\n1. kwishyura\n2. reba code y' inzu yawe\n"
+	const menu = "Murakaza neza kuri paypack\nUbufasha: 0781192910\n1. kwishyura\n2. reba code y' inzu yawe\n3. gutanga ikibazo\n"
 
 	params := platypus.ParamsFromContext(ctx)
 
