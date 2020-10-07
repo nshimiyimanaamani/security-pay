@@ -67,7 +67,7 @@ func TestProcess(t *testing.T) {
 		{
 			desc:     "action0: main menu",
 			input:    "*662*104#",
-			expected: "Murakaza neza kuri paypack\nUbufasha: 0781192910\n1. kwishyura\n2. reba code y' inzu yawe\n",
+			expected: "Murakaza neza kuri paypack\nUbufasha: 0781192910\n1. kwishyura\n2. reba code y' inzu yawe\n3. gutanga ikibazo\n",
 			end:      1,
 		},
 		{
