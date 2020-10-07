@@ -66,6 +66,7 @@ func register(prefix string, svc *service, mux *platypus.Mux) *platypus.Mux {
 	mux.Handle(prefix+"*1*:id", platypus.HandlerFunc(svc.Action1_1), platypus.TrimTrailHash)
 	mux.Handle(prefix+"*2", platypus.HandlerFunc(svc.action2), platypus.TrimTrailHash)
 	mux.Handle(prefix+"*2*:phone#", platypus.HandlerFunc(svc.action2_1), nil)
+	mux.Handle(prefix+"*3", platypus.HandlerFunc(svc.action3), platypus.TrimTrailHash)
 	return mux
 }
 

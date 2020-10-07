@@ -145,6 +145,13 @@ func TestProcess(t *testing.T) {
 			),
 			end: 0,
 		},
+
+		{
+			desc:     "actions:3.0: gutanga ikibazo",
+			input:    fmt.Sprintf("*662*104*3#"),
+			expected: fmt.Sprintf("1. Umutekano\n2. Isuku\n"),
+			end:      1,
+		},
 	}
 
 	for _, tc := range cases {
