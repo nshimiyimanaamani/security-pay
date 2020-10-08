@@ -1,18 +1,26 @@
 <template>
-  <b-container class="p-4 feedback-page bg-light" fluid>
+  <b-container class="p-4 feedback-page" fluid>
     <vue-title title="Paypack | Feedbacks" />
     <header>
       <h4 class="mb-0">FEEDBACKS</h4>
       <b-button @click="loadData" variant="info" class="primary-font br-2">
         Refresh
-        <i class="fa fa-sync-alt" :class="{'fa-spin': state.loading}" />
+        <i class="fa fa-sync-alt" :class="{ 'fa-spin': state.loading }" />
       </b-button>
     </header>
     <vue-load v-if="state.loading" class="primary-font feedbacks-loading" />
     <div class="feedbacks" v-if="!state.loading">
-      <feedback v-for="(feedback,index) in feedbacks" :key="index" :feedback="feedback" />
+      <feedback
+        v-for="(feedback, index) in feedbacks"
+        :key="index"
+        :feedback="feedback"
+      />
     </div>
-    <b-card v-if="!state.loading && feedbacks.length < 1" class="empty-feedbacks" no-body>
+    <b-card
+      v-if="!state.loading && feedbacks.length < 1"
+      class="empty-feedbacks"
+      no-body
+    >
       <p>No feedbacks available to display at the moment!</p>
       <p>Make sure you have internet connectivity and try refreshing!</p>
     </b-card>
@@ -100,7 +108,6 @@ export default {
   }
   .feedbacks-loading {
     border: 1px solid #dee2e6;
-    
   }
 }
 </style>
