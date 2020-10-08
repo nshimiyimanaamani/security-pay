@@ -3,7 +3,12 @@
     <vue-title title="Paypack | Cells" />
     <form class="location-selector" @submit.prevent="updated">
       <b-form-group class="control">
-        <b-form-select class="br-2" v-model="select.cell" :options="cellsOptions" required>
+        <b-form-select
+          class="br-2"
+          v-model="select.cell"
+          :options="cellsOptions"
+          required
+        >
           <template v-slot:first>
             <option :value="null" disabled>select cell</option>
           </template>
@@ -17,7 +22,7 @@
         <div class="chart-container">
           <header class="chart-header">
             <i class="fa fa-th-large" />
-            <h1 class>{{cellName || 'CELL'}} COLLECTING ACCOUNT</h1>
+            <h1 class>{{ cellName || "CELL" }} COLLECTING ACCOUNT</h1>
             <i class="fa fa-cog" />
           </header>
           <div class="chart-body">
@@ -37,9 +42,9 @@
             <i
               class="fa fa-refresh cursor-pointer"
               @click="loadData2"
-              :class="{'fa-spin':chart2.state.loading}"
+              :class="{ 'fa-spin': chart2.state.loading }"
             />
-            <h1>{{cellName||'CELL'}} TOTAL COLLECTED</h1>
+            <h1>{{ cellName || "CELL" }} TOTAL COLLECTED</h1>
             <selector :object="config" v-on:ok="updated" />
           </header>
           <div class="chart-body px-5">
@@ -51,13 +56,20 @@
                 :options="options.chart2"
                 :style="style"
               />
-              <div class="chart-center-text" v-if="!chart2.state.error">{{chart2.percentage}}%</div>
+              <div class="chart-center-text" v-if="!chart2.state.error">
+                {{ chart2.percentage }}%
+              </div>
             </div>
-            <vue-load v-if="chart2.state.loading" class="primary-font chart-loader" />
-            <div
-              class="chart-error primary-font"
-              v-if="chart2.state.error"
-            >{{chart2.state.errorMessage||'No data available to display at this moment!'}}</div>
+            <vue-load
+              v-if="chart2.state.loading"
+              class="primary-font chart-loader"
+            />
+            <div class="chart-error primary-font" v-if="chart2.state.error">
+              {{
+                chart2.state.errorMessage ||
+                "No data available to display at this moment!"
+              }}
+            </div>
           </div>
         </div>
       </b-row>
@@ -67,9 +79,9 @@
             <i
               class="fa fa-refresh cursor-pointer"
               @click="loadData3"
-              :class="{'fa-spin':chart3.state.loading}"
+              :class="{ 'fa-spin': chart3.state.loading }"
             />
-            <h1>{{cellName||""}} CELL</h1>
+            <h1>{{ cellName || "" }} CELL</h1>
             <selector :object="config" v-on:ok="updated" />
           </header>
           <div class="chart-body">
@@ -82,11 +94,16 @@
                 :style="style"
               />
             </div>
-            <vue-load v-if="chart3.state.loading" class="primary-font chart-loader" />
-            <div
-              class="chart-error primary-font"
-              v-if="chart3.state.error"
-            >{{chart3.state.errorMessage||'No data available to display at this moment!'}}</div>
+            <vue-load
+              v-if="chart3.state.loading"
+              class="primary-font chart-loader"
+            />
+            <div class="chart-error primary-font" v-if="chart3.state.error">
+              {{
+                chart3.state.errorMessage ||
+                "No data available to display at this moment!"
+              }}
+            </div>
           </div>
         </div>
       </b-row>
@@ -194,6 +211,7 @@ export default {
       this.select.cell ? this.select.cell : this.activeCell
     );
     this.updated();
+    this.ResetDate();
   },
   methods: {
     async updated() {
@@ -358,12 +376,15 @@ export default {
     },
     clear() {
       this.config.configuring = false;
-      this.config.year = new Date().getFullYear();
-      this.config.month = new Date().getMonth() + 1;
+
       this.chart2.state.error = false;
       this.chart2.state.errorMessage = null;
       this.chart3.state.error = false;
       this.chart3.state.errorMessage = null;
+    },
+    ResetDate() {
+      this.config.year = new Date().getFullYear();
+      this.config.month = new Date().getMonth() + 1;
     },
   },
 };
