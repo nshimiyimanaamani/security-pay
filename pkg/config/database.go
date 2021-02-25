@@ -4,7 +4,7 @@ import validate "github.com/go-playground/validator/v10"
 
 // PostgresConfig ...
 type PostgresConfig struct {
-	URL string `validate:"required" envconfig:"PAYPACK_POSTGRES_URL"`
+	URL string `validate:"required" envconfig:"DATABASE_URL"`
 }
 
 // Validate database configuration
