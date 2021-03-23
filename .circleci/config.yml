@@ -1,0 +1,36 @@
+version: 2
+jobs:
+  build:
+    machine:
+      image: ubuntu-1604:201903-01
+      docker_layer_caching: true
+    
+    working_directory: ~/project
+
+    steps:
+      - checkout
+
+      - run:
+          name: Update Environment
+          command: |
+            wget https://dl.google.com/go/go1.12.1.linux-amd64.tar.gz
+            sudo tar -xf go1.12.1.linux-amd64.tar.gz
+            sudo rm -r /usr/local/go
+            sudo mv go /usr/local
+            export GOPATH=$HOME/project
+            export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+            go version
+      - run: 
+          name: Run Build
+          command: make build
+
+      - run:
+          name: Run Unit Tests 
+          command: make test
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
+
