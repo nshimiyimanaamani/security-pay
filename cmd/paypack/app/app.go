@@ -10,6 +10,7 @@ import (
 	mw "github.com/rugwirobaker/paypack-backend/api/http/middleware"
 	"github.com/rugwirobaker/paypack-backend/pkg/config"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/rugwirobaker/paypack-backend/web"
 	"github.com/sirupsen/logrus"
 )
 
@@ -59,23 +60,24 @@ func Bootstrap(conf *config.Config) (http.Handler, error) {
 
 	handlerOpts := NewHandlerOptions(services, lggr)
 
-	r := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(false)
+	router := mux.NewRouter()
 
-	r.Use(mw.LogEntryMiddleware(lggr))
-	// r.Use(mw.Recover())
-
-	Register(r, handlerOpts)
+	router.Use(mw.LogEntryMiddleware(lggr))
 
 	if conf.GoEnv == "development" {
-		r.Use(mw.RequestLogger)
+		router.Use(mw.RequestLogger)
 	}
 
-	//recover := handlers.RecoveryHandler()(r)
+	api := router.PathPrefix("/api").Subrouter().StrictSlash(false)
+
+	Register(api, handlerOpts)
+
+	router.PathPrefix("/").Handler(web.Handler("/", "dist"))
 
 	cors := handlers.CORS(
 		handlers.AllowedOrigins([]string{"*"}),
 		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"}),
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
-	return cors(r), nil
+	return cors(router), nil
 }

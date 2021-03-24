@@ -55,6 +55,11 @@ tidy:		## verify dependencies
 	@echo "> verifying dependincies..."
 	@echo "> go mod tidy $(GOFILES)"
 
+ui: ## compiling web assets into a dist folder
+	@echo ">compiling web assets..."
+	@npm install --prefix ./web
+	@npm run --prefix ./web build
+
 .PHONY: help
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

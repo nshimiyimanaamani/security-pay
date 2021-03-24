@@ -1,64 +1,40 @@
-version: "3.4"
+version: "3.5"
 
 services:
-  #network_mode: host
-  web:                        # backend api
+
+ collector:                        # backend api
     build:
       network: host
       context: .
-      dockerfile: test.web.dockerfile
-    container_name: paypack-web
+      dockerfile: Dockerfile
     depends_on:
       - database
-      - cache
-
     env_file:
-      - .env.test
+      - .env
     ports:
-      - "8000:8000"  
+      - "9000:8080"
+    networks:
+      - caddy-net
+      - default
     restart: always
     
-  worker:
-    build:
-      network: host
-      context: .
-      dockerfile: test.worker.dockerfile
-    container_name: paypack-worker
-    depends_on:
-      - web
-      - database
-      - cache
-
-    restart: always
-
-    env_file:
-      - .env.test
-
-  database:
+ database:
     image: postgres:alpine
-    container_name: database
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: test
-    ports:
-       - "5432:5432"
+#     ports:
+#       - "5300:5432"
+    networks:
+      - default
     volumes:
-       - db-data:/var/lib/postgresql/data
-    restart: on-failure
-  
-  cache:
-    image: redis:latest
-    container_name: cache
-    restart: on-failure
-    environment:
-       - NODE_ENV=development
-      # - REDIS_PASSWORD=password
-    ports:
-       - "6379:6379"
-    volumes:
-      - cache-data:/data
+       - db-volume:/var/lib/postgresql/data
+    restart: always
 
 volumes: 
-  db-data:
-  cache-data:
+  db-volume:
+  
+networks:
+    caddy-net:
+        external: true
