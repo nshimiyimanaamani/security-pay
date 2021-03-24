@@ -30,13 +30,13 @@ services:
       - web
       - database
       - cache
-
+    env_file:
+      - .env.test
     restart: always
 
     networks:
       - default
-    env_file:
-      - .env.test
+   
 
   database:
     image: postgres:alpine
