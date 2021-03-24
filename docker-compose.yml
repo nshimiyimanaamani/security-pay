@@ -24,7 +24,7 @@ services:
       context: .
       dockerfile: Dockerfile.worker
     depends_on:
-      - web
+      - collector
       - database
       - cache
     env_file:
