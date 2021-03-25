@@ -1,5 +1,6 @@
 FROM node:lts-alpine as static
 WORKDIR /app
+RUN apk add --no-cache python3 py3-pip
 RUN apk add curl make
 COPY . .
 RUN make ui
