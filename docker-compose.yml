@@ -12,7 +12,7 @@ services:
     env_file:
       - .env
     ports:
-      - "9000:8080"
+      - "5000:8080"
     networks:
       - caddy-net
       - default
@@ -39,8 +39,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: test
-#     ports:
-#       - "5300:5432"
+    ports:
+       - "5300:5432"
     networks:
       - default
     volumes:
