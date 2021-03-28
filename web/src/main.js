@@ -94,8 +94,9 @@ Vue.prototype.$getTotal = url => {
 };
 // axios configs
 // -----------------------------------------------------------------------------
+const {VUE_APP_PAYPACK_API = "/api/"} = process.env
 const axiosInstance = axios.create({
-  baseURL: process.env.VUE_APP_PAYPACK_API
+  baseURL: VUE_APP_PAYPACK_API
 });
 axiosInstance.interceptors.request.use(
   config => {
