@@ -9,7 +9,7 @@ FROM  golang:1.16.0-alpine as builder
 ENV GO111MODULE=on
 WORKDIR /paypack
 RUN apk add git curl
-apk add --no-cache tzdata
+RUN apk add --no-cache tzdata
 COPY go.mod go.sum  ./
 RUN GOPROXY="https://proxy.golang.org" go mod download
 COPY . .
