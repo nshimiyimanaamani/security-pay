@@ -2,11 +2,12 @@ version: "3.5"
 
 services:
 
-  collector:                        # backend api
+  backend:                        # backend api
     build:
       network: host
       context: .
       dockerfile: Dockerfile.web
+    container_name: paypack-backend
     depends_on:
       - database
     env_file:
