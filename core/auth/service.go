@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/rugwirobaker/paypack-backend/pkg/encrypt"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
@@ -59,11 +60,13 @@ func (svc *service) Login(ctx context.Context, user Credentials) (string, error)
 	}
 
 	if err := svc.comparePass(creds, user); err != nil {
+		fmt.Printf("The error msg %+v\n", err)
 		return "", errors.E(op, err)
 	}
 
 	token, err := svc.jwt.TemporaryKey(ctx, creds)
 	if err != nil {
+		fmt.Printf("The error msg %+v\n", err)
 		return "", errors.E(op, err)
 	}
 	return token, nil

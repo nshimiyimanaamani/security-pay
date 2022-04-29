@@ -32,6 +32,15 @@ clean:		## remove build artifacts
 dev:  		## start development environment
 	@echo "> starting dev environment..."
 	@docker-compose up -d
+
+run:  		## running development environment
+	@echo "Running  paypack-umutekano..."
+	@ ./bin/paypack
+
+run-worker:  		## running development environment
+	@echo "> running  paypack-umutekano-worker..."
+	@ ./bin/worker
+
 dev-build:  ## rebuild development environment
 	@echo "> starting dev environment..."
 	@docker-compose up -d --build
