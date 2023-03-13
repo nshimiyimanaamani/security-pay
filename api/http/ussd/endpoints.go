@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/rugwirobaker/paypack-backend/api/http/encoding"
+	"github.com/rugwirobaker/paypack-backend/core/identity/uuid"
 	"github.com/rugwirobaker/paypack-backend/core/ussd"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
@@ -19,7 +20,11 @@ func Process(lgger log.Entry, svc ussd.Service) http.Handler {
 
 		// debug(r, w)
 
-		var req ussd.Request
+		req := &ussd.Request{
+			GwRef:     uuid.New().ID(),
+			TenantID:  "paypack",
+			ServiceID: uuid.New().ID(),
+		}
 
 		err := encoding.Decode(r, &req)
 		if err != nil {
@@ -29,7 +34,7 @@ func Process(lgger log.Entry, svc ussd.Service) http.Handler {
 			return
 		}
 
-		res, err := svc.Process(r.Context(), &req)
+		res, err := svc.Process(r.Context(), req)
 		if err != nil {
 			lgger.SystemErr(err)
 			encoding.Encode(w, http.StatusOK, res)

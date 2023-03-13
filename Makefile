@@ -1,6 +1,7 @@
 VERSION = "unset"
 DATE=$(shell date -u +%Y-%m-%d-%H:%M:%S-%Z)
 
+
 GIT_HASH=$(shell git rev-parse --short HEAD)
 GOFILES=$(shell go list ./... | grep -v /vendor/)
 IMAGE_DEV_TAG=dev
@@ -66,8 +67,7 @@ tidy:		## verify dependencies
 
 ui: ## compiling web assets into a dist folder
 	@echo ">compiling web assets..."
-	@npm install --prefix ./web
-	@npm run --prefix ./web build
+	@npm install --prefix ./web && npm audit fix --prefix ./web --froce && npm run build --prefix ./web
 
 .PHONY: help
 help:

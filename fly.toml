@@ -1,7 +1,6 @@
-# fly.toml file generated for paypack-umutekano-api on 2022-04-28T19:42:07+02:00
+# fly.toml file generated for paypack-umutekano on 2023-03-10T17:58:12+02:00
 
-app = "paypack-umutekano-api"
-
+app = "paypack-umutekano"
 
 kill_signal = "SIGINT"
 kill_timeout = 2
@@ -13,21 +12,27 @@ kill_timeout = 2
  
 [env]
   LOG_LEVEL = "debug"
+  PAYPACK_LOG_LEVEL="info"
+  GO_ENV="production"
   PORT = "8080"
+  JOB_PORT="8082"
   RUNTIME = "GCP"
   PRIMARY_REGION = "lhr"
   MAIN_RATE_LIMITER_TOKENS = 400
   AUTH_RATE_LIMITER_TOKENS = 350
 
+[processes]
+  web = "/bin/paypack"
+  worker = "/bin/worker"
 
 [[services]]
   internal_port = 8080
   protocol = "tcp"
 
-  [services.concurrency]
-    hard_limit = 30
-    soft_limit = 25
-    type = "connections"
+  # [services.concurrency]
+  #   hard_limit = 30
+  #   soft_limit = 25
+  #   type = "connections"
 
   [[services.ports]]
     handlers = ["http"]

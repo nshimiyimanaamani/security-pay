@@ -4,11 +4,9 @@ import validate "github.com/go-playground/validator/v10"
 
 // PaymentConfig ...
 type PaymentConfig struct {
-	PaymentURL string `validate:"required" envconfig:"PAYPACK_PAYMENT_APP_URL"`
-	Secret     string `validate:"required" envconfig:"PAYPACK_PAYMENT_APP_SECRET"`
-	AppID      string `validate:"required" envconfig:"PAYPACK_PAYMENT_APP_ID"`
-	DCallback  string `validate:"required" envconfig:"PAYPACK_PAYMENT_DEBIT_CALLBACK"`
-	CCallback  string `validate:"required" envconfig:"PAYPACK_PAYMENT_CREDIT_CALLBACK"`
+	PaymentURL string `validate:"required" envconfig:"PAYMENT_BASE_URL"`
+	Secret     string `validate:"required" envconfig:"PAYMENT_CLIENT_SECRET"`
+	AppID      string `validate:"required" envconfig:"PAYMENT_CLIENT_ID"`
 }
 
 // Validate PaymentConfig

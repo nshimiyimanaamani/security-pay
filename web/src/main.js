@@ -7,7 +7,10 @@ import App from "./App.vue";
 import router from "./router";
 import { store } from "./store";
 import "./assets/css/main.scss";
-const Rwanda = require("rwanda");
+import Scrollspy from "vue2-scrollspy";
+import VueParticles from "vue-particles";
+import title from "./helpers/title";
+import { Provinces, Districts, Sectors, Cells, Villages } from "rwanda"
 import VueAxios from "vue-axios";
 import PortalVue from "portal-vue";
 import { decode } from "jsonwebtoken";
@@ -22,9 +25,13 @@ Vue.component("VueSlider", VueSlider);
 Vue.component("vue-title", titleComponent);
 Vue.component("vue-load", loadingComponent);
 Vue.component("vue-menu", VueSimpleContextMenu);
+var VueScrollTo = require("vue-scrollto");
 
 Vue.use(PortalVue);
 Vue.use(vueBoostrap);
+Vue.use(VueParticles);
+Vue.use(VueScrollTo);
+Vue.use(Scrollspy);
 
 Vue.use(Snotify, {
   toast: {
@@ -49,23 +56,23 @@ Vue.filter("date", date => {
   });
 });
 Vue.prototype.$provinces = () => {
-  return Rwanda.Provinces();
+  return Provinces();
 };
 Vue.prototype.$districts = province => {
-  if (!province) return Rwanda.Districts();
-  return Rwanda.District(province);
+  if (!province) return Districts();
+  return Districts(province);
 };
 Vue.prototype.$sectors = (province, district) => {
-  if (!province && !district) return Rwanda.Sectors();
-  return Rwanda.Sector(province, district);
+  if (!province && !district) return Sectors();
+  return Sectors(province, district);
 };
 Vue.prototype.$cells = (province, district, sector) => {
-  if (!province && !district && !sector) return Rwanda.Cells();
-  return Rwanda.Cell(province, district, sector);
+  if (!province && !district && !sector) return Cells();
+  return Cells(province, district, sector);
 };
 Vue.prototype.$villages = (province, district, sector, cell) => {
-  if ((!province, !district, !sector, !cell)) return Rwanda.Villages();
-  return Rwanda.Village(province, district, sector, cell);
+  if (!province && !district && !sector && !cell) return Villages();
+  return Villages(province, district, sector, cell);
 };
 Vue.prototype.$isPhoneNumber = number => {
   const errors = {
@@ -81,8 +88,10 @@ Vue.prototype.$isPhoneNumber = number => {
   }
   return true;
 };
-Vue.prototype.$capitalize = string =>
-  string.replace(/^./, string[0].toUpperCase());
+Vue.prototype.$capitalize = string => {
+  if (!string) return string;
+  return String(string).replace(/^./, String(string)[0].toUpperCase());
+};
 Vue.prototype.$decode = token => {
   return decode(token);
 };
@@ -92,9 +101,10 @@ Vue.prototype.$getTotal = url => {
     .then(res => res.data.Total)
     .catch(err => 0);
 };
+Vue.prototype.$title = name => title(name);
 // axios configs
 // -----------------------------------------------------------------------------
-const {VUE_APP_PAYPACK_API = "/api/"} = process.env
+const { VUE_APP_PAYPACK_API = "/api/" } = process.env;
 const axiosInstance = axios.create({
   baseURL: VUE_APP_PAYPACK_API
 });

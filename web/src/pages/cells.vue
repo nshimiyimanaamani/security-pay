@@ -3,12 +3,7 @@
     <vue-title title="Paypack | Cells" />
     <form class="location-selector" @submit.prevent="updated">
       <b-form-group class="control">
-        <b-form-select
-          class="br-2"
-          v-model="select.cell"
-          :options="cellsOptions"
-          required
-        >
+        <b-form-select class="br-2" v-model="select.cell" :options="cellsOptions" required>
           <template v-slot:first>
             <option :value="null" disabled>select cell</option>
           </template>
@@ -27,43 +22,25 @@
           </header>
           <div class="chart-body">
             <div class="h-100">
-              <bar-chart
-                v-if="chart1Data"
-                :chart-data="chart1Data"
-                :options="options.chart1"
-                :style="style"
-              />
+              <bar-chart v-if="chart1Data" :chart-data="chart1Data" :options="options.chart1" :style="style" />
             </div>
           </div>
         </div>
         <!-- second chart -->
         <div class="chart-container">
           <header class="chart-header">
-            <i
-              class="fa fa-refresh cursor-pointer"
-              @click="loadData2"
-              :class="{ 'fa-spin': chart2.state.loading }"
-            />
+            <i class="fa fa-refresh cursor-pointer" @click="loadData2" :class="{ 'fa-spin': chart2.state.loading }" />
             <h1>{{ cellName || "CELL" }} TOTAL COLLECTED</h1>
             <selector :object="config" v-on:ok="updated" />
           </header>
           <div class="chart-body px-5">
             <div v-if="!chart2.state.loading" class="h-100">
-              <doughnut-chart
-                :chart-data="chart2.data"
-                s
-                v-if="chart2.data"
-                :options="options.chart2"
-                :style="style"
-              />
+              <doughnut-chart :chart-data="chart2.data" s v-if="chart2.data" :options="options.chart2" :style="style" />
               <div class="chart-center-text" v-if="!chart2.state.error">
                 {{ chart2.percentage }}%
               </div>
             </div>
-            <vue-load
-              v-if="chart2.state.loading"
-              class="primary-font chart-loader"
-            />
+            <vue-load v-if="chart2.state.loading" class="primary-font chart-loader" />
             <div class="chart-error primary-font" v-if="chart2.state.error">
               {{
                 chart2.state.errorMessage ||
@@ -76,28 +53,16 @@
       <b-row class="mb-3">
         <div class="chart-container">
           <header class="chart-header">
-            <i
-              class="fa fa-refresh cursor-pointer"
-              @click="loadData3"
-              :class="{ 'fa-spin': chart3.state.loading }"
-            />
+            <i class="fa fa-refresh cursor-pointer" @click="loadData3" :class="{ 'fa-spin': chart3.state.loading }" />
             <h1>{{ cellName || "" }} CELL</h1>
             <selector :object="config" v-on:ok="updated" />
           </header>
           <div class="chart-body">
             <div v-if="!chart3.state.loading" class="h-100">
-              <line-chart
-                v-if="chart3.data"
-                :chart-data="chart3.data"
-                :tooltipData="chart3AdditionalData"
-                :options="options.chart3"
-                :style="style"
-              />
+              <line-chart v-if="chart3.data" :chart-data="chart3.data" :tooltipData="chart3AdditionalData"
+                :options="options.chart3" :style="style" />
             </div>
-            <vue-load
-              v-if="chart3.state.loading"
-              class="primary-font chart-loader"
-            />
+            <vue-load v-if="chart3.state.loading" class="primary-font chart-loader" />
             <div class="chart-error primary-font" v-if="chart3.state.error">
               {{
                 chart3.state.errorMessage ||
@@ -118,6 +83,7 @@ import LineChart from "../components/MixedCharts.vue";
 import loader from "../components/loader";
 import yearSelectorVue from "../components/yearSelector.vue";
 import options from "../components/scripts/chartOptions";
+import { Provinces, Districts, Sectors, Cells, Villages } from "rwanda"
 export default {
   name: "cells",
   components: {
@@ -175,6 +141,7 @@ export default {
     cellsOptions() {
       const { province, district, sector } = this.location;
       return this.$cells(province, district, sector);
+
     },
     villageOptions() {
       const { province, district, sector } = this.location;
@@ -359,9 +326,10 @@ export default {
     },
     getData(labels) {
       let array = [];
-      labels.forEach((element) => {
-        array.push(this.getRandomInt());
-      });
+      labels &&
+        labels.forEach((element) => {
+          array.push(this.getRandomInt());
+        });
       return array;
     },
     getDataByLabels(data) {

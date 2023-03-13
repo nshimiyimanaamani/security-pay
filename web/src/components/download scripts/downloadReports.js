@@ -26,7 +26,6 @@ function Download(param) {
         // Header
         doc.setFontSize(16);
         doc.setTextColor(40);
-        doc.setFontStyle("normal");
         doc.text(
           param.config.TITLE ? param.config.TITLE : TITLE,
           data.settings.margin.left,

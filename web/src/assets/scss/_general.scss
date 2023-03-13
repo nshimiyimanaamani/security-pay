@@ -1,0 +1,24 @@
+//
+// general.scss
+//
+
+.btn,
+.btn:focus,
+button,
+button:focus {
+  outline: none !important;
+}
+
+a {
+  text-decoration: none !important;
+  outline: none;
+}
+
+p {
+  font-size: 14.4px;
+  line-height: 24px;
+}
+
+.row > * {
+  position: relative;
+}

@@ -4,6 +4,6 @@ import "context"
 
 // Client defines the payment initialiion client
 type Client interface {
-	Pull(ctx context.Context, tx Payment) (Response, error)
-	Push(ctx context.Context, tx Payment) (Response, error)
+	Pull(context.Context, *TxRequest) (*TxResponse, error)
+	Push(context.Context, *TxRequest) (*TxResponse, error)
 }

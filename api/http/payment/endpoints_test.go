@@ -87,7 +87,7 @@ func TestPull(t *testing.T) {
 	}{
 		{
 			desc: "initialize valid transaction",
-			req: toJSON(payment.Payment{
+			req: toJSON(payment.TxRequest{
 				Code:   property.ID,
 				Amount: invoice.Amount,
 				MSISDN: "0785780891",
@@ -99,7 +99,7 @@ func TestPull(t *testing.T) {
 		},
 		{
 			desc: "empty transaction amount",
-			req: toJSON(payment.Payment{
+			req: toJSON(payment.TxRequest{
 				Code:   property.ID,
 				MSISDN: "0785780891",
 				Method: payment.MTN,
@@ -110,7 +110,7 @@ func TestPull(t *testing.T) {
 		},
 		{
 			desc: "missing house code",
-			req: toJSON(payment.Payment{
+			req: toJSON(payment.TxRequest{
 				Amount: invoice.Amount,
 				MSISDN: "0785780891",
 				Method: payment.MTN,
@@ -122,7 +122,7 @@ func TestPull(t *testing.T) {
 
 		{
 			desc: "missing payment method",
-			req: toJSON(payment.Payment{
+			req: toJSON(payment.TxRequest{
 				Code:   property.ID,
 				Amount: invoice.Amount,
 				MSISDN: "0785780891",
@@ -133,7 +133,7 @@ func TestPull(t *testing.T) {
 		},
 		{
 			desc: "initialize payment with unsaved house code",
-			req: toJSON(payment.Payment{
+			req: toJSON(payment.TxRequest{
 				Code:   idprovider.ID(),
 				Amount: invoice.Amount,
 				MSISDN: "0785780891",

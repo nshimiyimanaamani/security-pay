@@ -11,6 +11,7 @@ const FOOTER = "Powered by PAYPACK";
 function Download(param) {
   var doc = new jsPDF("l");
   var totalPagesExp = "{total_pages_count_string}";
+  console.log(doc);
 
   doc.autoTable({
     theme: "grid",
@@ -22,7 +23,6 @@ function Download(param) {
       // Header
       doc.setFontSize(16);
       doc.setTextColor(40);
-      doc.setFontStyle("normal");
       doc.text(
         param.title ? param.title : TITLE,
         data.settings.margin.left,

@@ -17,7 +17,7 @@ type Request struct {
 	Msisdn      string `json:"msisdn,omitempty" validate:"required"`
 	NetworkCode string `json:"networkCode,omitempty" validate:"required"`
 	ServiceCode string `json:"serviceCode,omitempty" validate:"required"`
-	UserInput   string `json:"userInput,omitempty" validate:"required"`
+	UserInput   string `json:"UserInput,omitempty" validate:"required"`
 	ServiceID   string `json:"serviceId,omitempty" validate:"required"`
 	TenantID    string `json:"tenantId,omitempty" validate:"required"`
 }
@@ -52,7 +52,7 @@ type Response struct {
 	GwRef     string    `json:"gwRef" validate:"required"`
 	AppRef    string    `json:"appRef" validate:"required"`
 	GwTstamp  time.Time `json:"gwTstamp,omitempty" validate:"required"`
-	Text      string    `json:"text" validate:"required"`
+	Text      string    `json:"message" validate:"required"`
 	End       int       `json:"continueSession" validate:"required"`
 }
 

@@ -74,12 +74,12 @@ func TestSavePayment(t *testing.T) {
 
 	cases := []struct {
 		desc string
-		pmt  payment.Payment
+		pmt  *payment.TxRequest
 		err  error
 	}{
 		{
 			desc: "save new payment",
-			pmt: payment.Payment{
+			pmt: &payment.TxRequest{
 				ID:        id,
 				Code:      property.ID,
 				Amount:    invoice.Amount,
@@ -91,7 +91,7 @@ func TestSavePayment(t *testing.T) {
 		},
 		{
 			desc: "save duplicate payment",
-			pmt: payment.Payment{
+			pmt: &payment.TxRequest{
 				ID:        id,
 				Code:      property.ID,
 				Amount:    invoice.Amount,
@@ -103,7 +103,7 @@ func TestSavePayment(t *testing.T) {
 		},
 		{
 			desc: "save payment with invalid id",
-			pmt: payment.Payment{
+			pmt: &payment.TxRequest{
 				ID:        "invalid",
 				Code:      property.ID,
 				Amount:    invoice.Amount,
@@ -175,7 +175,7 @@ func TestFindPayment(t *testing.T) {
 
 	invoice = saveInvoice(t, db, invoice)
 
-	pmt := payment.Payment{
+	pmt := payment.TxRequest{
 		ID:        uuid.New().ID(),
 		Code:      property.ID,
 		Amount:    invoice.Amount,
@@ -272,7 +272,7 @@ func TestUpdatePayment(t *testing.T) {
 
 	invoice = saveInvoice(t, db, invoice)
 
-	pmt := payment.Payment{
+	pmt := payment.TxRequest{
 		ID:        uuid.New().ID(),
 		Code:      property.ID,
 		Amount:    invoice.Amount,
@@ -284,12 +284,12 @@ func TestUpdatePayment(t *testing.T) {
 
 	cases := []struct {
 		desc string
-		pmt  payment.Payment
+		pmt  payment.TxRequest
 		err  error
 	}{
 		{
 			desc: "update existing new payment",
-			pmt: payment.Payment{
+			pmt: payment.TxRequest{
 				ID:        pmt.ID,
 				Confirmed: false,
 			},
@@ -297,7 +297,7 @@ func TestUpdatePayment(t *testing.T) {
 		},
 		{
 			desc: "update non saved payment",
-			pmt: payment.Payment{
+			pmt: payment.TxRequest{
 				ID:        uuid.New().ID(),
 				Confirmed: false,
 			},
@@ -305,7 +305,7 @@ func TestUpdatePayment(t *testing.T) {
 		},
 		{
 			desc: "update payment with invalid id",
-			pmt: payment.Payment{
+			pmt: payment.TxRequest{
 				ID:        "invalid",
 				Confirmed: false,
 			},

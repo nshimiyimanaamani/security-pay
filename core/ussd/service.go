@@ -87,7 +87,7 @@ func (svc *service) Process(ctx context.Context, req *Request) (Response, error)
 }
 
 func (svc *service) Pay(ctx context.Context, p properties.Property, phone string) (string, error) {
-	tx := payment.Payment{
+	tx := &payment.TxRequest{
 		Code:   p.ID,
 		MSISDN: phone,
 		Amount: p.Due,
@@ -127,7 +127,7 @@ func SelectMethod(phone string) payment.Method {
 	if strings.HasPrefix(phone, "25073") || strings.HasPrefix(phone, "25072") {
 		return payment.AIRTEL
 	}
-	if strings.HasPrefix(phone, "25078") {
+	if strings.HasPrefix(phone, "25078") || strings.HasPrefix(phone, "25079") {
 		return payment.MTN
 	}
 	return ""

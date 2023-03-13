@@ -61,7 +61,7 @@ func (repo *transactionsStore) Save(ctx context.Context, tx transactions.Transac
 	return tx.ID, nil
 }
 
-//seletect tx[id, amount, method, recorded]; properties[sector, cell, village] owner[fname, lname]
+// seletect tx[id, amount, method, recorded]; properties[sector, cell, village] owner[fname, lname]
 func (repo *transactionsStore) RetrieveByID(ctx context.Context, id string) (transactions.Transaction, error) {
 	const op errors.Op = "store/postgres/transactionsRepository.RetrieveByID"
 

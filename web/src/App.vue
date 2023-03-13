@@ -1,7 +1,12 @@
 <template>
   <div id="app">
     <vue-snotify class="text-capitalize primary-font fsize-sm"></vue-snotify>
-    <b-alert :show="offline" variant="danger" class="offline-indicator primary-font" dismissible>
+    <b-alert
+      :show="offline"
+      variant="danger"
+      class="offline-indicator primary-font"
+      dismissible
+    >
       <b>OFFLINE!</b> Please check your internet connection...
     </b-alert>
     <div class="app-loading secondary-font" v-if="appLoading">
@@ -18,24 +23,24 @@ export default {
     return {
       offline: false,
       showVersion: false,
-      version: ""
+      version: "",
     };
   },
   computed: {
     appLoading() {
       return this.$store.getters.appLoading;
-    }
+    },
   },
   async beforeMount() {
     this.showVersion = false;
     await this.$store.dispatch("startup_function");
-    window.addEventListener("offline", e => (this.offline = true));
-    window.addEventListener("online", e => (this.offline = false));
-    this.axios.get("/version").then(res => {
+    window.addEventListener("offline", (e) => (this.offline = true));
+    window.addEventListener("online", (e) => (this.offline = false));
+    this.axios.get("/version").then((res) => {
       this.showVersion = res.data && res.data.version ? true : false;
       this.version = this.showVersion ? res.data.version || "" : "";
     });
-  }
+  },
 };
 </script>
 

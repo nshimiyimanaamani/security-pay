@@ -13,17 +13,17 @@ var _ (payment.Queue) = (*mockQueue)(nil)
 // mock is a payment.Queue implementation that doesn't support concurency
 type mockQueue struct {
 	mu  sync.Mutex
-	txs map[string]payment.Payment
+	txs map[string]payment.TxRequest
 }
 
 // NewQueue initialises the mockQueue
 func NewQueue() payment.Queue {
 	return &mockQueue{
-		txs: make(map[string]payment.Payment),
+		txs: make(map[string]payment.TxRequest),
 	}
 }
 
-func (q *mockQueue) Set(ctx context.Context, tx payment.Payment) error {
+func (q *mockQueue) Set(ctx context.Context, tx *payment.TxRequest) error {
 	const op errors.Op = "mocksQueue.Set"
 
 	q.mu.Lock()
@@ -34,11 +34,11 @@ func (q *mockQueue) Set(ctx context.Context, tx payment.Payment) error {
 			return errors.E(op, "transaction already exist", errors.KindAlreadyExists)
 		}
 	}
-	q.txs[tx.ID] = tx
+	q.txs[tx.ID] = *tx
 	return nil
 }
 
-func (q *mockQueue) Get(ctx context.Context, uid string) (payment.Payment, error) {
+func (q *mockQueue) Get(ctx context.Context, uid string) (payment.TxRequest, error) {
 	const op errors.Op = "mocksQueue.Get"
 
 	q.mu.Lock()
@@ -46,7 +46,7 @@ func (q *mockQueue) Get(ctx context.Context, uid string) (payment.Payment, error
 
 	val, ok := q.txs[uid]
 	if !ok {
-		return payment.Payment{}, errors.E(op, "transaction not found", errors.KindNotFound)
+		return payment.TxRequest{}, errors.E(op, "transaction not found", errors.KindNotFound)
 	}
 
 	return val, nil

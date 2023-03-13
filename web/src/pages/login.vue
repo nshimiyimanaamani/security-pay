@@ -18,6 +18,7 @@
             <label for="input">Username</label>
             <b-form-input
               id="username"
+              name="username"
               v-model="form.email"
               required
               :disabled="loading"
@@ -30,6 +31,7 @@
             <b-form-input
               type="password"
               id="password"
+              name="password"
               v-model="form.password"
               :disabled="loading"
               size="sm"

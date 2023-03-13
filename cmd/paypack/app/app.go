@@ -10,6 +10,7 @@ import (
 	mw "github.com/rugwirobaker/paypack-backend/api/http/middleware"
 	"github.com/rugwirobaker/paypack-backend/pkg/config"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/rugwirobaker/paypack-backend/web"
 	"github.com/sirupsen/logrus"
 )
 
@@ -39,7 +40,11 @@ func Bootstrap(conf *config.Config) (http.Handler, error) {
 	lggr := log.New(conf.CloudRuntime, logLvl)
 
 	//init payment backend
-	pb := InitPaymentClient(ctx, conf.Payment)
+	pb, err := InitPaymentClient(ctx, conf)
+	if err != nil {
+		lggr.Errorf("error connecting to payment backend (%s)", err)
+		return nil, err
+	}
 
 	//init sms backend
 	sms, err := InitSMSBackend(ctx, conf.SMS)
@@ -71,7 +76,7 @@ func Bootstrap(conf *config.Config) (http.Handler, error) {
 
 	Register(api, handlerOpts)
 
-	// router.PathPrefix("/").Handler(web.Handler("/", "dist"))
+	router.PathPrefix("/").Handler(web.Handler("/", "dist"))
 
 	cors := handlers.CORS(
 		handlers.AllowedOrigins([]string{"*"}),

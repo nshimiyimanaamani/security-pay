@@ -16,7 +16,8 @@ func Pull(logger log.Entry, svc payment.Service) http.Handler {
 	const op errors.Op = "api/http/payment/Pull"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
-		var tx payment.Payment
+
+		tx := new(payment.TxRequest)
 
 		err := encoding.Decode(r, &tx)
 		if err != nil {
@@ -65,10 +66,16 @@ func ConfirmPull(logger log.Entry, svc payment.Service) http.Handler {
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
+			encoding.EncodeError(w, errors.KindAlreadyExists, err)
+			return
+		}
+
+		if err := encoding.Encode(w, http.StatusOK, []byte("payment confirmation received successfully")); err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(errors.E(op, err))
 			encoding.EncodeError(w, errors.Kind(err), err)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
 	}
 	return http.HandlerFunc(f)
 }
@@ -78,7 +85,8 @@ func Push(logger log.Entry, svc payment.Service) http.Handler {
 	const op errors.Op = "api/http/payment/Push"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
-		var tx payment.Payment
+
+		tx := new(payment.TxRequest)
 
 		err := encoding.Decode(r, &tx)
 		if err != nil {

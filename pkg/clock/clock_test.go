@@ -13,7 +13,7 @@ func TestTimeIn(t *testing.T) {
 
 	expected := time.Now()
 
-	got := clock.TimeIn(expected.UTC(), clock.Rwanda)
+	got := clock.TimeIn(expected.UTC(), clock.EAST)
 
 	assert.True(t, expected.Local().Equal(got), fmt.Sprintf("expected %v got %v", expected, got))
 

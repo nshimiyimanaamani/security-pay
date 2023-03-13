@@ -18,18 +18,34 @@ const (
 	AIRTEL Method = "momo-airtel-rw"
 )
 
+// Webhook defines the webhook mode
+const WebhookMode = "production"
+
 // State defines transaction states
 type State string
 
-//Possible transaction states
+// Possible transaction states
 const (
 	Pending    State = "processing"
 	Failed     State = "failed"
 	Successful State = "successful"
 )
 
-// Response ...
-type Response struct {
+var ToTxState = map[string]State{
+	"pending":    Pending,
+	"failed":     Failed,
+	"successful": Successful,
+}
+
+// PaymentTk...
+type PaymentTk struct {
+	Access  string `json:"access_token,omitempty"`
+	Refresh string `json:"refresh_token,omitempty"`
+	Expires int64  `json:"expires_at,omitempty"`
+}
+
+// TxResponse ...
+type TxResponse struct {
 	Status  string `json:"status,omitempty"`
 	TxID    string `json:"transaction_id,omitempty"`
 	Message string `json:"message,omitempty"`
@@ -38,43 +54,42 @@ type Response struct {
 
 // Callback defines the response got from the callback
 type Callback struct {
-	Status string       `json:"status,omitempty"`
-	Data   CallBackData `json:"data,omitempty"`
+	Data Data   `json:"data"`
+	Kind string `json:"kind"`
 }
 
-// CallBackData ...
-type CallBackData struct {
-	Message    string `json:"message,omitempty"`
-	GwRef      string `json:"gwRef,omitempty"`
-	TrxRef     string `json:"trxRef,omitempty"`
-	ChannelRef string `json:"channelRef,omitempty"`
-	State      State  `json:"state,omitempty"`
+type Data struct {
+	Ref       string     `json:"ref,omitempty"`
+	Kind      string     `json:"kind,omitempty"`
+	Fee       float64    `json:"fee,omitempty"`
+	Client    string     `json:"client,omitempty"`
+	Amount    float64    `json:"amount,omitempty"`
+	Status    string     `json:"status,omitempty"`
+	Created   *time.Time `json:"created_at,omitempty"`
+	Processed *time.Time `json:"processed_at,omitempty"`
+	Commited  *time.Time `json:"commited_at,omitempty"`
 }
 
 // Validate validats a callback
 func (cb *Callback) Validate() error {
 	const op errors.Op = "core/payment/Callback.Validate"
 
-	if cb.Status == "" {
+	if cb.Kind == "" {
+		return errors.E(op, "Kind field must not be empty", errors.KindBadRequest)
+	}
+
+	if cb.Data.Ref == "" {
+		return errors.E(op, "transaction ref field must not be empty", errors.KindBadRequest)
+	}
+
+	if cb.Data.Status == "" {
 		return errors.E(op, "status field must not be empty", errors.KindBadRequest)
-	}
-
-	if cb.Data.TrxRef == "" {
-		return errors.E(op, "trxRef field must not be empty", errors.KindBadRequest)
-	}
-
-	if cb.Data.GwRef == "" {
-		return errors.E(op, "gwRef field must not be empty", errors.KindBadRequest)
-	}
-
-	if cb.Data.State == "" {
-		return errors.E(op, "state field must not be empty", errors.KindBadRequest)
 	}
 	return nil
 }
 
-// Payment ...
-type Payment struct {
+// TxRequest ...
+type TxRequest struct {
 	ID        string    `json:"id,omitempty"`
 	Code      string    `json:"code,omitempty"`
 	Amount    float64   `json:"amount,string,omitempty"`
@@ -87,12 +102,12 @@ type Payment struct {
 }
 
 // Confirm payment
-func (p *Payment) Confirm() {
+func (p *TxRequest) Confirm() {
 	p.Confirmed = true
 }
 
 // HasCode checks whether a pull payment at least has the a property code
-func (p *Payment) HasCode() error {
+func (p *TxRequest) HasCode() error {
 	const op errors.Op = "core/payment/Payment.HasCode"
 
 	if p.Code == "" {
@@ -102,7 +117,7 @@ func (p *Payment) HasCode() error {
 }
 
 // HasInvoice verfies invoice
-func (p *Payment) HasInvoice() error {
+func (p *TxRequest) HasInvoice() error {
 	const op errors.Op = "core/payment/Payment.HasInvoice"
 
 	if p.Invoice == 0 {
@@ -112,7 +127,7 @@ func (p *Payment) HasInvoice() error {
 }
 
 // Ready to send be sent to the payment gateway
-func (p *Payment) Ready() error {
+func (p *TxRequest) Ready() error {
 	const op errors.Op = "core/payment/Payment.Ready"
 
 	if p.MSISDN == "" {

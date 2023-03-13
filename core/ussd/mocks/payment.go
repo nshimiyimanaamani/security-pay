@@ -15,9 +15,9 @@ func NewPaymentService() payment.Service {
 	return &paymentMock{}
 }
 
-func (svc *paymentMock) Pull(ctx context.Context, tx payment.Payment) (payment.Response, error) {
+func (svc *paymentMock) Pull(ctx context.Context, tx *payment.TxRequest) (*payment.TxResponse, error) {
 	const op errors.Op = "core/ussd/mocks/paymentMock.Initilialize"
-	return payment.Response{
+	return &payment.TxResponse{
 		Status:  "transaction is done",
 		TxID:    uuid.New().ID(),
 		TxState: "pending",
@@ -31,9 +31,9 @@ func (svc *paymentMock) ConfirmPull(ctx context.Context, res payment.Callback) e
 	return errors.E(op, errors.KindNotImplemented)
 }
 
-func (svc *paymentMock) Push(ctx context.Context, tx payment.Payment) (payment.Response, error) {
+func (svc *paymentMock) Push(ctx context.Context, tx *payment.TxRequest) (*payment.TxResponse, error) {
 	const op errors.Op = "core/ussd/mocks/paymentMock.Initilialize"
-	return payment.Response{
+	return &payment.TxResponse{
 		Status:  "transaction is done",
 		TxID:    uuid.New().ID(),
 		TxState: "pending",

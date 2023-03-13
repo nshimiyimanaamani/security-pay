@@ -19,10 +19,10 @@ import (
 // Service is the api interface to the payment module
 type Service interface {
 	// Pull initializes payment from an external account
-	Pull(ctx context.Context, tx Payment) (Response, error)
+	Pull(ctx context.Context, tx *TxRequest) (*TxResponse, error)
 
 	// Push  initializes payment to an external account
-	Push(ctx context.Context, tx Payment) (Response, error)
+	Push(ctx context.Context, tx *TxRequest) (*TxResponse, error)
 
 	// ConfirmPull processes debit callback
 	ConfirmPull(ctx context.Context, res Callback) error
@@ -70,10 +70,10 @@ func New(opts *Options) Service {
 	}
 }
 
-func (svc service) Pull(ctx context.Context, payment Payment) (Response, error) {
+func (svc service) Pull(ctx context.Context, payment *TxRequest) (*TxResponse, error) {
 	const op errors.Op = "core/payment/service.Pull"
 
-	failed := Response{TxState: "failed"}
+	failed := &TxResponse{TxState: "failed"}
 
 	// check the bare minimum
 	if err := payment.HasCode(); err != nil {
@@ -106,23 +106,23 @@ func (svc service) Pull(ctx context.Context, payment Payment) (Response, error) 
 		return failed, errors.E(op, err)
 	}
 
-	status, err := svc.backend.Pull(ctx, payment)
+	res, err := svc.backend.Pull(ctx, payment)
 	if err != nil {
 		return failed, errors.E(op, err)
 	}
-
+	payment.ID = res.TxID
 	payment.Confirmed = false
 
 	if err := svc.repository.Save(ctx, payment); err != nil {
 		return failed, errors.E(op, err)
 	}
-	return status, nil
+	return res, nil
 }
 
-func (svc *service) Push(ctx context.Context, payment Payment) (Response, error) {
+func (svc *service) Push(ctx context.Context, payment *TxRequest) (*TxResponse, error) {
 	const op errors.Op = "core/payment/service.Push"
 
-	failed := Response{TxState: "failed"}
+	failed := &TxResponse{TxState: "failed"}
 
 	if err := payment.Ready(); err != nil {
 		return failed, errors.E(op, err)
@@ -130,15 +130,17 @@ func (svc *service) Push(ctx context.Context, payment Payment) (Response, error)
 
 	payment.ID = svc.idp.ID()
 
-	status, err := svc.backend.Push(ctx, payment)
+	res, err := svc.backend.Push(ctx, payment)
 	if err != nil {
 		return failed, errors.E(op, err)
 	}
+
+	payment.ID = res.TxID
 	//save instead to payments
 	if err := svc.queue.Set(ctx, payment); err != nil {
 		return failed, errors.E(op, err)
 	}
-	return status, nil
+	return res, nil
 }
 
 func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
@@ -148,12 +150,12 @@ func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
 		return errors.E(op, err)
 	}
 
-	if cb.Data.State != Successful {
+	if State(cb.Data.Status) != Successful {
 		return errors.E(op, "transaction failed unexpectedly", errors.KindUnexpected)
 	}
 
 	//retrieve from payments
-	payment, err := svc.repository.Find(ctx, cb.Data.TrxRef)
+	payment, err := svc.repository.Find(ctx, cb.Data.Ref)
 	if err != nil {
 		return errors.E(op, err)
 	}
@@ -194,12 +196,12 @@ func (svc *service) ConfirmPush(ctx context.Context, cb Callback) error {
 		return errors.E(op, err)
 	}
 
-	if cb.Data.State != Successful {
-		return errors.E(op, cb.Data.Message, errors.KindUnexpected)
+	if State(cb.Data.Status) != Successful {
+		return errors.E(op, cb.Data.Status, errors.KindUnexpected)
 	}
 
 	//retrieve from payments instead
-	tx, err := svc.queue.Get(ctx, cb.Data.TrxRef)
+	tx, err := svc.queue.Get(ctx, cb.Data.Ref)
 	if err != nil {
 		return errors.E(op, err)
 	}
@@ -210,7 +212,7 @@ func (svc *service) ConfirmPush(ctx context.Context, cb Callback) error {
 	return nil
 }
 
-func (svc *service) Notify(ctx context.Context, py Payment, tx transactions.Transaction) error {
+func (svc *service) Notify(ctx context.Context, py TxRequest, tx transactions.Transaction) error {
 	const op errors.Op = "core/app/payment/service.Notify"
 
 	property, err := svc.properties.RetrieveByID(ctx, tx.MadeFor)
@@ -235,9 +237,11 @@ func (svc *service) Notify(ctx context.Context, py Payment, tx transactions.Tran
 		Sender:     property.Namespace,               //account
 		Message:    message,
 	}
+
 	if _, err := svc.sms.Send(ctx, notification); err != nil {
 		return errors.E(op, err)
 	}
+
 	return nil
 }
 
@@ -245,7 +249,7 @@ func (svc *service) Notify(ctx context.Context, py Payment, tx transactions.Tran
 func FormatMessage(
 	tx transactions.Transaction,
 	inv invoices.Invoice,
-	py Payment,
+	py TxRequest,
 	own owners.Owner,
 	pr properties.Property,
 	timestamp string,
@@ -269,7 +273,7 @@ func FormatMessage(
 }
 
 func timestamp() string {
-	at := clock.TimeIn(time.Now(), clock.Rwanda)
+	at := clock.TimeIn(time.Now(), clock.EAST)
 	return clock.Format(at, clock.LayoutCustom)
 }
 
@@ -284,7 +288,7 @@ func selectActivity(sector string) string {
 }
 
 func (svc *service) NewTransaction(
-	payment Payment,
+	payment TxRequest,
 	property properties.Property,
 	owner owners.Owner,
 ) transactions.Transaction {

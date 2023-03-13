@@ -20,7 +20,7 @@ func NewQueue(client *redis.Client) payment.Queue {
 	return &queue{client}
 }
 
-func (queue *queue) Set(ctx context.Context, tx payment.Payment) error {
+func (queue *queue) Set(ctx context.Context, tx *payment.TxRequest) error {
 	const op errors.Op = "queue.Set"
 
 	b, err := encoding.Encode(ctx, tx)
@@ -35,10 +35,10 @@ func (queue *queue) Set(ctx context.Context, tx payment.Payment) error {
 	return nil
 }
 
-func (queue *queue) Get(ctx context.Context, uid string) (payment.Payment, error) {
+func (queue *queue) Get(ctx context.Context, uid string) (payment.TxRequest, error) {
 	const op errors.Op = "queue.Pop"
 
-	empty := payment.Payment{}
+	empty := payment.TxRequest{}
 
 	res, err := queue.cli.Get(uid).Result()
 	if err != nil {
@@ -53,7 +53,7 @@ func (queue *queue) Get(ctx context.Context, uid string) (payment.Payment, error
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
 
-	var tx payment.Payment
+	var tx payment.TxRequest
 	if err := encoding.Decode(ctx, []byte(res), &tx); err != nil {
 		return empty, errors.E(op, err, "unable to deserialize transaction", errors.KindUnexpected)
 	}

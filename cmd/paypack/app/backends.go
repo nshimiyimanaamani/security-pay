@@ -2,7 +2,10 @@ package app
 
 import (
 	"context"
+	"net/http"
 
+	"github.com/quarksgroup/paypack-go/paypack/api"
+	"github.com/quarksgroup/paypack-go/paypack/transport/oauth"
 	"github.com/rugwirobaker/paypack-backend/backends/fdi"
 	"github.com/rugwirobaker/paypack-backend/backends/sms"
 	"github.com/rugwirobaker/paypack-backend/core/notifs"
@@ -11,15 +14,22 @@ import (
 )
 
 // InitPaymentClient initialises the payment gateway
-func InitPaymentClient(ctx context.Context, cfg *config.PaymentConfig) payment.Client {
-	opts := &fdi.ClientOptions{
-		URL:       cfg.PaymentURL,
-		AppID:     cfg.AppID,
-		AppSecret: cfg.Secret,
-		DCallback: cfg.DCallback,
-		CCallback: cfg.CCallback,
+func InitPaymentClient(ctx context.Context, cfg *config.Config) (payment.Client, error) {
+
+	tr := &http.Client{
+		Transport: &oauth.Transport{
+			Scheme: oauth.SchemeBearer,
+			Source: oauth.ContextTokenSource(),
+			Base:   http.DefaultTransport,
+		},
 	}
-	return fdi.New(opts)
+
+	cli, err := api.New(cfg.Payment.PaymentURL, tr.Transport)
+	if err != nil {
+		return nil, err
+	}
+
+	return fdi.New(cli, cfg.Payment.AppID, cfg.Payment.Secret, cfg.GoEnv)
 }
 
 // InitSMSBackend ...

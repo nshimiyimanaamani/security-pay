@@ -158,7 +158,7 @@ export default {
       const { year, month } = this.select;
       if (Object.keys(this.transactionData).length < 1) return [];
       else {
-        return this.transactionData[year][month] || [];
+        return this.transactionData[year] ? this.transactionData[year][month] : [];
       }
     },
     MonthsOptions() {
@@ -206,6 +206,7 @@ export default {
     async requestItems() {
       this.loading = true;
       const total = await this.$getTotal("/transactions?offset=0&limit=0");
+      console.log(total);
       this.axios
         .get("/transactions?offset=0&limit=" + total)
         .then((res) => {

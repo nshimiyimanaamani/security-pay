@@ -31,31 +31,31 @@ func TestPull(t *testing.T) {
 
 	cases := []struct {
 		desc    string
-		payment payment.Payment
+		payment *payment.TxRequest
 		state   payment.State
 		err     error
 	}{
 		{
 			desc:    "initialize payment with valid data",
-			payment: payment.Payment{Code: property.ID, Amount: invoice.Amount, MSISDN: "0784607135", Method: "mtn-momo-rw"},
+			payment: &payment.TxRequest{Code: property.ID, Amount: invoice.Amount, MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			state:   "processing",
 			err:     nil,
 		},
 		{
 			desc:    "initialize payment with invalid data",
-			payment: payment.Payment{Code: property.ID, Amount: invoice.Amount, MSISDN: "0784607135"},
+			payment: &payment.TxRequest{Code: property.ID, Amount: invoice.Amount, MSISDN: "0784607135"},
 			state:   "failed",
 			err:     errors.E(op, "payment method must be specified"),
 		},
 		{
 			desc:    "initialize payment with unsaved house property.ID",
-			payment: payment.Payment{Code: uuid.New().ID(), Amount: invoice.Amount, MSISDN: "0784607135", Method: "mtn-momo-rw"},
+			payment: &payment.TxRequest{Code: uuid.New().ID(), Amount: invoice.Amount, MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			state:   "failed",
 			err:     errors.E(op, "property not found"),
 		},
 		{
 			desc:    "initialize payment with invalid amount(different from invoice)",
-			payment: payment.Payment{Code: property.ID, Amount: 100, MSISDN: "0784607135", Method: "mtn-momo-rw"},
+			payment: &payment.TxRequest{Code: property.ID, Amount: 100, MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			state:   "failed",
 			err:     errors.E(op, "amount doesn't match invoice"),
 		},
@@ -78,7 +78,7 @@ func TestConfirmPull(t *testing.T) {
 	invoices, _ := newInvoiceStore(property)
 	svc := newService(owners, properties, invoices)
 
-	tx := payment.Payment{
+	tx := &payment.TxRequest{
 		ID:     uuid.New().ID(),
 		Code:   property.ID,
 		Amount: 1000, MSISDN: "0784607135",
@@ -96,11 +96,10 @@ func TestConfirmPull(t *testing.T) {
 		{
 			desc: "confirm valid callback",
 			callback: payment.Callback{
-				Status: "success",
-				Data: payment.CallBackData{
-					GwRef:  uuid.New().ID(),
-					TrxRef: res.TxID,
-					State:  payment.Successful,
+				Kind: "transaction:processed",
+				Data: payment.Data{
+					Ref:    res.TxID,
+					Status: string(payment.Successful),
 				},
 			},
 			err: nil,
@@ -108,10 +107,10 @@ func TestConfirmPull(t *testing.T) {
 		{
 			desc: "confirm invalid callback",
 			callback: payment.Callback{
-				Data: payment.CallBackData{
-					GwRef:  uuid.New().ID(),
-					TrxRef: uuid.New().ID(),
-					State:  payment.Successful,
+				Kind: "transaction:processed",
+				Data: payment.Data{
+					Ref:    res.TxID,
+					Status: string(payment.Successful),
 				},
 			},
 			err: errors.E(op, "status field must not be empty"),
@@ -135,19 +134,19 @@ func TestPush(t *testing.T) {
 
 	cases := []struct {
 		desc    string
-		payment payment.Payment
+		payment *payment.TxRequest
 		state   payment.State
 		err     error
 	}{
 		{
 			desc:    "initialize payment with valid data",
-			payment: payment.Payment{Code: property.ID, Amount: 5000, MSISDN: "0784607135", Method: "mtn-momo-rw"},
+			payment: &payment.TxRequest{Code: property.ID, Amount: 5000, MSISDN: "0784607135", Method: "mtn-momo-rw"},
 			state:   "processing",
 			err:     nil,
 		},
 		{
 			desc:    "initialize payment with invalid method",
-			payment: payment.Payment{Code: property.ID, Amount: 5000, MSISDN: "0784607135"},
+			payment: &payment.TxRequest{Code: property.ID, Amount: 5000, MSISDN: "0784607135"},
 			state:   "failed",
 			err:     errors.E(op, "payment method must be specified"),
 		},
@@ -170,7 +169,7 @@ func TestConfirmPush(t *testing.T) {
 	invoices, _ := newInvoiceStore(property)
 	svc := newService(owners, properties, invoices)
 
-	tx := payment.Payment{
+	tx := &payment.TxRequest{
 		ID:     uuid.New().ID(),
 		Code:   property.ID,
 		Amount: 1000, MSISDN: "0784607135",
@@ -188,11 +187,10 @@ func TestConfirmPush(t *testing.T) {
 		{
 			desc: "confirm valid callback",
 			callback: payment.Callback{
-				Status: "success",
-				Data: payment.CallBackData{
-					GwRef:  uuid.New().ID(),
-					TrxRef: res.TxID,
-					State:  payment.Successful,
+				Kind: "transaction:processed",
+				Data: payment.Data{
+					Ref:    res.TxID,
+					Status: string(payment.Successful),
 				},
 			},
 			err: nil,
@@ -200,10 +198,10 @@ func TestConfirmPush(t *testing.T) {
 		{
 			desc: "confirm invalid callback",
 			callback: payment.Callback{
-				Data: payment.CallBackData{
-					GwRef:  uuid.New().ID(),
-					TrxRef: uuid.New().ID(),
-					State:  payment.Successful,
+				Kind: "transaction:processed",
+				Data: payment.Data{
+					Ref:    res.TxID,
+					Status: string(payment.Successful),
 				},
 			},
 			err: errors.E(op, "status field must not be empty"),
@@ -239,7 +237,7 @@ func TestFormatMessage(t *testing.T) {
 		Invoice: in.ID,
 	}
 
-	py := payment.Payment{
+	py := payment.TxRequest{
 		Amount: in.Amount,
 		MSISDN: "0788123501",
 	}

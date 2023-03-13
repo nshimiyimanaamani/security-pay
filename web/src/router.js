@@ -4,6 +4,8 @@ import Vue from "vue";
 import Router from "vue-router";
 import axios from "axios";
 import { store } from "./store";
+const home = () =>
+  import(/* webpackChunkName: "homepage" */ "./pages/home/home.vue");
 const login = () =>
   import(/* webpackChunkName: "login-page" */ "./pages/login.vue");
 const startPage = () =>
@@ -61,6 +63,18 @@ let router = new Router({
       children: [
         {
           path: "/",
+          redirect: "/home"
+        },
+        {
+          path: "home",
+          name: "homepage",
+          component: home,
+          meta: {
+            guest: true
+          }
+        },
+        {
+          path: "login",
           component: login,
           meta: {
             guest: true

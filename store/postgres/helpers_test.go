@@ -245,7 +245,7 @@ func CleanDB(t *testing.T, db *sql.DB) {
 	require.Nil(t, err, fmt.Sprintf("unexpected error: '%v'", err))
 }
 
-func savePayment(t *testing.T, db *sql.DB, payment payment.Payment) payment.Payment {
+func savePayment(t *testing.T, db *sql.DB, payment payment.TxRequest) payment.TxRequest {
 	q := `INSERT INTO payments(
 		id,
 		amount,

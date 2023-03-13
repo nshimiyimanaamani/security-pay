@@ -26,19 +26,17 @@ require (
 	github.com/opencontainers/runc v0.1.1 // indirect
 	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/quarksgroup/paypack-go v0.2.7
 	github.com/rubenv/sql-migrate v0.0.0-20200616145509-8d140a17f351
 	github.com/rugwirobaker/platypus v0.0.4
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.6.0
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
 	github.com/ttacon/libphonenumber v1.1.0
 	github.com/vmihailenco/msgpack/v4 v4.3.12
-	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4
-	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
-	golang.org/x/sys v0.0.0-20200802091954-4b90ce9b60b3 // indirect
-	golang.org/x/text v0.3.3 // indirect
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/net v0.0.0-20210510120150-4163338589ed
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
-	gopkg.in/yaml.v2 v2.3.0 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
 )

@@ -20,7 +20,7 @@ func NewPaymentRepository(db *sql.DB) payment.Repository {
 	return &paymentStore{db}
 }
 
-func (repo *paymentStore) Save(ctx context.Context, payment payment.Payment) error {
+func (repo *paymentStore) Save(ctx context.Context, payment *payment.TxRequest) error {
 	const op errors.Op = "store/postgres/paymentStore.Save"
 
 	q := `INSERT INTO payments(
@@ -58,7 +58,7 @@ func (repo *paymentStore) Save(ctx context.Context, payment payment.Payment) err
 	return nil
 }
 
-func (repo *paymentStore) Find(ctx context.Context, id string) (payment.Payment, error) {
+func (repo *paymentStore) Find(ctx context.Context, id string) (payment.TxRequest, error) {
 	const op errors.Op = "store/postgres/paymentStore.Find"
 
 	q := `SELECT 
@@ -73,7 +73,7 @@ func (repo *paymentStore) Find(ctx context.Context, id string) (payment.Payment,
 			updated_at
 		FROM payments WHERE id=$1
 	`
-	var pmt payment.Payment
+	var pmt payment.TxRequest
 
 	err := repo.QueryRowContext(ctx, q, id).Scan(
 		&pmt.ID,
@@ -87,7 +87,7 @@ func (repo *paymentStore) Find(ctx context.Context, id string) (payment.Payment,
 		&pmt.UpdatedAt,
 	)
 	if err != nil {
-		var empty payment.Payment
+		var empty payment.TxRequest
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
 			return empty, errors.E(op, err, "payment not found", errors.KindNotFound)
@@ -97,7 +97,7 @@ func (repo *paymentStore) Find(ctx context.Context, id string) (payment.Payment,
 	return pmt, nil
 }
 
-func (repo *paymentStore) Update(ctx context.Context, payment payment.Payment) error {
+func (repo *paymentStore) Update(ctx context.Context, payment payment.TxRequest) error {
 	const op errors.Op = "store/postgres/paymentStore.Update"
 
 	q := `UPDATE payments SET confirmed=$1 WHERE id=$2`

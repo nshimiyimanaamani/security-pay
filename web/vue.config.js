@@ -5,7 +5,7 @@ module.exports = {
       splitChunks: {
         cacheGroups: {
           vendor: {
-            chunks: "all",
+            chunks: 'all',
             maxSize: 250000,
             maxAsyncRequests: 250000,
             maxInitialRequests: 250000,
@@ -16,5 +16,8 @@ module.exports = {
         }
       }
     }
+  },
+  chainWebpack: config => {
+    config.module.rules.delete('eslint')
   }
-};
+}

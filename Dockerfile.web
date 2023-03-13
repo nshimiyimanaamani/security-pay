@@ -2,8 +2,6 @@
 ARG GOLANG_VERSION=1.16
 FROM golang:${GOLANG_VERSION} AS builder
 
-LABEL MAINTAINER="rugwirobaker@gmail.com"
-
 WORKDIR $GOPATH/src/github.com/rugwirobaker/paypack-backend
 
 COPY go.mod go.sum ./

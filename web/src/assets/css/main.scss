@@ -1,9 +1,6 @@
 @import "~bootstrap/scss/functions";
 @import "~bootstrap/scss/variables";
-$info: #017db3;
-$white: #fff;
-$grey: #bdbdbd;
-
+@import "../scss/variables";
 @import "./snotify-css.css";
 @import "~bootstrap/dist/css/bootstrap.min.css";
 @import "~vue-slider-component/theme/default.css";
@@ -36,7 +33,6 @@ body {
   min-height: 100vh;
   font-family: "Montserrat", Arial, Helvetica, -apple-system, BlinkMacSystemFont,
     "Helvetica Neue", "Noto Sans", sans-serif;
-  max-width: 1400px;
   margin: auto;
 }
 table .secondary-font {
@@ -91,21 +87,19 @@ table .secondary-font {
 .list-style-none {
   list-style: none;
 }
-.scrollBar {
-  &::-webkit-scrollbar {
-    width: 10px;
-  }
+.scrollBar::-webkit-scrollbar {
+  width: 5px;
+}
 
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
+.scrollBar::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-  &::-webkit-scrollbar-thumb {
-    background-color: #ffffffbf;
-    outline: 1px solid #ffffffbf;
-    border-radius: 1px;
-    border-right: 1px solid #03a9f4;
-  }
+.scrollBar::-webkit-scrollbar-thumb {
+  background-color: #ffffffbf;
+  outline: 1px solid #ffffffbf;
+  border-radius: 1px;
+  border-right: 1px solid #03a9f4;
 }
 
 //resets
@@ -118,7 +112,7 @@ table .secondary-font {
   color: $info;
 }
 form input {
-  border: 1px solid $grey !important;
+  border: 1px solid var(--light) !important;
   background: transparent !important;
 }
 button:disabled {
@@ -170,7 +164,7 @@ textarea {
 }
 
 .vue-slider-rail {
-  background-color: $grey;
+  background-color: var(--light);
   border-radius: 15px;
 }
 .vue-slider-process {
@@ -273,4 +267,16 @@ textarea {
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
+}
+.padding-t-30 {
+  padding-top: 30px;
+}
+.margin-t-30 {
+  margin-top: 30px;
+}
+.padding-t-20 {
+  padding-top: 20px;
+}
+.margin-t-20 {
+  margin-top: 20px;
 }
