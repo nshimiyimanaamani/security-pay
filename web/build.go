@@ -8,7 +8,6 @@ import (
 	"path"
 )
 
-//go:embed dist/*
 var dist embed.FS
 
 type fsFunc func(name string) (fs.File, error)
