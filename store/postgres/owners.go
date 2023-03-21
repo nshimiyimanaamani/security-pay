@@ -95,9 +95,9 @@ func (str *ownerRepo) Retrieve(ctx context.Context, id string) (owners.Owner, er
 }
 
 func (str *ownerRepo) Search(ctx context.Context, owner owners.Owner) (owners.Owner, error) {
-	q := `SELECT id, fname, lname, phone FROM owners WHERE fname=$1 AND lname=$2 AND phone=$3;`
+	q := `SELECT id, fname, lname, phone FROM owners WHERE phone=$1;`
 
-	err := str.db.QueryRow(q, owner.Fname, owner.Lname, owner.Phone).Scan(&owner.ID, &owner.Fname, &owner.Lname, &owner.Phone)
+	err := str.db.QueryRow(q, owner.Phone).Scan(&owner.ID, &owner.Fname, &owner.Lname, &owner.Phone)
 	if err != nil {
 		empty := owners.Owner{}
 
