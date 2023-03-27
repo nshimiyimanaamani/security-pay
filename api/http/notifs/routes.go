@@ -1,4 +1,4 @@
 package notifs
 
 // SendRoute ...
-const SendRoute = "/notifs/send"
+const SendRoute = "/notifications/send"

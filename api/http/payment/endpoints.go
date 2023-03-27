@@ -34,6 +34,7 @@ func Pull(logger log.Entry, svc payment.Service) http.Handler {
 			encoding.EncodeError(w, errors.Kind(err), err)
 			return
 		}
+
 		if err := encoding.Encode(w, http.StatusOK, res); err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(errors.E(op, err))

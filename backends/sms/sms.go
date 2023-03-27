@@ -82,7 +82,7 @@ func (sms *Backend) sendSingle(ctx context.Context, id, recipient, message strin
 	reqBody := &singleMSISDNRequest{
 		MSISDN:    recipient,
 		Message:   message,
-		SenderID:  sms.SenderID,
+		SenderID:  "PayPack",
 		Reference: id,
 	}
 
@@ -90,7 +90,11 @@ func (sms *Backend) sendSingle(ctx context.Context, id, recipient, message strin
 	if err != nil {
 		return errors.E(op, err)
 	}
+
 	req, err := http.NewRequest(http.MethodPost, sms.URL+"/mt/single", bytes.NewReader(b))
+	if err != nil {
+		return errors.E(op, err)
+	}
 
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
@@ -99,11 +103,9 @@ func (sms *Backend) sendSingle(ctx context.Context, id, recipient, message strin
 	req.Header.Add("Authorization", token)
 
 	res, err := sms.client.Do(req)
-
 	if err != nil {
 		return errors.E(op, err)
 	}
-
 	defer res.Body.Close()
 
 	resBody := &smsResponse{}
@@ -111,9 +113,11 @@ func (sms *Backend) sendSingle(ctx context.Context, id, recipient, message strin
 	if err := encoding.Deserialize(res.Body, resBody); err != nil {
 		return errors.E(op, err)
 	}
+
 	if res.StatusCode > 299 {
 		return errors.E(op, resBody.Message, errors.KindUnexpected)
 	}
+
 	return nil
 }
 func (sms *Backend) sendBulk(ctx context.Context, id string, recipients []string, message string) error {
@@ -122,7 +126,7 @@ func (sms *Backend) sendBulk(ctx context.Context, id string, recipients []string
 	reqBody := &bulkMSISDNRequest{
 		MSISDN:    recipients,
 		Message:   message,
-		SenderID:  sms.SenderID,
+		SenderID:  "PayPack",
 		Reference: id,
 	}
 
@@ -130,7 +134,11 @@ func (sms *Backend) sendBulk(ctx context.Context, id string, recipients []string
 	if err != nil {
 		return errors.E(op, err)
 	}
+
 	req, err := http.NewRequest(http.MethodPost, sms.URL+"/mt/bulk", bytes.NewReader(b))
+	if err != nil {
+		return errors.E(op, err)
+	}
 
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
@@ -139,15 +147,12 @@ func (sms *Backend) sendBulk(ctx context.Context, id string, recipients []string
 	req.Header.Add("Authorization", token)
 
 	res, err := sms.client.Do(req)
-
 	if err != nil {
 		return errors.E(op, err)
 	}
-
 	defer res.Body.Close()
 
 	resBody := &smsResponse{}
-
 	if err := encoding.Deserialize(res.Body, resBody); err != nil {
 		return errors.E(op, err)
 	}
@@ -169,6 +174,10 @@ func (sms *Backend) authorize(appID, appSecret string) error {
 		return errors.E(op, err)
 	}
 	req, err := http.NewRequest(http.MethodPost, sms.URL+"/auth/", bytes.NewReader(bs))
+	if err != nil {
+		return errors.E(op, err)
+	}
+
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 
@@ -210,6 +219,10 @@ func (sms *Backend) refresh() error {
 		return errors.E(op, err)
 	}
 	req, err := http.NewRequest(http.MethodPost, sms.URL+"/auth", bytes.NewReader(bs))
+	if err != nil {
+		return errors.E(op, err)
+	}
+
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 

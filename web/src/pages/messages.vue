@@ -1,37 +1,19 @@
 <template>
   <div class="message-container px-5 py-3">
     <div class="tabs-wrapper">
-      <b-tabs
-        content-class="primary-font"
-        justified
-        card
-        pills
-        active-nav-item-class="app-color text-white"
-        nav-class="message-nav"
-        @activate-tab="clear"
-      >
+      <b-tabs content-class="primary-font" justified card pills active-nav-item-class="app-color text-white"
+        nav-class="message-nav" @activate-tab="clear">
         <b-tab title="SECTOR" active v-if="isAdmin">
           <div class="sector-body">
-            <h3
-              class="message-title primary-font"
-            >Send message to all payers in {{activeSector ? activeSector : "Sector"}}</h3>
+            <h3 class="message-title primary-font">Send message to all payers in {{ activeSector ? activeSector :
+              "Sector" }}</h3>
             <label for="textarea" class="message-label">Message:</label>
-            <textarea
-              name="message"
-              id="message"
-              placeholder="Write your message..."
-              cols="30"
-              rows="10"
-              class="message-textarea"
-              v-model="message"
-            />
+            <textarea name="message" id="message" placeholder="Write your message..." cols="30" rows="10"
+              class="message-textarea" v-model="message" />
             <div class="w-100 d-flex mt-2">
-              <b-button variant="info" :disabled="message ?false:true" class @click="sendToSector">
-                {{state.sending ? 'Sending ':'Send '}}
-                <i
-                  v-if="state.sending"
-                  class="fa fa-spinner fa-spin"
-                />
+              <b-button variant="info" :disabled="message ? false : true" class @click="sendToSector">
+                {{ state.sending ? 'Sending ' : 'Send ' }}
+                <i v-if="state.sending" class="fa fa-spinner fa-spin" />
                 <i v-else class="fa fa-paper-plane" />
               </b-button>
             </div>
@@ -39,9 +21,8 @@
         </b-tab>
         <b-tab title="CELL" :active="!isAdmin">
           <div class="cell-body">
-            <h3
-              class="message-title primary-font"
-            >Send message to all payers in {{select.cell ? select.cell : "Cell"}}</h3>
+            <h3 class="message-title primary-font">Send message to all payers in {{ select.cell ? select.cell : "Cell" }}
+            </h3>
             <div class="control mb-4" v-if="isAdmin">
               <label class="message-label" for="select">Select a cell:</label>
               <b-select v-model="select.cell" :options="cellOptions">
@@ -51,23 +32,11 @@
               </b-select>
             </div>
             <label class="message-label" for="textarea">Message:</label>
-            <textarea
-              name="message"
-              id="message"
-              placeholder="Write your message..."
-              cols="30"
-              rows="10"
-              class="message-textarea"
-              v-model="message"
-            />
+            <textarea name="message" id="message" placeholder="Write your message..." cols="30" rows="10"
+              class="message-textarea" v-model="message" />
             <div class="w-100 d-flex mt-2">
-              <b-button
-                variant="info"
-                :disabled="message && select.cell?false:true"
-                class
-                @click="sendToCell"
-              >
-                {{state.sending ? 'Sending ':'Send '}}
+              <b-button variant="info" :disabled="message && select.cell ? false : true" class @click="sendToCell">
+                {{ state.sending ? 'Sending ' : 'Send ' }}
                 <b-spinner v-if="state.sending" variant="black" small />
                 <i v-else class="fa fa-paper-plane" />
               </b-button>
@@ -76,9 +45,8 @@
         </b-tab>
         <b-tab title="VILLAGE">
           <div class="village-body">
-            <h3
-              class="message-title primary-font"
-            >Send message to all payers in {{select.village ? select.village : "Village"}}</h3>
+            <h3 class="message-title primary-font">Send message to all payers in {{ select.village ? select.village :
+              "Village" }}</h3>
             <div class="control mb-4">
               <div class="cell-select">
                 <label class="message-label" for="select">Select a cell:</label>
@@ -90,11 +58,7 @@
               </div>
               <div class="village-select">
                 <label class="message-label" for="select">Select a village:</label>
-                <b-select
-                  v-model="select.village"
-                  :disabled="!select.cell"
-                  :options="villageOptions"
-                >
+                <b-select v-model="select.village" :disabled="!select.cell" :options="villageOptions">
                   <template v-slot:first>
                     <option :value="null" disabled>select village</option>
                   </template>
@@ -102,26 +66,12 @@
               </div>
             </div>
             <label class="message-label" for="textarea">Message:</label>
-            <textarea
-              name="message"
-              id="message"
-              placeholder="Write your message..."
-              cols="30"
-              rows="10"
-              class="message-textarea"
-              v-model="message"
-            />
+            <textarea name="message" id="message" placeholder="Write your message..." cols="30" rows="10"
+              class="message-textarea" v-model="message" />
             <div class="w-100 d-flex mt-2">
-              <b-button
-                variant="info"
-                :disabled="message && select.village?false:true"
-                @click="sendToVillage"
-              >
-                {{state.sending ? 'Sending ':'Send '}}
-                <i
-                  v-if="state.sending"
-                  class="fa fa-spinner fa-spin"
-                />
+              <b-button variant="info" :disabled="message && select.village ? false : true" @click="sendToVillage">
+                {{ state.sending ? 'Sending ' : 'Send ' }}
+                <i v-if="state.sending" class="fa fa-spinner fa-spin" />
                 <i v-else class="fa fa-paper-plane" />
               </b-button>
             </div>
@@ -198,7 +148,7 @@ export default {
       let recipients = await this.getPhoneArray(request);
       if (recipients) {
         this.axios
-          .get(`/notifications/send`, {
+          .post(`/notifications/send`, {
             message: message,
             recipients: recipients
           })
@@ -228,7 +178,7 @@ export default {
       let recipients = await this.getPhoneArray(request);
       if (recipients) {
         this.axios
-          .get(`/notifications/send`, {
+          .post(`/notifications/send`, {
             message: message,
             recipients: recipients
           })
@@ -258,7 +208,7 @@ export default {
       let recipients = await this.getPhoneArray(request);
       if (recipients) {
         this.axios
-          .get(`/notifications/send`, {
+          .post(`/notifications/send`, {
             message: message,
             recipients: recipients
           })
@@ -284,8 +234,23 @@ export default {
       let total = await this.$getTotal(request + "0");
       return this.axios
         .get(request + `${total}`)
-        .then(res => res.data.Properties.map(item => item.owner.phone))
-        .catch(err => null);
+        .then(res => {
+          let phoneNumbers = res.data.Properties.map(item => item.owner.phone);
+          phoneNumbers = phoneNumbers.filter(phone => {
+            if (!/^07[2893]/.test(phone)) {
+              return false;
+            }
+            if (phone.length !== 10) {
+              return false;
+            }
+            return true;
+          });
+          return phoneNumbers;
+        })
+        .catch(err => {
+          console.log(err, err.response, err.request);
+          return null;
+        });
     },
     clear() {
       this.message = null;
@@ -303,6 +268,7 @@ export default {
   border-radius: 3px;
   width: 100%;
   margin-top: 3rem;
+
   .message-nav {
     .nav-item {
       margin: 0 5px;
@@ -311,6 +277,7 @@ export default {
         border-radius: 2px;
         color: #017db3;
         font-size: 14px;
+
         &:hover {
           color: white !important;
           background-color: #017db3 !important;
@@ -318,6 +285,7 @@ export default {
       }
     }
   }
+
   .message-title {
     text-align: center;
     font-size: 1.2rem;
@@ -326,6 +294,7 @@ export default {
     margin-bottom: 1.5rem;
     color: #3a3a3a;
   }
+
   .message-label {
     color: #5d5d5d;
     margin-bottom: 2px;
@@ -342,8 +311,10 @@ export default {
     -webkit-appearance: none;
     -webkit-box-align: center;
   }
+
   .sector-body {
     padding: 0 2rem;
+
     textarea {
       border-radius: 2px;
       border: 1px solid #b9bec3;
@@ -351,6 +322,7 @@ export default {
       -webkit-text-fill-color: #2e3757;
       padding: 0.5rem;
     }
+
     button {
       border-radius: 2px;
       width: 120px;
@@ -359,9 +331,11 @@ export default {
       letter-spacing: 1px;
     }
   }
+
   .cell-body,
   .village-body {
     padding: 0 2rem;
+
     textarea,
     select {
       border-radius: 2px;
@@ -370,6 +344,7 @@ export default {
       padding: 0.5rem;
       -webkit-text-fill-color: #2e3757;
     }
+
     button {
       border-radius: 2px;
       width: 120px;
@@ -378,15 +353,17 @@ export default {
       letter-spacing: 1px;
     }
   }
+
   .village-body {
     .control {
       display: flex;
 
-      & > div:nth-child(1) {
+      &>div:nth-child(1) {
         flex: 1;
         padding-right: 0.5rem;
       }
-      & > div:nth-child(2) {
+
+      &>div:nth-child(2) {
         flex: 1;
         padding-left: 0.5rem;
       }

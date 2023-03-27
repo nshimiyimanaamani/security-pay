@@ -51,7 +51,7 @@ func (repo *transactionsStore) Save(ctx context.Context, tx transactions.Transac
 		if ok {
 			switch pqErr.Code.Name() {
 			case errDuplicate:
-				return "", errors.E(op, err, "transaction already exists", errors.KindAlreadyExists)
+				return "", errors.E(op, "transaction already exists", errors.KindAlreadyExists)
 			case errInvalid, errTruncation:
 				return "", errors.E(op, err, "invalid transaction", errors.KindBadRequest)
 			}

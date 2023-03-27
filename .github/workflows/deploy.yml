@@ -1,0 +1,17 @@
+name: Deploy Paypack Umutekani to Fly
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    name: Deploy Paypack Umutekani to Fly
+    runs-on: ubuntu-latest
+    steps:
+      # This step checks out a copy of your repository.
+      - uses: actions/checkout@v2
+      # This step runs `flyctl deploy`.
+      - uses: superfly/flyctl-actions@master
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_TOKEN }}
+        with:
+          args: "deploy --remote-only"
