@@ -6,16 +6,17 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/rugwirobaker/paypack-backend/core/owners"
+	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
-//OwnerStore store is a postgres implementation of the owners.OwnerStore
+// OwnerStore store is a postgres implementation of the owners.OwnerStore
 type ownerRepo struct {
 	db *sql.DB
 }
 
 var _ (owners.Repository) = (*ownerRepo)(nil)
 
-//NewOwnerRepo creates an instance of OwnerStore.
+// NewOwnerRepo creates an instance of OwnerStore.
 func NewOwnerRepo(db *sql.DB) owners.Repository {
 	return &ownerRepo{db}
 }
@@ -157,6 +158,9 @@ func (str *ownerRepo) RetrieveAll(ctx context.Context, offset, limit uint64) (ow
 }
 
 func (str *ownerRepo) RetrieveByPhone(ctx context.Context, phone string) (owners.Owner, error) {
+
+	const op errors.Op = "store/postgres/RetrieveByPhone"
+
 	q := `
 		SELECT 
 			id, 
@@ -175,7 +179,7 @@ func (str *ownerRepo) RetrieveByPhone(ctx context.Context, phone string) (owners
 
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
-			return empty, owners.ErrNotFound
+			return empty, errors.E(op, owners.ErrNotFound, errors.KindNotFound)
 		}
 		return empty, err
 	}

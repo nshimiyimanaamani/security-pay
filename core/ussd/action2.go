@@ -8,7 +8,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/owners"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/rugwirobaker/platypus"
+	"github.com/rugwirobaker/paypack-backend/pkg/platypus"
 )
 
 func (svc *service) action2(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {

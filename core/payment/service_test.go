@@ -119,7 +119,7 @@ func TestConfirmPull(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		err := svc.ConfirmPull(ctx, tc.callback)
+		err := svc.ProcessHook(ctx, tc.callback)
 		assert.True(t, errors.ErrEqual(tc.err, err), fmt.Sprintf("%s: expected %s got '%s'\n", tc.desc, tc.err, err))
 	}
 }

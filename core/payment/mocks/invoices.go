@@ -124,6 +124,33 @@ func (repo *invoicesMock) Pending(ctx context.Context, property string, months u
 	}
 	return page, nil
 }
+func (repo *invoicesMock) Unpaid(ctx context.Context, property string) (invoices.InvoicePage, error) {
+	const op errors.Op = "app/invoices/mocks/repository.Unpaid"
+
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	items := make([]invoices.Invoice, 0)
+
+	val, ok := repo.invoices[property]
+	if !ok {
+		return invoices.InvoicePage{}, errors.E(op, "property doesn't exists", errors.KindNotFound)
+	}
+
+	items = append(items, val)
+
+	sort.SliceStable(items, func(i, j int) bool {
+		return items[i].ID < items[j].ID
+	})
+
+	page := invoices.InvoicePage{
+		Invoices: items,
+		PageMetadata: invoices.PageMetadata{
+			Total: uint(len(repo.invoices)),
+		},
+	}
+	return page, nil
+}
 
 func (repo *invoicesMock) Earliest(ctx context.Context, property string) (invoices.Invoice, error) {
 	const op errors.Op = "app/invoices/mocks/repository.Earliest"
@@ -146,4 +173,13 @@ func (repo *invoicesMock) Archivable(ctx context.Context) (invoices.InvoicePage,
 	defer repo.mu.Unlock()
 
 	return invoices.InvoicePage{}, errors.E(op, errors.KindNotImplemented)
+}
+
+func (repo *invoicesMock) Generate(ctx context.Context, id string, amount, months uint) ([]*invoices.Invoice, error) {
+	const op errors.Op = "app/invoices/mocks/repository.Generate"
+
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	return nil, errors.E(op, "Not implemented", errors.KindNotImplemented)
 }

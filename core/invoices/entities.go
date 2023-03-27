@@ -41,8 +41,9 @@ func (vc *Invoice) Verify(amount float64) error {
 
 // PageMetadata ...
 type PageMetadata struct {
-	Total  uint
-	Months uint
+	Total       uint
+	Months      uint
+	TotalAmount float64
 }
 
 // InvoicePage ...

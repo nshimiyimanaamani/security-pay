@@ -14,6 +14,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/transactions"
 	"github.com/rugwirobaker/paypack-backend/pkg/clock"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	uuid "github.com/satori/go.uuid"
 )
 
 // Service is the api interface to the payment module
@@ -24,11 +25,17 @@ type Service interface {
 	// Push  initializes payment to an external account
 	Push(ctx context.Context, tx *TxRequest) (*TxResponse, error)
 
-	// ConfirmPull processes debit callback
-	ConfirmPull(ctx context.Context, res Callback) error
+	// ProcessHook processes debit callback
+	ProcessHook(ctx context.Context, res Callback) error
 
 	// ConfirmPush processes credit callback
 	ConfirmPush(ctx context.Context, res Callback) error
+
+	//BulkPull initiate payment for multiple invoices
+	BulkPull(context.Context, *TxRequest, int) (*TxResponse, error)
+
+	//CreditPull initiate payment for credited invoices
+	CreditPull(context.Context, *TxRequest, []invoices.Invoice) (*TxResponse, error)
 }
 
 // Options simplifies New func signature
@@ -70,6 +77,7 @@ func New(opts *Options) Service {
 	}
 }
 
+// Pull is for initiating payment for last invoice
 func (svc service) Pull(ctx context.Context, payment *TxRequest) (*TxResponse, error) {
 	const op errors.Op = "core/payment/service.Pull"
 
@@ -110,12 +118,114 @@ func (svc service) Pull(ctx context.Context, payment *TxRequest) (*TxResponse, e
 	if err != nil {
 		return failed, errors.E(op, err)
 	}
-	payment.ID = res.TxID
+
+	payment.ID = uuid.NewV4().String()
+	payment.Ref = res.TxID
 	payment.Confirmed = false
 
 	if err := svc.repository.Save(ctx, payment); err != nil {
 		return failed, errors.E(op, err)
 	}
+
+	return res, nil
+}
+
+// BulkPull initiate payment for many invoices
+func (svc service) BulkPull(ctx context.Context, payment *TxRequest, month int) (*TxResponse, error) {
+	const op errors.Op = "core/payment/service.BulkPull"
+
+	failed := &TxResponse{TxState: "failed"}
+
+	// check the bare minimum
+	if err := payment.HasCode(); err != nil {
+		return failed, errors.E(op, err)
+	}
+
+	// validate payment
+	if err := payment.Ready(); err != nil {
+		return failed, errors.E(op, err)
+	}
+
+	res, err := svc.backend.Pull(ctx, payment)
+	if err != nil {
+		return failed, errors.E(op, err)
+	}
+
+	payments := make([]*TxRequest, 0)
+
+	invoices, err := svc.invoices.Generate(ctx, payment.Code, uint(payment.Amount), uint(month))
+	if err != nil {
+		return failed, errors.E(op, err)
+	}
+
+	for _, invoice := range invoices {
+		payment := &TxRequest{
+			ID:        svc.idp.ID(),
+			Amount:    invoice.Amount,
+			Invoice:   invoice.ID,
+			Method:    payment.Method,
+			MSISDN:    payment.MSISDN,
+			Code:      payment.Code,
+			Ref:       res.TxID,
+			Confirmed: false,
+		}
+		payments = append(payments, payment)
+	}
+
+	if err := svc.repository.BulkSave(ctx, payments); err != nil {
+		return failed, errors.E(op, err)
+	}
+
+	return res, nil
+}
+
+// CreditPull initiate payment for credited invoices
+func (svc service) CreditPull(ctx context.Context, payment *TxRequest, invoices []invoices.Invoice) (*TxResponse, error) {
+	const op errors.Op = "core/payment/service.CreditPull"
+
+	failed := &TxResponse{TxState: "failed"}
+
+	// check the bare minimum
+	if err := payment.HasCode(); err != nil {
+		return failed, errors.E(op, err)
+	}
+
+	// validate payment
+	if err := payment.Ready(); err != nil {
+		return failed, errors.E(op, err)
+	}
+
+	var amount float64
+	for _, invoice := range invoices {
+		amount += invoice.Amount
+	}
+	payment.Amount = amount
+
+	res, err := svc.backend.Pull(ctx, payment)
+	if err != nil {
+		return failed, errors.E(op, err)
+	}
+
+	payments := make([]*TxRequest, 0)
+
+	for _, invoice := range invoices {
+		payment := &TxRequest{
+			ID:        svc.idp.ID(),
+			Amount:    invoice.Amount,
+			Invoice:   invoice.ID,
+			Method:    payment.Method,
+			MSISDN:    payment.MSISDN,
+			Code:      payment.Code,
+			Ref:       res.TxID,
+			Confirmed: false,
+		}
+		payments = append(payments, payment)
+	}
+
+	if err := svc.repository.BulkSave(ctx, payments); err != nil {
+		return failed, errors.E(op, err)
+	}
+
 	return res, nil
 }
 
@@ -143,52 +253,30 @@ func (svc *service) Push(ctx context.Context, payment *TxRequest) (*TxResponse, 
 	return res, nil
 }
 
-func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
-	const op errors.Op = "core/payment/service.ConfirmPull"
+func (svc *service) ProcessHook(ctx context.Context, cb Callback) error {
+	const op errors.Op = "core/payment/service.ProcessHook"
 
 	if err := cb.Validate(); err != nil {
 		return errors.E(op, err)
 	}
 
-	if State(cb.Data.Status) != Successful {
-		return errors.E(op, "transaction failed unexpectedly", errors.KindUnexpected)
-	}
-
-	//retrieve from payments
-	payment, err := svc.repository.Find(ctx, cb.Data.Ref)
+	payments, err := svc.repository.Find(ctx, cb.Data.Ref)
 	if err != nil {
 		return errors.E(op, err)
 	}
 
-	//confirm payment
-	payment.Confirm()
-	if err := svc.repository.Update(ctx, payment); err != nil {
-		return errors.E(op, err)
+	if len(payments) == 0 {
+		return errors.E(op, fmt.Sprintf("no payments found for this ref %s", cb.Data.Ref), errors.KindUnexpected)
 	}
 
-	property, err := svc.properties.RetrieveByID(ctx, payment.Code)
-	if err != nil {
-		return errors.E(op, err)
+	if payments[0].Status != "pending" {
+		return errors.E(op, fmt.Sprintf("payment with ref %s is already processed", cb.Data.Ref), errors.KindUnexpected)
 	}
 
-	owner, err := svc.owners.Retrieve(ctx, property.Owner.ID)
-	if err != nil {
-		return errors.E(op, err)
-	}
-
-	tx := svc.NewTransaction(payment, property, owner)
-
-	if _, err := svc.transactions.Save(ctx, tx); err != nil {
-		if errors.Kind(err) == errors.KindAlreadyExists {
-			return errors.E(op, fmt.Sprintf("transaction with this %s ref number is already recorded on umutekano", cb.Data.Ref), errors.KindAlreadyExists)
-		}
+	if err := svc.repository.Update(ctx, cb.Data.Status, payments); err != nil {
 		return errors.E(op, err, errors.Kind(err))
 	}
 
-	err = svc.Notify(ctx, payment, tx)
-	if err != nil {
-		return errors.E(op, err)
-	}
 	return nil
 }
 

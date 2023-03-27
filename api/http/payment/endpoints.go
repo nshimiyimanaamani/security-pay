@@ -2,7 +2,6 @@ package payment
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/rugwirobaker/paypack-backend/api/http/encoding"
@@ -45,33 +44,44 @@ func Pull(logger log.Entry, svc payment.Service) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-// ConfirmPull handles payment confirmation callback
-func ConfirmPull(logger log.Entry, svc payment.Service) http.Handler {
-	const op errors.Op = "api/http/payment/ConfirmPull"
+type msg struct {
+	Message string `json:"message"`
+}
+
+// ProcessCallBack handles payment confirmation callback
+func ProcessCallBack(logger log.Entry, svc payment.Service) http.Handler {
+	const op errors.Op = "api/http/payment/ProcessCallBack"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
 
-		callback := payment.Callback{}
+		callback := new(payment.Callback)
 
-		b, _ := ioutil.ReadAll(r.Body)
-		logger.Debugf("request-body: '%s'", string(b))
-
-		if err := json.Unmarshal(b, &callback); err != nil {
+		dec := json.NewDecoder(r.Body)
+		dec.UseNumber()
+		if err := dec.Decode(callback); err != nil {
 			err = errors.E(op, err, errors.KindBadRequest)
 			logger.SystemErr(err)
 			encoding.EncodeError(w, errors.Kind(err), err)
 			return
 		}
+		defer r.Body.Close()
 
-		err := svc.ConfirmPull(r.Context(), callback)
+		err := svc.ProcessHook(r.Context(), *callback)
 		if err != nil {
+			out := msg{
+				Message: err.Error(),
+			}
 			err = errors.E(op, err)
-			logger.SystemErr(err)
-			encoding.EncodeError(w, errors.KindAlreadyExists, err)
+			logger.SystemErr(errors.E(op, err))
+			encoding.Encode(w, errors.Kind(err), out)
 			return
 		}
 
-		if err := encoding.Encode(w, http.StatusOK, []byte("payment confirmation received successfully")); err != nil {
+		out := msg{
+			Message: "payment confirmation received successfully",
+		}
+
+		if err := encoding.Encode(w, http.StatusOK, out); err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(errors.E(op, err))
 			encoding.EncodeError(w, errors.Kind(err), err)

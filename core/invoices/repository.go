@@ -1,6 +1,8 @@
 package invoices
 
-import "context"
+import (
+	"context"
+)
 
 // Repository ...
 type Repository interface {
@@ -16,4 +18,8 @@ type Repository interface {
 	Payed(ctx context.Context, property string, months uint) (InvoicePage, error)
 	// Expired retrieves invoices that are due to be archived(have passed payment date)
 	Archivable(context.Context) (InvoicePage, error)
+	// Unpaid invoices from last months
+	Unpaid(ctx context.Context, property string) (InvoicePage, error)
+	//Generate generates invoices for a house depending on the number of months
+	Generate(context.Context, string, uint, uint) ([]*Invoice, error)
 }

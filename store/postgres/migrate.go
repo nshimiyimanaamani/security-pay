@@ -832,6 +832,37 @@ func migrateDB(db *sql.DB) error {
 					`CREATE unique index on village_payment_metrics(village, cell, period);`,
 				},
 			},
+			{
+				Id: "024_alters_payments_table_add_ref_column_and_some_contraints",
+				Up: []string{
+					`	ALTER TABLE payments ADD COLUMN ref uuid NOT NULL DEFAULT uuid_generate_v4(); `,
+					`	ALTER TABLE payments ADD COLUMN status varchar(10) NOT NULL DEFAULT 'pending' CHECK(status in ('pending', 'successful', 'failed'));`,
+
+					`CREATE UNIQUE index on payments(ref,invoice);`,
+				},
+			},
+			{
+				Id: "025_alter_transactions_table_add_ref_column_and_some_contraints",
+				Up: []string{
+					`	ALTER TABLE transactions ADD COLUMN ref uuid NOT NULL DEFAULT uuid_generate_v4();`,
+					`	ALTER TABLE transactions ADD COLUMN status varchar(10) NOT NULL DEFAULT 'pending' CHECK(status in ('pending', 'successful', 'failed'));`,
+					`CREATE UNIQUE index on transactions(ref,invoice);`,
+				},
+			},
+			{
+				Id: "026_alter_update_trigger_set_invoice_status_func",
+				Up: []string{
+					`
+						CREATE OR REPLACE FUNCTION trigger_set_invoice_status()
+							RETURNS TRIGGER AS $$
+						BEGIN
+							UPDATE invoices SET status='payed' WHERE status='pending' AND invoices.id=NEW.invoice AND NEW.status='successful';
+						RETURN NEW;
+							END;
+						$$ LANGUAGE plpgsql;
+					`,
+				},
+			},
 		},
 	}
 	_, err := migrate.Exec(db, "postgres", migrations, migrate.Up)

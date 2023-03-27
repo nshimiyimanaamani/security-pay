@@ -92,6 +92,8 @@ func (cb *Callback) Validate() error {
 type TxRequest struct {
 	ID        string    `json:"id,omitempty"`
 	Code      string    `json:"code,omitempty"`
+	Ref       string    `json:"ref,omitempty"`
+	Status    string    `json:"status,omitempty"`
 	Amount    float64   `json:"amount,string,omitempty"`
 	MSISDN    string    `json:"phone,omitempty"`
 	Method    Method    `json:"payment_method,omitempty"`

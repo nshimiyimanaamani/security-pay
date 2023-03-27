@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/rugwirobaker/platypus"
+	"github.com/rugwirobaker/paypack-backend/pkg/platypus"
 )
 
 func (svc *service) Action0(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {

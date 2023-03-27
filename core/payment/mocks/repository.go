@@ -39,29 +39,29 @@ func (repo *repositoryMock) Save(ctx context.Context, payment *payment.TxRequest
 	return nil
 }
 
-func (repo *repositoryMock) Find(ctx context.Context, id string) (payment.TxRequest, error) {
+func (repo *repositoryMock) Find(ctx context.Context, id string) ([]*payment.TxRequest, error) {
 	const op errors.Op = "core/payment/mocks/repositoryMock.Find"
 
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 
-	val, ok := repo.payments[id]
-	if !ok {
-		return payment.TxRequest{}, errors.E(op, "payment not found", errors.KindNotFound)
-	}
-	return val, nil
+	return nil, errors.E(op, "not implemented", errors.KindUnexpected)
 }
 
-func (repo *repositoryMock) Update(ctx context.Context, payment payment.TxRequest) error {
+func (repo *repositoryMock) Update(ctx context.Context, status string, payment []*payment.TxRequest) error {
 	const op errors.Op = "core/payment/mocks/repositoryMock.Update"
 
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 
-	if _, ok := repo.payments[payment.ID]; !ok {
-		return errors.E(op, "payment not found", errors.KindNotFound)
-	}
+	return errors.E(op, "not implemented", errors.KindUnexpected)
+}
 
-	repo.payments[payment.ID] = payment
-	return nil
+func (repo *repositoryMock) BulkSave(ctx context.Context, payment []*payment.TxRequest) error {
+	const op errors.Op = "core/payment/mocks/repositoryMock.Update"
+
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	return errors.E(op, "not implemented", errors.KindUnexpected)
 }

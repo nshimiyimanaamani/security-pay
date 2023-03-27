@@ -129,8 +129,8 @@ func bootPaymentService(db *sql.DB, rclient *redis.Client, nclient notifs.Backen
 	var opts payment.Options
 	opts.Backend = pclient
 	opts.Idp = uuid.New()
-	opts.Repository = postgres.NewPaymentRepository(db)
 	opts.SMS = bootNotifService(db, nclient)
+	opts.Repository = postgres.NewPaymentRepository(db, opts.SMS)
 	opts.Queue = rstore.NewQueue(rclient)
 	opts.Properties = postgres.NewPropertyStore(db)
 	opts.Owners = postgres.NewOwnerRepo(db)
@@ -171,12 +171,16 @@ func bootUSSDService(prefix string, db *sql.DB, rclient *redis.Client, sms notif
 	properties := postgres.NewPropertyStore(db)
 	owners := postgres.NewOwnerRepo(db)
 	payment := bootPaymentService(db, rclient, sms, pclient)
+	agents := postgres.NewUserRepository(db)
+	invoice := postgres.NewInvoiceRepository(db)
 	opts := &ussd.Options{
 		Prefix:     prefix,
 		IDP:        idp,
 		Owners:     owners,
 		Properties: properties,
 		Payment:    payment,
+		Agents:     agents,
+		Invoices:   invoice,
 	}
 	return ussd.New(opts)
 }

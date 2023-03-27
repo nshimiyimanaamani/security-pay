@@ -165,7 +165,7 @@ func (repo *invoiceRepository) Pending(ctx context.Context, property string, mon
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM invoices WHERE property=$1 AND status='payed';`
+	q = `SELECT COUNT(*) FROM invoices WHERE property=$1 AND status='pending';`
 
 	var total uint
 
@@ -244,6 +244,19 @@ func (repo *invoiceRepository) Payed(ctx context.Context, property string, month
 func (repo *invoiceRepository) Earliest(ctx context.Context, property string) (invoices.Invoice, error) {
 	const op errors.Op = "store/postgres/invoiceRepository.Earliest"
 
+	// q := `
+	// 	SELECT
+	// 		id,
+	// 		amount,
+	// 		property,
+	// 		status,
+	// 		created_at,
+	// 		updated_at
+	// 	FROM
+	// 		earliest_pending_invoices_view
+	// 	WHERE property=$1;
+	// `
+
 	q := `
 		SELECT 
 			id, 
@@ -253,8 +266,11 @@ func (repo *invoiceRepository) Earliest(ctx context.Context, property string) (i
 			created_at, 
 			updated_at 
 		FROM 
-			earliest_pending_invoices_view 
-		WHERE property=$1;
+			invoices 
+		WHERE
+			property=$1 AND status='pending'
+		AND  
+			DATE_TRUNC('month', created_at) = DATE_TRUNC('month', CURRENT_DATE) ;
 	`
 	var invoice invoices.Invoice
 
@@ -269,7 +285,7 @@ func (repo *invoiceRepository) Earliest(ctx context.Context, property string) (i
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
-			return invoices.Invoice{}, errors.E(op, err, "no invoice found", errors.KindNotFound)
+			return invoices.Invoice{}, errors.E(op, err, "ntawenda ufite wo kwishyura uku kwezi", errors.KindNotFound)
 		}
 		return invoices.Invoice{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -329,4 +345,156 @@ func (repo *invoiceRepository) Archivable(ctx context.Context) (invoices.Invoice
 		},
 	}
 	return page, nil
+}
+
+// Unpaid returns all unpaid invoices for a given property
+func (repo *invoiceRepository) Unpaid(ctx context.Context, property string) (invoices.InvoicePage, error) {
+	const op errors.Op = "store/postgres/invoices.Unpaid"
+
+	q := `
+		SELECT 
+			id, 
+			amount, 
+			property, 
+			status, 
+			created_at, 
+			updated_at 
+		FROM 
+			invoices 
+		WHERE 
+			property=$1 
+		AND
+			status='pending' 
+		AND 
+			created_at < DATE_TRUNC('month', CURRENT_DATE)
+		ORDER BY created_at DESC
+	`
+
+	items := []invoices.Invoice{}
+
+	rows, err := repo.Query(q, property)
+	if err != nil {
+		return invoices.InvoicePage{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		c := invoices.Invoice{}
+
+		if err := rows.Scan(&c.ID, &c.Amount, &c.Property, &c.Status, &c.CreatedAt, &c.UpdatedAt); err != nil {
+			return invoices.InvoicePage{}, errors.E(op, err, errors.KindUnexpected)
+		}
+		items = append(items, c)
+	}
+
+	q = `SELECT 
+			COUNT(*),
+			COALESCE(sum(amount), 0.0) as total_unpaid
+		FROM 
+			invoices 
+		WHERE 
+			property=$1 AND status='pending' AND created_at < DATE_TRUNC('month', CURRENT_DATE);`
+
+	var (
+		total       uint
+		totalUnpaid float64
+	)
+
+	if err := repo.QueryRow(q, property).Scan(&total, &totalUnpaid); err != nil {
+		return invoices.InvoicePage{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	page := invoices.InvoicePage{
+		Invoices: items,
+		PageMetadata: invoices.PageMetadata{
+			Total:       total,
+			TotalAmount: totalUnpaid,
+		},
+	}
+	return page, nil
+}
+
+// Generate generates a new invoice for a given months count from the current month on wards with the given amount and property id
+func (repo *invoiceRepository) Generate(ctx context.Context, property string, amount, months uint) ([]*invoices.Invoice, error) {
+	const op errors.Op = "store/postgres/invoices.Generate"
+
+	tx, err := repo.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, errors.E(op, err, errors.KindUnexpected)
+	}
+	defer tx.Rollback()
+
+	out := make([]*invoices.Invoice, 0)
+
+	selectQuery := `
+		SELECT
+			id, amount, property, status, created_at, updated_at
+		FROM
+			invoices
+		WHERE
+			property=$1
+		AND
+			DATE_TRUNC('month', created_at) = DATE_TRUNC('month', CURRENT_DATE)
+	`
+
+	invoice := new(invoices.Invoice)
+
+	if err := tx.QueryRow(
+		selectQuery,
+		property,
+	).Scan(
+		&invoice.ID,
+		&invoice.Amount,
+		&invoice.Property,
+		&invoice.Status,
+		&invoice.CreatedAt,
+		&invoice.UpdatedAt,
+	); err != nil {
+		return nil, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	if invoice.Status == invoices.Pending {
+		out = append(out, invoice)
+	}
+
+	insertQuery := `
+		INSERT INTO invoices (amount, property, status, created_at, updated_at)
+		SELECT 
+			$1::numeric, 
+			$2::text, 
+			'pending', 
+			DATE_TRUNC('month', CURRENT_DATE) + interval '1 month' * s.a, 
+			DATE_TRUNC('month', CURRENT_DATE) + interval '1 month' * s.a
+		FROM generate_series(1, $3::int) s(a)
+		RETURNING id, amount, property, status, created_at, updated_at ON CONFLICT DO NOTHING;
+	`
+
+	rows, err := tx.Query(insertQuery, amount, property, months)
+	if err != nil {
+		pqErr, ok := err.(*pq.Error)
+		if ok && errInvalid == pqErr.Code.Name() {
+			return nil, errors.E(op, err, "invalid property", errors.KindNotFound)
+		}
+		return nil, errors.E(op, err, errors.KindUnexpected)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		invoice := new(invoices.Invoice)
+		err := rows.Scan(
+			&invoice.ID,
+			&invoice.Amount,
+			&invoice.Property,
+			&invoice.Status,
+			&invoice.CreatedAt,
+			&invoice.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.E(op, err, errors.KindUnexpected)
+		}
+		out = append(out, invoice)
+	}
+
+	return out, tx.Commit()
 }

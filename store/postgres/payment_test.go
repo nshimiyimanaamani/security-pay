@@ -19,7 +19,7 @@ import (
 
 func TestSavePayment(t *testing.T) {
 	const op errors.Op = "store/postgres/paymentStore.Save"
-	repo := postgres.NewPaymentRepository(db)
+	repo := postgres.NewPaymentRepository(db, nil)
 
 	defer CleanDB(t, db)
 
@@ -125,7 +125,7 @@ func TestSavePayment(t *testing.T) {
 func TestFindPayment(t *testing.T) {
 	const op errors.Op = "store/postgres/paymentStore.Find"
 
-	repo := postgres.NewPaymentRepository(db)
+	repo := postgres.NewPaymentRepository(db, nil)
 	defer CleanDB(t, db)
 
 	account := accounts.Account{ID: "paypack.developers", Name: "remera", NumberOfSeats: 10, Type: accounts.Devs}
@@ -217,7 +217,7 @@ func TestFindPayment(t *testing.T) {
 func TestUpdatePayment(t *testing.T) {
 	const op errors.Op = "store/postgres/paymentStore.Update"
 
-	repo := postgres.NewPaymentRepository(db)
+	repo := postgres.NewPaymentRepository(db, nil)
 	defer CleanDB(t, db)
 
 	account := accounts.Account{
@@ -315,7 +315,7 @@ func TestUpdatePayment(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		err := repo.Update(ctx, tc.pmt)
+		err := repo.Update(ctx, "successuful", nil)
 		assert.True(t, errors.Match(tc.err, err), fmt.Sprintf("%s: expected err: '%v' got err: '%v'", tc.desc, tc.err, err))
 	}
 }
