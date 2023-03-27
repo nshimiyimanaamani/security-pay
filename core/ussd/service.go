@@ -87,6 +87,11 @@ func (svc *service) Process(ctx context.Context, req *Request) (Response, error)
 }
 
 func (svc *service) Pay(ctx context.Context, p properties.Property, phone string) (string, error) {
+
+	//remove country code prefix so that payment can be able to pass through on the payment gateway(paypack-payments)
+	phone = strings.TrimPrefix(phone, "25")
+	phone = strings.TrimPrefix(phone, "+25")
+
 	tx := &payment.TxRequest{
 		Code:   p.ID,
 		MSISDN: phone,

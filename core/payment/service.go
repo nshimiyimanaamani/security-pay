@@ -179,7 +179,10 @@ func (svc *service) ConfirmPull(ctx context.Context, cb Callback) error {
 	tx := svc.NewTransaction(payment, property, owner)
 
 	if _, err := svc.transactions.Save(ctx, tx); err != nil {
-		return errors.E(op, err)
+		if errors.Kind(err) == errors.KindAlreadyExists {
+			return errors.E(op, fmt.Sprintf("transaction with this %s ref number is already recorded on umutekano", cb.Data.Ref), errors.KindAlreadyExists)
+		}
+		return errors.E(op, err, errors.Kind(err))
 	}
 
 	err = svc.Notify(ctx, payment, tx)
@@ -254,12 +257,12 @@ func FormatMessage(
 	pr properties.Property,
 	timestamp string,
 ) string {
-	const header = "Murakoze kwishyura umusanzu w' "
+	const header = "Murakoze kwishyura umusanzu w' isuku"
 
 	var buf bytes.Buffer
 
 	buf.WriteString(header)
-	buf.WriteString(selectActivity(pr.Address.Sector))
+	// buf.WriteString(selectActivity(pr.Address.Sector))
 	buf.WriteString(" mu murenge wa ")
 	buf.WriteString(fmt.Sprintf("%s.\n\n", pr.Address.Sector))
 	buf.WriteString(fmt.Sprintf("Nimero yishyuriweho: %s\n", py.MSISDN))

@@ -25,7 +25,7 @@ var (
 	Length   = 20
 )
 
-//Service defines the transaction service API
+// Service defines the transaction service API
 type Service interface {
 	// Record adds a new transaction record
 	Record(ctx context.Context, tx Transaction) (Transaction, error)
@@ -64,7 +64,7 @@ type Options struct {
 	Repo Repository
 }
 
-//New instantiates a new transaxtions service
+// New instantiates a new transaxtions service
 func New(opts *Options) Service {
 	return &service{
 		idp:  opts.Idp,

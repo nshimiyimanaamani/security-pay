@@ -21,9 +21,9 @@ func Process(lgger log.Entry, svc ussd.Service) http.Handler {
 		// debug(r, w)
 
 		req := &ussd.Request{
-			GwRef:     uuid.New().ID(),
-			TenantID:  "paypack",
-			ServiceID: uuid.New().ID(),
+			GwRef:    uuid.New().ID(),
+			TenantID: "paypack",
+			// ServiceID: uuid.New().ID(),
 		}
 
 		err := encoding.Decode(r, &req)
