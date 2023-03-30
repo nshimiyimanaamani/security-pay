@@ -2,8 +2,13 @@ package payment
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+>>>>>>> Stashed changes
 	"net/http"
+	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/api/http/encoding"
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
@@ -147,6 +152,52 @@ func ConfirmPush(logger log.Entry, svc payment.Service) http.Handler {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
+	}
+	return http.HandlerFunc(f)
+}
+
+// PaymentReports returns the reports about paid and unpaid
+func PaymentReports(logger log.Entry, svc payment.Service) http.Handler {
+	const op errors.Op = "api/http/payment/PaymentReports"
+
+	f := func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		status := vars["status"]
+		sector := vars["sector"]
+		cell := vars["cell"]
+		village := vars["village"]
+
+		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
+		if err != nil {
+			err = parseErr(op, err)
+			logger.SystemErr(err)
+			encodeErr(w, err)
+			return
+		}
+
+		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
+		if err != nil {
+			err = parseErr(op, err)
+			logger.SystemErr(err)
+			encodeErr(w, err)
+			return
+		}
+
+		res, err := svc.PaymentReports(r.Context(), status, sector, cell, village, limit, offset)
+		fmt.Println(res)
+		if err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(err)
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
+
+		if err := encoding.Encode(w, http.StatusOK, res); err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(errors.E(op, err))
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
 	}
 	return http.HandlerFunc(f)
 }

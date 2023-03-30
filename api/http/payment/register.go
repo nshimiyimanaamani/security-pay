@@ -51,4 +51,7 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 
 	r.Handle(ProcessCreditRoute, LogEntryHandler(ConfirmPush, opts)).Methods(http.MethodPost)
 	r.Handle(CreditRoute, authenticator(LogEntryHandler(Push, opts))).Methods(http.MethodPost)
+	r.Handle(PaymentReportsRoute, authenticator(LogEntryHandler(PaymentReports, opts))).
+		Methods(http.MethodGet).
+		Queries("status", "{status}", "sector", "{sector}", "cell", "{cell}", "village", "{village}", "limit", "{limit}", "offset", "{offset}")
 }

@@ -52,6 +52,23 @@ type TxResponse struct {
 	TxState State  `json:"transaction_state,omitempty"`
 }
 
+type PageMetadata struct {
+	Total  uint64
+	Offset uint64
+	Limit  uint64
+}
+
+type Payment struct {
+	ID    string `json:"id,omitempty"`
+	Fname string `json:"fname,omitempty"`
+	Lname string `json:"lname,omitempty"`
+	Email string `json:"email,omitempty"`
+}
+type PaymentResponse struct {
+	PageMetadata
+	Payments []Payment
+}
+
 // Callback defines the response got from the callback
 type Callback struct {
 	Data Data   `json:"data"`

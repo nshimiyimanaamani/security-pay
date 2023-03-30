@@ -11,6 +11,15 @@ type Repository interface {
 	//Find payment by id
 	Find(ctx context.Context, id string) ([]*TxRequest, error)
 
+	//List Payments
+	List(ctx context.Context, status, sector, cell, village string, limit, offset uint64) (PaymentResponse, error)
+
+	//List Payments
+	List(ctx context.Context, status, sector, cell, village string, limit, offset uint64) (PaymentResponse, error)
+
+	//List Payments
+	List(ctx context.Context, status, sector, cell, village string, limit, offset uint64) (PaymentResponse, error)
+
 	//Update the state of an existing payment
 	Update(context.Context, string, []*TxRequest) error
 
