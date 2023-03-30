@@ -14,12 +14,6 @@ type Repository interface {
 	//List Payments
 	List(ctx context.Context, status, sector, cell, village string, limit, offset uint64) (PaymentResponse, error)
 
-	//List Payments
-	List(ctx context.Context, status, sector, cell, village string, limit, offset uint64) (PaymentResponse, error)
-
-	//List Payments
-	List(ctx context.Context, status, sector, cell, village string, limit, offset uint64) (PaymentResponse, error)
-
 	//Update the state of an existing payment
 	Update(context.Context, string, []*TxRequest) error
 

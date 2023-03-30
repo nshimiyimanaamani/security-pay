@@ -311,6 +311,99 @@ func (repo *paymentStore) BulkSave(ctx context.Context, payments []*payment.TxRe
 	return tx.Commit()
 }
 
+func (repo *paymentStore) List(ctx context.Context, status, sector, cell, village string, limit, offset uint64) (payment.PaymentResponse, error) {
+	const op errors.Op = "store/postgres/paymentStore.List"
+
+	q := `SELECT 
+			i.id,
+			o.fname, 
+			o.lname,
+			o.phone
+		FROM 
+			owners o
+		JOIN properties p 
+			ON p.owner = o.id
+		JOIN invoices i ON 
+			i.property = p.id
+		WHERE 1 = 1`
+	if status != "" {
+		q += fmt.Sprintf("\nAND i.status = '%s'", status)
+	}
+
+	q += "\nAND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)"
+
+	if sector != "" {
+		q += fmt.Sprintf("\nAND p.sector = '%s'", sector)
+	}
+
+	if cell != "" {
+		q += fmt.Sprintf("\nAND p.cell = '%s'", cell)
+	}
+
+	if village != "" {
+		q += fmt.Sprintf("\nAND p.village = '%s'", village)
+	}
+
+	q += "\nORDER BY i.created_at DESC"
+	q += fmt.Sprintf("\nOFFSET %d LIMIT %d", offset, limit)
+
+	rows, err := repo.QueryContext(ctx, q)
+	if err != nil {
+		return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)
+	}
+	defer rows.Close()
+
+	var payments []payment.Payment
+	for rows.Next() {
+		var pmt payment.Payment
+		err := rows.Scan(
+			&pmt.ID,
+			&pmt.Fname,
+			&pmt.Lname,
+			&pmt.Email,
+		)
+		if err != nil {
+			return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)
+		}
+		payments = append(payments, pmt)
+	}
+
+	q = `SELECT COUNT(*) FROM invoices i JOIN properties p ON i.property = p.id`
+	q += "\nWHERE 1 = 1"
+	if status != "" {
+		q += fmt.Sprintf("\nAND i.status = '%s'", status)
+	}
+
+	q += "\nAND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)"
+
+	if sector != "" {
+		q += fmt.Sprintf("\nAND p.sector = '%s'", sector)
+	}
+
+	if cell != "" {
+		q += fmt.Sprintf("\nAND p.cell = '%s'", cell)
+	}
+
+	if village != "" {
+		q += fmt.Sprintf("\nAND p.village = '%s'", village)
+	}
+
+	var total uint64
+	if err := repo.QueryRow(q).Scan(&total); err != nil {
+		return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)
+	}
+	//
+	page := payment.PaymentResponse{
+		Payments: payments,
+		PageMetadata: payment.PageMetadata{
+			Total:  total,
+			Offset: offset,
+			Limit:  limit,
+		},
+	}
+	return page, nil
+}
+
 func formMessage(tx []*payment.TxRequest, prop *properties.Property) string {
 
 	const header = "Murakoze kwishyura umusanzu w' isuku"

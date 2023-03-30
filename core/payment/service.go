@@ -33,6 +33,12 @@ type Service interface {
 
 	// PaymentRequest generates all payments
 	PaymentReports(ctx context.Context, status, sector, cell, village string, limit, offset uint64) (PaymentResponse, error)
+
+	//BulkPull initiate payment for multiple invoices
+	BulkPull(context.Context, *TxRequest, int) (*TxResponse, error)
+
+	//CreditPull initiate payment for credited invoices
+	CreditPull(context.Context, *TxRequest, []invoices.Invoice) (*TxResponse, error)
 }
 
 // Options simplifies New func signature

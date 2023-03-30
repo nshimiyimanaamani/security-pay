@@ -3,8 +3,6 @@ package payment
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
->>>>>>> Stashed changes
 	"net/http"
 	"strconv"
 
