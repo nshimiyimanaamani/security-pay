@@ -856,7 +856,7 @@ func migrateDB(db *sql.DB) error {
 						CREATE OR REPLACE FUNCTION trigger_set_invoice_status()
 							RETURNS TRIGGER AS $$
 						BEGIN
-							UPDATE invoices SET status='payed' WHERE status='pending' AND invoices.id=NEW.invoice AND NEW.status='successful';
+							UPDATE invoices SET status='payed' WHERE invoices.id=NEW.invoice AND NEW.status='successful';
 						RETURN NEW;
 							END;
 						$$ LANGUAGE plpgsql;

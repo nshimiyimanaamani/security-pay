@@ -85,37 +85,44 @@ func (svc service) Pull(ctx context.Context, payment *TxRequest) (*TxResponse, e
 
 	// check the bare minimum
 	if err := payment.HasCode(); err != nil {
+		failed.Message = err.Error()
 		return failed, errors.E(op, err)
 	}
 
 	property, err := svc.properties.RetrieveByID(ctx, payment.Code)
 	if err != nil {
+		failed.Message = err.Error()
 		return failed, errors.E(op, err)
 	}
 
 	invoice, err := svc.invoices.Earliest(ctx, property.ID)
 	if err != nil {
+		failed.Message = err.Error()
 		return failed, errors.E(op, err)
 	}
 
 	// verify invoice
 	if err := invoice.Verify(payment.Amount); err != nil {
+		failed.Message = err.Error()
 		return failed, errors.E(op, err)
 	}
 	payment.ID = svc.idp.ID()
 
 	payment.Invoice = invoice.ID
 	if err := payment.HasInvoice(); err != nil {
+		failed.Message = err.Error()
 		return failed, errors.E(op, err)
 	}
 
 	// validate payment
 	if err := payment.Ready(); err != nil {
+		failed.Message = err.Error()
 		return failed, errors.E(op, err)
 	}
 
 	res, err := svc.backend.Pull(ctx, payment)
 	if err != nil {
+		failed.Message = err.Error()
 		return failed, errors.E(op, err)
 	}
 
@@ -124,9 +131,10 @@ func (svc service) Pull(ctx context.Context, payment *TxRequest) (*TxResponse, e
 	payment.Confirmed = false
 
 	if err := svc.repository.Save(ctx, payment); err != nil {
+		failed.Message = err.Error()
 		return failed, errors.E(op, err)
 	}
-
+	res.TxState = "success"
 	return res, nil
 }
 
@@ -138,16 +146,13 @@ func (svc service) BulkPull(ctx context.Context, payment *TxRequest, month int) 
 
 	// check the bare minimum
 	if err := payment.HasCode(); err != nil {
+		failed.Message = err.Error()
 		return failed, errors.E(op, err)
 	}
 
 	// validate payment
 	if err := payment.Ready(); err != nil {
-		return failed, errors.E(op, err)
-	}
-
-	res, err := svc.backend.Pull(ctx, payment)
-	if err != nil {
+		failed.Message = err.Error()
 		return failed, errors.E(op, err)
 	}
 
@@ -155,6 +160,18 @@ func (svc service) BulkPull(ctx context.Context, payment *TxRequest, month int) 
 
 	invoices, err := svc.invoices.Generate(ctx, payment.Code, uint(payment.Amount), uint(month))
 	if err != nil {
+		failed.Message = "Mwihangane habaye ikibazo muri sisiteme mwongere mukanya"
+		return failed, errors.E(op, err)
+	}
+
+	if len(invoices) == 0 {
+		failed.Message = "Mwihangane habaye ikibazo muri sisiteme mwongere mukanya"
+		return failed, errors.E(op, failed.Message, errors.KindUnexpected)
+	}
+
+	res, err := svc.backend.Pull(ctx, payment)
+	if err != nil {
+		failed.Message = err.Error()
 		return failed, errors.E(op, err)
 	}
 
@@ -173,6 +190,7 @@ func (svc service) BulkPull(ctx context.Context, payment *TxRequest, month int) 
 	}
 
 	if err := svc.repository.BulkSave(ctx, payments); err != nil {
+		failed.Message = "Mwihangane habaye ikibazo muri sisiteme mwongere mukanya"
 		return failed, errors.E(op, err)
 	}
 

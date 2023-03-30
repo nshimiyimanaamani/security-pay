@@ -244,19 +244,6 @@ func (repo *invoiceRepository) Payed(ctx context.Context, property string, month
 func (repo *invoiceRepository) Earliest(ctx context.Context, property string) (invoices.Invoice, error) {
 	const op errors.Op = "store/postgres/invoiceRepository.Earliest"
 
-	// q := `
-	// 	SELECT
-	// 		id,
-	// 		amount,
-	// 		property,
-	// 		status,
-	// 		created_at,
-	// 		updated_at
-	// 	FROM
-	// 		earliest_pending_invoices_view
-	// 	WHERE property=$1;
-	// `
-
 	q := `
 		SELECT 
 			id, 
@@ -285,7 +272,7 @@ func (repo *invoiceRepository) Earliest(ctx context.Context, property string) (i
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
-			return invoices.Invoice{}, errors.E(op, err, "ntawenda ufite wo kwishyura uku kwezi", errors.KindNotFound)
+			return invoices.Invoice{}, errors.E(op, "ntawenda ufite wo kwishyura uku kwezi", errors.KindNotFound)
 		}
 		return invoices.Invoice{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -439,7 +426,6 @@ func (repo *invoiceRepository) Generate(ctx context.Context, property string, am
 	`
 
 	invoice := new(invoices.Invoice)
-
 	if err := tx.QueryRow(
 		selectQuery,
 		property,
@@ -459,22 +445,30 @@ func (repo *invoiceRepository) Generate(ctx context.Context, property string, am
 	}
 
 	insertQuery := `
-		INSERT INTO invoices (amount, property, status, created_at, updated_at)
-		SELECT 
+		INSERT INTO invoices 
+			(amount, property, status, created_at, updated_at)
+		SELECT
 			$1::numeric, 
-			$2::text, 
+			$2::text,
 			'pending', 
 			DATE_TRUNC('month', CURRENT_DATE) + interval '1 month' * s.a, 
 			DATE_TRUNC('month', CURRENT_DATE) + interval '1 month' * s.a
-		FROM generate_series(1, $3::int) s(a)
-		RETURNING id, amount, property, status, created_at, updated_at ON CONFLICT DO NOTHING;
+		FROM 
+			generate_series(1, $3::int) s(a)
+		ON CONFLICT DO NOTHING RETURNING 
+			id, 
+			amount, 
+			property, 
+			status, 
+			created_at, 
+			updated_at
 	`
 
-	rows, err := tx.Query(insertQuery, amount, property, months)
+	rows, err := tx.Query(insertQuery, amount/months, property, months)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok && errInvalid == pqErr.Code.Name() {
-			return nil, errors.E(op, err, "invalid property", errors.KindNotFound)
+			return nil, errors.E(op, err, errors.KindNotFound)
 		}
 		return nil, errors.E(op, err, errors.KindUnexpected)
 	}

@@ -2,8 +2,10 @@ package platypus
 
 import (
 	"context"
-	"fmt"
 	"strings"
+	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 type ctxKey string
@@ -55,9 +57,13 @@ func (mux *Mux) Process(ctx context.Context, cmd *Command) (Result, error) {
 	}
 	ctx = ContextWithParams(ctx, params)
 
-	fmt.Println("Request:", cmd.Request)
-	fmt.Println("Params:", params)
-	fmt.Println("Matching path pattern:", key)
+	//for visualization purposes
+	logrus.WithFields(logrus.Fields{
+		"request": cmd.Request,
+		"params":  params,
+		"key":     key,
+		"phone":   cmd.Phone,
+	}).Infof("dispatching command to handler %v", time.Now().Format("2006-01-02 15:04:05"))
 
 	if node.action != nil {
 		return node.action.Process(ctx, cmd)

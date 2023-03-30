@@ -194,25 +194,27 @@ func (repo *paymentStore) Update(ctx context.Context, status string, payments []
 		}
 	}
 
-	var query = insertTxQuery + strings.Join(pos, ",")
+	if len(pos) > 0 {
+		var query = insertTxQuery + strings.Join(pos, ",")
 
-	_, err = tx.ExecContext(
-		ctx,
-		query,
-		args...,
-	)
-	if err != nil {
-		pqErr, ok := err.(*pq.Error)
-		if ok {
-			switch pqErr.Code.Name() {
-			case errDuplicate:
-				return errors.E(op, "transactions already existed", errors.KindAlreadyExists)
+		_, err = tx.ExecContext(
+			ctx,
+			query,
+			args...,
+		)
+		if err != nil {
+			pqErr, ok := err.(*pq.Error)
+			if ok {
+				switch pqErr.Code.Name() {
+				case errDuplicate:
+					return errors.E(op, "transactions already existed", errors.KindAlreadyExists)
+				}
 			}
+			return errors.E(op, err, errors.KindUnexpected)
 		}
-		return errors.E(op, err, errors.KindUnexpected)
 	}
 
-	_, err = tx.ExecContext(ctx, updatePay, true, status, payments[0].Ref)
+	_, err = tx.ExecContext(ctx, updatePayQuery, true, status, payments[0].Ref)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok {
@@ -293,6 +295,8 @@ func (repo *paymentStore) BulkSave(ctx context.Context, payments []*payment.TxRe
 		args...,
 	)
 	if err != nil {
+		fmt.Println("insert payment err", err)
+		fmt.Println("insert payment input", payments)
 		pqErr, ok := err.(*pq.Error)
 		if ok {
 			switch pqErr.Code.Name() {
@@ -363,9 +367,10 @@ var insertTxQuery = `
 `
 
 // update payments table
-var updatePay = `
+var updatePayQuery = `
 UPDATE
 	payments 
 SET 
 	confirmed=$1, status=$2 
-WHERE ref=$3;`
+WHERE ref=$3
+`

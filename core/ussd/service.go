@@ -82,9 +82,9 @@ func register(prefix string, svc *service, mux *platypus.Mux) *platypus.Mux {
 	mux.Handle(prefix+"*1*:id*1*2", platypus.HandlerFunc(svc.Action1_1_1_1_2), platypus.TrimTrailHash)
 
 	//kwishura amezi menshi ukoresheje nimero uri gukoresha
-	mux.Handle(prefix+"*1*:id*2*2", platypus.HandlerFunc(svc.Action1_1_1_1_2), platypus.TrimTrailHash)
-	mux.Handle(prefix+"*1*:id*2*2*:input", platypus.HandlerFunc(svc.Action1_1_1_1_2_Input), platypus.TrimTrailHash)
 	mux.Handle(prefix+"*1*:id*2*2*:input*1#", platypus.HandlerFunc(svc.Action1_1_1_2_2_Input_1), nil)
+	mux.Handle(prefix+"*1*:id*2*2*:input", platypus.HandlerFunc(svc.Action1_1_1_1_2_Input), platypus.TrimTrailHash)
+	mux.Handle(prefix+"*1*:id*2*2", platypus.HandlerFunc(svc.Action1_1_1_1_2), platypus.TrimTrailHash)
 
 	//Kwishyura ikirarane ukoresheje nimero inzu yanditseho
 	mux.Handle(prefix+"*1*:id*1*3", platypus.HandlerFunc(svc.Action1_1_1_1_3), platypus.TrimTrailHash)
