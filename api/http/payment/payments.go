@@ -23,6 +23,8 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 		sector := cast.CastToString((vars["sector"]))
 		cell := cast.CastToString((vars["cell"]))
 		village := cast.CastToString((vars["village"]))
+		from := cast.CastToString((vars["from"]))
+		to := cast.CastToString((vars["to"]))
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
@@ -46,6 +48,8 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 			Sector:  sector,
 			Cell:    cell,
 			Village: village,
+			From:    from,
+			To:      to,
 			Offset:  &offset,
 			Limit:   &limit,
 		}

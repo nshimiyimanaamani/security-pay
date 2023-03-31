@@ -351,6 +351,15 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	if flts.Village != nil {
 		selectQuery += fmt.Sprintf("\nAND p.village = '%s'", *flts.Village)
 	}
+	// check on from date
+	if flts.From != nil {
+		selectQuery += fmt.Sprintf("\nAND i.created_at >= '%s'", *flts.From)
+	}
+	// check on to date
+	if flts.To != nil {
+		selectQuery += fmt.Sprintf("\nAND i.created_at <= '%s'", *flts.To)
+	}
+	
 
 	selectQuery += "\nORDER BY i.created_at DESC"
 	selectQuery += fmt.Sprintf("\nOFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
