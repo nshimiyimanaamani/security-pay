@@ -2,6 +2,7 @@ package payment
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/api/http/encoding"
@@ -20,28 +21,33 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 		status := vars["status"]
 
 		// !!! TODO: Add the missing filters and other things too below
-		// sector := vars["sector"]
-		// cell := vars["cell"]
-		// village := vars["village"]
+		sector := vars["sector"]
+		cell := vars["cell"]
+		village := vars["village"]
 
-		// offset, err := strconv.ParseUint(vars["offset"], 10, 32)
-		// if err != nil {
-		// 	err = parseErr(op, err)
-		// 	logger.SystemErr(err)
-		// 	encodeErr(w, err)
-		// 	return
-		// }
+		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
+		if err != nil {
+			err = parseErr(op, err)
+			logger.SystemErr(err)
+			encodeErr(w, err)
+			return
+		}
 
-		// limit, err := strconv.ParseUint(vars["limit"], 10, 32)
-		// if err != nil {
-		// 	err = parseErr(op, err)
-		// 	logger.SystemErr(err)
-		// 	encodeErr(w, err)
-		// 	return
-		// }
+		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
+		if err != nil {
+			err = parseErr(op, err)
+			logger.SystemErr(err)
+			encodeErr(w, err)
+			return
+		}
 
 		flt := &payment.Filters{
-			Status: &status,
+			Status:  &status,
+			Sector:  &sector,
+			Cell:    &cell,
+			Village: &village,
+			Offset:  &offset,
+			Limit:   &limit,
 		}
 
 		res, err := svc.List(r.Context(), flt)
