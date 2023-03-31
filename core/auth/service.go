@@ -55,6 +55,7 @@ func (svc *service) Login(ctx context.Context, user Credentials) (string, error)
 
 	creds, err := svc.repo.Retrieve(ctx, user.Username)
 	if err != nil {
+
 		return "", errors.E(op, err)
 	}
 

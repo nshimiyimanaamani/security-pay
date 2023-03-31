@@ -50,6 +50,8 @@ type Service interface {
 	// ListPropertiesByVillage returns a lists of properties in the given village
 	// withing the given range(offset, limit).
 	ListByVillage(ctx context.Context, village string, offset, limit uint64) (PropertyPage, error)
+
+	ListByNames(ctx context.Context, names string, offset, limit uint64) (PropertyPage, error)
 }
 
 var _ Service = (*service)(nil)
@@ -161,6 +163,16 @@ func (svc *service) ListByVillage(ctx context.Context, village string, offset, l
 	const op errors.Op = "app/properties/service.ListPropertiesByVillage"
 
 	page, err := svc.repo.RetrieveByVillage(ctx, village, offset, limit)
+	if err != nil {
+		return PropertyPage{}, errors.E(op, err)
+	}
+	return page, nil
+}
+
+func (svc *service) ListByNames(ctx context.Context, names string, offset, limit uint64) (PropertyPage, error) {
+	const op errors.Op = "app/properties/service.ListByNames"
+
+	page, err := svc.repo.RetrieveByNames(ctx, names, offset, limit)
 	if err != nil {
 		return PropertyPage{}, errors.E(op, err)
 	}

@@ -34,4 +34,7 @@ type Repository interface {
 
 	// Auditable counts the number of properties that need an invoice
 	//Auditable(ctx context.Context) (int, error)
+
+	//RetrieveBYNames
+	RetrieveByNames(ctx context.Context, names string, offset, limit uint64) (PropertyPage, error)
 }
