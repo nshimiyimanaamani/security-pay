@@ -72,8 +72,29 @@ func register(prefix string, svc *service, mux *platypus.Mux) *platypus.Mux {
 	mux.Handle(prefix+"*1*:id*1", platypus.HandlerFunc(svc.ActionPreview), platypus.TrimTrailHash)
 	mux.Handle(prefix+"*1*:id*2", platypus.HandlerFunc(svc.ActionPreview), platypus.TrimTrailHash)
 	mux.Handle(prefix+"*1*:id", platypus.HandlerFunc(svc.Action1_1), platypus.TrimTrailHash)
+
+	//Kwishyura ubanje kwinjizamo nimore ya telefoni wishyura ukoresheje nimero uri gukoresha
+	mux.Handle(prefix+"*2*:phone*:id*2*2*:input*1#", platypus.HandlerFunc(svc.Action1_1_1_2_2_Input_1), nil)
+	mux.Handle(prefix+"*2*:phone*:id*2*2*:input", platypus.HandlerFunc(svc.Action1_1_1_1_2_Input), platypus.TrimTrailHash)
+	mux.Handle(prefix+"*2*:phone*:id*2*2", platypus.HandlerFunc(svc.Action1_1_1_1_2), platypus.TrimTrailHash)
+
+	//Kwishyura amezi menshi for option 2 ukoresheje nimero inzu yanditseho Action1_1_1_1_2_Input
+	mux.Handle(prefix+"*2*:phone*:id*1*2*:input*1#", platypus.HandlerFunc(svc.Action1_1_1_1_2_Input_1), nil)
+	mux.Handle(prefix+"*2*:phone*:id*1*2*:input", platypus.HandlerFunc(svc.Action1_1_1_1_2_Input), platypus.TrimTrailHash)
+	mux.Handle(prefix+"*2*:phone*:id*1*2", platypus.HandlerFunc(svc.Action1_1_1_1_2), platypus.TrimTrailHash)
+
+	//Kwishyura ubanje kwinjizamo nimore ya telefoni wishyura ukoresheje nimero uri gukoresha
+	mux.Handle(prefix+"*2*:phone*:id*2*1#", platypus.HandlerFunc(svc.action2_input_2_1), nil)
+	mux.Handle(prefix+"*2*:phone*:id*2", platypus.HandlerFunc(svc.action2_payment_preview), platypus.TrimTrailHash)
+
+	//Kwishyura ubanje kwinjizamo nimore ya telefoni wishyura ukoresheje nimero inzu yanditseho
+	mux.Handle(prefix+"*2*:phone*:id*1*1#", platypus.HandlerFunc(svc.action2_input_1_1), nil)
+	mux.Handle(prefix+"*2*:phone*:id*1", platypus.HandlerFunc(svc.action2_payment_preview), platypus.TrimTrailHash)
+	mux.Handle(prefix+"*2*:phone*:id", platypus.HandlerFunc(svc.Action1_1), platypus.TrimTrailHash)
+	mux.Handle(prefix+"*2*:phone", platypus.HandlerFunc(svc.action2_1), platypus.TrimTrailHash)
 	mux.Handle(prefix+"*2", platypus.HandlerFunc(svc.action2), platypus.TrimTrailHash)
-	mux.Handle(prefix+"*2*:phone#", platypus.HandlerFunc(svc.action2_1), nil)
+
+	//Option 3 for asking help
 	mux.Handle(prefix+"*3", platypus.HandlerFunc(svc.action3), platypus.TrimTrailHash)
 
 	//kwishura amezi menshi ukoresheje nimero inzu yanditseho
@@ -87,8 +108,8 @@ func register(prefix string, svc *service, mux *platypus.Mux) *platypus.Mux {
 	mux.Handle(prefix+"*1*:id*2*2", platypus.HandlerFunc(svc.Action1_1_1_1_2), platypus.TrimTrailHash)
 
 	//Kwishyura ikirarane ukoresheje nimero inzu yanditseho
-	mux.Handle(prefix+"*1*:id*1*3", platypus.HandlerFunc(svc.Action1_1_1_1_3), platypus.TrimTrailHash)
 	mux.Handle(prefix+"*1*:id*1*3*1#", platypus.HandlerFunc(svc.Action1_1_1_1_3_1), nil)
+	mux.Handle(prefix+"*1*:id*1*3", platypus.HandlerFunc(svc.Action1_1_1_1_3), platypus.TrimTrailHash)
 
 	//Kwishyura ikirarane ukoresheje nimero uri gukoresha
 	mux.Handle(prefix+"*1*:id*2*3", platypus.HandlerFunc(svc.Action1_1_1_1_3), platypus.TrimTrailHash)
