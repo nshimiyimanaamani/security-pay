@@ -334,21 +334,21 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 		WHERE 1 = 1
 	`
 
-	if *flts.Status != "" {
+	if flts.Status != nil {
 		selectQuery += fmt.Sprintf("\nAND i.status = '%s'", *flts.Status)
 	}
 
 	selectQuery += "\nAND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)"
 
-	if *flts.Sector != "" {
+	if flts.Sector != nil {
 		selectQuery += fmt.Sprintf("\nAND p.sector = '%s'", *flts.Sector)
 	}
 
-	if *flts.Cell != "" {
+	if flts.Cell != nil {
 		selectQuery += fmt.Sprintf("\nAND p.cell = '%s'", *flts.Cell)
 	}
 
-	if *flts.Village != "" {
+	if flts.Village != nil {
 		selectQuery += fmt.Sprintf("\nAND p.village = '%s'", *flts.Village)
 	}
 
@@ -379,17 +379,17 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	selectQuery = `SELECT COUNT(*) FROM invoices i JOIN properties p ON i.property = p.id`
 	selectQuery += "\nWHERE 1 = 1"
 
-	if *flts.Status != "" {
+	if flts.Status != nil {
 		selectQuery += fmt.Sprintf("\nAND i.status = '%s'", *flts.Status)
 	}
 
 	selectQuery += "\nAND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)"
 
-	if *flts.Sector != "" {
+	if flts.Sector != nil {
 		selectQuery += fmt.Sprintf("\nAND p.sector = '%s'", *flts.Sector)
 	}
 
-	if *flts.Cell != "" {
+	if flts.Cell != nil {
 		selectQuery += fmt.Sprintf("\nAND p.cell = '%s'", *flts.Cell)
 	}
 
