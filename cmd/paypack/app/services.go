@@ -43,6 +43,7 @@ type Services struct {
 	Stats         metrics.Service
 	USSD          ussd.Service
 	Scheduler     scheduler.Service
+	PaymentStore  payment.Repository
 }
 
 // Init initialises all services
@@ -56,10 +57,11 @@ func Init(
 	namespace string,
 	prefix string,
 ) *Services {
+	notifs := bootNotifService(db, sms)
 	services := &Services{
 		Accounts:      bootAccountsService(db),
 		Feedback:      bootFeedbackService(db),
-		Notifications: bootNotifService(db, sms),
+		Notifications: notifs,
 		Owners:        bootOwnersService(db),
 		Payment:       bootPaymentService(db, rclient, sms, pclient),
 		Properties:    bootPropertiesService(db),
@@ -70,6 +72,7 @@ func Init(
 		Stats:         bootStatsService(db),
 		Scheduler:     bootScheduler(db, queue),
 		USSD:          bootUSSDService(prefix, db, rclient, sms, pclient),
+		PaymentStore:  postgres.NewPaymentRepository(db, notifs),
 	}
 	return services
 }

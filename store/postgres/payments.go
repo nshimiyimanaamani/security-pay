@@ -311,10 +311,16 @@ func (repo *paymentStore) BulkSave(ctx context.Context, payments []*payment.TxRe
 	return tx.Commit()
 }
 
-func (repo *paymentStore) List(ctx context.Context, status, sector, cell, village string, limit, offset uint64) (payment.PaymentResponse, error) {
+func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (payment.PaymentResponse, error) {
 	const op errors.Op = "store/postgres/paymentStore.List"
 
-	q := `SELECT 
+	tx, err := repo.BeginTx(ctx, nil)
+	if err != nil {
+		return payment.PaymentResponse{}, errors.E(op, err)
+	}
+	defer tx.Rollback()
+
+	selectQuery := `SELECT 
 			i.id,
 			o.fname, 
 			o.lname,
@@ -325,29 +331,32 @@ func (repo *paymentStore) List(ctx context.Context, status, sector, cell, villag
 			ON p.owner = o.id
 		JOIN invoices i ON 
 			i.property = p.id
-		WHERE 1 = 1`
-	if status != "" {
-		q += fmt.Sprintf("\nAND i.status = '%s'", status)
+		WHERE 1 = 1
+	`
+
+	// !!! TODO: add other remaining filters below
+	if flts.Status != nil {
+		selectQuery += fmt.Sprintf("\nAND i.status = '%s'", *flts.Status)
 	}
 
-	q += "\nAND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)"
+	selectQuery += "\nAND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)"
 
-	if sector != "" {
-		q += fmt.Sprintf("\nAND p.sector = '%s'", sector)
-	}
+	// if sector != "" {
+	// 	selectQuery += fmt.Sprintf("\nAND p.sector = '%s'", sector)
+	// }
 
-	if cell != "" {
-		q += fmt.Sprintf("\nAND p.cell = '%s'", cell)
-	}
+	// if cell != "" {
+	// 	selectQuery += fmt.Sprintf("\nAND p.cell = '%s'", cell)
+	// }
 
-	if village != "" {
-		q += fmt.Sprintf("\nAND p.village = '%s'", village)
-	}
+	// if village != "" {
+	// 	selectQuery += fmt.Sprintf("\nAND p.village = '%s'", village)
+	// }
 
-	q += "\nORDER BY i.created_at DESC"
-	q += fmt.Sprintf("\nOFFSET %d LIMIT %d", offset, limit)
+	// selectQuery += "\nORDER BY i.created_at DESC"
+	// selectQuery += fmt.Sprintf("\nOFFSET %d LIMIT %d", offset, limit)
 
-	rows, err := repo.QueryContext(ctx, q)
+	rows, err := tx.QueryContext(ctx, selectQuery)
 	if err != nil {
 		return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -368,37 +377,39 @@ func (repo *paymentStore) List(ctx context.Context, status, sector, cell, villag
 		payments = append(payments, pmt)
 	}
 
-	q = `SELECT COUNT(*) FROM invoices i JOIN properties p ON i.property = p.id`
-	q += "\nWHERE 1 = 1"
-	if status != "" {
-		q += fmt.Sprintf("\nAND i.status = '%s'", status)
-	}
+	selectQuery = `SELECT COUNT(*) FROM invoices i JOIN properties p ON i.property = p.id`
+	selectQuery += "\nWHERE 1 = 1"
 
-	q += "\nAND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)"
+	// !!! NOTE: do the same above
+	// if status != "" {
+	// 	selectQuery += fmt.Sprintf("\nAND i.status = '%s'", status)
+	// }
 
-	if sector != "" {
-		q += fmt.Sprintf("\nAND p.sector = '%s'", sector)
-	}
+	// selectQuery += "\nAND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)"
 
-	if cell != "" {
-		q += fmt.Sprintf("\nAND p.cell = '%s'", cell)
-	}
+	// if sector != "" {
+	// 	selectQuery += fmt.Sprintf("\nAND p.sector = '%s'", sector)
+	// }
 
-	if village != "" {
-		q += fmt.Sprintf("\nAND p.village = '%s'", village)
-	}
+	// if cell != "" {
+	// 	selectQuery += fmt.Sprintf("\nAND p.cell = '%s'", cell)
+	// }
+
+	// if village != "" {
+	// 	selectQuery += fmt.Sprintf("\nAND p.village = '%s'", village)
+	// }
 
 	var total uint64
-	if err := repo.QueryRow(q).Scan(&total); err != nil {
+	if err := repo.QueryRow(selectQuery).Scan(&total); err != nil {
 		return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	//
 	page := payment.PaymentResponse{
 		Payments: payments,
 		PageMetadata: payment.PageMetadata{
-			Total:  total,
-			Offset: offset,
-			Limit:  limit,
+			Total: total,
+			// Offset: offset,
+			// Limit:  limit,
 		},
 	}
 	return page, nil

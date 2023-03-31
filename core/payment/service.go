@@ -31,9 +31,6 @@ type Service interface {
 	// ConfirmPush processes credit callback
 	ConfirmPush(ctx context.Context, res Callback) error
 
-	// PaymentRequest generates all payments
-	PaymentReports(ctx context.Context, status, sector, cell, village string, limit, offset uint64) (PaymentResponse, error)
-
 	//BulkPull initiate payment for multiple invoices
 	BulkPull(context.Context, *TxRequest, int) (*TxResponse, error)
 
@@ -322,17 +319,6 @@ func (svc *service) ConfirmPush(ctx context.Context, cb Callback) error {
 		return errors.E(op, err)
 	}
 	return nil
-}
-
-func (svc *service) PaymentReports(ctx context.Context, status, sector, cell, village string, limit, offset uint64) (PaymentResponse, error) {
-
-	const op errors.Op = "core/payment/service.PaymentReports"
-	tx, err := svc.repository.List(ctx, status, sector, cell, village, limit, offset)
-	if err != nil {
-		return PaymentResponse{}, errors.E(op, err)
-	}
-
-	return tx, nil
 }
 
 func (svc *service) Notify(ctx context.Context, py TxRequest, tx transactions.Transaction) error {

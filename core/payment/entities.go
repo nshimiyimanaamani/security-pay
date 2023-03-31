@@ -75,6 +75,19 @@ type Callback struct {
 	Kind string `json:"kind"`
 }
 
+// Filters ...
+type Filters struct {
+	Status   *string
+	Sector   *string
+	Village  *string
+	Cell     *string
+	District *string
+	Month    *int
+	From     *string
+	To       *string
+	Limit    *uint64
+	Offset   *uint64
+}
 type Data struct {
 	Ref       string     `json:"ref,omitempty"`
 	Kind      string     `json:"kind,omitempty"`

@@ -11,12 +11,12 @@ type Repository interface {
 	//Find payment by id
 	Find(ctx context.Context, id string) ([]*TxRequest, error)
 
-	//List Payments
-	List(ctx context.Context, status, sector, cell, village string, limit, offset uint64) (PaymentResponse, error)
-
 	//Update the state of an existing payment
 	Update(context.Context, string, []*TxRequest) error
 
 	//BulkSave saves multiple payments to the database
 	BulkSave(context.Context, []*TxRequest) error
+
+	// PaymentRequest generates all payments
+	List(context.Context, *Filters) (PaymentResponse, error)
 }
