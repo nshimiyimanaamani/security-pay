@@ -321,10 +321,12 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	defer tx.Rollback()
 
 	selectQuery := `SELECT 
-			i.id,
+			o.id,
 			o.fname, 
 			o.lname,
-			o.phone
+			o.phone,
+			i.property,
+			i.amount
 		FROM 
 			owners o
 		JOIN properties p 
@@ -377,7 +379,9 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 			&pmt.ID,
 			&pmt.Fname,
 			&pmt.Lname,
-			&pmt.Email,
+			&pmt.Phone,
+			&pmt.PropertyID,
+			&pmt.Amount,
 		)
 		if err != nil {
 			return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)

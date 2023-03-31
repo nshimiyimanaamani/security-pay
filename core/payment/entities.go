@@ -62,7 +62,9 @@ type Payment struct {
 	ID    string `json:"id,omitempty"`
 	Fname string `json:"fname,omitempty"`
 	Lname string `json:"lname,omitempty"`
-	Email string `json:"email,omitempty"`
+	Phone string `json:"phone,omitempty"`
+	PropertyID string `json:"property_id,omitempty"`
+	Amount string `json:"amount,omitempty"`
 }
 type PaymentResponse struct {
 	PageMetadata

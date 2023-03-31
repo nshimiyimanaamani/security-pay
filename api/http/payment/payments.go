@@ -42,6 +42,11 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 			return
 		}
 		
+		// default pagination settings if none are set
+		if (cast.Uint64Pointer(offset) == nil ||cast.Uint64Pointer(limit) == nil) || (offset == 0 && limit == 0) {
+			offset = *cast.Uint64Pointer(0)
+			limit = *cast.Uint64Pointer(20)
+		}
 		
 		flt := &payment.Filters{
 			Status:  status,
