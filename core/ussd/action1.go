@@ -11,22 +11,6 @@ import (
 	"github.com/rugwirobaker/paypack-backend/pkg/platypus"
 )
 
-// // Action01 corresponds to Action1
-// func (svc *service) Action1(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
-// 	const op errors.Op = "core/ussd/service.Action1"
-
-// 	const menu = "Kwishyura, Andika code y' inzu"
-
-// 	params := platypus.ParamsFromContext(ctx)
-
-// 	leaf, err := params.GetBool("isleaf")
-// 	if err != nil {
-// 		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
-// 	}
-
-// 	return platypus.Result{Out: menu, Leaf: leaf}, nil
-// }
-
 // Action01 corresponds to Action1
 func (svc *service) Action1(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
 	const op errors.Op = "core/ussd/service.Action1"
@@ -196,8 +180,17 @@ func (svc *service) Action1_1_1_1_2_Input(ctx context.Context, cmd *platypus.Com
 		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
+	phone, err := params.GetString("phone")
+	if err != nil {
+		phone = cmd.Phone
+	}
+
+	if phone == " " {
+		phone = cmd.Phone
+	}
+
 	// check if the entered input is number and check the corresponding property
-	property.ID, err = svc.matchProperty(ctx, property.ID, cmd.Phone)
+	property.ID, err = svc.matchProperty(ctx, property.ID, phone)
 	if err != nil {
 		return platypus.Result{Out: fail, Leaf: true}, errors.E(op, err)
 	}
@@ -236,8 +229,17 @@ func (svc *service) Action1_1_1_1_2_Input_1(ctx context.Context, cmd *platypus.C
 		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
+	phone, err := params.GetString("phone")
+	if err != nil {
+		phone = cmd.Phone
+	}
+
+	if phone == "" {
+		phone = cmd.Phone
+	}
+
 	// check if the entered input is number and check the corresponding property
-	property.ID, err = svc.matchProperty(ctx, property.ID, cmd.Phone)
+	property.ID, err = svc.matchProperty(ctx, property.ID, phone)
 	if err != nil {
 		return platypus.Result{Out: fail, Leaf: true}, errors.E(op, err)
 	}
@@ -281,8 +283,17 @@ func (svc *service) Action1_1_1_2_2_Input_1(ctx context.Context, cmd *platypus.C
 		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
+	phone, err := params.GetString("phone")
+	if err != nil {
+		phone = cmd.Phone
+	}
+
+	if phone == "" {
+		phone = cmd.Phone
+	}
+
 	// check if the entered input is number and check the corresponding property
-	property.ID, err = svc.matchProperty(ctx, property.ID, cmd.Phone)
+	property.ID, err = svc.matchProperty(ctx, property.ID, phone)
 	if err != nil {
 		return platypus.Result{Out: fail, Leaf: true}, errors.E(op, err)
 	}
