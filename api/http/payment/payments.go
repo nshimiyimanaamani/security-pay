@@ -3,6 +3,7 @@ package payment
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/api/http/encoding"
@@ -56,6 +57,10 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 		if (cast.Uint64Pointer(offset) == nil || cast.Uint64Pointer(limit) == nil) || (offset == 0 && limit == 0) {
 			offset = *cast.Uint64Pointer(0)
 			limit = *cast.Uint64Pointer(20)
+		}
+		if month == 0 {
+			// get the current month in number
+			month = int64(time.Now().Month())
 		}
 
 		flt := &payment.Filters{

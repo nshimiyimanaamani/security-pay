@@ -340,8 +340,7 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 		selectQuery += fmt.Sprintf("\nAND i.status = '%s'", *flts.Status)
 	}
 	if (flts.Month != nil) && (*flts.Month != 0) {
-		month := fmt.Sprintf("%02d", *flts.Month)
-		selectQuery += fmt.Sprintf("\nAND DATE_TRUNC('month', i.created_at) = to_timestamp('%v', 'MM')", month)
+		selectQuery += fmt.Sprintf("\nAND extract('month' from i.created_at) ='%v'", *flts.Month)
 	}
 
 	if flts.Sector != nil {
@@ -358,7 +357,6 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 
 	selectQuery += "\nORDER BY i.created_at DESC"
 	selectQuery += fmt.Sprintf("\nOFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
-	fmt.Println(selectQuery)
 	rows, err := tx.QueryContext(ctx, selectQuery)
 	if err != nil {
 		return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)
@@ -390,8 +388,8 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	}
 
 	if (flts.Month != nil) && (*flts.Month != 0) {
-		month := fmt.Sprintf("%02d", *flts.Month)
-		selectQuery += fmt.Sprintf("\nAND DATE_TRUNC('month', i.created_at) = to_timestamp('%v', 'MM')", month)
+
+		selectQuery += fmt.Sprintf("\nAND extract('month' from i.created_at) ='%v'", *flts.Month)
 	} else {
 		// check on from date
 		if flts.From != nil {

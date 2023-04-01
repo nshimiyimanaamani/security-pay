@@ -347,7 +347,7 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	q = `SELECT 
-    SUM(properties.due)
+    Total_amount(properties.due)
 FROM 
     properties
 INNER JOIN
@@ -363,10 +363,10 @@ properties.sector = $1 AND properties.namespace=$2
 	page := properties.PropertyPage{
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
-			Total:  total,
-			Offset: offset,
-			Limit:  limit,
-			Sum:    total_amount,
+			Total:        total,
+			Offset:       offset,
+			Limit:        limit,
+			Total_amount: total_amount,
 		},
 	}
 	return page, nil
@@ -443,7 +443,7 @@ func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, of
 	}
 
 	q = `SELECT 
-    SUM(properties.due)
+    Total_amount(properties.due)
 FROM 
     properties
 INNER JOIN
@@ -459,10 +459,10 @@ properties.cell = $1 AND properties.namespace=$2
 	page := properties.PropertyPage{
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
-			Total:  total,
-			Offset: offset,
-			Limit:  limit,
-			Sum:    total_amount,
+			Total:        total,
+			Offset:       offset,
+			Limit:        limit,
+			Total_amount: total_amount,
 		},
 	}
 	return page, nil
@@ -542,7 +542,7 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 	}
 
 	q = `SELECT 
-    SUM(properties.due)
+    Total_amount(properties.due)
 FROM 
     properties
 INNER JOIN
@@ -557,10 +557,10 @@ properties.village = $1 AND properties.namespace=$2
 	page := properties.PropertyPage{
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
-			Total:  total,
-			Offset: offset,
-			Limit:  limit,
-			Sum:    total_amount,
+			Total:        total,
+			Offset:       offset,
+			Limit:        limit,
+			Total_amount: total_amount,
 		},
 	}
 	return page, nil
@@ -640,7 +640,7 @@ func (repo *propertiesStore) RetrieveByRecorder(ctx context.Context, user string
 	}
 
 	q = `SELECT 
-    SUM(properties.due)
+    Total_amount(properties.due)
 FROM 
     properties
 INNER JOIN
@@ -656,10 +656,10 @@ properties.recorded_by = $1 AND properties.namespace=$2
 	page := properties.PropertyPage{
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
-			Total:  total,
-			Offset: offset,
-			Limit:  limit,
-			Sum:    total_amount,
+			Total:        total,
+			Offset:       offset,
+			Limit:        limit,
+			Total_amount: total_amount,
 		},
 	}
 	return page, nil
