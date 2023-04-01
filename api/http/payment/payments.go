@@ -25,6 +25,16 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 		village := cast.CastToString((vars["village"]))
 		from := cast.CastToString((vars["from"]))
 		to := cast.CastToString((vars["to"]))
+		var month int64
+		if vars["month"] != "" {
+			var err error
+			month, err = strconv.ParseInt(vars["month"], 10, 32)
+			if err != nil {
+				err = errors.E(op, err, "invalid month value", errors.KindBadRequest)
+				logger.SystemErr(err)
+				return
+			}
+		}
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
@@ -55,6 +65,7 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 			Village: village,
 			From:    from,
 			To:      to,
+			Month:   &month,
 			Offset:  &offset,
 			Limit:   &limit,
 		}
