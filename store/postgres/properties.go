@@ -346,6 +346,19 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 	if err := repo.QueryRow(q, sector, creds.Account).Scan(&total); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
+	q = `SELECT 
+    SUM(properties.due)
+FROM 
+    properties
+INNER JOIN
+    owners ON properties.owner = owners.id
+WHERE 
+properties.sector = $1 AND properties.namespace=$2
+	`
+	var total_amount float64
+	if err := repo.QueryRow(q, sector, creds.Account).Scan(&total_amount); err != nil {
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
+	}
 
 	page := properties.PropertyPage{
 		Properties: items,
@@ -353,6 +366,7 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 			Total:  total,
 			Offset: offset,
 			Limit:  limit,
+			Sum:    total_amount,
 		},
 	}
 	return page, nil
@@ -428,12 +442,27 @@ func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, of
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
+	q = `SELECT 
+    SUM(properties.due)
+FROM 
+    properties
+INNER JOIN
+    owners ON properties.owner = owners.id
+WHERE 
+properties.cell = $1 AND properties.namespace=$2
+	`
+	var total_amount float64
+	if err := repo.QueryRow(q, cell, creds.Account).Scan(&total_amount); err != nil {
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
 	page := properties.PropertyPage{
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
 			Total:  total,
 			Offset: offset,
 			Limit:  limit,
+			Sum:    total_amount,
 		},
 	}
 	return page, nil
@@ -512,12 +541,26 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
+	q = `SELECT 
+    SUM(properties.due)
+FROM 
+    properties
+INNER JOIN
+    owners ON properties.owner = owners.id
+WHERE 
+properties.village = $1 AND properties.namespace=$2
+	`
+	var total_amount float64
+	if err := repo.QueryRow(q, village, creds.Account).Scan(&total_amount); err != nil {
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
+	}
 	page := properties.PropertyPage{
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
 			Total:  total,
 			Offset: offset,
 			Limit:  limit,
+			Sum:    total_amount,
 		},
 	}
 	return page, nil
@@ -596,12 +639,27 @@ func (repo *propertiesStore) RetrieveByRecorder(ctx context.Context, user string
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
+	q = `SELECT 
+    SUM(properties.due)
+FROM 
+    properties
+INNER JOIN
+    owners ON properties.owner = owners.id
+WHERE 
+properties.recorded_by = $1 AND properties.namespace=$2
+	`
+	var total_amount float64
+	if err := repo.QueryRow(q, user, creds.Account).Scan(&total_amount); err != nil {
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
 	page := properties.PropertyPage{
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
 			Total:  total,
 			Offset: offset,
 			Limit:  limit,
+			Sum:    total_amount,
 		},
 	}
 	return page, nil

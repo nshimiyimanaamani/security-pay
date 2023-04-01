@@ -339,8 +339,10 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	if flts.Status != nil {
 		selectQuery += fmt.Sprintf("\nAND i.status = '%s'", *flts.Status)
 	}
-
-	selectQuery += "\nAND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)"
+	if (flts.Month != nil) && (*flts.Month != 0) {
+		month := fmt.Sprintf("%02d", *flts.Month)
+		selectQuery += fmt.Sprintf("\nAND DATE_TRUNC('month', i.created_at) = to_timestamp('%v', 'MM')", month)
+	}
 
 	if flts.Sector != nil {
 		selectQuery += fmt.Sprintf("\nAND p.sector = '%s'", *flts.Sector)
@@ -353,19 +355,10 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	if flts.Village != nil {
 		selectQuery += fmt.Sprintf("\nAND p.village = '%s'", *flts.Village)
 	}
-	// check on from date
-	if flts.From != nil {
-		selectQuery += fmt.Sprintf("\nAND i.created_at >= '%s'", *flts.From)
-	}
-	// check on to date
-	if flts.To != nil {
-		selectQuery += fmt.Sprintf("\nAND i.created_at <= '%s'", *flts.To)
-	}
-	
 
 	selectQuery += "\nORDER BY i.created_at DESC"
 	selectQuery += fmt.Sprintf("\nOFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
-
+	fmt.Println(selectQuery)
 	rows, err := tx.QueryContext(ctx, selectQuery)
 	if err != nil {
 		return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)
@@ -396,7 +389,19 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 		selectQuery += fmt.Sprintf("\nAND i.status = '%s'", *flts.Status)
 	}
 
-	selectQuery += "\nAND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)"
+	if (flts.Month != nil) && (*flts.Month != 0) {
+		month := fmt.Sprintf("%02d", *flts.Month)
+		selectQuery += fmt.Sprintf("\nAND DATE_TRUNC('month', i.created_at) = to_timestamp('%v', 'MM')", month)
+	} else {
+		// check on from date
+		if flts.From != nil {
+			selectQuery += fmt.Sprintf("\nAND i.created_at >= '%s'", *flts.From)
+		}
+		// check on to date
+		if flts.To != nil {
+			selectQuery += fmt.Sprintf("\nAND i.created_at <= '%s'", *flts.To)
+		}
+	}
 
 	if flts.Sector != nil {
 		selectQuery += fmt.Sprintf("\nAND p.sector = '%s'", *flts.Sector)

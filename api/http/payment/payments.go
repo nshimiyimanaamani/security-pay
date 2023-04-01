@@ -25,29 +25,39 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 		village := cast.CastToString((vars["village"]))
 		from := cast.CastToString((vars["from"]))
 		to := cast.CastToString((vars["to"]))
+		var month int64
+		if vars["month"] != "" {
+			var err error
+			month, err = strconv.ParseInt(vars["month"], 10, 32)
+			if err != nil {
+				err = errors.E(op, err, "invalid month value", errors.KindBadRequest)
+				logger.SystemErr(err)
+				return
+			}
+		}
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
 			err = errors.E(op, err, "invalid offset value", errors.KindBadRequest)
-            logger.SystemErr(err)
-            encodeErr(w, err)
-            return
+			logger.SystemErr(err)
+			encodeErr(w, err)
+			return
 		}
 
 		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 		if err != nil {
 			err = errors.E(op, err, "invalid limit value", errors.KindBadRequest)
-            logger.SystemErr(err)
-            encodeErr(w, err)
+			logger.SystemErr(err)
+			encodeErr(w, err)
 			return
 		}
-		
+
 		// default pagination settings if none are set
-		if (cast.Uint64Pointer(offset) == nil ||cast.Uint64Pointer(limit) == nil) || (offset == 0 && limit == 0) {
+		if (cast.Uint64Pointer(offset) == nil || cast.Uint64Pointer(limit) == nil) || (offset == 0 && limit == 0) {
 			offset = *cast.Uint64Pointer(0)
 			limit = *cast.Uint64Pointer(20)
 		}
-		
+
 		flt := &payment.Filters{
 			Status:  status,
 			Sector:  sector,
@@ -55,6 +65,7 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 			Village: village,
 			From:    from,
 			To:      to,
+			Month:   &month,
 			Offset:  &offset,
 			Limit:   &limit,
 		}
@@ -76,5 +87,3 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 	}
 	return http.HandlerFunc(f)
 }
-
-//To pointer

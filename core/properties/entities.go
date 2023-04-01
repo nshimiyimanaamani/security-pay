@@ -46,6 +46,7 @@ func (addr *Address) Validate() error {
 // PageMetadata contains page metadata that helps navigation.
 type PageMetadata struct {
 	Total  uint64
+	Sum    float64
 	Offset uint64
 	Limit  uint64
 }

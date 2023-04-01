@@ -59,12 +59,12 @@ type PageMetadata struct {
 }
 
 type Payment struct {
-	ID    string `json:"id,omitempty"`
-	Fname string `json:"fname,omitempty"`
-	Lname string `json:"lname,omitempty"`
-	Phone string `json:"phone,omitempty"`
+	ID         string `json:"id,omitempty"`
+	Fname      string `json:"fname,omitempty"`
+	Lname      string `json:"lname,omitempty"`
+	Phone      string `json:"phone,omitempty"`
 	PropertyID string `json:"property_id,omitempty"`
-	Amount string `json:"amount,omitempty"`
+	Amount     string `json:"amount,omitempty"`
 }
 type PaymentResponse struct {
 	PageMetadata
@@ -84,7 +84,7 @@ type Filters struct {
 	Village  *string
 	Cell     *string
 	District *string
-	Month    *int
+	Month    *int64
 	From     *string
 	To       *string
 	Limit    *uint64
