@@ -13,6 +13,7 @@
         active-nav-item-class="app-color text-white"
         nav-class="report-navs"
       >
+      
         <b-tab title="PAYMENT REPORTS">
           <payment-reports />
         </b-tab>
