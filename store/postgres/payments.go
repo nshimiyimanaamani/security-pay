@@ -339,10 +339,14 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	if flts.Status != nil {
 		selectQuery += fmt.Sprintf("\nAND i.status = '%s'", *flts.Status)
 	}
-	if (flts.Month != nil) && (*flts.Month != 0) {
-		selectQuery += fmt.Sprintf("\nAND extract('month' from i.created_at) ='%v'", *flts.Month)
+	// check on from date
+	if flts.From != nil {
+		selectQuery += fmt.Sprintf("\nAND i.created_at >= '%s'", *flts.From)
 	}
-
+	// check on to date
+	if flts.To != nil {
+		selectQuery += fmt.Sprintf("\nAND i.created_at <= '%s'", *flts.To)
+	}
 	if flts.Sector != nil {
 		selectQuery += fmt.Sprintf("\nAND p.sector = '%s'", *flts.Sector)
 	}
@@ -387,18 +391,13 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 		selectQuery += fmt.Sprintf("\nAND i.status = '%s'", *flts.Status)
 	}
 
-	if (flts.Month != nil) && (*flts.Month != 0) {
-
-		selectQuery += fmt.Sprintf("\nAND extract('month' from i.created_at) ='%v'", *flts.Month)
-	} else {
-		// check on from date
-		if flts.From != nil {
-			selectQuery += fmt.Sprintf("\nAND i.created_at >= '%s'", *flts.From)
-		}
-		// check on to date
-		if flts.To != nil {
-			selectQuery += fmt.Sprintf("\nAND i.created_at <= '%s'", *flts.To)
-		}
+	// check on from date
+	if flts.From != nil {
+		selectQuery += fmt.Sprintf("\nAND i.created_at >= '%s'", *flts.From)
+	}
+	// check on to date
+	if flts.To != nil {
+		selectQuery += fmt.Sprintf("\nAND i.created_at <= '%s'", *flts.To)
 	}
 
 	if flts.Sector != nil {

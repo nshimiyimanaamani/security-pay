@@ -262,12 +262,27 @@ func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, 
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
+	q = `SELECT 
+		COALESCE(SUM(properties.due), 0) 
+	FROM 
+    	properties
+	INNER JOIN
+    	owners ON properties.owner = owners.id
+	WHERE 
+		properties.owner = $1
+	`
+	var total_amount float64
+	if err := repo.QueryRow(q, owner).Scan(&total_amount); err != nil {
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
 	page := properties.PropertyPage{
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
-			Total:  total,
-			Offset: offset,
-			Limit:  limit,
+			Total:       total,
+			Offset:      offset,
+			Limit:       limit,
+			TotalAmount: total_amount,
 		},
 	}
 	return page, nil
@@ -347,14 +362,15 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	q = `SELECT 
-    Total_amount(properties.due)
-FROM 
-    properties
-INNER JOIN
-    owners ON properties.owner = owners.id
-WHERE 
-properties.sector = $1 AND properties.namespace=$2
+		COALESCE(SUM(properties.due), 0) 
+	FROM 
+    	properties
+	INNER JOIN
+    	owners ON properties.owner = owners.id
+	WHERE 
+		properties.sector = $1 AND properties.namespace=$2
 	`
+
 	var total_amount float64
 	if err := repo.QueryRow(q, sector, creds.Account).Scan(&total_amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
@@ -363,10 +379,10 @@ properties.sector = $1 AND properties.namespace=$2
 	page := properties.PropertyPage{
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
-			Total:        total,
-			Offset:       offset,
-			Limit:        limit,
-			Total_amount: total_amount,
+			Total:       total,
+			Offset:      offset,
+			Limit:       limit,
+			TotalAmount: total_amount,
 		},
 	}
 	return page, nil
@@ -443,13 +459,13 @@ func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, of
 	}
 
 	q = `SELECT 
-    Total_amount(properties.due)
-FROM 
-    properties
-INNER JOIN
-    owners ON properties.owner = owners.id
-WHERE 
-properties.cell = $1 AND properties.namespace=$2
+		COALESCE(SUM(properties.due), 0) 
+	FROM 
+    	properties
+	INNER JOIN
+    	owners ON properties.owner = owners.id
+	WHERE 
+		properties.cell = $1 AND properties.namespace=$2
 	`
 	var total_amount float64
 	if err := repo.QueryRow(q, cell, creds.Account).Scan(&total_amount); err != nil {
@@ -459,10 +475,10 @@ properties.cell = $1 AND properties.namespace=$2
 	page := properties.PropertyPage{
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
-			Total:        total,
-			Offset:       offset,
-			Limit:        limit,
-			Total_amount: total_amount,
+			Total:       total,
+			Offset:      offset,
+			Limit:       limit,
+			TotalAmount: total_amount,
 		},
 	}
 	return page, nil
@@ -542,13 +558,13 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 	}
 
 	q = `SELECT 
-    Total_amount(properties.due)
-FROM 
-    properties
-INNER JOIN
-    owners ON properties.owner = owners.id
-WHERE 
-properties.village = $1 AND properties.namespace=$2
+		COALESCE(SUM(properties.due), 0) 
+	FROM 
+    	properties
+	INNER JOIN
+    	owners ON properties.owner = owners.id
+	WHERE 
+		properties.village = $1 AND properties.namespace=$2
 	`
 	var total_amount float64
 	if err := repo.QueryRow(q, village, creds.Account).Scan(&total_amount); err != nil {
@@ -557,10 +573,10 @@ properties.village = $1 AND properties.namespace=$2
 	page := properties.PropertyPage{
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
-			Total:        total,
-			Offset:       offset,
-			Limit:        limit,
-			Total_amount: total_amount,
+			Total:       total,
+			Offset:      offset,
+			Limit:       limit,
+			TotalAmount: total_amount,
 		},
 	}
 	return page, nil
@@ -640,13 +656,13 @@ func (repo *propertiesStore) RetrieveByRecorder(ctx context.Context, user string
 	}
 
 	q = `SELECT 
-    Total_amount(properties.due)
-FROM 
-    properties
-INNER JOIN
-    owners ON properties.owner = owners.id
-WHERE 
-properties.recorded_by = $1 AND properties.namespace=$2
+		COALESCE(SUM(properties.due), 0) 
+	FROM 
+    	properties
+	INNER JOIN
+    	owners ON properties.owner = owners.id
+	WHERE 
+		properties.recorded_by = $1 AND properties.namespace=$2
 	`
 	var total_amount float64
 	if err := repo.QueryRow(q, user, creds.Account).Scan(&total_amount); err != nil {
@@ -656,10 +672,10 @@ properties.recorded_by = $1 AND properties.namespace=$2
 	page := properties.PropertyPage{
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
-			Total:        total,
-			Offset:       offset,
-			Limit:        limit,
-			Total_amount: total_amount,
+			Total:       total,
+			Offset:      offset,
+			Limit:       limit,
+			TotalAmount: total_amount,
 		},
 	}
 	return page, nil

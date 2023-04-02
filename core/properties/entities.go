@@ -45,10 +45,10 @@ func (addr *Address) Validate() error {
 
 // PageMetadata contains page metadata that helps navigation.
 type PageMetadata struct {
-	Total        uint64
-	Total_amount float64
-	Offset       uint64
-	Limit        uint64
+	Total       uint64
+	TotalAmount float64 `json:"total_amount"`
+	Offset      uint64
+	Limit       uint64
 }
 
 // Validate validates a Property entity an returns nil error if it's valid.
