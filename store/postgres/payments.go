@@ -367,9 +367,10 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	}
 	defer rows.Close()
 
-	var payments []payment.Payment
+	var payments = []payment.Payment{}
+
 	for rows.Next() {
-		var pmt payment.Payment
+		pmt := payment.Payment{}
 		err := rows.Scan(
 			&pmt.ID,
 			&pmt.Fname,

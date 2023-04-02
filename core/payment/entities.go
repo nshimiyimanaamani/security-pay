@@ -54,7 +54,7 @@ type TxResponse struct {
 
 type PageMetadata struct {
 	Total       uint64
-	TotalAmount float64 `json:"total_amount"`
+	TotalAmount float64 `json:"amount"`
 	Offset      uint64
 	Limit       uint64
 }
