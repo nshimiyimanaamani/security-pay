@@ -519,19 +519,6 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
-	q = `SELECT 
-    SUM(properties.due)
-FROM 
-    properties
-INNER JOIN
-    owners ON properties.owner = owners.id
-WHERE 
-properties.village = $1 AND properties.namespace=$2
-	`
-	var total_amount float64
-	if err := repo.QueryRow(q, village, creds.Account).Scan(&total_amount); err != nil {
-		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
-	}
 	page := properties.PropertyPage{
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
