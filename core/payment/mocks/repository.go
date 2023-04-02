@@ -65,3 +65,12 @@ func (repo *repositoryMock) BulkSave(ctx context.Context, payment []*payment.TxR
 
 	return errors.E(op, "not implemented", errors.KindUnexpected)
 }
+
+func (repo *repositoryMock) List(ctx context.Context, flts *payment.Filters) (payment.PaymentResponse, error) {
+	const op errors.Op = "core/payment/mocks/repositoryMock.List"
+
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	return payment.PaymentResponse{}, errors.E(op, "not implemented", errors.KindUnexpected)
+}

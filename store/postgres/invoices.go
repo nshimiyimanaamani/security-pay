@@ -440,8 +440,10 @@ func (repo *invoiceRepository) Generate(ctx context.Context, property string, am
 		return nil, errors.E(op, err, errors.KindUnexpected)
 	}
 
+	m := months
 	if invoice.Status == invoices.Pending {
 		out = append(out, invoice)
+		m--
 	}
 
 	insertQuery := `
@@ -464,7 +466,7 @@ func (repo *invoiceRepository) Generate(ctx context.Context, property string, am
 			updated_at
 	`
 
-	rows, err := tx.Query(insertQuery, amount/months, property, months)
+	rows, err := tx.Query(insertQuery, amount/months, property, m)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok && errInvalid == pqErr.Code.Name() {

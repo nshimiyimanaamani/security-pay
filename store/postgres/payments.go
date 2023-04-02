@@ -487,7 +487,7 @@ func formMessage(tx []*payment.TxRequest, prop *properties.Property) string {
 	buf.WriteString(header)
 	// buf.WriteString(selectActivity(pr.Address.Sector))
 	buf.WriteString(" mu murenge wa ")
-	buf.WriteString(fmt.Sprintf("%s.\n\n", prop.Address.Sector))
+	buf.WriteString(fmt.Sprintf("%s.\n", prop.Address.Sector))
 	buf.WriteString(fmt.Sprintf("Nimero yishyuriweho: %s\n", tx[0].MSISDN))
 	buf.WriteString(fmt.Sprintf("Itariki: %s\n", timestamp()))
 	buf.WriteString(month)
