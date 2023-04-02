@@ -361,7 +361,6 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	if flts.To != nil {
 		selectQuery += fmt.Sprintf("\nAND i.created_at <= '%s'", *flts.To)
 	}
-	
 
 	selectQuery += "\nORDER BY i.created_at DESC"
 	selectQuery += fmt.Sprintf("\nOFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
@@ -450,7 +449,7 @@ func formMessage(tx []*payment.TxRequest, prop *properties.Property) string {
 	buf.WriteString(header)
 	// buf.WriteString(selectActivity(pr.Address.Sector))
 	buf.WriteString(" mu murenge wa ")
-	buf.WriteString(fmt.Sprintf("%s.\n\n", prop.Address.Sector))
+	buf.WriteString(fmt.Sprintf("%s.\n", prop.Address.Sector))
 	buf.WriteString(fmt.Sprintf("Nimero yishyuriweho: %s\n", tx[0].MSISDN))
 	buf.WriteString(fmt.Sprintf("Itariki: %s\n", timestamp()))
 	buf.WriteString(month)

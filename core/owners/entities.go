@@ -13,7 +13,7 @@ var (
 	ErrConflict      = errors.New("owner already exists")
 )
 
-//Owner defines a property owner
+// Owner defines a property owner
 type Owner struct {
 	ID    string `json:"id"`
 	Fname string `json:"fname,omitempty"`
@@ -21,10 +21,10 @@ type Owner struct {
 	Phone string `json:"phone,omitempty"`
 }
 
-//OwnerPage ist of owners
+// OwnerPage ist of owners
 type OwnerPage struct {
 	Owners       []Owner `json:"owners"`
-	PageMetadata `json:",meta"`
+	PageMetadata `json:"meta"`
 }
 
 // PageMetadata contains page metadata that helps navigation.
@@ -42,7 +42,7 @@ func (own *Owner) Validate() error {
 
 	num, _ := libphonenumber.Parse(own.Phone, "RW")
 	if !libphonenumber.IsValidNumberForRegion(num, "RW") {
-		return ErrInvalidEntity
+		return errors.New("invalid phone number provided")
 	}
 	return nil
 }
