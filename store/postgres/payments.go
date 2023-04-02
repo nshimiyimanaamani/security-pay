@@ -337,43 +337,40 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	`
 
 	if flts.Status != nil {
-		selectQuery += fmt.Sprintf("\nAND i.status = '%s'", *flts.Status)
-	}
-
-	selectQuery += "\nAND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)"
-
-	if flts.Sector != nil {
-		selectQuery += fmt.Sprintf("\nAND p.sector = '%s'", *flts.Sector)
-	}
-
-	if flts.Cell != nil {
-		selectQuery += fmt.Sprintf("\nAND p.cell = '%s'", *flts.Cell)
-	}
-
-	if flts.Village != nil {
-		selectQuery += fmt.Sprintf("\nAND p.village = '%s'", *flts.Village)
+		selectQuery += fmt.Sprintf(" AND i.status = '%s'", *flts.Status)
 	}
 	// check on from date
 	if flts.From != nil {
-		selectQuery += fmt.Sprintf("\nAND i.created_at >= '%s'", *flts.From)
+		selectQuery += fmt.Sprintf(" AND i.created_at >= '%s'", *flts.From)
 	}
 	// check on to date
 	if flts.To != nil {
-		selectQuery += fmt.Sprintf("\nAND i.created_at <= '%s'", *flts.To)
+		selectQuery += fmt.Sprintf(" AND i.created_at <= '%s'", *flts.To)
+	}
+	if flts.Sector != nil {
+		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
 	}
 
-	selectQuery += "\nORDER BY i.created_at DESC"
-	selectQuery += fmt.Sprintf("\nOFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
+	if flts.Cell != nil {
+		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
+	}
 
+	if flts.Village != nil {
+		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
+	}
+
+	selectQuery += " ORDER BY i.created_at DESC"
+	selectQuery += fmt.Sprintf(" OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
 	rows, err := tx.QueryContext(ctx, selectQuery)
 	if err != nil {
 		return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	defer rows.Close()
 
-	var payments []payment.Payment
+	var payments = []payment.Payment{}
+
 	for rows.Next() {
-		var pmt payment.Payment
+		pmt := payment.Payment{}
 		err := rows.Scan(
 			&pmt.ID,
 			&pmt.Fname,
@@ -389,37 +386,78 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	}
 
 	selectQuery = `SELECT COUNT(*) FROM invoices i JOIN properties p ON i.property = p.id`
-	selectQuery += "\nWHERE 1 = 1"
+	selectQuery += " WHERE 1 = 1"
 
 	if flts.Status != nil {
-		selectQuery += fmt.Sprintf("\nAND i.status = '%s'", *flts.Status)
+		selectQuery += fmt.Sprintf(" AND i.status = '%s'", *flts.Status)
 	}
 
-	selectQuery += "\nAND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)"
+	// check on from date
+	if flts.From != nil {
+		selectQuery += fmt.Sprintf(" AND i.created_at >= '%s'", *flts.From)
+	}
+	// check on to date
+	if flts.To != nil {
+		selectQuery += fmt.Sprintf(" AND i.created_at <= '%s'", *flts.To)
+	}
 
 	if flts.Sector != nil {
-		selectQuery += fmt.Sprintf("\nAND p.sector = '%s'", *flts.Sector)
+		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
 	}
 
 	if flts.Cell != nil {
-		selectQuery += fmt.Sprintf("\nAND p.cell = '%s'", *flts.Cell)
+		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
 	}
 
 	if flts.Village != nil {
-		selectQuery += fmt.Sprintf("\nAND p.village = '%s'", *flts.Village)
+		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
 	}
 
 	var total uint64
 	if err := repo.QueryRow(selectQuery).Scan(&total); err != nil {
 		return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)
 	}
+
+	selectQuery = `SELECT     COALESCE(SUM(i.amount), 0) 	FROM invoices i JOIN properties p ON i.property = p.id`
+	selectQuery += " WHERE 1 = 1"
+
+	if flts.Status != nil {
+		selectQuery += fmt.Sprintf(" AND i.status = '%s'", *flts.Status)
+	}
+
+	// check on from date
+	if flts.From != nil {
+		selectQuery += fmt.Sprintf(" AND i.created_at >= '%s'", *flts.From)
+	}
+	// check on to date
+	if flts.To != nil {
+		selectQuery += fmt.Sprintf(" AND i.created_at <= '%s'", *flts.To)
+	}
+
+	if flts.Sector != nil {
+		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
+	}
+
+	if flts.Cell != nil {
+		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
+	}
+
+	if flts.Village != nil {
+		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
+	}
+
+	var total_amount float64
+	if err := repo.QueryRow(selectQuery).Scan(&total_amount); err != nil {
+		return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)
+	}
 	//
 	page := payment.PaymentResponse{
 		Payments: payments,
 		PageMetadata: payment.PageMetadata{
-			Total:  total,
-			Offset: *flts.Offset,
-			Limit:  *flts.Limit,
+			Total:       total,
+			Offset:      *flts.Offset,
+			Limit:       *flts.Limit,
+			TotalAmount: total_amount,
 		},
 	}
 	return page, nil

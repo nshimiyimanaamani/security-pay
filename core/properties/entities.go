@@ -45,9 +45,10 @@ func (addr *Address) Validate() error {
 
 // PageMetadata contains page metadata that helps navigation.
 type PageMetadata struct {
-	Total  uint64
-	Offset uint64
-	Limit  uint64
+	Total       uint64
+	TotalAmount float64 `json:"amount"`
+	Offset      uint64
+	Limit       uint64
 }
 
 // Validate validates a Property entity an returns nil error if it's valid.
@@ -72,7 +73,7 @@ func (prt *Property) Validate() error {
 	return nil
 }
 
-//Owner defines a property owner
+// Owner defines a property owner
 type Owner struct {
 	ID        string `json:"id,omitempty"`
 	Fname     string `json:"fname,omitempty"`
@@ -81,7 +82,7 @@ type Owner struct {
 	Namespace string `json:"namespace,omitempty"`
 }
 
-//OwnerPage ist of owners
+// OwnerPage ist of owners
 type OwnerPage struct {
 	Owners []Owner
 	PageMetadata
