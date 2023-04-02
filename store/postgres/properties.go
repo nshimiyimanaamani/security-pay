@@ -648,24 +648,11 @@ func (repo *propertiesStore) RetrieveByRecorder(ctx context.Context, user string
 		items = append(items, row)
 	}
 
-	q = `SELECT COUNT(*) FROM properties WHERE recorded_by = $1 AND namespace=$2`
+	q = `SELECT COUNT(*), COALESCE(SUM(properties.due), 0)  FROM properties WHERE recorded_by = $1 AND namespace=$2`
 
 	var total uint64
-	if err := repo.QueryRow(q, user, creds.Account).Scan(&total); err != nil {
-		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
-	}
-
-	q = `SELECT 
-		COALESCE(SUM(properties.due), 0) 
-	FROM 
-    	properties
-	INNER JOIN
-    	owners ON properties.owner = owners.id
-	WHERE 
-		properties.recorded_by = $1 AND properties.namespace=$2
-	`
 	var total_amount float64
-	if err := repo.QueryRow(q, user, creds.Account).Scan(&total_amount); err != nil {
+	if err := repo.QueryRow(q, user, creds.Account).Scan(&total, total_amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
