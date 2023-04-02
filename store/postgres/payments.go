@@ -416,13 +416,47 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	if err := repo.QueryRow(selectQuery).Scan(&total); err != nil {
 		return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)
 	}
+
+	selectQuery = `SELECT     COALESCE(SUM(i.amount), 0) 	FROM invoices i JOIN properties p ON i.property = p.id`
+	selectQuery += "\nWHERE 1 = 1"
+
+	if flts.Status != nil {
+		selectQuery += fmt.Sprintf("\nAND i.status = '%s'", *flts.Status)
+	}
+
+	// check on from date
+	if flts.From != nil {
+		selectQuery += fmt.Sprintf("\nAND i.created_at >= '%s'", *flts.From)
+	}
+	// check on to date
+	if flts.To != nil {
+		selectQuery += fmt.Sprintf("\nAND i.created_at <= '%s'", *flts.To)
+	}
+
+	if flts.Sector != nil {
+		selectQuery += fmt.Sprintf("\nAND p.sector = '%s'", *flts.Sector)
+	}
+
+	if flts.Cell != nil {
+		selectQuery += fmt.Sprintf("\nAND p.cell = '%s'", *flts.Cell)
+	}
+
+	if flts.Village != nil {
+		selectQuery += fmt.Sprintf("\nAND p.village = '%s'", *flts.Village)
+	}
+
+	var total_amount float64
+	if err := repo.QueryRow(selectQuery).Scan(&total_amount); err != nil {
+		return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)
+	}
 	//
 	page := payment.PaymentResponse{
 		Payments: payments,
 		PageMetadata: payment.PageMetadata{
-			Total:  total,
-			Offset: *flts.Offset,
-			Limit:  *flts.Limit,
+			Total:       total,
+			Offset:      *flts.Offset,
+			Limit:       *flts.Limit,
+			TotalAmount: total_amount,
 		},
 	}
 	return page, nil

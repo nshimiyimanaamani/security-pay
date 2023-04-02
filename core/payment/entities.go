@@ -53,9 +53,10 @@ type TxResponse struct {
 }
 
 type PageMetadata struct {
-	Total  uint64
-	Offset uint64
-	Limit  uint64
+	Total       uint64
+	TotalAmount float64 `json:"total_amount"`
+	Offset      uint64
+	Limit       uint64
 }
 
 type Payment struct {
