@@ -255,24 +255,11 @@ func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, 
 		items = append(items, row)
 	}
 
-	q = `SELECT COUNT(*) FROM properties WHERE owner = $1`
+	q = `SELECT COUNT(*),COALESCE(SUM(properties.due), 0)  FROM properties WHERE owner = $1`
 
 	var total uint64
-	if err := repo.QueryRow(q, owner).Scan(&total); err != nil {
-		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
-	}
-
-	q = `SELECT 
-		COALESCE(SUM(properties.due), 0) 
-	FROM 
-    	properties
-	INNER JOIN
-    	owners ON properties.owner = owners.id
-	WHERE 
-		properties.owner = $1
-	`
 	var total_amount float64
-	if err := repo.QueryRow(q, owner).Scan(&total_amount); err != nil {
+	if err := repo.QueryRow(q, owner).Scan(&total, &total_amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -355,24 +342,11 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 		items = append(items, row)
 	}
 
-	q = `SELECT COUNT(*) FROM properties WHERE sector = $1 AND namespace=$2`
+	q = `SELECT COUNT(*) , COALESCE(SUM(properties.due), 0)  FROM properties WHERE sector = $1 AND namespace=$2`
 
 	var total uint64
-	if err := repo.QueryRow(q, sector, creds.Account).Scan(&total); err != nil {
-		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
-	}
-	q = `SELECT 
-		COALESCE(SUM(properties.due), 0) 
-	FROM 
-    	properties
-	INNER JOIN
-    	owners ON properties.owner = owners.id
-	WHERE 
-		properties.sector = $1 AND properties.namespace=$2
-	`
-
 	var total_amount float64
-	if err := repo.QueryRow(q, sector, creds.Account).Scan(&total_amount); err != nil {
+	if err := repo.QueryRow(q, sector, creds.Account).Scan(&total, &total_amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -451,24 +425,11 @@ func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, of
 		items = append(items, row)
 	}
 
-	q = `SELECT COUNT(*) FROM properties WHERE cell = $1 AND namespace=$2`
+	q = `SELECT COUNT(*),COALESCE(SUM(properties.due), 0)  FROM properties WHERE cell = $1 AND namespace=$2`
 
 	var total uint64
-	if err := repo.QueryRow(q, cell, creds.Account).Scan(&total); err != nil {
-		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
-	}
-
-	q = `SELECT 
-		COALESCE(SUM(properties.due), 0) 
-	FROM 
-    	properties
-	INNER JOIN
-    	owners ON properties.owner = owners.id
-	WHERE 
-		properties.cell = $1 AND properties.namespace=$2
-	`
 	var total_amount float64
-	if err := repo.QueryRow(q, cell, creds.Account).Scan(&total_amount); err != nil {
+	if err := repo.QueryRow(q, cell, creds.Account).Scan(&total, &total_amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -550,26 +511,14 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 		items = append(items, row)
 	}
 
-	q = `SELECT COUNT(*) FROM properties WHERE village=$1 AND namespace=$2`
+	q = `SELECT COUNT(*),COALESCE(SUM(properties.due), 0) FROM properties WHERE village=$1 AND namespace=$2`
 
 	var total uint64
-	if err := repo.QueryRow(q, village, creds.Account).Scan(&total); err != nil {
+	var total_amount float64
+	if err := repo.QueryRow(q, village, creds.Account).Scan(&total, &total_amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
-	q = `SELECT 
-		COALESCE(SUM(properties.due), 0) 
-	FROM 
-    	properties
-	INNER JOIN
-    	owners ON properties.owner = owners.id
-	WHERE 
-		properties.village = $1 AND properties.namespace=$2
-	`
-	var total_amount float64
-	if err := repo.QueryRow(q, village, creds.Account).Scan(&total_amount); err != nil {
-		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
-	}
 	page := properties.PropertyPage{
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
@@ -652,7 +601,7 @@ func (repo *propertiesStore) RetrieveByRecorder(ctx context.Context, user string
 
 	var total uint64
 	var total_amount float64
-	if err := repo.QueryRow(q, user, creds.Account).Scan(&total, total_amount); err != nil {
+	if err := repo.QueryRow(q, user, creds.Account).Scan(&total, &total_amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
