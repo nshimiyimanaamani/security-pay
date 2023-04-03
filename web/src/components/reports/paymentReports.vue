@@ -552,9 +552,9 @@ export default {
         const { data } = await this.axios.get("payment/reports", {
           params: {
             status: "",
-            sector: this.form.select.sector,
-            cell: this.form.select.cell,
-            village: this.form.select.village,
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
             offset: 0,
             limit: 0,
             from: this.from,
@@ -591,9 +591,9 @@ export default {
         const { data } = await this.axios.get("payment/reports", {
           params: {
             status: "paid",
-            sector: this.form.select.sector,
-            cell: this.form.select.cell,
-            village: this.form.select.village,
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
             offset: 0,
             limit: 0,
             from: this.from,
@@ -630,9 +630,9 @@ export default {
         const { data } = await this.axios.get("payment/reports", {
           params: {
             status: "pending",
-            sector: this.form.select.sector,
-            cell: this.form.select.cell,
-            village: this.form.select.village,
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
             offset: 0,
             limit: 0,
             from: this.from,
