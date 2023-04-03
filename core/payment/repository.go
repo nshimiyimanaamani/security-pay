@@ -16,4 +16,7 @@ type Repository interface {
 
 	//BulkSave saves multiple payments to the database
 	BulkSave(context.Context, []*TxRequest) error
+
+	// PaymentRequest generates all payments
+	List(context.Context, *Filters) (PaymentResponse, error)
 }

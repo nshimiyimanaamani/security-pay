@@ -12,6 +12,7 @@ import (
 
 // ProtocolHandler adapts the payment service into an http.handler
 type ProtocolHandler func(logger log.Entry, svc payment.Service) http.Handler
+type RepoProtocolHandler func(logger log.Entry, repo payment.Repository) http.Handler
 
 // HandlerOpts are the generic options
 // for a ProtocolHandler
@@ -19,6 +20,7 @@ type HandlerOpts struct {
 	Logger        *log.Logger
 	Service       payment.Service
 	Authenticator auth.Service
+	Repository    payment.Repository
 }
 
 // LogEntryHandler pulls a log entry from the request context. Thanks to the
@@ -29,6 +31,15 @@ func LogEntryHandler(ph ProtocolHandler, opts *HandlerOpts) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ent := log.EntryFromContext(r.Context())
 		handler := ph(ent, opts.Service)
+		handler.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(f)
+}
+
+func RepoLogEntryHandler(ph RepoProtocolHandler, opts *HandlerOpts) http.Handler {
+	f := func(w http.ResponseWriter, r *http.Request) {
+		ent := log.EntryFromContext(r.Context())
+		handler := ph(ent, opts.Repository)
 		handler.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(f)
@@ -51,4 +62,7 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 
 	r.Handle(ProcessCreditRoute, LogEntryHandler(ConfirmPush, opts)).Methods(http.MethodPost)
 	r.Handle(CreditRoute, authenticator(LogEntryHandler(Push, opts))).Methods(http.MethodPost)
+	r.Handle(PaymentReportsRoute, authenticator(RepoLogEntryHandler(PaymentReports, opts))).
+		Methods(http.MethodGet).
+		Queries("status", "{status}", "sector", "{sector}", "cell", "{cell}", "village", "{village}", "limit", "{limit}", "offset", "{offset}", "from", "{from}", "to", "{to}")
 }

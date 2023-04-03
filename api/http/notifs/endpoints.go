@@ -32,13 +32,13 @@ func Send(lgger log.Entry, svc notifs.Service) http.Handler {
 			encodeErr(w, errors.Kind(err), err)
 			return
 		}
-		if _, err := svc.Send(r.Context(), sms); err != nil {
-			err = errors.E(op, err)
-			lgger.SystemErr(err)
-			encodeErr(w, errors.Kind(err), err)
-			return
-		}
-		encode(w, http.StatusCreated, map[string]string{"message": "sms message was delivered"})
+		// if _, err := svc.Send(r.Context(), sms); err != nil {
+		// 	err = errors.E(op, err)
+		// 	lgger.SystemErr(err)
+		// 	encodeErr(w, errors.Kind(err), err)
+		// 	return
+		// }
+		encode(w, http.StatusConflict, map[string]string{"message": "endpoint is under mentaince mode"})
 	}
 	return http.HandlerFunc(f)
 }
