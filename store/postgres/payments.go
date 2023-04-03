@@ -463,157 +463,199 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	return page, nil
 }
 
-func (repo *paymentStore) SectorPaymentMetrics(ctx context.Context, flts *payment.MetricFilters) ([]payment.Chart, error) {
+func (repo *paymentStore) LislTodaysTransactions(ctx context.Context, flts *payment.MetricFilters) ([]payment.TransactionsPage, error) {
+	const op errors.Op = "store/postgres/paymentStore.LislTodaysTransactions"
 
-	const op errors.Op = "store/postgres/payments.SectorPaymentMetrics"
-
-	q := `
-	select 
-			sector, 
-			pending_amount, 
-			payed_amount,
-			expired_amount
-		from 
-			sector_payment_metrics 
-		where sector=$1 ;
-	`
-	if flts.From != nil {
-		q += fmt.Sprintf(" AND period >= '%s'", *flts.From)
-	}
-	if flts.To != nil {
-		q += fmt.Sprintf(" AND period <= '%s'", *flts.To)
-	}
-	rows, err := repo.QueryContext(ctx, q, flts.Sector)
+	tx, err := repo.BeginTx(ctx, nil)
 	if err != nil {
-		return nil, errors.E(op, err, errors.KindUnexpected)
+		return []payment.TransactionsPage{}, errors.E(op, err)
 	}
-	items := []payment.Chart{}
+	defer tx.Rollback()
+
+	selectQuery := `
+	SELECT 
+
+		COUNT(*) AS successful_transactions,
+		COALESCE(SUM(t.amount), 0)
+	FROM 
+		transactions t
+	JOIN 
+		properties p ON t.madefor = p.id
+
+	WHERE  DATE(t.created_at) = current_date`
+
+	if flts.Sector != nil {
+		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
+	}
+	if flts.Village != nil {
+		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
+	}
+	if flts.Cell != nil {
+		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
+	}
+
+	selectQuery += ` GROUP BY p.sector, p.village, p.cell`
+
+	selectQuery += fmt.Sprintf(" OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
+
+	rows, err := tx.Query(selectQuery)
+	if err != nil {
+		return []payment.TransactionsPage{}, errors.E(op, err)
+	}
 	defer rows.Close()
 
+	charts := []payment.Transaction{}
 	for rows.Next() {
-		var label string
-
-		var payed, pending, expired float64
-
-		if err := rows.Scan(&label, &pending, &payed, &expired); err != nil {
-			return nil, errors.E(op, err, errors.KindUnexpected)
+		var chart payment.Transaction
+		err = rows.Scan(&chart.Transactions, &chart.Amount)
+		if err != nil {
+			return []payment.TransactionsPage{}, errors.E(op, err)
 		}
 
-		chart := payment.Chart{
-			Label: label,
-			Data: map[string]uint64{
-				"payed":   uint64(payed),
-				"pending": uint64(pending),
-				"expired": uint64(expired),
-			},
-		}
-
-		items = append(items, chart)
+		charts = append(charts, chart)
 	}
-	return items, nil
+
+	if err = rows.Err(); err != nil {
+		return []payment.TransactionsPage{}, errors.E(op, err)
+	}
+
+	// calculate total
+	selectQuery = `
+	SELECT
+		COUNT(*) 
+	FROM
+		transactions t
+	JOIN
+		properties p ON t.madefor = p.id
+	WHERE DATE(t.created_at) = current_date`
+
+	if flts.Sector != nil {
+		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
+	}
+	if flts.Village != nil {
+		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
+	}
+	if flts.Cell != nil {
+		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
+	}
+
+	var total uint64
+	if err := tx.QueryRow(selectQuery).Scan(&total); err != nil {
+		return []payment.TransactionsPage{}, errors.E(op, err, errors.KindUnexpected)
+	}
+	// return the transactionpage
+	return []payment.TransactionsPage{
+		{
+			Transactions: charts,
+			PageMetadata: payment.PageMetadata{
+				Total:  total,
+				Offset: *flts.Offset,
+				Limit:  *flts.Limit,
+			},
+		},
+	}, tx.Commit()
 
 }
 
-func (repo *paymentStore) CellPaymentMetrics(ctx context.Context, flts *payment.MetricFilters) ([]payment.Chart, error) {
+// Implement the ListDailyTransactions
+func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payment.MetricFilters) ([]payment.TransactionsPage, error) {
+	const op errors.Op = "store/postgres/paymentStore.ListDailyTransactions"
 
-	const op errors.Op = "store/postgres/payments.CellPaymentMetrics"
+	tx, err := repo.BeginTx(ctx, nil)
+	if err != nil {
+		return []payment.TransactionsPage{}, errors.E(op, err)
+	}
+	defer tx.Rollback()
 
-	q := `
-	select 
-			cell, 
-			pending_amount, 
-			payed_amount,
-			expired_amount
-		from 
-			cell_payment_metrics 
-		where cell=$1 ;
-	`
+	selectQuery := `
+	SELECT 
 
+		COUNT(*) AS successful_transactions,
+		COALESCE(SUM(t.amount), 0)
+	FROM 
+		transactions t
+	JOIN 
+		properties p ON t.madefor = p.id
+
+	WHERE 1=1 `
+
+	if flts.Sector != nil {
+		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
+	}
+	if flts.Village != nil {
+		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
+	}
+	if flts.Cell != nil {
+		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
+	}
 	if flts.From != nil {
-		q += fmt.Sprintf(" AND period >= '%s'", *flts.From)
+		selectQuery += fmt.Sprintf(" AND DATE(t.created_at) >= '%s'", *flts.From)
 	}
 	if flts.To != nil {
-		q += fmt.Sprintf(" AND period <= '%s'", *flts.To)
+		selectQuery += fmt.Sprintf(" AND DATE(t.created_at) <= '%s'", *flts.To)
 	}
-	rows, err := repo.QueryContext(ctx, q, flts.Sector)
+
+	selectQuery += ` GROUP BY p.sector, p.village, p.cell`
+
+	selectQuery += fmt.Sprintf(" OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
+
+	rows, err := tx.Query(selectQuery)
 	if err != nil {
-		return nil, errors.E(op, err, errors.KindUnexpected)
+		return []payment.TransactionsPage{}, errors.E(op, err)
 	}
-	items := []payment.Chart{}
 	defer rows.Close()
 
+	charts := []payment.Transaction{}
 	for rows.Next() {
-		var label string
-
-		var payed, pending, expired float64
-
-		if err := rows.Scan(&label, &pending, &payed, &expired); err != nil {
-			return nil, errors.E(op, err, errors.KindUnexpected)
+		var chart payment.Transaction
+		err = rows.Scan(&chart.Transactions, &chart.Amount)
+		if err != nil {
+			return []payment.TransactionsPage{}, errors.E(op, err)
 		}
 
-		chart := payment.Chart{
-			Label: label,
-			Data: map[string]uint64{
-				"payed":   uint64(payed),
-				"pending": uint64(pending),
-				"expired": uint64(expired),
+		charts = append(charts, chart)
+	}
+
+	if err = rows.Err(); err != nil {
+		return []payment.TransactionsPage{}, errors.E(op, err)
+	}
+
+	// calculate total
+	selectQuery = `
+	SELECT
+		COUNT(*) 
+	FROM
+		transactions t
+	JOIN
+		properties p ON t.madefor = p.id
+	WHERE DATE(t.created_at) = current_date`
+
+	if flts.Sector != nil {
+		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
+	}
+	if flts.Village != nil {
+		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
+	}
+	if flts.Cell != nil {
+		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
+	}
+
+	var total uint64
+	if err := tx.QueryRow(selectQuery).Scan(&total); err != nil {
+		return []payment.TransactionsPage{}, errors.E(op, err, errors.KindUnexpected)
+	}
+	// return the transactionpage
+	return []payment.TransactionsPage{
+		{
+			Transactions: charts,
+			PageMetadata: payment.PageMetadata{
+				Total:  total,
+				Offset: *flts.Offset,
+				Limit:  *flts.Limit,
 			},
-		}
+		},
+	}, tx.Commit()
 
-		items = append(items, chart)
-	}
-	return items, nil
-
-}
-
-func (repo *paymentStore) VillagePaymentMetrics(ctx context.Context, flts *payment.MetricFilters) ([]payment.Chart, error) {
-
-	const op errors.Op = "store/postgres/payments.VillagePaymentMetrics"
-
-	q := `
-	select 
-			village, 
-			pending_amount, 
-			payed_amount,
-			expired_amount
-		from 
-			village_payment_metrics 
-		where village=$1 ;
-	`
-	if flts.From != nil {
-		q += fmt.Sprintf(" AND period >= '%s'", *flts.From)
-	}
-	if flts.To != nil {
-		q += fmt.Sprintf(" AND period <= '%s'", *flts.To)
-	}
-	rows, err := repo.QueryContext(ctx, q, flts.Sector)
-	if err != nil {
-		return nil, errors.E(op, err, errors.KindUnexpected)
-	}
-	items := []payment.Chart{}
-	defer rows.Close()
-
-	for rows.Next() {
-		var label string
-
-		var payed, pending, expired float64
-
-		if err := rows.Scan(&label, &pending, &payed, &expired); err != nil {
-			return nil, errors.E(op, err, errors.KindUnexpected)
-		}
-
-		chart := payment.Chart{
-			Label: label,
-			Data: map[string]uint64{
-				"payed":   uint64(payed),
-				"pending": uint64(pending),
-				"expired": uint64(expired),
-			},
-		}
-
-		items = append(items, chart)
-	}
-	return items, nil
 }
 
 func formMessage(tx []*payment.TxRequest, prop *properties.Property) string {

@@ -54,7 +54,7 @@ type TxResponse struct {
 
 type PageMetadata struct {
 	Total       uint64
-	TotalAmount float64 `json:"amount"`
+	TotalAmount float64 `json:"amount,omitempty"`
 	Offset      uint64
 	Limit       uint64
 }
@@ -99,6 +99,8 @@ type MetricFilters struct {
 	Sector  *string
 	Cell    *string
 	Village *string
+	Limit   *uint64
+	Offset  *uint64
 }
 type Data struct {
 	Ref       string     `json:"ref,omitempty"`
@@ -113,10 +115,16 @@ type Data struct {
 }
 
 // Metrics reports
-
-type Chart struct {
-	Label string            `json:"label,omitempty"`
-	Data  map[string]uint64 `json:"data,omitempty"`
+type TransactionsPage struct {
+	PageMetadata
+	Transactions []Transaction
+}
+type Transaction struct {
+	Sector       string  `json:"sector,omitempty"`
+	Cell         string  `json:"cell,omitempty"`
+	Village      string  `json:"village,omitempty"`
+	Transactions int64   `json:"transactions,omitempty"`
+	Amount       float64 `json:"amount,omitempty"`
 }
 
 // Validate validats a callback

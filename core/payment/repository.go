@@ -20,10 +20,9 @@ type Repository interface {
 	// PaymentRequest generates all payments
 	List(context.Context, *Filters) (PaymentResponse, error)
 
-	// Returns the metrics for the sector
-	SectorPaymentMetrics(context.Context, *MetricFilters) ([]Chart, error)
-	// Returns the metrics for the cell
-	CellPaymentMetrics(context.Context, *MetricFilters) ([]Chart, error)
-	//Returns the metrics for the village
-	VillagePaymentMetrics(context.Context, *MetricFilters) ([]Chart, error)
+	//Returns Transactions Per Sector,cell,village
+	LislTodaysTransactions(context.Context, *MetricFilters) ([]TransactionsPage, error)
+
+	//Returns Transactions Per Sector,cell,village
+	ListDailyTransactions(context.Context, *MetricFilters) ([]TransactionsPage, error)
 }

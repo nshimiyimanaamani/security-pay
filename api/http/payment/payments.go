@@ -77,23 +77,43 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-func SectorPaymentMetrics(logger log.Entry, svc payment.Repository) http.Handler {
+func TodayTransactions(logger log.Entry, svc payment.Repository) http.Handler {
 	const op errors.Op = "api/http/payment/SectorPaymentMetrics"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
 
 		vars := mux.Vars(r)
-		from := cast.CastToString((vars["from"]))
-		to := cast.CastToString((vars["to"]))
+
 		sector := cast.CastToString((vars["sector"]))
+		cell := cast.CastToString(vars["cell"])
+		village := cast.CastToString(vars["village"])
 
-		flt := &payment.MetricFilters{
-			From:   from,
-			To:     to,
-			Sector: sector,
+		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
+		if err != nil {
+			err = errors.E(op, err, "invalid offset value", errors.KindBadRequest)
+			logger.SystemErr(err)
+			encodeErr(w, err)
+			return
 		}
 
-		res, err := svc.SectorPaymentMetrics(r.Context(), flt)
+		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
+		if err != nil {
+			err = errors.E(op, err, "invalid limit value", errors.KindBadRequest)
+			logger.SystemErr(err)
+			encodeErr(w, err)
+			return
+		}
+
+		flt := &payment.MetricFilters{
+
+			Sector:  sector,
+			Cell:    cell,
+			Village: village,
+			Offset:  &offset,
+			Limit:   &limit,
+		}
+
+		res, err := svc.LislTodaysTransactions(r.Context(), flt)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
@@ -111,57 +131,47 @@ func SectorPaymentMetrics(logger log.Entry, svc payment.Repository) http.Handler
 	return http.HandlerFunc(f)
 }
 
-func CellPaymentMetrics(logger log.Entry, svc payment.Repository) http.Handler {
-	const op errors.Op = "api/http/payment/CellPaymentMetrics"
+func DailyTransactions(logger log.Entry, svc payment.Repository) http.Handler {
+
+	const op errors.Op = "api/http/payment/DailyTransactions"
 
 	f := func(w http.ResponseWriter, r *http.Request) {
 
 		vars := mux.Vars(r)
-		from := cast.CastToString((vars["from"]))
-		to := cast.CastToString((vars["to"]))
-		cell := cast.CastToString((vars["cell"]))
 
-		flt := &payment.MetricFilters{
-			From: from,
-			To:   to,
-			Cell: cell,
-		}
+		sector := cast.CastToString((vars["sector"]))
+		cell := cast.CastToString(vars["cell"])
+		village := cast.CastToString(vars["village"])
+		from := cast.CastToString(vars["from"])
+		to := cast.CastToString(vars["to"])
 
-		res, err := svc.CellPaymentMetrics(r.Context(), flt)
+		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
-			err = errors.E(op, err)
+			err = errors.E(op, err, "invalid offset value", errors.KindBadRequest)
 			logger.SystemErr(err)
-			encoding.EncodeError(w, errors.Kind(err), err)
+			encodeErr(w, err)
 			return
 		}
 
-		if err := encoding.Encode(w, http.StatusOK, res); err != nil {
-			err = errors.E(op, err)
-			logger.SystemErr(errors.E(op, err))
-			encoding.EncodeError(w, errors.Kind(err), err)
+		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
+		if err != nil {
+			err = errors.E(op, err, "invalid limit value", errors.KindBadRequest)
+			logger.SystemErr(err)
+			encodeErr(w, err)
 			return
 		}
-	}
-	return http.HandlerFunc(f)
-}
-
-func VillagePaymentMetrics(logger log.Entry, svc payment.Repository) http.Handler {
-	const op errors.Op = "api/http/payment/VillagePaymentMetrics"
-
-	f := func(w http.ResponseWriter, r *http.Request) {
-
-		vars := mux.Vars(r)
-		from := cast.CastToString((vars["from"]))
-		to := cast.CastToString((vars["to"]))
-		village := cast.CastToString((vars["village"]))
-
 		flt := &payment.MetricFilters{
+
+			Sector:  sector,
+			Cell:    cell,
+			Village: village,
 			From:    from,
 			To:      to,
-			Village: village,
+			Offset:  &offset,
+			Limit:   &limit,
 		}
 
-		res, err := svc.VillagePaymentMetrics(r.Context(), flt)
+		res, err := svc.ListDailyTransactions(r.Context(), flt)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
