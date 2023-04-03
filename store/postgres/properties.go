@@ -275,7 +275,7 @@ func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, 
 	return page, nil
 }
 
-func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64) (properties.PropertyPage, error) {
+func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64, names string) (properties.PropertyPage, error) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveBySector"
 
 	q := `
@@ -301,14 +301,15 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 			owners ON properties.owner=owners.id 
 		WHERE 
 			properties.sector = $1 AND properties.namespace=$2
-		ORDER BY  properties.id LIMIT $3 OFFSET $4
+			AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname LIKE '%' || $3 || '%')
+		ORDER BY  properties.id LIMIT $4 OFFSET $5
 	`
 
 	creds := auth.CredentialsFromContext(ctx)
 
 	var items = []properties.Property{}
 
-	rows, err := repo.Query(q, sector, creds.Account, limit, offset)
+	rows, err := repo.Query(q, sector, creds.Account, names, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -612,99 +613,6 @@ func (repo *propertiesStore) RetrieveByRecorder(ctx context.Context, user string
 			Offset: offset,
 			Limit:  limit,
 			Amount: amount,
-		},
-	}
-	return page, nil
-}
-
-func (repo *propertiesStore) RetrieveByNames(ctx context.Context, names string, offset, limit uint64) (properties.PropertyPage, error) {
-	const op errors.Op = "store/postgres/propertiesStore.RetrieveByNames"
-
-	q := `
-		SELECT 
-			properties.id, 
-			properties.sector, 
-			properties.cell, 
-			properties.village, 
-			properties.due, 
-			properties.recorded_by,
-			properties.occupied, 
-			properties.for_rent, 
-			properties.created_at,
-			properties.updated_at,
-			properties.namespace,
-			owners.id, 
-			owners.fname, 
-			owners.lname, 
-			owners.phone
-		FROM 
-			properties,
-			owners
-		WHERE 
-			properties.owner = owners.id
-			AND (owners.fname LIKE '%' || $1 || '%' OR owners.lname LIKE '%' || $1 || '%')
-		ORDER BY properties.id 
-		LIMIT $2
-		OFFSET $3;
-		`
-
-	// creds := auth.CredentialsFromContext(ctx)
-
-	var items = []properties.Property{}
-
-	rows, err := repo.Query(q, names, limit, offset)
-	if err != nil {
-		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		row := properties.Property{}
-
-		err := rows.Scan(
-			&row.ID,
-			&row.Address.Sector,
-			&row.Address.Cell,
-			&row.Address.Village,
-			&row.Due,
-			&row.RecordedBy,
-			&row.Occupied,
-			&row.ForRent,
-			&row.CreatedAt,
-			&row.UpdatedAt,
-			&row.Namespace,
-			&row.Owner.ID,
-			&row.Owner.Fname,
-			&row.Owner.Lname,
-			&row.Owner.Phone,
-		)
-		if err != nil {
-			return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
-		}
-
-		items = append(items, row)
-	}
-
-	q = `	SELECT 
-	COUNT(*)
-FROM 
-	properties,
-	owners
-WHERE 
-	properties.owner = owners.id
-	AND (owners.fname LIKE '%' || $1 || '%' OR owners.lname LIKE '%' || $1 || '%')`
-	var total uint64
-	if err := repo.QueryRow(q, names).Scan(&total); err != nil {
-
-		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
-	}
-
-	page := properties.PropertyPage{
-		Properties: items,
-		PageMetadata: properties.PageMetadata{
-			Total:  total,
-			Offset: offset,
-			Limit:  limit,
 		},
 	}
 	return page, nil

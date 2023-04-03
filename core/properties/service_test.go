@@ -350,6 +350,7 @@ func TestListBySector(t *testing.T) {
 		offset uint64
 		limit  uint64
 		size   uint64
+		names  string
 		err    error
 	}{
 		{
@@ -388,7 +389,7 @@ func TestListBySector(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		page, err := svc.ListBySector(ctx, tc.sector, tc.offset, tc.limit)
+		page, err := svc.ListBySector(ctx, tc.sector, tc.offset, tc.limit, tc.names)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))

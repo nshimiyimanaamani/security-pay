@@ -162,7 +162,9 @@ func MListPropertyBySector(lgger log.Entry, svc properties.Service) http.Handler
 			return
 		}
 
-		page, err := svc.ListBySector(ctx, vars["sector"], offset, limit)
+		names := vars["names"]
+
+		page, err := svc.ListBySector(ctx, vars["sector"], offset, limit, names)
 
 		if err != nil {
 			lgger.SystemErr(err)

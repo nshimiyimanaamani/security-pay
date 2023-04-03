@@ -74,8 +74,6 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 	r.Handle(ListPRoute, authenticator(LogEntryHandler(ListByRecorder, opts))).
 		Methods(http.MethodGet).
 		Queries("user", "{user}", "offset", "{offset}", "limit", "{limit}")
-	r.Handle(ListPRoute, authenticator(LogEntryHandler(ListByNames, opts))).Methods(http.MethodGet).
-		Queries("names", "{names}", "offset", "{offset}", "limit", "{limit}")
 	//mobile temp
 	r.Handle(MRetrievePRoute, MRetrieveProperty(opts.Logger, opts.Service)).Methods(http.MethodGet)
 	r.Handle(MListPRoute, MListPropertyByCell(opts.Logger, opts.Service)).Methods(http.MethodGet).

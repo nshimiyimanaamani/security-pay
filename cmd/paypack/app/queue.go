@@ -7,7 +7,7 @@ import (
 
 // InitQueue ...
 func InitQueue(config *config.RedisConfig) (*queue.Queue, error) {
-	opts, err := queue.ParseOptions(config.URL)
+	opts, err := queue.ParseOptions("redis://localhost:6379")
 	if err != nil {
 		return nil, err
 	}

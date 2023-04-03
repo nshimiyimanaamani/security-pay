@@ -25,7 +25,7 @@ func New(cli *api.Client, id, secret, mode string) (srv *Service, err error) {
 		WebhookMode: mode,
 	}
 
-	srv.token, err = srv.Login(context.Background(), id, secret)
+	srv.token, err = srv.Login(context.Background(), "8163b418-c3d7-11ed-9a56-dead64802bd2", "16423f218545d1cb49171764081c391eda39a3ee5e6b4b0d3255bfef95601890afd80709")
 	if err != nil {
 		return nil, err
 	}

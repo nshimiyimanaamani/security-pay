@@ -206,13 +206,15 @@ func ListBySector(lgger log.Entry, svc properties.Service) http.Handler {
 			return
 		}
 
+		names := vars["names"]
+
 		// creds := auth.CredentialsFromContext(ctx)
 
 		// lgger.Warnf("username:%s | account:%s | role:%s",
 		// 	creds.Username, creds.Account, creds.Role,
 		// )
 
-		res, err := svc.ListBySector(ctx, vars["sector"], offset, limit)
+		res, err := svc.ListBySector(ctx, vars["sector"], offset, limit, names)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)
@@ -357,49 +359,5 @@ func ListByRecorder(lgger log.Entry, svc properties.Service) http.Handler {
 			return
 		}
 	}
-	return http.HandlerFunc(f)
-}
-
-// ListByNames
-func ListByNames(lgger log.Entry, svc properties.Service) http.Handler {
-	const op errors.Op = "api/http/properties/ListPropertiesByNames"
-
-	f := func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-
-		vars := mux.Vars(r)
-		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
-		if err != nil {
-			err = parseErr(op, err)
-			lgger.SystemErr(err)
-			encodeErr(w, err)
-			return
-		}
-		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
-		if err != nil {
-			err = parseErr(op, err)
-			lgger.SystemErr(err)
-			encodeErr(w, err)
-			return
-		}
-
-		names := vars["names"]
-
-		res, err := svc.ListByNames(ctx, names, offset, limit)
-		if err != nil {
-			err = parseErr(op, err)
-			lgger.SystemErr(err)
-			encodeErr(w, err)
-			return
-		}
-
-		if err := encode(w, http.StatusOK, res); err != nil {
-			err = parseErr(op, err)
-			lgger.SystemErr(err)
-			encodeErr(w, err)
-			return
-		}
-	}
-
 	return http.HandlerFunc(f)
 }

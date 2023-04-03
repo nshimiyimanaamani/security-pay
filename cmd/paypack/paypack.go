@@ -43,7 +43,7 @@ func main() {
 	}
 
 	// start the server
-	srv := &http.Server{Addr: ":" + conf.Port, Handler: handler}
+	srv := &http.Server{Addr: ":" + "8000", Handler: handler}
 
 	idleConnsClosed := make(chan struct{})
 
