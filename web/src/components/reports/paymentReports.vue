@@ -353,23 +353,11 @@
                 <template v-slot:empty>{{
                   state.error.table1 || "No data available to display"
                 }}</template>
-
-                <template v-slot:custom-foot>
-                  <b-tr class="total">
-                    <b-td></b-td>
-                    <b-td></b-td>
-                    <b-td></b-td>
-                    <b-td class="text-center py-3">
-                      <small
-                        ><strong style=""
-                          ><span style="color: #dc3545">Total </span>:
-                          {{ totalAmount }} Rwf</strong
-                        ></small
-                      >
-                    </b-td>
-                  </b-tr>
-                </template>
+                
               </b-table>
+              <b-row class="total d-flex justify-content-end">
+                <small><strong style=""><span style="color:#dc3545">Total </span>: {{totalAmount}} Rwf</strong></small>
+              </b-row>
             </div>
           </div>
         </b-collapse>
@@ -384,7 +372,6 @@
 </template>
 
 <script>
-import download from "../download scripts/downloadReports";
 export default {
   name: "paymentReports",
   data() {
@@ -393,7 +380,7 @@ export default {
       isLoading1: false,
       isLoadingdata: false,
       reportTitle: "",
-      totalAmount: 0,
+      totalAmount:0,
       search: "",
       form: {
         select: {
@@ -548,7 +535,7 @@ export default {
       this.state.showReport = false;
       this.isLoading1 = true;
       this.isLoadingdata = true;
-      this.reportTitle = " All House Report";
+      this.reportTitle = "Generate All House Report";
       console.log("generate all house");
       this.loading = true;
       const yearString = this.object.year;
@@ -582,13 +569,7 @@ export default {
         // this.accountant = data;
 
         this.reports = data.Payments;
-        // const custrow = {};
-        // custrow.fname = "Total Amount"
-        // custrow.name = ""
-        // custrow.name = ""
-        // custrow.amount = data.amount
-        // this.reports.push(custrow);
-        this.totalAmount = data.amount;
+        this.totalAmount = data.amount
         // console.log("report all houses", this.reports);
       } catch (error) {
         console.log(error);
@@ -602,7 +583,7 @@ export default {
     async getPaidHouse() {
       this.state.showReport = false;
       this.isLoadingdata = true;
-      this.reportTitle = " Paid House Report";
+      this.reportTitle = "Generate Paid House Report";
       console.log("generate paid house");
       this.loading = true;
       const yearString = this.object.year;
@@ -628,13 +609,7 @@ export default {
         // this.accountant = data;
 
         this.reports = data.Payments;
-        // const custrow = {};
-        // custrow.fname = "Total Amount"
-        // custrow.name = ""
-        // custrow.name = ""
-        // custrow.amount = data.amount
-        // this.reports.push(custrow);
-        this.totalAmount = data.amount;
+        this.totalAmount = data.amount
         // console.log("reports", this.reports);
       } catch (error) {
         console.log(error);
@@ -648,7 +623,7 @@ export default {
     async getUnpaidHouse() {
       this.state.showReport = false;
       this.isLoadingdata = true;
-      this.reportTitle = " Unpaid House Report";
+      this.reportTitle = "Generate Unpaid House Report";
       console.log("generate unpaid house");
       this.loading = true;
       const yearString = this.object.year;
@@ -674,13 +649,7 @@ export default {
         // this.accountant = data;
         this.reportTitle = "Generate Unpaid House Report";
         this.reports = data.Payments;
-        // const custrow = {};
-        // custrow.fname = "Total Amount"
-        // custrow.name = ""
-        // custrow.name = ""
-        // custrow.amount = data.amount
-        // this.reports.push(custrow);
-        this.totalAmount = data.amount;
+        this.totalAmount = data.amount
         // console.log("reports", this.reports);
       } catch (error) {
         console.log(error);
@@ -692,56 +661,59 @@ export default {
       }
     },
     downloadReport() {
-      console.log(this.reports);
-      if (this.reports.length > 0) {
+      console.log("download");
+      return;
+      if (this.sectorData.length > 0 && this.cellData.length > 0) {
         const data = {
           config: {
-            TITLE: String(` ${this.reportTitle}`).toUpperCase(),
-            name: `${this.reportTitle} `,
-            date: this.object.month,
+            TITLE: String(
+              `Monthly Report of ${this.activeSector}`
+            ).toUpperCase(),
+            name: `${this.activeSector} Monthly Report of ${this.state.reportsDate}`,
+            date: this.state.reportsDate,
           },
           data: [
-            // {
-            //   COLUMNS: [
-            //     {
-            //       header: `No of Properties`,
-            //       dataKey: "total",
-            //     },
-            //     {
-            //       header: `No of Paid Properties`,
-            //       dataKey: "payed",
-            //     },
-            //     { header: `Paid Amount`, dataKey: "payedAmount" },
-            //     {
-            //       header: `No of Unpaid Properties`,
-            //       dataKey: "pending",
-            //     },
-            //     { header: `Unpaid Amount`, dataKey: "unpayedAmount" },
-            //   ],
-            //   BODY: this.sectorData,
-            // },
             {
               COLUMNS: [
                 {
-                  header: `First Name`,
-                  dataKey: "fname",
+                  header: `No of Properties`,
+                  dataKey: "total",
                 },
                 {
-                  header: `Last Name`,
-                  dataKey: "lname",
+                  header: `No of Paid Properties`,
+                  dataKey: "payed",
                 },
+                { header: `Paid Amount`, dataKey: "payedAmount" },
                 {
-                  header: `Phone`,
-                  dataKey: "phone",
+                  header: `No of Unpaid Properties`,
+                  dataKey: "pending",
                 },
-                { header: `Amount`, dataKey: "amount" },
-                // {
-                //   header: `No of Unpaid Properties`,
-                //   dataKey: "pending",
-                // },
-                // { header: `Unpaid Amount`, dataKey: "unpayedAmount" },
+                { header: `Unpaid Amount`, dataKey: "unpayedAmount" },
               ],
-              BODY: this.reports,
+              BODY: this.sectorData,
+            },
+            {
+              COLUMNS: [
+                {
+                  header: `Cell`,
+                  dataKey: "name",
+                },
+                {
+                  header: `No of Properties`,
+                  dataKey: "total",
+                },
+                {
+                  header: `No of Paid Properties`,
+                  dataKey: "payed",
+                },
+                { header: `Paid Amount`, dataKey: "payedAmount" },
+                {
+                  header: `No of Unpaid Properties`,
+                  dataKey: "pending",
+                },
+                { header: `Unpaid Amount`, dataKey: "unpayedAmount" },
+              ],
+              BODY: this.cellData,
             },
           ],
         };
