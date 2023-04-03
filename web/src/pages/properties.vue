@@ -83,7 +83,6 @@
           class="br-2 primary-font"
           type="search"
           v-model="search.name"
-          @keypress.enter="searchProperties"
         ></b-form-input>
       </div>
       <b-button variant="info" class="ml-2 br-2" @click="loadData">
@@ -147,7 +146,7 @@
               <strong>Total:</strong>
             </div>
             <div v-if="i===select.shownColumn.length-1">
-              <strong>{{totalAmount | number}} Rwf</strong>
+              <strong>{{totals | number}} Rwf</strong>
             </div>
           </b-td>
         </b-tr>
@@ -215,7 +214,6 @@ export default {
       development: true,
       originalData: [],
       filteredData: [],
-      totalAmount:0,
       addProperty: { show: false },
       state: {
         changedLocation: false,
@@ -371,36 +369,34 @@ export default {
       this.loading.request = true;
 
       var promise = await this.getUrl();
-      // const total = await this.$getTotal(`${promise}0`);
+      const total = await this.$getTotal(`${promise}0`);
 
-      // if (total)
-      //   if (total !== this.originalData.length) this.state.reloadData = true;
+      if (total)
+        if (total !== this.originalData.length) this.state.reloadData = true;
 
-      // if (this.state.reloadData === false) {
-      //   const properties = JSON.parse(sessionStorage.getItem("Properties"));
-      //   if (properties && properties.length > 0) {
-      //     this.filteredData = properties;
-      //     this.originalData = Object.freeze(properties);
-      //     this.loading.request = false;
-      //     this.filterByLocation();
-      //     return;
-      //   }
-      // }
+      if (this.state.reloadData === false) {
+        const properties = JSON.parse(sessionStorage.getItem("Properties"));
+        if (properties && properties.length > 0) {
+          this.filteredData = properties;
+          this.originalData = Object.freeze(properties);
+          this.loading.request = false;
+          this.filterByLocation();
+          return;
+        }
+      }
 
       this.axios
-        .get(promise + this.pagination.perPage)
+        .get(promise + `${total}`)
         .then(res => {
           this.filteredData = res.data.Properties;
-          this.totalAmount = res.data.amount
           this.originalData = Object.freeze(res.data.Properties);
           this.pagination.totalRows = res.data.Properties.length;
           this.filterByLocation();
-          // this.state.reloadData = false
-          // sessionStorage.removeItem("Properties");
-          // sessionStorage.setItem(
-          //   "Properties",
-          //   JSON.stringify(res.data.Properties)
-          // );
+          sessionStorage.removeItem("Properties");
+          sessionStorage.setItem(
+            "Properties",
+            JSON.stringify(res.data.Properties)
+          );
           this.loading.request = false;
           this.state.reloadData = false;
         })
@@ -630,10 +626,7 @@ export default {
         hideHeaderClose: false,
         centered: true
       });
-    },
-    searchProperties() {
-      console.log("searching");
-    },
+    }
   }
 };
 </script>
