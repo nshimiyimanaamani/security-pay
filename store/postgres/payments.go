@@ -463,6 +463,159 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	return page, nil
 }
 
+func (repo *paymentStore) SectorPaymentMetrics(ctx context.Context, flts *payment.MetricFilters) ([]payment.Chart, error) {
+
+	const op errors.Op = "store/postgres/payments.SectorPaymentMetrics"
+
+	q := `
+	select 
+			sector, 
+			pending_amount, 
+			payed_amount,
+			expired_amount
+		from 
+			sector_payment_metrics 
+		where sector=$1 ;
+	`
+	if flts.From != nil {
+		q += fmt.Sprintf(" AND period >= '%s'", *flts.From)
+	}
+	if flts.To != nil {
+		q += fmt.Sprintf(" AND period <= '%s'", *flts.To)
+	}
+	rows, err := repo.QueryContext(ctx, q, flts.Sector)
+	if err != nil {
+		return nil, errors.E(op, err, errors.KindUnexpected)
+	}
+	items := []payment.Chart{}
+	defer rows.Close()
+
+	for rows.Next() {
+		var label string
+
+		var payed, pending, expired float64
+
+		if err := rows.Scan(&label, &pending, &payed, &expired); err != nil {
+			return nil, errors.E(op, err, errors.KindUnexpected)
+		}
+
+		chart := payment.Chart{
+			Label: label,
+			Data: map[string]uint64{
+				"payed":   uint64(payed),
+				"pending": uint64(pending),
+				"expired": uint64(expired),
+			},
+		}
+
+		items = append(items, chart)
+	}
+	return items, nil
+
+}
+
+func (repo *paymentStore) CellPaymentMetrics(ctx context.Context, flts *payment.MetricFilters) ([]payment.Chart, error) {
+
+	const op errors.Op = "store/postgres/payments.CellPaymentMetrics"
+
+	q := `
+	select 
+			cell, 
+			pending_amount, 
+			payed_amount,
+			expired_amount
+		from 
+			cell_payment_metrics 
+		where cell=$1 ;
+	`
+
+	if flts.From != nil {
+		q += fmt.Sprintf(" AND period >= '%s'", *flts.From)
+	}
+	if flts.To != nil {
+		q += fmt.Sprintf(" AND period <= '%s'", *flts.To)
+	}
+	rows, err := repo.QueryContext(ctx, q, flts.Sector)
+	if err != nil {
+		return nil, errors.E(op, err, errors.KindUnexpected)
+	}
+	items := []payment.Chart{}
+	defer rows.Close()
+
+	for rows.Next() {
+		var label string
+
+		var payed, pending, expired float64
+
+		if err := rows.Scan(&label, &pending, &payed, &expired); err != nil {
+			return nil, errors.E(op, err, errors.KindUnexpected)
+		}
+
+		chart := payment.Chart{
+			Label: label,
+			Data: map[string]uint64{
+				"payed":   uint64(payed),
+				"pending": uint64(pending),
+				"expired": uint64(expired),
+			},
+		}
+
+		items = append(items, chart)
+	}
+	return items, nil
+
+}
+
+func (repo *paymentStore) VillagePaymentMetrics(ctx context.Context, flts *payment.MetricFilters) ([]payment.Chart, error) {
+
+	const op errors.Op = "store/postgres/payments.VillagePaymentMetrics"
+
+	q := `
+	select 
+			village, 
+			pending_amount, 
+			payed_amount,
+			expired_amount
+		from 
+			village_payment_metrics 
+		where village=$1 ;
+	`
+	if flts.From != nil {
+		q += fmt.Sprintf(" AND period >= '%s'", *flts.From)
+	}
+	if flts.To != nil {
+		q += fmt.Sprintf(" AND period <= '%s'", *flts.To)
+	}
+	rows, err := repo.QueryContext(ctx, q, flts.Sector)
+	if err != nil {
+		return nil, errors.E(op, err, errors.KindUnexpected)
+	}
+	items := []payment.Chart{}
+	defer rows.Close()
+
+	for rows.Next() {
+		var label string
+
+		var payed, pending, expired float64
+
+		if err := rows.Scan(&label, &pending, &payed, &expired); err != nil {
+			return nil, errors.E(op, err, errors.KindUnexpected)
+		}
+
+		chart := payment.Chart{
+			Label: label,
+			Data: map[string]uint64{
+				"payed":   uint64(payed),
+				"pending": uint64(pending),
+				"expired": uint64(expired),
+			},
+		}
+
+		items = append(items, chart)
+	}
+	return items, nil
+}
+
 func formMessage(tx []*payment.TxRequest, prop *properties.Property) string {
 
 	const header = "Murakoze kwishyura umusanzu w' isuku"

@@ -91,6 +91,15 @@ type Filters struct {
 	Limit    *uint64
 	Offset   *uint64
 }
+
+// Metric Filters
+type MetricFilters struct {
+	From    *string
+	To      *string
+	Sector  *string
+	Cell    *string
+	Village *string
+}
 type Data struct {
 	Ref       string     `json:"ref,omitempty"`
 	Kind      string     `json:"kind,omitempty"`
@@ -101,6 +110,13 @@ type Data struct {
 	Created   *time.Time `json:"created_at,omitempty"`
 	Processed *time.Time `json:"processed_at,omitempty"`
 	Commited  *time.Time `json:"commited_at,omitempty"`
+}
+
+// Metrics reports
+
+type Chart struct {
+	Label string            `json:"label,omitempty"`
+	Data  map[string]uint64 `json:"data,omitempty"`
 }
 
 // Validate validats a callback

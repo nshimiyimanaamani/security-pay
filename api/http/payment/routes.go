@@ -8,4 +8,5 @@ const (
 	CreditRoute         = "/payment/credit/initialize"
 	ProcessCreditRoute  = "/payment/credit/confirm"
 	PaymentReportsRoute = "/payment/reports"
+	PaymentMetrics      = "/payment/metrics"
 )

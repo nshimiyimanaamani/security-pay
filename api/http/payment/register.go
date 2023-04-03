@@ -65,4 +65,16 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 	r.Handle(PaymentReportsRoute, authenticator(RepoLogEntryHandler(PaymentReports, opts))).
 		Methods(http.MethodGet).
 		Queries("status", "{status}", "sector", "{sector}", "cell", "{cell}", "village", "{village}", "limit", "{limit}", "offset", "{offset}", "from", "{from}", "to", "{to}")
+
+	r.Handle(PaymentMetrics, authenticator(RepoLogEntryHandler(SectorPaymentMetrics, opts))).
+		Methods(http.MethodGet).
+		Queries("sector", "{sector}", "from", "{from}", "to", "{to}")
+
+	r.Handle(PaymentMetrics, authenticator(RepoLogEntryHandler(CellPaymentMetrics, opts))).
+		Methods(http.MethodGet).
+		Queries("cell", "{cell}", "from", "{from}", "to", "{to}")
+
+	r.Handle(PaymentMetrics, authenticator(RepoLogEntryHandler(VillagePaymentMetrics, opts))).
+		Methods(http.MethodGet).
+		Queries("village", "{village}", "from", "{from}", "to", "{to}")
 }

@@ -25,16 +25,6 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 		village := cast.CastToString((vars["village"]))
 		from := cast.CastToString((vars["from"]))
 		to := cast.CastToString((vars["to"]))
-		var month int64
-		if vars["month"] != "" {
-			var err error
-			month, err = strconv.ParseInt(vars["month"], 10, 32)
-			if err != nil {
-				err = errors.E(op, err, "invalid month value", errors.KindBadRequest)
-				logger.SystemErr(err)
-				return
-			}
-		}
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
@@ -65,12 +55,113 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 			Village: village,
 			From:    from,
 			To:      to,
-			Month:   &month,
 			Offset:  &offset,
 			Limit:   &limit,
 		}
 
 		res, err := svc.List(r.Context(), flt)
+		if err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(err)
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
+
+		if err := encoding.Encode(w, http.StatusOK, res); err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(errors.E(op, err))
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
+	}
+	return http.HandlerFunc(f)
+}
+
+func SectorPaymentMetrics(logger log.Entry, svc payment.Repository) http.Handler {
+	const op errors.Op = "api/http/payment/SectorPaymentMetrics"
+
+	f := func(w http.ResponseWriter, r *http.Request) {
+
+		vars := mux.Vars(r)
+		from := cast.CastToString((vars["from"]))
+		to := cast.CastToString((vars["to"]))
+		sector := cast.CastToString((vars["sector"]))
+
+		flt := &payment.MetricFilters{
+			From:   from,
+			To:     to,
+			Sector: sector,
+		}
+
+		res, err := svc.SectorPaymentMetrics(r.Context(), flt)
+		if err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(err)
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
+
+		if err := encoding.Encode(w, http.StatusOK, res); err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(errors.E(op, err))
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
+	}
+	return http.HandlerFunc(f)
+}
+
+func CellPaymentMetrics(logger log.Entry, svc payment.Repository) http.Handler {
+	const op errors.Op = "api/http/payment/CellPaymentMetrics"
+
+	f := func(w http.ResponseWriter, r *http.Request) {
+
+		vars := mux.Vars(r)
+		from := cast.CastToString((vars["from"]))
+		to := cast.CastToString((vars["to"]))
+		cell := cast.CastToString((vars["cell"]))
+
+		flt := &payment.MetricFilters{
+			From: from,
+			To:   to,
+			Cell: cell,
+		}
+
+		res, err := svc.CellPaymentMetrics(r.Context(), flt)
+		if err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(err)
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
+
+		if err := encoding.Encode(w, http.StatusOK, res); err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(errors.E(op, err))
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
+	}
+	return http.HandlerFunc(f)
+}
+
+func VillagePaymentMetrics(logger log.Entry, svc payment.Repository) http.Handler {
+	const op errors.Op = "api/http/payment/VillagePaymentMetrics"
+
+	f := func(w http.ResponseWriter, r *http.Request) {
+
+		vars := mux.Vars(r)
+		from := cast.CastToString((vars["from"]))
+		to := cast.CastToString((vars["to"]))
+		village := cast.CastToString((vars["village"]))
+
+		flt := &payment.MetricFilters{
+			From:    from,
+			To:      to,
+			Village: village,
+		}
+
+		res, err := svc.VillagePaymentMetrics(r.Context(), flt)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
