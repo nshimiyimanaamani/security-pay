@@ -2,12 +2,8 @@
   <b-container class="table-container px-5 py-3" fluid>
     <vue-title title="Paypack | Properties" />
     <header>
-      <h4 class="primary-font">List of properties in {{ selected }}</h4>
-      <b-button
-        class="br-2 primary-font"
-        variant="info"
-        @click="addProperty.show = true"
-      >
+      <h4 class="primary-font">List of properties in {{selected}}</h4>
+      <b-button class="br-2 primary-font" variant="info" @click="addProperty.show = true">
         <i class="fa fa-plus-circle mr-1" />Property
       </b-button>
     </header>
@@ -26,11 +22,7 @@
         <b-dropdown-form>
           <!-- location Filters -->
           <b-form-group label="Location Filters" class="flex-grow-1 px-2">
-            <b-form-group
-              label="Sector"
-              label-class="text-muted p-0"
-              class="mb-3"
-            >
+            <b-form-group label="Sector" label-class="text-muted p-0" class="mb-3">
               <b-form-select
                 size="sm"
                 class="br-2"
@@ -43,11 +35,7 @@
                 </template>
               </b-form-select>
             </b-form-group>
-            <b-form-group
-              label="Cell"
-              label-class="text-muted p-0"
-              class="mb-3"
-            >
+            <b-form-group label="Cell" label-class="text-muted p-0" class="mb-3">
               <b-form-select
                 size="sm"
                 class="br-2"
@@ -85,12 +73,8 @@
             ></b-form-checkbox-group>
           </b-form-group>
         </b-dropdown-form>
-        <b-button variant="info" class="br-2" @click.prevent="filterByLocation"
-          >Filter</b-button
-        >
-        <b-button variant="danger" class="br-2" @click.prevent="clearFilter"
-          >Reset</b-button
-        >
+        <b-button variant="info" class="br-2" @click.prevent="filterByLocation">Filter</b-button>
+        <b-button variant="danger" class="br-2" @click.prevent="clearFilter">Reset</b-button>
       </b-dropdown>
 
       <div class="ml-2">
@@ -103,11 +87,11 @@
         ></b-form-input>
       </div>
       <b-button variant="info" class="ml-2 br-2" @click="loadData">
-        <i class="fa fa-sync-alt" :class="{ 'fa-spin': loading.request }"></i>
+        <i class="fa fa-sync-alt" :class="{'fa-spin':loading.request}"></i>
       </b-button>
       <b-button
         @click="downloadList"
-        :disabled="filteredData.length ? false : true"
+        :disabled="filteredData.length ? false:true"
         variant="info"
         class="ml-2 br-2 primary-font"
       >
@@ -132,77 +116,58 @@
       thead-class="primary-font"
       tbody-class="secondary-font"
       :show-empty="!loading.request"
+      :per-page="pagination.perPage"
+      :current-page="pagination.currentPage"
     >
-      <template v-slot:cell(due)="data"
-        >{{ data.item.due | number }} Rwf</template
-      >
-      <template v-slot:cell(owner)="data">{{
-        data.item.owner.fname + " " + data.item.owner.lname
-      }}</template>
+      <template v-slot:cell(due)="data">{{data.item.due | number}} Rwf</template>
+      <template v-slot:cell(owner)="data">{{data.item.owner.fname +" "+ data.item.owner.lname}}</template>
       <template v-slot:cell(occupied)="data">
-        <b-card-text class="text-right m-0 text-center">{{
-          data.item.occupied ? (data.item.occupied ? "Yes" : "No") : "No"
-        }}</b-card-text>
+        <b-card-text
+          class="text-right m-0 text-center"
+        >{{data.item.occupied ? data.item.occupied?'Yes':'No' : "No"}}</b-card-text>
       </template>
       <template v-slot:cell(index)="data">
-        <article class="text-center">{{ data.index + 1 }}</article>
+        <article class="text-center">{{data.index + 1}}</article>
       </template>
       <template v-slot:table-busy>
         <vue-load class="primary-font" />
       </template>
       <template v-slot:empty>
-        <h6 class="text-center font-weight-bold p-5 w-100 primary-font">
-          {{
-            search.name
-              ? search.name + ' "is not available in this property list"'
-              : "There are no properties available to show at the moment!"
-          }}
-        </h6>
+        <h6
+          class="text-center font-weight-bold p-5 w-100 primary-font"
+        >{{search.name ? search.name +' "is not available in this property list"':'There are no properties available to show at the moment!'}}</h6>
       </template>
       <template v-slot:custom-foot v-if="!loading.request">
         <b-tr v-if="select.shownColumn.includes('Amount')">
-          <b-td
-            v-for="(index, i) in select.shownColumn"
-            :key="i"
-            variant="primary"
-          >
+          <b-td v-for="(index,i) in select.shownColumn" :key="i" variant="primary">
             <div
               class="text-danger text-right"
-              v-if="
-                select.shownColumn.length > 1 &&
-                i === select.shownColumn.length - 2
-              "
+              v-if="select.shownColumn.length > 1 && i===select.shownColumn.length-2 "
             >
               <strong>Total:</strong>
             </div>
-            <div v-if="i === select.shownColumn.length - 1">
-              <strong>{{ totalAmount | number }} Rwf</strong>
+            <div v-if="i===select.shownColumn.length-1">
+              <strong>{{totalAmount | number}} Rwf</strong>
             </div>
           </b-td>
         </b-tr>
       </template>
     </b-table>
-
     <b-pagination
-      class="my-0"
+      pills
       align="center"
-      v-if="showPagination"
-      :per-page="pagination.perPage"
       v-model="pagination.currentPage"
       :total-rows="pagination.totalRows"
-      @input="loadData"
+      :per-page="pagination.perPage"
+      class="my-0"
+      v-if="!loading.request && pagination.totalRows/pagination.perPage > 1"
     ></b-pagination>
     <add-property
       :show="addProperty.show"
-      @closeModal="addProperty.show = false"
+      @closeModal="addProperty.show =false"
       @added="propertyAdded"
     />
-    <b-modal
-      id="updateModal"
-      v-model="updateModal.show"
-      hide-footer
-      body-class="px-4 py-3"
-    >
+    <b-modal id="updateModal" v-model="updateModal.show" hide-footer body-class="px-4 py-3">
       <template v-slot:modal-title>
         <header class="primary-font">Modify House</header>
       </template>
@@ -211,7 +176,7 @@
         :item="updateModal.item"
         :option="updateModal.option"
         @closeModal="closeUpdateModal"
-        @updated="state.reloadData = true"
+        @updated="state.reloadData=true"
       />
     </b-modal>
     <vue-menu
@@ -243,41 +208,41 @@ export default {
         /* webpackChunkName: "addProperty" */ "../components/modals/addPropertyModal.vue"
       ),
     message: () =>
-      import(/* webpackChunkName: "message" */ "../components/modals/message"),
+      import(/* webpackChunkName: "message" */ "../components/modals/message")
   },
   data() {
     return {
       development: true,
       originalData: [],
       filteredData: [],
-      totalAmount: 0,
+      totalAmount:0,
       addProperty: { show: false },
       state: {
         changedLocation: false,
-        reloadData: false,
+        reloadData: false
       },
       selected: null,
       width: 0,
       options: [],
       loading: {
         progress: false,
-        request: false,
+        request: false
       },
       rightMenu: {
         options: [
           { name: "Edit House", slug: "edit" },
           { name: "Delete House", slug: "delete" },
-          { name: "Send Message", slug: "send" },
-        ],
+          { name: "Send Message", slug: "send" }
+        ]
       },
       updateModal: {
         show: false,
         item: [],
-        option: [],
+        option: []
       },
       message: {
         sendTo: [],
-        show: false,
+        show: false
       },
       search: { name: "" },
       select: {
@@ -285,7 +250,7 @@ export default {
         cell: null,
         village: null,
         shownColumn: [],
-        postColumns: [],
+        postColumns: []
       },
       sortBy: "owner",
       sortDesc: false,
@@ -298,28 +263,24 @@ export default {
         { key: "address.cell", label: "Cell", sortable: true },
         { key: "address.village", label: "Village", sortable: true },
         { key: "occupied", label: "Rented", sortable: true },
-        { key: "due", label: "Amount" },
+        { key: "due", label: "Amount" }
       ],
       pagination: {
-        perPage: 20,
+        perPage: 30,
         currentPage: 1,
         totalRows: 1,
-      },
+        show: false
+      }
     };
   },
   computed: {
-    showPagination() {
-      if (this.loading.request) return false;
-      if (this.pagination.totalRows / this.pagination.perPage < 2) return false;
-      return true;
-    },
     sectorOptions() {
       return [this.activeSector] || [];
     },
     cellOptions() {
-      const { province, district, sector } = this.location;
+      const {province, district, sector} = this.location
       if (this.select.sector)
-        return this.$cells(province, district, this.select.sector);
+        return this.$cells(province, district , this.select.sector);
       return [];
     },
     villageOptions() {
@@ -340,7 +301,7 @@ export default {
       return this.$capitalize(this.$store.getters.getActiveCell);
     },
     columns() {
-      return this.fields.map((i) => i.label);
+      return this.fields.map(i => i.label);
     },
     totals() {
       if (this.filteredData.length > 0)
@@ -360,7 +321,7 @@ export default {
     },
     isManager() {
       return this.user.role === "basic";
-    },
+    }
   },
   mounted() {
     this.loadData();
@@ -380,6 +341,12 @@ export default {
         this.filteredData = this.filterByName(this.search.name);
       }
     },
+    filteredData() {
+      handler: {
+        this.pagination.totalRows = this.filteredData.length;
+        this.pagination.currentPage = 1;
+      }
+    },
     "select.sector"() {
       handler: {
         this.state.changedLocation = true;
@@ -397,38 +364,66 @@ export default {
       handler: {
         this.state.changedLocation = true;
       }
-    },
+    }
   },
   methods: {
-    pageChanged() {
-      this.loadData();
-    },
     async loadData() {
       this.loading.request = true;
-      var promise = this.getUrl();
+
+      var promise = await this.getUrl();
+      // const total = await this.$getTotal(`${promise}0`);
+
+      // if (total)
+      //   if (total !== this.originalData.length) this.state.reloadData = true;
+
+      // if (this.state.reloadData === false) {
+      //   const properties = JSON.parse(sessionStorage.getItem("Properties"));
+      //   if (properties && properties.length > 0) {
+      //     this.filteredData = properties;
+      //     this.originalData = Object.freeze(properties);
+      //     this.loading.request = false;
+      //     this.filterByLocation();
+      //     return;
+      //   }
+      // }
 
       this.axios
-        .get(promise)
-        .then((res) => {
+        .get(promise + this.pagination.perPage)
+        .then(res => {
           this.filteredData = res.data.Properties;
-          this.originalData = res.data.Properties;
-          this.totalAmount = res.data.amount;
-          this.pagination.totalRows = res.data.Total;
+          this.totalAmount = res.data.amount
+          this.originalData = Object.freeze(res.data.Properties);
+          this.pagination.totalRows = res.data.Properties.length;
           this.filterByLocation();
-        })
-        .catch((err) => {
-          console.log(err);
-          try {
-            this.$snotify.error(err.response.data.error || err.response.data);
-          } catch {
-            this.$snotify.error(
-              "Failed to load data from database! check your connectivity and try again"
-            );
-          }
-        })
-        .finally(() => {
+          // this.state.reloadData = false
+          // sessionStorage.removeItem("Properties");
+          // sessionStorage.setItem(
+          //   "Properties",
+          //   JSON.stringify(res.data.Properties)
+          // );
           this.loading.request = false;
           this.state.reloadData = false;
+        })
+        .catch(err => {
+          console.log(err.request);
+          const properties = JSON.parse(sessionStorage.getItem("Properties"));
+          if (properties && properties.length > 0) {
+            this.filteredData = properties;
+            this.originalData = Object.freeze(properties);
+            this.filterByLocation();
+            this.$snotify.error(
+              "Failed to retrieve data from database! showing outdated Data"
+            );
+          } else {
+            try {
+              this.$snotify.error(err.response.data.error || err.response.data);
+            } catch {
+              this.$snotify.error(
+                "Failed to load data from database! check your connectivity and try again"
+              );
+            }
+          }
+          this.loading.request = false;
         });
     },
     propertyAdded() {
@@ -437,7 +432,7 @@ export default {
     },
     filterByName(name) {
       if (!name) return this.originalData;
-      return this.originalData.filter((item) =>
+      return this.originalData.filter(item =>
         `${item.owner.fname} ${item.owner.lname}`
           .toLowerCase()
           .includes(name.toLowerCase())
@@ -450,9 +445,8 @@ export default {
       if (!sector && !cell && !village) return this.originalData;
       this.selected =
         village || cell || sector || this.activeSector || this.activeCell;
-
       this.filteredData = this.originalData.filter(
-        (item) =>
+        item =>
           item.address.sector
             .toLowerCase()
             .endsWith(String(sector || "").toLowerCase()) &&
@@ -468,7 +462,7 @@ export default {
       //disabling unsellected columns by applying the display class on both thead and td
       if (this.select.postColumns.length === this.fields.length) return;
       this.select.shownColumn = this.select.postColumns;
-      this.fields.map((value) => {
+      this.fields.map(value => {
         if (!this.select.shownColumn.includes(value.label)) {
           value.tdClass = "d-none";
           value.thClass = "d-none";
@@ -482,7 +476,7 @@ export default {
       if (this.filteredData.length > 0) {
         var today = new Date().toLocaleDateString("en-EN", {
           year: "numeric",
-          month: "long",
+          month: "long"
         });
         var Headers = [
           "ID",
@@ -492,10 +486,10 @@ export default {
           "Sector",
           "Cell",
           "Village",
-          "Payment Amount",
+          "Payment Amount"
         ];
         var Body = this.filteredData.map((item, i) => {
-          var result = Headers.map((i) => "");
+          var result = Headers.map(i => "");
           result[Headers.indexOf("ID")] = i;
           result[
             Headers.indexOf("Names")
@@ -515,8 +509,8 @@ export default {
           name: `List of Properties in ${this.selected} in ${today}`,
           data: {
             Headers: Headers,
-            Body: Body,
-          },
+            Body: Body
+          }
         };
         download(data);
       } else this.$snotify.error("There are no Data available to download!");
@@ -544,9 +538,9 @@ export default {
         { class: "list-style-none p-0 text-center" },
         [
           el("li", { class: "mb-2" }, [
-            `Names: ${house.owner.fname} ${house.owner.lname}`,
+            `Names: ${house.owner.fname} ${house.owner.lname}`
           ]),
-          el("li", { class: "mb-2" }, [`HouseId: ${house.id}`]),
+          el("li", { class: "mb-2" }, [`HouseId: ${house.id}`])
         ]
       );
       const message = `Names: ${house.owner.fname} ${house.owner.lname}  ID: ${house.id}`;
@@ -560,19 +554,19 @@ export default {
           cancelTitle: "NO",
           footerClass: "p-2",
           contentClass: "primary-font",
-          hideHeaderClose: false,
+          hideHeaderClose: false
         })
-        .then((value) => {
+        .then(value => {
           if (value === true) {
             this.loading.request = true;
             this.axios
               .delete("/properties/" + house.id)
-              .then((res) => {
+              .then(res => {
                 this.state.reloadData = true;
                 this.$snotify.info("House deleted successfully");
                 this.loadData();
               })
-              .catch((err) => {
+              .catch(err => {
                 const error = err.response
                   ? err.response.data.error || err.response.data
                   : null;
@@ -585,7 +579,7 @@ export default {
               });
           }
         })
-        .catch((err) => {
+        .catch(err => {
           const error = err.response
             ? err.response.data.error || err.response.data
             : null;
@@ -621,12 +615,9 @@ export default {
       this.filterByLocation();
     },
     getUrl() {
-      const offset =
-        (this.pagination.currentPage - 1) * this.pagination.perPage;
-      const limit = this.pagination.currentPage * this.pagination.perPage;
       if (this.isManager)
-        return `/properties?cell=${this.activeCell}&offset=${offset}&limit=${limit}`;
-      return `/properties?sector=${this.activeSector}&offset=${offset}&limit=${limit}`;
+        return `/properties?cell=${this.activeCell}&offset=0&limit=`;
+      return `/properties?sector=${this.activeSector}&offset=0&limit=`;
     },
     confirm(message) {
       return this.$bvModal.msgBoxConfirm(message, {
@@ -637,13 +628,13 @@ export default {
         cancelTitle: "NO",
         footerClass: "p-3",
         hideHeaderClose: false,
-        centered: true,
+        centered: true
       });
     },
     searchProperties() {
       console.log("searching");
     },
-  },
+  }
 };
 </script>
 <style lang="scss">

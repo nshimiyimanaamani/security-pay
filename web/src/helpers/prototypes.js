@@ -10,7 +10,7 @@ Vue.prototype.$isPhoneNumber = (number) => {
     throw new Error("Input should be string");
   }
 
-  const re = /^(\+?25)?(078|073|072|079)\d{7}$/;
+  const re = /^(\+?25)?(078|073|072)\d{7}$/;
   if (!re.test(number)) {
     return errors.format;
   }

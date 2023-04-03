@@ -72,7 +72,6 @@ export default {
 .reports-page {
   min-width: 500px;
   padding: 3rem;
-  height: 1000px !important;
 
   .reports-tabs {
     display: flex;
