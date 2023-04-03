@@ -353,7 +353,11 @@
                 <template v-slot:empty>{{
                   state.error.table1 || "No data available to display"
                 }}</template>
+                
               </b-table>
+              <b-row class="total d-flex justify-content-end">
+                <small><strong style=""><span style="color:#dc3545">Total </span>: {{totalAmount}} Rwf</strong></small>
+              </b-row>
             </div>
           </div>
         </b-collapse>
@@ -376,6 +380,7 @@ export default {
       isLoading1: false,
       isLoadingdata: false,
       reportTitle: "",
+      totalAmount:0,
       search: "",
       form: {
         select: {
@@ -564,7 +569,8 @@ export default {
         // this.accountant = data;
 
         this.reports = data.Payments;
-        console.log("report all houses", this.reports);
+        this.totalAmount = data.amount
+        // console.log("report all houses", this.reports);
       } catch (error) {
         console.log(error);
       } finally {
@@ -590,7 +596,7 @@ export default {
       try {
         const { data } = await this.axios.get("payment/reports", {
           params: {
-            status: "paid",
+            status: "payed",
             sector: this.form.select.sector || "",
             cell: this.form.select.cell || "",
             village: this.form.select.village || "",
@@ -603,7 +609,8 @@ export default {
         // this.accountant = data;
 
         this.reports = data.Payments;
-        console.log("reports", this.reports);
+        this.totalAmount = data.amount
+        // console.log("reports", this.reports);
       } catch (error) {
         console.log(error);
       } finally {
@@ -642,7 +649,8 @@ export default {
         // this.accountant = data;
         this.reportTitle = "Generate Unpaid House Report";
         this.reports = data.Payments;
-        console.log("reports", this.reports);
+        this.totalAmount = data.amount
+        // console.log("reports", this.reports);
       } catch (error) {
         console.log(error);
       } finally {
@@ -738,5 +746,10 @@ export default {
   border: 1px solid #7f898d;
   color: #212529;
   padding: 3px 5px;
+}
+.total {
+  background: #b8daff;
+  margin: 0 2px;
+  padding: 10px;
 }
 </style>
