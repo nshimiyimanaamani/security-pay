@@ -52,16 +52,50 @@
                     </template>
                   </b-select>
                 </b-form-group>
-                <b-form-group label="From Month">
+                <!-- <b-form-group label="From Month">
                   <div class="input-date">
                     <input type="date" v-model="object.frommonth" />
                   </div>
-                  <!-- <b-form-datepicker id="example-datepicker" v-model="object.frommonth" class="mb-2"></b-form-datepicker> -->
-                </b-form-group>
-                <b-form-group label="To Month">
+                </b-form-group> -->
+                <!-- <b-form-group label="To Month">
                   <div class="input-date">
                     <input type="date" v-model="object.tomonth" />
                   </div>
+                </b-form-group> -->
+                <b-form-group
+                  label="Year"
+                  :label-for="'dropdown-year_' + random"
+                >
+                  <b-form-select
+                    :id="'dropdown-year_' + random"
+                    v-model="object.year"
+                    class="bg-light"
+                    size="sm"
+                  >
+                    <option
+                      v-for="(year, i) in currentYear - 2019"
+                      :value="currentYear - i"
+                      :key="`year` + year"
+                    >
+                      {{ currentYear - i }}
+                    </option>
+                  </b-form-select>
+                </b-form-group>
+
+                <b-form-group
+                  label="Month"
+                  :label-for="'dropdown-month_' + random"
+                >
+                  <b-form-select
+                    :id="'dropdown-month' + random"
+                    v-model="object.month"
+                    class="bg-light"
+                    size="sm"
+                  >
+                    <option v-for="i in 12" :value="i" :key="`month` + i">
+                      {{ months[i - 1] }}
+                    </option>
+                  </b-form-select>
                 </b-form-group>
               </b-form>
             </b-dropdown-form>
@@ -125,16 +159,40 @@
                     </template>
                   </b-select>
                 </b-form-group>
-                <b-form-group label="From Month">
-                  <div class="input-date">
-                    <input type="date" v-model="object.frommonth" />
-                  </div>
-                  <!-- <b-form-datepicker id="example-datepicker" v-model="object.frommonth" class="mb-2"></b-form-datepicker> -->
+                <b-form-group
+                  label="Year"
+                  :label-for="'dropdown-year_' + random"
+                >
+                  <b-form-select
+                    :id="'dropdown-year_' + random"
+                    v-model="object.year"
+                    class="bg-light"
+                    size="sm"
+                  >
+                    <option
+                      v-for="(year, i) in currentYear - 2019"
+                      :value="currentYear - i"
+                      :key="`year` + year"
+                    >
+                      {{ currentYear - i }}
+                    </option>
+                  </b-form-select>
                 </b-form-group>
-                <b-form-group label="To Month">
-                  <div class="input-date">
-                    <input type="date" v-model="object.tomonth" />
-                  </div>
+
+                <b-form-group
+                  label="Month"
+                  :label-for="'dropdown-month_' + random"
+                >
+                  <b-form-select
+                    :id="'dropdown-month' + random"
+                    v-model="object.month"
+                    class="bg-light"
+                    size="sm"
+                  >
+                    <option v-for="i in 12" :value="i" :key="`month` + i">
+                      {{ months[i - 1] }}
+                    </option>
+                  </b-form-select>
                 </b-form-group>
               </b-form>
             </b-dropdown-form>
@@ -198,16 +256,40 @@
                     </template>
                   </b-select>
                 </b-form-group>
-                <b-form-group label="From Month">
-                  <div class="input-date">
-                    <input type="date" v-model="object.frommonth" />
-                  </div>
-                  <!-- <b-form-datepicker id="example-datepicker" v-model="object.frommonth" class="mb-2"></b-form-datepicker> -->
+                <b-form-group
+                  label="Year"
+                  :label-for="'dropdown-year_' + random"
+                >
+                  <b-form-select
+                    :id="'dropdown-year_' + random"
+                    v-model="object.year"
+                    class="bg-light"
+                    size="sm"
+                  >
+                    <option
+                      v-for="(year, i) in currentYear - 2019"
+                      :value="currentYear - i"
+                      :key="`year` + year"
+                    >
+                      {{ currentYear - i }}
+                    </option>
+                  </b-form-select>
                 </b-form-group>
-                <b-form-group label="To Month">
-                  <div class="input-date">
-                    <input type="date" v-model="object.tomonth" />
-                  </div>
+
+                <b-form-group
+                  label="Month"
+                  :label-for="'dropdown-month_' + random"
+                >
+                  <b-form-select
+                    :id="'dropdown-month' + random"
+                    v-model="object.month"
+                    class="bg-light"
+                    size="sm"
+                  >
+                    <option v-for="i in 12" :value="i" :key="`month` + i">
+                      {{ months[i - 1] }}
+                    </option>
+                  </b-form-select>
                 </b-form-group>
               </b-form>
             </b-dropdown-form>
@@ -305,6 +387,8 @@ export default {
       object: {
         frommonth: null,
         tomonth: null,
+        year: null,
+        month: null,
       },
       from: null,
       to: null,
@@ -396,23 +480,25 @@ export default {
       return Math.floor(Math.random() * 101);
     },
     showDownload() {
-      if (
-        this.state.error.table1 ||
-        this.state.error.table2 ||
-        this.state.busy.table1 ||
-        this.state.busy.table2 ||
-        !this.sectorData ||
-        !this.cellData ||
-        !this.state.showReport
-      )
-        return false;
+      if (this.reports == null || !this.state.showReport) return false;
       return true;
     },
+    currentYear() {
+      this.object.year = new Date().getFullYear();
+      return new Date().getFullYear();
+    },
     currentMonth() {
+      // const currentDate = new Date();
+      // this.object.month = currentDate.toLocaleString("default", {
+      //   month: "long",
+      // });
       return new Date().getMonth() + 1;
     },
     months() {
       return this.$store.getters.getMonths;
+    },
+    random() {
+      return Math.floor(Math.random() * 101);
     },
   },
   watch: {
@@ -447,21 +533,28 @@ export default {
       this.reportTitle = "Generate All House Report";
       console.log("generate all house");
       this.loading = true;
-      if (this.object.frommonth == null && this.object.tomonth == null) {
-        const currentDate = new Date();
-        this.from = currentDate;
-        this.to = currentDate;
-      } else {
-        this.from = this.object.frommonth;
-        this.to = this.object.tomonth;
-      }
+      const yearString = this.object.year;
+      var monthString = this.object.month;
+      const yearDate = new Date(`${yearString}-${monthString}-01`);
+      const nextMonth = new Date(yearString, monthString + 1, 1);
+      const lastDayOfMonth = new Date(nextMonth - 1);
+      this.from = yearDate;
+      this.to = lastDayOfMonth;
+      // if (this.object.frommonth == null && this.object.tomonth == null) {
+      //   const currentDate = new Date();
+      //   this.from = currentDate;
+      //   this.to = currentDate;
+      // } else {
+      //   this.from = this.object.frommonth;
+      //   this.to = this.object.tomonth;
+      // }
       try {
         const { data } = await this.axios.get("payment/reports", {
           params: {
             status: "",
-            sector: this.form.select.sector,
-            cell: this.form.select.cell,
-            village: this.form.select.village,
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
             offset: 0,
             limit: 0,
             from: this.from,
@@ -487,21 +580,20 @@ export default {
       this.reportTitle = "Generate Paid House Report";
       console.log("generate paid house");
       this.loading = true;
-      if (this.object.frommonth == null && this.object.tomonth == null) {
-        const currentDate = new Date();
-        this.from = currentDate;
-        this.to = currentDate;
-      } else {
-        this.from = this.object.frommonth;
-        this.to = this.object.tomonth;
-      }
+      const yearString = this.object.year;
+      var monthString = this.object.month;
+      const yearDate = new Date(`${yearString}-${monthString}-01`);
+      const nextMonth = new Date(yearString, monthString + 1, 1);
+      const lastDayOfMonth = new Date(nextMonth - 1);
+      this.from = yearDate;
+      this.to = lastDayOfMonth;
       try {
         const { data } = await this.axios.get("payment/reports", {
           params: {
             status: "paid",
-            sector: this.form.select.sector,
-            cell: this.form.select.cell,
-            village: this.form.select.village,
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
             offset: 0,
             limit: 0,
             from: this.from,
@@ -527,21 +619,20 @@ export default {
       this.reportTitle = "Generate Unpaid House Report";
       console.log("generate unpaid house");
       this.loading = true;
-      if (this.object.frommonth == null && this.object.tomonth == null) {
-        const currentDate = new Date();
-        this.from = currentDate;
-        this.to = currentDate;
-      } else {
-        this.from = this.object.frommonth;
-        this.to = this.object.tomonth;
-      }
+      const yearString = this.object.year;
+      var monthString = this.object.month;
+      const yearDate = new Date(`${yearString}-${monthString}-01`);
+      const nextMonth = new Date(yearString, monthString + 1, 1);
+      const lastDayOfMonth = new Date(nextMonth - 1);
+      this.from = yearDate;
+      this.to = lastDayOfMonth;
       try {
         const { data } = await this.axios.get("payment/reports", {
           params: {
             status: "pending",
-            sector: this.form.select.sector,
-            cell: this.form.select.cell,
-            village: this.form.select.village,
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
             offset: 0,
             limit: 0,
             from: this.from,
@@ -559,6 +650,66 @@ export default {
         this.dropdownone = false;
         this.state.showReport = true;
         this.isLoadingdata = false;
+      }
+    },
+    downloadReport() {
+      console.log("download");
+      return;
+      if (this.sectorData.length > 0 && this.cellData.length > 0) {
+        const data = {
+          config: {
+            TITLE: String(
+              `Monthly Report of ${this.activeSector}`
+            ).toUpperCase(),
+            name: `${this.activeSector} Monthly Report of ${this.state.reportsDate}`,
+            date: this.state.reportsDate,
+          },
+          data: [
+            {
+              COLUMNS: [
+                {
+                  header: `No of Properties`,
+                  dataKey: "total",
+                },
+                {
+                  header: `No of Paid Properties`,
+                  dataKey: "payed",
+                },
+                { header: `Paid Amount`, dataKey: "payedAmount" },
+                {
+                  header: `No of Unpaid Properties`,
+                  dataKey: "pending",
+                },
+                { header: `Unpaid Amount`, dataKey: "unpayedAmount" },
+              ],
+              BODY: this.sectorData,
+            },
+            {
+              COLUMNS: [
+                {
+                  header: `Cell`,
+                  dataKey: "name",
+                },
+                {
+                  header: `No of Properties`,
+                  dataKey: "total",
+                },
+                {
+                  header: `No of Paid Properties`,
+                  dataKey: "payed",
+                },
+                { header: `Paid Amount`, dataKey: "payedAmount" },
+                {
+                  header: `No of Unpaid Properties`,
+                  dataKey: "pending",
+                },
+                { header: `Unpaid Amount`, dataKey: "unpayedAmount" },
+              ],
+              BODY: this.cellData,
+            },
+          ],
+        };
+        download(data);
       }
     },
   },
