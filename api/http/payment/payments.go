@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/api/http/encoding"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/payment"
 	"github.com/rugwirobaker/paypack-backend/pkg/cast"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
@@ -103,17 +104,18 @@ func TodayTransactions(logger log.Entry, svc payment.Repository) http.Handler {
 			encodeErr(w, err)
 			return
 		}
-
+		creds := auth.CredentialsFromContext(r.Context())
 		flt := &payment.MetricFilters{
 
 			Sector:  sector,
 			Cell:    cell,
 			Village: village,
+			Creds:   &creds.Account,
 			Offset:  &offset,
 			Limit:   &limit,
 		}
 
-		res, err := svc.LislTodaysTransactions(r.Context(), flt)
+		res, err := svc.ListTodaysTransactions(r.Context(), flt)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
@@ -160,6 +162,7 @@ func DailyTransactions(logger log.Entry, svc payment.Repository) http.Handler {
 			encodeErr(w, err)
 			return
 		}
+		creds := auth.CredentialsFromContext(r.Context())
 		flt := &payment.MetricFilters{
 
 			Sector:  sector,
@@ -167,6 +170,7 @@ func DailyTransactions(logger log.Entry, svc payment.Repository) http.Handler {
 			Village: village,
 			From:    from,
 			To:      to,
+			Creds:   &creds.Account,
 			Offset:  &offset,
 			Limit:   &limit,
 		}

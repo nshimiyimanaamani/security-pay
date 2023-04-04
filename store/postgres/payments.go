@@ -454,35 +454,34 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	page := payment.PaymentResponse{
 		Payments: payments,
 		PageMetadata: payment.PageMetadata{
-			Total:       total,
-			Offset:      *flts.Offset,
-			Limit:       *flts.Limit,
-			TotalAmount: total_amount,
+			Total:  total,
+			Offset: *flts.Offset,
+			Limit:  *flts.Limit,
+			Amount: total_amount,
 		},
 	}
 	return page, nil
 }
 
-func (repo *paymentStore) LislTodaysTransactions(ctx context.Context, flts *payment.MetricFilters) ([]payment.TransactionsPage, error) {
-	const op errors.Op = "store/postgres/paymentStore.LislTodaysTransactions"
+func (repo *paymentStore) ListTodaysTransactions(ctx context.Context, flts *payment.MetricFilters) ([]payment.Transaction, error) {
+	const op errors.Op = "store/postgres/paymentStore.ListTodaysTransactions"
 
 	tx, err := repo.BeginTx(ctx, nil)
 	if err != nil {
-		return []payment.TransactionsPage{}, errors.E(op, err)
+		return []payment.Transaction{}, errors.E(op, err)
 	}
 	defer tx.Rollback()
 
 	selectQuery := `
 	SELECT 
-
-		COUNT(*) AS successful_transactions,
-		COALESCE(SUM(t.amount), 0)
+		COUNT(*) AS total,
+		COALESCE(SUM(t.amount), 0) as amount
 	FROM 
 		transactions t
 	JOIN 
 		properties p ON t.madefor = p.id
-
-	WHERE  DATE(t.created_at) = current_date`
+	WHERE  
+		DATE(t.created_at) = DATE(now())`
 
 	if flts.Sector != nil {
 		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
@@ -492,6 +491,9 @@ func (repo *paymentStore) LislTodaysTransactions(ctx context.Context, flts *paym
 	}
 	if flts.Cell != nil {
 		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
+	}
+	if flts.Creds != nil {
+		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
 	}
 
 	selectQuery += ` GROUP BY p.sector, p.village, p.cell`
@@ -500,70 +502,36 @@ func (repo *paymentStore) LislTodaysTransactions(ctx context.Context, flts *paym
 
 	rows, err := tx.Query(selectQuery)
 	if err != nil {
-		return []payment.TransactionsPage{}, errors.E(op, err)
+		return []payment.Transaction{}, errors.E(op, err)
 	}
 	defer rows.Close()
 
-	charts := []payment.Transaction{}
+	out := []payment.Transaction{}
 	for rows.Next() {
-		var chart payment.Transaction
-		err = rows.Scan(&chart.Transactions, &chart.Amount)
+		var transaction payment.Transaction
+		err = rows.Scan(&transaction.Transactions, &transaction.Amount)
 		if err != nil {
-			return []payment.TransactionsPage{}, errors.E(op, err)
+			return []payment.Transaction{}, errors.E(op, err)
 		}
 
-		charts = append(charts, chart)
+		out = append(out, transaction)
 	}
 
 	if err = rows.Err(); err != nil {
-		return []payment.TransactionsPage{}, errors.E(op, err)
+		return []payment.Transaction{}, errors.E(op, err)
 	}
 
-	// calculate total
-	selectQuery = `
-	SELECT
-		COUNT(*) 
-	FROM
-		transactions t
-	JOIN
-		properties p ON t.madefor = p.id
-	WHERE DATE(t.created_at) = current_date`
-
-	if flts.Sector != nil {
-		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
-	}
-	if flts.Village != nil {
-		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
-	}
-	if flts.Cell != nil {
-		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
-	}
-
-	var total uint64
-	if err := tx.QueryRow(selectQuery).Scan(&total); err != nil {
-		return []payment.TransactionsPage{}, errors.E(op, err, errors.KindUnexpected)
-	}
-	// return the transactionpage
-	return []payment.TransactionsPage{
-		{
-			Transactions: charts,
-			PageMetadata: payment.PageMetadata{
-				Total:  total,
-				Offset: *flts.Offset,
-				Limit:  *flts.Limit,
-			},
-		},
-	}, tx.Commit()
+	return out, tx.Commit()
 
 }
 
 // Implement the ListDailyTransactions
-func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payment.MetricFilters) ([]payment.TransactionsPage, error) {
+func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payment.MetricFilters) ([]payment.Transactions, error) {
 	const op errors.Op = "store/postgres/paymentStore.ListDailyTransactions"
 
 	tx, err := repo.BeginTx(ctx, nil)
 	if err != nil {
-		return []payment.TransactionsPage{}, errors.E(op, err)
+		return []payment.Transactions{}, errors.E(op, err)
 	}
 	defer tx.Rollback()
 
@@ -595,29 +563,33 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 		selectQuery += fmt.Sprintf(" AND DATE(t.created_at) <= '%s'", *flts.To)
 	}
 
-	selectQuery += ` GROUP BY p.sector, p.village, p.cell`
+	if flts.Creds != nil {
+		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
+	}
+
+	selectQuery += ` GROUP BY  t.created_at`
 
 	selectQuery += fmt.Sprintf(" OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
 
 	rows, err := tx.Query(selectQuery)
 	if err != nil {
-		return []payment.TransactionsPage{}, errors.E(op, err)
+		return []payment.Transactions{}, errors.E(op, err)
 	}
 	defer rows.Close()
 
-	charts := []payment.Transaction{}
+	out := []payment.Transaction{}
 	for rows.Next() {
-		var chart payment.Transaction
-		err = rows.Scan(&chart.Transactions, &chart.Amount)
+		var transaction payment.Transaction
+		err = rows.Scan(&transaction.Transactions, &transaction.Amount)
 		if err != nil {
-			return []payment.TransactionsPage{}, errors.E(op, err)
+			return []payment.Transactions{}, errors.E(op, err)
 		}
 
-		charts = append(charts, chart)
+		out = append(out, transaction)
 	}
 
 	if err = rows.Err(); err != nil {
-		return []payment.TransactionsPage{}, errors.E(op, err)
+		return []payment.Transactions{}, errors.E(op, err)
 	}
 
 	// calculate total
@@ -640,14 +612,18 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
 	}
 
+	if flts.Creds != nil {
+		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
+	}
+
 	var total uint64
 	if err := tx.QueryRow(selectQuery).Scan(&total); err != nil {
-		return []payment.TransactionsPage{}, errors.E(op, err, errors.KindUnexpected)
+		return []payment.Transactions{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	// return the transactionpage
-	return []payment.TransactionsPage{
+	return []payment.Transactions{
 		{
-			Transactions: charts,
+			Transactions: out,
 			PageMetadata: payment.PageMetadata{
 				Total:  total,
 				Offset: *flts.Offset,

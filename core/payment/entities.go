@@ -53,10 +53,10 @@ type TxResponse struct {
 }
 
 type PageMetadata struct {
-	Total       uint64
-	TotalAmount float64 `json:"amount,omitempty"`
-	Offset      uint64
-	Limit       uint64
+	Total  uint64
+	Amount float64 `json:"amount,omitempty"`
+	Offset uint64
+	Limit  uint64
 }
 
 type Payment struct {
@@ -101,6 +101,7 @@ type MetricFilters struct {
 	Village *string
 	Limit   *uint64
 	Offset  *uint64
+	Creds   *string
 }
 type Data struct {
 	Ref       string     `json:"ref,omitempty"`
@@ -115,7 +116,7 @@ type Data struct {
 }
 
 // Metrics reports
-type TransactionsPage struct {
+type Transactions struct {
 	PageMetadata
 	Transactions []Transaction
 }
