@@ -24,13 +24,13 @@ type Repository interface {
 	RetrieveByRecorder(ctx context.Context, user string, offset, limit uint64) (PropertyPage, error)
 
 	// RetrieveBySector retrieves the subset of properties within a given Sector.
-	RetrieveBySector(ctx context.Context, sector string, offset, limit uint64, names string) (PropertyPage, error)
+	RetrieveBySector(ctx context.Context, sector string, offset, limit uint64) (PropertyPage, error)
 
 	// RetrieveByCell retrieves the subset of properteis within a given Cell.
-	RetrieveByCell(ctx context.Context, cell string, offset, limit uint64, names string) (PropertyPage, error)
+	RetrieveByCell(ctx context.Context, cell string, offset, limit uint64) (PropertyPage, error)
 
 	// RetrieveByVillage retrieves the subset of properties within a given Village.
-	RetrieveByVillage(ctx context.Context, Village string, offset, limit uint64, names string) (PropertyPage, error)
+	RetrieveByVillage(ctx context.Context, Village string, offset, limit uint64) (PropertyPage, error)
 
 	// Auditable counts the number of properties that need an invoice
 	//Auditable(ctx context.Context) (int, error)

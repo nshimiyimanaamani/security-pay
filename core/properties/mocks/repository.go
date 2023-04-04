@@ -132,7 +132,7 @@ func (str *repository) RetrieveByOwner(ctx context.Context, owner string, offset
 	return page, nil
 }
 
-func (str *repository) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64, names string) (properties.PropertyPage, error) {
+func (str *repository) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64) (properties.PropertyPage, error) {
 	const op errors.Op = "app/properties/mocks/repository.RetrieveBySector"
 
 	str.mu.Lock()

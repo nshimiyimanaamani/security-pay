@@ -41,15 +41,15 @@ type Service interface {
 
 	// ListBySector returns a lists of properties in the given sector
 	// withing the given range(offset, limit).
-	ListBySector(ctx context.Context, sector string, offset, limit uint64, names string) (PropertyPage, error)
+	ListBySector(ctx context.Context, sector string, offset, limit uint64) (PropertyPage, error)
 
 	// ListByCell returns a lists of properties in the given cell
 	// withing the given range(offset, limit).
-	ListByCell(ctx context.Context, cell string, offset, limit uint64, names string) (PropertyPage, error)
+	ListByCell(ctx context.Context, cell string, offset, limit uint64) (PropertyPage, error)
 
 	// ListPropertiesByVillage returns a lists of properties in the given village
 	// withing the given range(offset, limit).
-	ListByVillage(ctx context.Context, village string, offset, limit uint64, names string) (PropertyPage, error)
+	ListByVillage(ctx context.Context, village string, offset, limit uint64) (PropertyPage, error)
 }
 
 var _ Service = (*service)(nil)
@@ -137,30 +137,30 @@ func (svc *service) ListByRecorder(ctx context.Context, user string, offset, lim
 	return page, nil
 }
 
-func (svc *service) ListBySector(ctx context.Context, sector string, offset, limit uint64, names string) (PropertyPage, error) {
+func (svc *service) ListBySector(ctx context.Context, sector string, offset, limit uint64) (PropertyPage, error) {
 	const op errors.Op = "app/properties/service.ListBySector"
 
-	page, err := svc.repo.RetrieveBySector(ctx, sector, offset, limit, names)
+	page, err := svc.repo.RetrieveBySector(ctx, sector, offset, limit)
 	if err != nil {
 		return PropertyPage{}, errors.E(op, err)
 	}
 	return page, nil
 }
 
-func (svc *service) ListByCell(ctx context.Context, cell string, offset, limit uint64, names string) (PropertyPage, error) {
+func (svc *service) ListByCell(ctx context.Context, cell string, offset, limit uint64) (PropertyPage, error) {
 	const op errors.Op = "app/properties/service.ListByCell"
 
-	page, err := svc.repo.RetrieveByCell(ctx, cell, offset, limit, names)
+	page, err := svc.repo.RetrieveByCell(ctx, cell, offset, limit)
 	if err != nil {
 		return PropertyPage{}, errors.E(op, err)
 	}
 	return page, nil
 }
 
-func (svc *service) ListByVillage(ctx context.Context, village string, offset, limit uint64, names string) (PropertyPage, error) {
+func (svc *service) ListByVillage(ctx context.Context, village string, offset, limit uint64) (PropertyPage, error) {
 	const op errors.Op = "app/properties/service.ListPropertiesByVillage"
 
-	page, err := svc.repo.RetrieveByVillage(ctx, village, offset, limit, names)
+	page, err := svc.repo.RetrieveByVillage(ctx, village, offset, limit)
 	if err != nil {
 		return PropertyPage{}, errors.E(op, err)
 	}

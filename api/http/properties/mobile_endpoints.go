@@ -162,9 +162,7 @@ func MListPropertyBySector(lgger log.Entry, svc properties.Service) http.Handler
 			return
 		}
 
-		names := vars["names"]
-
-		page, err := svc.ListBySector(ctx, vars["sector"], offset, limit, names)
+		page, err := svc.ListBySector(ctx, vars["sector"], offset, limit)
 
 		if err != nil {
 			lgger.SystemErr(err)
@@ -227,9 +225,7 @@ func MListPropertyByCell(lgger log.Entry, svc properties.Service) http.Handler {
 			return
 		}
 
-		names := vars["names"]
-
-		page, err := svc.ListByCell(ctx, vars["cell"], offset, limit, names)
+		page, err := svc.ListByCell(ctx, vars["cell"], offset, limit)
 		if err != nil {
 			lgger.SystemErr(err)
 			encodeErr(w, err)
@@ -292,9 +288,7 @@ func MListPropertyByVillage(lgger log.Entry, svc properties.Service) http.Handle
 			return
 		}
 
-		names := vars["names"]
-
-		page, err := svc.ListByVillage(ctx, vars["village"], offset, limit, names)
+		page, err := svc.ListByVillage(ctx, vars["village"], offset, limit)
 		if err != nil {
 			lgger.SystemErr(err)
 			encodeErr(w, err)

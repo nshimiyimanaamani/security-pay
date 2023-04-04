@@ -206,15 +206,13 @@ func ListBySector(lgger log.Entry, svc properties.Service) http.Handler {
 			return
 		}
 
-		names := vars["names"]
-
 		// creds := auth.CredentialsFromContext(ctx)
 
 		// lgger.Warnf("username:%s | account:%s | role:%s",
 		// 	creds.Username, creds.Account, creds.Role,
 		// )
 
-		res, err := svc.ListBySector(ctx, vars["sector"], offset, limit, names)
+		res, err := svc.ListBySector(ctx, vars["sector"], offset, limit)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)
@@ -258,9 +256,7 @@ func ListByCell(lgger log.Entry, svc properties.Service) http.Handler {
 			return
 		}
 
-		names := vars["names"]
-
-		res, err := svc.ListByCell(ctx, vars["cell"], offset, limit, names)
+		res, err := svc.ListByCell(ctx, vars["cell"], offset, limit)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)
@@ -303,9 +299,7 @@ func ListByVillage(lgger log.Entry, svc properties.Service) http.Handler {
 			return
 		}
 
-		names := vars["names"]
-
-		res, err := svc.ListByVillage(ctx, vars["village"], offset, limit, names)
+		res, err := svc.ListByVillage(ctx, vars["village"], offset, limit)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)
