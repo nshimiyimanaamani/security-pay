@@ -45,7 +45,7 @@ func (svc *service) Action1(ctx context.Context, cmd *platypus.Command) (platypu
 
 	var page properties.PropertyPage
 
-	page, err = svc.properties.RetrieveByOwner(ctx, owner.ID, 0, 10, owner.Fname)
+	page, err = svc.properties.RetrieveByOwner(ctx, owner.ID, 0, 10)
 	if err != nil {
 		return platypus.Result{}, nil
 	}
@@ -540,7 +540,7 @@ func (svc *service) matchProperty(ctx context.Context, id, phone string) (string
 			return "", fmt.Errorf("failed to retrieve owner by phone: %w", err)
 		}
 
-		page, err := svc.properties.RetrieveByOwner(ctx, owner.ID, 0, 10, owner.Fname)
+		page, err := svc.properties.RetrieveByOwner(ctx, owner.ID, 0, 10)
 		if err != nil {
 			return "", err
 		}

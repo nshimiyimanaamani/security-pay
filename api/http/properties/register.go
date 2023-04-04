@@ -61,7 +61,7 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 
 	r.Handle(ListPRoute, authenticator(LogEntryHandler(ListByOwner, opts))).
 		Methods(http.MethodGet).
-		Queries("owner", "{owner}", "offset", "{offset}", "limit", "{limit}", "names", "{names}")
+		Queries("owner", "{owner}", "offset", "{offset}", "limit", "{limit}")
 
 	r.Handle(ListPRoute, authenticator(LogEntryHandler(ListBySector, opts))).
 		Methods(http.MethodGet).
@@ -80,7 +80,7 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		Queries("cell", "{cell}", "offset", "{offset}", "limit", "{limit}", "names", "{names}")
 
 	r.Handle(MListPRoute, MListPropertyByOwner(opts.Logger, opts.Service)).Methods(http.MethodGet).
-		Queries("owner", "{owner}", "offset", "{offset}", "limit", "{limit}", "names", "{names}")
+		Queries("owner", "{owner}", "offset", "{offset}", "limit", "{limit}")
 
 	r.Handle(MListPRoute, MListPropertyBySector(opts.Logger, opts.Service)).Methods(http.MethodGet).
 		Queries("sector", "{sector}", "offset", "{offset}", "limit", "{limit}", "names", "{names}")

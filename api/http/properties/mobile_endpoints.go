@@ -98,9 +98,8 @@ func MListPropertyByOwner(lgger log.Entry, svc properties.Service) http.Handler 
 		}
 
 		owner := vars["owner"]
-		names := vars["names"]
 
-		page, err := svc.ListByOwner(ctx, owner, offset, limit, names)
+		page, err := svc.ListByOwner(ctx, owner, offset, limit)
 		if err != nil {
 			lgger.SystemErr(err)
 			encodeErr(w, err)

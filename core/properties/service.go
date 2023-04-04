@@ -33,7 +33,7 @@ type Service interface {
 
 	// ListByOwner returns a list of properties that belong to a given owner
 	// withing a given range(offset, limit).
-	ListByOwner(ctx context.Context, owner string, offset, limit uint64, names string) (PropertyPage, error)
+	ListByOwner(ctx context.Context, owner string, offset, limit uint64) (PropertyPage, error)
 
 	// ListByRecorder returns a list of properties as saved by a given user
 	//ListByRecorder
@@ -117,10 +117,10 @@ func (svc *service) Delete(ctx context.Context, uid string) error {
 	return err
 }
 
-func (svc *service) ListByOwner(ctx context.Context, owner string, offset, limit uint64, names string) (PropertyPage, error) {
+func (svc *service) ListByOwner(ctx context.Context, owner string, offset, limit uint64) (PropertyPage, error) {
 	const op errors.Op = "app/properties/service.ListByOwner"
 
-	page, err := svc.repo.RetrieveByOwner(ctx, owner, offset, limit, names)
+	page, err := svc.repo.RetrieveByOwner(ctx, owner, offset, limit)
 	if err != nil {
 		return PropertyPage{}, errors.E(op, err)
 	}

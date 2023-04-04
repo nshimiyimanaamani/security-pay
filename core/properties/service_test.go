@@ -320,7 +320,7 @@ func TestListByOwner(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		page, err := svc.ListByOwner(ctx, tc.owner, tc.offset, tc.limit, tc.names)
+		page, err := svc.ListByOwner(ctx, tc.owner, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))

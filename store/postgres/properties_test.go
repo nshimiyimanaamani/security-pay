@@ -421,7 +421,6 @@ func TestRetrieveByOwner(t *testing.T) {
 		limit  uint64
 		size   uint64
 		total  uint64
-		names  string
 	}{
 		"retrieve all properties with existing owner": {
 			owner:  owner.ID,
@@ -449,7 +448,7 @@ func TestRetrieveByOwner(t *testing.T) {
 	for desc, tc := range cases {
 		ctx := context.Background()
 		// ctx = auth.SetECredetialsInContext(ctx, &creds)
-		page, err := props.RetrieveByOwner(ctx, tc.owner, tc.offset, tc.limit, tc.names)
+		page, err := props.RetrieveByOwner(ctx, tc.owner, tc.offset, tc.limit)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))

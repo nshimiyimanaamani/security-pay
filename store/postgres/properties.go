@@ -189,7 +189,7 @@ func (repo *propertiesStore) RetrieveByID(ctx context.Context, id string) (prope
 	return prt, nil
 }
 
-func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, offset, limit uint64, names string) (properties.PropertyPage, error) {
+func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, offset, limit uint64) (properties.PropertyPage, error) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveByOwner"
 
 	q := `SELECT 
@@ -214,8 +214,7 @@ func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, 
 			owners ON properties.owner=owners.id
 		WHERE 
 			properties.owner = $1
-			AND (owners.fname LIKE '%' || $2 || '%' OR owners.lname  LIKE '%' || $2 || '%')
-		ORDER BY properties.id LIMIT $3 OFFSET $4
+		ORDER BY properties.id LIMIT $2 OFFSET $3
 		
 	`
 
@@ -223,7 +222,7 @@ func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, 
 
 	var items = []properties.Property{}
 
-	rows, err := repo.Query(q, owner, names, limit, offset)
+	rows, err := repo.Query(q, owner, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}

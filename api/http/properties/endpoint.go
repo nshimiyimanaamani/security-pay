@@ -162,9 +162,8 @@ func ListByOwner(lgger log.Entry, svc properties.Service) http.Handler {
 		}
 
 		owner := vars["owner"]
-		names := vars["names"]
 
-		res, err := svc.ListByOwner(ctx, owner, offset, limit, names)
+		res, err := svc.ListByOwner(ctx, owner, offset, limit)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)

@@ -18,7 +18,7 @@ type Repository interface {
 	RetrieveByID(ctx context.Context, uid string) (Property, error)
 
 	// RetrieveByOwner retrieves the subset of properties that where made using the given owner.
-	RetrieveByOwner(ctx context.Context, owner string, offset, limit uint64, names string) (PropertyPage, error)
+	RetrieveByOwner(ctx context.Context, owner string, offset, limit uint64) (PropertyPage, error)
 
 	// RetrieveByOwner retrieves the subset of properties that where made using the given a user.
 	RetrieveByRecorder(ctx context.Context, user string, offset, limit uint64) (PropertyPage, error)
