@@ -220,6 +220,152 @@
           </b-dropdown>
           <!-- <b-button variant="info" @click="getAllHouse">Generate All House Report</b-button> -->
         </div>
+         <div>
+          <b-dropdown
+            v-model="dropdownone"
+            text="Generate Daily Report"
+            ref="dropdown"
+            class="m-2"
+            variant="info"
+            :busy="isLoading1"
+          >
+            <b-dropdown-form style="width: 230px">
+              <b-form class="accountForm">
+                <b-form-group label="Sector:">
+                  <b-form-select
+                    class="br-2"
+                    v-model="form.select.sector"
+                    :options="sectorOptions"
+                    required
+                  >
+                    <template v-slot:first>
+                      <option :value="null" disabled>select sector</option>
+                    </template>
+                  </b-form-select>
+                </b-form-group>
+
+                <b-form-group label="Cell:">
+                  <b-form-select
+                    class="br-2"
+                    v-model="form.select.cell"
+                    :options="cellOptions"
+                    required
+                  >
+                    <template v-slot:first>
+                      <option :value="null" disabled>select cell</option>
+                    </template>
+                  </b-form-select>
+                </b-form-group>
+
+                <b-form-group label="Village:">
+                  <b-select
+                    v-model="form.select.village"
+                    :options="villageOptions"
+                    class="br-2"
+                    required
+                  >
+                    <template v-slot:first>
+                      <option :value="null" disabled>select village</option>
+                    </template>
+                  </b-select>
+                </b-form-group>
+                <b-form-group label="From Month">
+                  <div class="input-date">
+                    <input type="date" v-model="object.frommonth" />
+                  </div>
+                </b-form-group>
+                <b-form-group label="To Month">
+                  <div class="input-date">
+                    <input type="date" v-model="object.tomonth" />
+                  </div>
+                </b-form-group>
+                
+
+                
+              </b-form>
+            </b-dropdown-form>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-item no-hover no-active>
+              <b-button variant="info" block @click="getDailyReport"
+                >Generate</b-button
+              >
+            </b-dropdown-item>
+          </b-dropdown>
+          <!-- <b-button variant="info" @click="getAllHouse">Generate All House Report</b-button> -->
+        </div>
+         <div>
+          <b-dropdown
+            v-model="dropdownone"
+            text="Generate Daily Report"
+            ref="dropdown"
+            class="m-2"
+            variant="info"
+            :busy="isLoading1"
+          >
+            <b-dropdown-form style="width: 230px">
+              <b-form class="accountForm">
+                <b-form-group label="Sector:">
+                  <b-form-select
+                    class="br-2"
+                    v-model="form.select.sector"
+                    :options="sectorOptions"
+                    required
+                  >
+                    <template v-slot:first>
+                      <option :value="null" disabled>select sector</option>
+                    </template>
+                  </b-form-select>
+                </b-form-group>
+
+                <b-form-group label="Cell:">
+                  <b-form-select
+                    class="br-2"
+                    v-model="form.select.cell"
+                    :options="cellOptions"
+                    required
+                  >
+                    <template v-slot:first>
+                      <option :value="null" disabled>select cell</option>
+                    </template>
+                  </b-form-select>
+                </b-form-group>
+
+                <b-form-group label="Village:">
+                  <b-select
+                    v-model="form.select.village"
+                    :options="villageOptions"
+                    class="br-2"
+                    required
+                  >
+                    <template v-slot:first>
+                      <option :value="null" disabled>select village</option>
+                    </template>
+                  </b-select>
+                </b-form-group>
+                <b-form-group label="From Month">
+                  <div class="input-date">
+                    <input type="date" v-model="object.frommonth" />
+                  </div>
+                </b-form-group>
+                <b-form-group label="To Month">
+                  <div class="input-date">
+                    <input type="date" v-model="object.tomonth" />
+                  </div>
+                </b-form-group>
+                
+
+                
+              </b-form>
+            </b-dropdown-form>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-item no-hover no-active>
+              <b-button variant="info" block @click="getDailyReport"
+                >Generate</b-button
+              >
+            </b-dropdown-item>
+          </b-dropdown>
+          <!-- <b-button variant="info" @click="getAllHouse">Generate All House Report</b-button> -->
+        </div>
       </b-row>
       <b-row class="my-4"></b-row>
 
@@ -237,11 +383,10 @@
           v-model="state.showReport"
         >
           <div class="reports-card">
+            
             <b-row no-gutters class="mb-2 justify-content-end">
-              <!-- <b-badge variant="secondary" class="p-2 fsize-sm"
-                >Report Date: &nbsp; {{ state.reportsDate }}
-                </b-badge> -->
-              <b-form-group>
+              
+              <b-form-group class="" style="margin-bottom:-0px">
                 <b-form-input
                   required
                   v-model="search"
@@ -249,6 +394,9 @@
                   class="br-2"
                 />
               </b-form-group>
+               <b-badge variant="secondary" class="p-2 ml-4 fsize-sm"
+                >Report Date: &nbsp; {{ state.reportsDate }}
+                </b-badge>
             </b-row>
             <h5 class="bg-dark">{{ reportTitle }}</h5>
             <div class="card--body">
@@ -271,7 +419,36 @@
                 <template v-slot:empty>{{
                   state.error.table1 || "No data available to display"
                 }}</template>
+                <template v-slot:cell(index)="data">
+        <article class="text-center">{{ data.index + 1 }}</article>
+      </template>
+
+                <template v-slot:custom-foot>
+                  <b-tr class="total">
+                    <b-td></b-td>
+                    <b-td></b-td>
+                    <b-td></b-td>
+                    <b-td></b-td>
+                    <b-td class="text-center py-2">
+                      <small
+                        ><strong style=""
+                          ><span style="color: #dc3545">Total </span>:
+                          {{ totalAmount }} Rwf</strong
+                        ></small
+                      >
+                    </b-td>
+                  </b-tr>
+                </template>
               </b-table>
+              <b-pagination
+                class="my-0"
+                align="center"
+                v-if="showPagination"
+                :per-page="pagination.perPage"
+                v-model="pagination.currentPage"
+                :total-rows="pagination.totalRows"
+                @input="pageChanged"
+              ></b-pagination>
             </div>
           </div>
         </b-collapse>
@@ -327,20 +504,29 @@ export default {
       table: {
         fields: [
           {
-            key: "fname",
-            label: "First Name",
-            tdClass: "text-center",
-            thClass: "text-center text-uppercase",
+            key:"index",
+            label:"No",
+            tdClass: "",
+            thClass: " text-uppercase",
           },
           {
-            key: "lname",
-            label: "Last Name",
-            tdClass: "text-center",
-            thClass: "text-center text-uppercase",
+            key: "fullName",
+            label: "Full Name",
+            formatter: (value, key, item) => item.fname + " " + item.lname,
+            label: "Full Name",
+            tdClass: "",
+            thClass: " text-uppercase",
           },
+
           {
             key: "phone",
             label: "Phone",
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase",
+          },
+          {
+            key: "property_id",
+            label: "Property",
             tdClass: "text-center",
             thClass: "text-center text-uppercase",
           },
@@ -357,6 +543,11 @@ export default {
           //   thClass: "text-center text-uppercase"
           // }
         ],
+      },
+      pagination: {
+        perPage: 15,
+        currentPage: 1,
+        totalRows: 1,
       },
     };
   },
@@ -414,6 +605,14 @@ export default {
     months() {
       return this.$store.getters.getMonths;
     },
+    random() {
+      return Math.floor(Math.random() * 101);
+    },
+    showPagination() {
+      if (this.isLoadingdata) return false;
+      if (this.pagination.totalRows / this.pagination.perPage < 2) return false;
+      return true;
+    },
   },
   watch: {
     "form.select.sector"() {
@@ -439,29 +638,45 @@ export default {
       }
     },
   },
+  created() {
+    this.getCurrentMonth();
+    this.getAllHouse();
+  },
   methods: {
+    getCurrentMonth() {
+      console.log("current month",new Date().getMonth() + 1);
+      this.object.month = new Date().getMonth() + 1;
+    },
     async getAllHouse() {
       this.state.showReport = false;
       this.isLoading1 = true;
       this.isLoadingdata = true;
       this.reportTitle = "Generate All House Report";
       console.log("generate all house");
+      // this.state.reportsDate = `${this.months[month - 1]}, ${year}`;
       this.loading = true;
-      if (this.object.frommonth == null && this.object.tomonth == null) {
-        const currentDate = new Date();
-        this.from = currentDate;
-        this.to = currentDate;
-      } else {
-        this.from = this.object.frommonth;
-        this.to = this.object.tomonth;
-      }
+      const yearString = this.object.year;
+      var monthString = this.object.month;
+      const yearDate = new Date(`${yearString}-${monthString}-01`);
+      const nextMonth = new Date(yearString, monthString + 1, 1);
+      const lastDayOfMonth = new Date(nextMonth - 1);
+      this.from = yearDate;
+      this.to = lastDayOfMonth;
+      // if (this.object.frommonth == null && this.object.tomonth == null) {
+      //   const currentDate = new Date();
+      //   this.from = currentDate;
+      //   this.to = currentDate;
+      // } else {
+      //   this.from = this.object.frommonth;
+      //   this.to = this.object.tomonth;
+      // }
       try {
         const { data } = await this.axios.get("payment/reports", {
           params: {
             status: "",
-            sector: this.form.select.sector,
-            cell: this.form.select.cell,
-            village: this.form.select.village,
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
             offset: 0,
             limit: 0,
             from: this.from,
@@ -471,7 +686,14 @@ export default {
         // this.accountant = data;
 
         this.reports = data.Payments;
-        console.log("report all houses", this.reports);
+        // const custrow = {};
+        // custrow.fname = "Total Amount"
+        // custrow.name = ""
+        // custrow.name = ""
+        // custrow.amount = data.amount
+        // this.reports.push(custrow);
+        this.totalAmount = data.amount;
+        // console.log("report all houses", this.reports);
       } catch (error) {
         console.log(error);
       } finally {
@@ -487,6 +709,15 @@ export default {
       this.reportTitle = "Generate Paid House Report";
       console.log("generate paid house");
       this.loading = true;
+      const yearString = this.object.year;
+      var monthString = this.object.month;
+      const yearDate = new Date(`${yearString}-${monthString}-01`);
+      this.state.reportsDate =  new Date(this.object.year, this.object.month -1, 1).toLocaleString('default', { month: 'long' });
+      const nextMonth = new Date(yearString, monthString + 1, 1);
+      const now = new Date();
+      const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      this.from = yearDate;
+      this.to = lastDayOfMonth;
       if (this.object.frommonth == null && this.object.tomonth == null) {
         const currentDate = new Date();
         this.from = currentDate;
@@ -498,12 +729,12 @@ export default {
       try {
         const { data } = await this.axios.get("payment/reports", {
           params: {
-            status: "paid",
-            sector: this.form.select.sector,
-            cell: this.form.select.cell,
-            village: this.form.select.village,
-            offset: 0,
-            limit: 0,
+            status: "payed",
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
+            offset: (this.pagination.currentPage - 1)*this.pagination.perPage,
+            limit: this.pagination.perPage,
             from: this.from,
             to: this.to,
           },
@@ -527,23 +758,24 @@ export default {
       this.reportTitle = "Generate Unpaid House Report";
       console.log("generate unpaid house");
       this.loading = true;
-      if (this.object.frommonth == null && this.object.tomonth == null) {
-        const currentDate = new Date();
-        this.from = currentDate;
-        this.to = currentDate;
-      } else {
-        this.from = this.object.frommonth;
-        this.to = this.object.tomonth;
-      }
+      const yearString = this.object.year;
+      var monthString = this.object.month;
+      const yearDate = new Date(`${yearString}-${monthString}-01`);
+      this.state.reportsDate =  new Date(this.object.year, this.object.month -1, 1).toLocaleString('default', { month: 'long' });
+      const nextMonth = new Date(yearString, monthString + 1, 1);
+      const now = new Date();
+      const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      this.from = yearDate;
+      this.to = lastDayOfMonth;
       try {
         const { data } = await this.axios.get("payment/reports", {
           params: {
             status: "pending",
-            sector: this.form.select.sector,
-            cell: this.form.select.cell,
-            village: this.form.select.village,
-            offset: 0,
-            limit: 0,
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
+            offset: (this.pagination.currentPage - 1) *this.pagination.perPage,
+            limit: this.pagination.perPage,
             from: this.from,
             to: this.to,
           },
@@ -559,6 +791,53 @@ export default {
         this.dropdownone = false;
         this.state.showReport = true;
         this.isLoadingdata = false;
+      }
+    },
+    async getDailyReport() {
+      this.state.showReport = false;
+      this.isLoadingdata = true;
+      this.reportTitle = " Daily Report";
+      console.log("daily report");
+      this.loading = true;
+      // const yearString = this.object.year;
+      // var monthString = this.object.month;
+      // const yearDate = new Date(`${yearString}-${monthString}-01`);
+      // this.state.reportsDate =  new Date(this.object.year, this.object.month -1, 1).toLocaleString('default', { month: 'long' });
+      // const nextMonth = new Date(yearString, monthString + 1, 1);
+      // const now = new Date();
+      // const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      // this.from = yearDate;
+      // this.to = lastDayOfMonth;
+      try {
+        const { data } = await this.axios.get("payment/reports/daily", {
+          params: {
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
+            offset: (this.pagination.currentPage - 1) *this.pagination.perPage,
+            limit: this.pagination.perPage,
+            from: this.object.frommonth,
+            to: this.object.tomonth,
+          },
+        });
+        this.reportTitle = "Daily Report";
+        console.log("Daily Report",data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.state.loading = false;
+        this.dropdownone = false;
+        this.state.showReport2 = true;
+        this.isLoadingdata = false;
+      }
+    },
+    pageChanged() {
+      if (this.reportTitle == " Unpaid House Report") {
+        this.getUnpaidHouse();
+      } else if (this.reportTitle == " Paid House Report") {
+        this.getPaidHouse();
+      } else {
+        this.getAllHouse();
       }
     },
   },

@@ -150,9 +150,11 @@ export default {
           )
           .then((res) => {
             let filteredItems = res.data.Transactions;
-            filteredItems = filteredItems.filter(
-              (item) => item.village === this.user.village
-            );
+            if (this.user.village) {
+              filteredItems = filteredItems.filter(
+                (item) => item.village === this.user.village
+              );
+            }
             if (this.date.year) {
               filteredItems = filteredItems.filter(
                 (item) =>
