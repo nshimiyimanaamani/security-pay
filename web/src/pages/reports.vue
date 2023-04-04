@@ -1,7 +1,7 @@
 <template>
   <b-container class="reports-page h-100" fluid>
     <vue-title title="Paypack | Reports" />
-    <b-card no-body class="mh-100 h-100">
+    <b-card no-body class="mh-100 h-100 ">
       <b-tabs
         pills
         card
@@ -14,7 +14,7 @@
         nav-class="report-navs"
       >
       
-        <b-tab title="PAYMENT REPORTS">
+        <b-tab title="PAYMENT REPORTS" class="">
           <payment-reports />
         </b-tab>
         <b-tab v-if="isAdmin" title="SECTOR REPORTS" active>
@@ -72,13 +72,16 @@ export default {
 .reports-page {
   min-width: 500px;
   padding: 3rem;
-  min-height: 1100px !important;
+  height: 1000px !important;
 
   .reports-tabs {
     display: flex;
     flex-wrap: nowrap;
     overflow: auto;
     text-transform: uppercase;
+    @media screen and (max-width:678px) {
+      flex-direction: column;
+    }
 
     header.tabTitle {
       text-align: center;
