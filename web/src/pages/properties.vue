@@ -264,7 +264,7 @@ export default {
         { key: "due", label: "Amount" }
       ],
       pagination: {
-        perPage: 30,
+        perPage: 15,
         currentPage: 1,
         totalRows: 1,
         show: false
@@ -612,8 +612,8 @@ export default {
     },
     getUrl() {
       if (this.isManager)
-        return `/properties?cell=${this.activeCell}&offset=0&limit=`;
-      return `/properties?sector=${this.activeSector}&offset=0&limit=`;
+        return `/properties?cell=${this.activeCell}&offset=${offset}&limit=${limit}&names`;
+      return `/properties?sector=${this.activeSector}&offset=${offset}&limit=${limit}&names`;
     },
     confirm(message) {
       return this.$bvModal.msgBoxConfirm(message, {

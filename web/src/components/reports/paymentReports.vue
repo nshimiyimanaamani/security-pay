@@ -293,7 +293,7 @@
           </b-dropdown>
           <!-- <b-button variant="info" @click="getAllHouse">Generate All House Report</b-button> -->
         </div>
-         <div>
+        <div>
           <b-dropdown
             v-model="dropdownone"
             text="Generate Daily Report"
@@ -352,9 +352,6 @@
                     <input type="date" v-model="object.tomonth" />
                   </div>
                 </b-form-group>
-                
-
-                
               </b-form>
             </b-dropdown-form>
             <b-dropdown-divider></b-dropdown-divider>
@@ -383,10 +380,8 @@
           v-model="state.showReport"
         >
           <div class="reports-card">
-            
             <b-row no-gutters class="mb-2 justify-content-end">
-              
-              <b-form-group class="" style="margin-bottom:-0px">
+              <b-form-group class="" style="margin-bottom: -0px">
                 <b-form-input
                   required
                   v-model="search"
@@ -394,9 +389,9 @@
                   class="br-2"
                 />
               </b-form-group>
-               <b-badge variant="secondary" class="p-2 ml-4 fsize-sm"
+              <b-badge variant="secondary" class="p-2 ml-4 fsize-sm"
                 >Report Date: &nbsp; {{ state.reportsDate }}
-                </b-badge>
+              </b-badge>
             </b-row>
             <h5 class="bg-dark">{{ reportTitle }}</h5>
             <div class="card--body">
@@ -420,8 +415,8 @@
                   state.error.table1 || "No data available to display"
                 }}</template>
                 <template v-slot:cell(index)="data">
-        <article class="text-center">{{ data.index + 1 }}</article>
-      </template>
+                  <article class="text-center">{{ data.index + 1 }}</article>
+                </template>
 
                 <template v-slot:custom-foot>
                   <b-tr class="total">
@@ -459,6 +454,31 @@
         </b-button>
       </b-row>
     </div>
+    <div v-if="state.showReport2">
+      <div class="reports-card container ">
+        <b-row no-gutters class="mb-2 justify-content-end">
+          <b-badge variant="secondary" class="p-2 ml-4 fsize-sm"
+            >Report Date: &nbsp; {{ object.frommonth }}
+          </b-badge>
+        </b-row>
+        <h5 class="bg-dark text-light py-2 container">{{ reportTitle }}</h5>
+        <div class=" py-3">
+          <div class="" v-for="(daily,i) in dailyReports" :key="`daily`+i">
+            
+              <b-card class="card-box mb-3" :class="i % 2 === 0 ? 'even' : ''">
+                <b-row class="d-flex justify-content-between container">
+                  <div>
+                    <strong>Transactions:</strong> <span class="ml-1"> {{daily.transactions}} </span>
+                  </div>
+                  <div>
+                    <strong>Amount:</strong> <span class="ml-1"> {{daily.amount}} </span>
+                  </div>
+                </b-row>
+              </b-card>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -490,7 +510,9 @@ export default {
         tableLoad: false,
         changing: false,
         showReport: false,
+        showReport2: false,
         reportsDate: null,
+        dailyreportsDate: null,
         busy: {
           table1: false,
           table2: false,
@@ -501,11 +523,12 @@ export default {
         },
       },
       reports: [],
+      dailyReports:[],
       table: {
         fields: [
           {
-            key:"index",
-            label:"No",
+            key: "index",
+            label: "No",
             tdClass: "",
             thClass: " text-uppercase",
           },
@@ -644,11 +667,12 @@ export default {
   },
   methods: {
     getCurrentMonth() {
-      console.log("current month",new Date().getMonth() + 1);
+      console.log("current month", new Date().getMonth() + 1);
       this.object.month = new Date().getMonth() + 1;
     },
     async getAllHouse() {
       this.state.showReport = false;
+      this.state.showReport2 = false
       this.isLoading1 = true;
       this.isLoadingdata = true;
       this.reportTitle = "Generate All House Report";
@@ -657,6 +681,11 @@ export default {
       this.loading = true;
       const yearString = this.object.year;
       var monthString = this.object.month;
+      this.state.reportsDate = new Date(
+        this.object.year,
+        this.object.month - 1,
+        1
+      ).toLocaleString("default", { month: "long" });
       const yearDate = new Date(`${yearString}-${monthString}-01`);
       const nextMonth = new Date(yearString, monthString + 1, 1);
       const lastDayOfMonth = new Date(nextMonth - 1);
@@ -677,8 +706,8 @@ export default {
             sector: this.form.select.sector || "",
             cell: this.form.select.cell || "",
             village: this.form.select.village || "",
-            offset: 0,
-            limit: 0,
+            offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
+            limit: this.pagination.perPage,
             from: this.from,
             to: this.to,
           },
@@ -705,6 +734,7 @@ export default {
     },
     async getPaidHouse() {
       this.state.showReport = false;
+      this.state.showReport2 = false;
       this.isLoadingdata = true;
       this.reportTitle = "Generate Paid House Report";
       console.log("generate paid house");
@@ -712,7 +742,11 @@ export default {
       const yearString = this.object.year;
       var monthString = this.object.month;
       const yearDate = new Date(`${yearString}-${monthString}-01`);
-      this.state.reportsDate =  new Date(this.object.year, this.object.month -1, 1).toLocaleString('default', { month: 'long' });
+      this.state.reportsDate = new Date(
+        this.object.year,
+        this.object.month - 1,
+        1
+      ).toLocaleString("default", { month: "long" });
       const nextMonth = new Date(yearString, monthString + 1, 1);
       const now = new Date();
       const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -733,7 +767,7 @@ export default {
             sector: this.form.select.sector || "",
             cell: this.form.select.cell || "",
             village: this.form.select.village || "",
-            offset: (this.pagination.currentPage - 1)*this.pagination.perPage,
+            offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
             limit: this.pagination.perPage,
             from: this.from,
             to: this.to,
@@ -754,6 +788,7 @@ export default {
     },
     async getUnpaidHouse() {
       this.state.showReport = false;
+      this.state.showReport2 = false;
       this.isLoadingdata = true;
       this.reportTitle = "Generate Unpaid House Report";
       console.log("generate unpaid house");
@@ -761,7 +796,11 @@ export default {
       const yearString = this.object.year;
       var monthString = this.object.month;
       const yearDate = new Date(`${yearString}-${monthString}-01`);
-      this.state.reportsDate =  new Date(this.object.year, this.object.month -1, 1).toLocaleString('default', { month: 'long' });
+      this.state.reportsDate = new Date(
+        this.object.year,
+        this.object.month - 1,
+        1
+      ).toLocaleString("default", { month: "long" });
       const nextMonth = new Date(yearString, monthString + 1, 1);
       const now = new Date();
       const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -774,7 +813,7 @@ export default {
             sector: this.form.select.sector || "",
             cell: this.form.select.cell || "",
             village: this.form.select.village || "",
-            offset: (this.pagination.currentPage - 1) *this.pagination.perPage,
+            offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
             limit: this.pagination.perPage,
             from: this.from,
             to: this.to,
@@ -795,9 +834,11 @@ export default {
     },
     async getDailyReport() {
       this.state.showReport = false;
+      this.state.showReport2 = false;
       this.isLoadingdata = true;
       this.reportTitle = " Daily Report";
       console.log("daily report");
+      this.dailyreportsDate = this.object.frommonth
       this.loading = true;
       // const yearString = this.object.year;
       // var monthString = this.object.month;
@@ -808,20 +849,22 @@ export default {
       // const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       // this.from = yearDate;
       // this.to = lastDayOfMonth;
+
       try {
         const { data } = await this.axios.get("payment/reports/daily", {
           params: {
             sector: this.form.select.sector || "",
             cell: this.form.select.cell || "",
             village: this.form.select.village || "",
-            offset: (this.pagination.currentPage - 1) *this.pagination.perPage,
+            offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
             limit: this.pagination.perPage,
             from: this.object.frommonth,
             to: this.object.tomonth,
           },
         });
         this.reportTitle = "Daily Report";
-        console.log("Daily Report",data);
+        // console.log("Daily Report", data[0].Transactions);
+        this.dailyReports = data[0].Transactions;
       } catch (error) {
         console.log(error);
       } finally {
@@ -866,5 +909,20 @@ export default {
   border: 1px solid #7f898d;
   color: #212529;
   padding: 3px 5px;
+}
+.total {
+  background: #b8daff;
+  margin: 0 2px;
+  padding: 10px;
+}
+// .card-box:nth-child(odd) {
+//   border-left: 5px solid red !important;
+// }
+.card-box {
+  border-left: 7px solid #6c757d;
+}
+.even {
+  border-left: 7px solid #0382b9;
+
 }
 </style>
