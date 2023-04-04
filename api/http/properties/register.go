@@ -57,7 +57,7 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 
 	r.Handle(ListPRoute, authenticator(LogEntryHandler(ListByCell, opts))).
 		Methods(http.MethodGet).
-		Queries("cell", "{cell}", "offset", "{offset}", "limit", "{limit}")
+		Queries("cell", "{cell}", "offset", "{offset}", "limit", "{limit}", "names", "{names}")
 
 	r.Handle(ListPRoute, authenticator(LogEntryHandler(ListByOwner, opts))).
 		Methods(http.MethodGet).
@@ -65,26 +65,25 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 
 	r.Handle(ListPRoute, authenticator(LogEntryHandler(ListBySector, opts))).
 		Methods(http.MethodGet).
-		Queries("sector", "{sector}", "offset", "{offset}", "limit", "{limit}")
+		Queries("sector", "{sector}", "offset", "{offset}", "limit", "{limit}", "names", "{names}")
 
 	r.Handle(ListPRoute, authenticator(LogEntryHandler(ListByVillage, opts))).
 		Methods(http.MethodGet).
-		Queries("village", "{village}", "offset", "{offset}", "limit", "{limit}")
+		Queries("village", "{village}", "offset", "{offset}", "limit", "{limit}", "names", "{names}")
 
 	r.Handle(ListPRoute, authenticator(LogEntryHandler(ListByRecorder, opts))).
 		Methods(http.MethodGet).
 		Queries("user", "{user}", "offset", "{offset}", "limit", "{limit}")
-
 	//mobile temp
 	r.Handle(MRetrievePRoute, MRetrieveProperty(opts.Logger, opts.Service)).Methods(http.MethodGet)
 	r.Handle(MListPRoute, MListPropertyByCell(opts.Logger, opts.Service)).Methods(http.MethodGet).
-		Queries("cell", "{cell}", "offset", "{offset}", "limit", "{limit}")
+		Queries("cell", "{cell}", "offset", "{offset}", "limit", "{limit}", "names", "{names}")
 
 	r.Handle(MListPRoute, MListPropertyByOwner(opts.Logger, opts.Service)).Methods(http.MethodGet).
 		Queries("owner", "{owner}", "offset", "{offset}", "limit", "{limit}")
 
 	r.Handle(MListPRoute, MListPropertyBySector(opts.Logger, opts.Service)).Methods(http.MethodGet).
-		Queries("sector", "{sector}", "offset", "{offset}", "limit", "{limit}")
+		Queries("sector", "{sector}", "offset", "{offset}", "limit", "{limit}", "names", "{names}")
 
 	r.Handle(MListPRoute, MListPropertyByVillage(opts.Logger, opts.Service)).Methods(http.MethodGet).
 		Queries("village", "{village}", "offset", "{offset}", "limit", "{limit}")
