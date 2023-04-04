@@ -3,11 +3,7 @@
     <vue-title title="Paypack | Properties" />
     <header>
       <h4 class="primary-font">List of properties in {{ selected }}</h4>
-      <b-button
-        class="br-2 primary-font"
-        variant="info"
-        @click="addProperty.show = true"
-      >
+      <b-button class="br-2 primary-font" variant="info" @click="addProperty.show = true">
         <i class="fa fa-plus-circle mr-1" />Property
       </b-button>
     </header>
@@ -15,59 +11,30 @@
 
     <!-- filters -->
     <b-row class="mt-3 mb-2 m-0 flex-nowrap">
-      <b-dropdown
-        id="dropdown-dropright"
-        variant="info"
-        ref="dropdown"
-        toggle-class="br-2 primary-font"
-        class="filter-dropdown mr-auto primary-font"
-        text="Filter By"
-      >
+      <b-dropdown id="dropdown-dropright" variant="info" ref="dropdown" toggle-class="br-2 primary-font"
+        class="filter-dropdown mr-auto primary-font" text="Filter By">
         <b-dropdown-form>
           <!-- location Filters -->
           <b-form-group label="Location Filters" class="flex-grow-1 px-2">
-            <b-form-group
-              label="Sector"
-              label-class="text-muted p-0"
-              class="mb-3"
-            >
-              <b-form-select
-                size="sm"
-                class="br-2"
-                v-model="select.sector"
-                :options="sectorOptions"
-                :disabled="sectorOptions.length < 1 || isManager"
-              >
+            <b-form-group label="Sector" label-class="text-muted p-0" class="mb-3">
+              <b-form-select size="sm" class="br-2" v-model="select.sector" :options="sectorOptions"
+                :disabled="sectorOptions.length < 1 || isManager">
                 <template v-slot:first>
                   <option :value="null">All</option>
                 </template>
               </b-form-select>
             </b-form-group>
-            <b-form-group
-              label="Cell"
-              label-class="text-muted p-0"
-              class="mb-3"
-            >
-              <b-form-select
-                size="sm"
-                class="br-2"
-                v-model="select.cell"
-                :options="cellOptions"
-                :disabled="cellOptions.length < 1 || isManager"
-              >
+            <b-form-group label="Cell" label-class="text-muted p-0" class="mb-3">
+              <b-form-select size="sm" class="br-2" v-model="select.cell" :options="cellOptions"
+                :disabled="cellOptions.length < 1 || isManager">
                 <template v-slot:first>
                   <option :value="null">All</option>
                 </template>
               </b-form-select>
             </b-form-group>
             <b-form-group label="Village" label-class="text-muted p-0">
-              <b-form-select
-                size="sm"
-                class="br-2"
-                v-model="select.village"
-                :options="villageOptions"
-                :disabled="villageOptions.length < 1"
-              >
+              <b-form-select size="sm" class="br-2" v-model="select.village" :options="villageOptions"
+                :disabled="villageOptions.length < 1">
                 <template v-slot:first>
                   <option :value="null">All</option>
                 </template>
@@ -75,67 +42,33 @@
             </b-form-group>
           </b-form-group>
           <b-form-group label="Columns Filters" class="flex-grow-1 px-2">
-            <b-form-checkbox-group
-              id="columns"
-              v-model="select.postColumns"
-              :options="columns"
-              size="sm"
-              name="columns"
-              stacked
-            ></b-form-checkbox-group>
+            <b-form-checkbox-group id="columns" v-model="select.postColumns" :options="columns" size="sm" name="columns"
+              stacked></b-form-checkbox-group>
           </b-form-group>
         </b-dropdown-form>
-        <b-button variant="info" class="br-2" @click.prevent="filterByLocation"
-          >Filter</b-button
-        >
-        <b-button variant="danger" class="br-2" @click.prevent="clearFilter"
-          >Reset</b-button
-        >
+        <b-button variant="info" class="br-2" @click.prevent="filterByLocation">Filter</b-button>
+        <b-button variant="danger" class="br-2" @click.prevent="clearFilter">Reset</b-button>
       </b-dropdown>
 
       <div class="ml-2">
-        <b-form-input
-          placeholder="search user..."
-          class="br-2 primary-font"
-          type="search"
-          v-model="search.name"
-          @keypress.enter="searchProperties"
-        ></b-form-input>
+        <b-form-input placeholder="search user..." class="br-2 primary-font" type="search" v-model="search.name"
+          @keypress.enter="searchProperties"></b-form-input>
       </div>
       <b-button variant="info" class="ml-2 br-2" @click="loadData">
         <i class="fa fa-sync-alt" :class="{ 'fa-spin': loading.request }"></i>
       </b-button>
-      <b-button
-        @click="downloadList"
-        :disabled="filteredData.length ? false : true"
-        variant="info"
-        class="ml-2 br-2 primary-font"
-      >
+      <b-button @click="downloadList" :disabled="filteredData.length ? false : true" variant="info"
+        class="ml-2 br-2 primary-font">
         Download
         <i class="fa fa-download" />
       </b-button>
     </b-row>
     <!-- end of filters -->
 
-    <b-table
-      hover
-      small
-      bordered
-      responsive
-      id="data-table"
-      :fields="fields"
-      :items="filteredData"
-      head-variant="light"
-      :sort-by.sync="sortBy"
-      :busy="loading.request"
-      @row-contextmenu="editHouse"
-      thead-class="primary-font"
-      tbody-class="secondary-font"
-      :show-empty="!loading.request"
-    >
-      <template v-slot:cell(due)="data"
-        >{{ data.item.due | number }} Rwf</template
-      >
+    <b-table hover small bordered responsive id="data-table" :fields="fields" :items="filteredData" head-variant="light"
+      :sort-by.sync="sortBy" :busy="loading.request" @row-contextmenu="editHouse" thead-class="primary-font"
+      tbody-class="secondary-font" :show-empty="!loading.request">
+      <template v-slot:cell(due)="data">{{ data.item.due | number }} Rwf</template>
       <template v-slot:cell(owner)="data">{{
         data.item.owner.fname + " " + data.item.owner.lname
       }}</template>
@@ -154,25 +87,18 @@
         <h6 class="text-center font-weight-bold p-5 w-100 primary-font">
           {{
             search.name
-              ? search.name + ' "is not available in this property list"'
-              : "There are no properties available to show at the moment!"
+            ? search.name + ' "is not available in this property list"'
+            : "There are no properties available to show at the moment!"
           }}
         </h6>
       </template>
       <template v-slot:custom-foot v-if="!loading.request">
         <b-tr v-if="select.shownColumn.includes('Amount')">
-          <b-td
-            v-for="(index, i) in select.shownColumn"
-            :key="i"
-            variant="primary"
-          >
-            <div
-              class="text-danger text-right"
-              v-if="
-                select.shownColumn.length > 1 &&
-                i === select.shownColumn.length - 2
-              "
-            >
+          <b-td v-for="(index, i) in select.shownColumn" :key="i" variant="primary">
+            <div class="text-danger text-right" v-if="
+              select.shownColumn.length > 1 &&
+              i === select.shownColumn.length - 2
+            ">
               <strong>Total:</strong>
             </div>
             <div v-if="i === select.shownColumn.length - 1">
@@ -183,50 +109,20 @@
       </template>
     </b-table>
 
-    <b-pagination
-      class="my-0"
-      align="center"
-      v-if="showPagination"
-      :per-page="pagination.perPage"
-      v-model="pagination.currentPage"
-      :total-rows="pagination.totalRows"
-      @input="loadData"
-    ></b-pagination>
-    <add-property
-      :show="addProperty.show"
-      @closeModal="addProperty.show = false"
-      @added="propertyAdded"
-    />
-    <b-modal
-      id="updateModal"
-      v-model="updateModal.show"
-      hide-footer
-      body-class="px-4 py-3"
-    >
+    <b-pagination class="my-0" align="center" v-if="showPagination" :per-page="pagination.perPage"
+      v-model="pagination.currentPage" :total-rows="pagination.totalRows" @input="loadData"></b-pagination>
+    <add-property :show="addProperty.show" @closeModal="addProperty.show = false" @added="propertyAdded" />
+    <b-modal id="updateModal" v-model="updateModal.show" hide-footer body-class="px-4 py-3">
       <template v-slot:modal-title>
         <header class="primary-font">Modify House</header>
       </template>
-      <update-house
-        v-if="updateModal.show"
-        :item="updateModal.item"
-        :option="updateModal.option"
-        @closeModal="closeUpdateModal"
-        @updated="state.reloadData = true"
-      />
+      <update-house v-if="updateModal.show" :item="updateModal.item" :option="updateModal.option"
+        @closeModal="closeUpdateModal" @updated="state.reloadData = true" />
     </b-modal>
-    <vue-menu
-      :elementId="'rightmenu'"
-      :options="rightMenu.options"
-      :ref="'rightMenu'"
-      @option-clicked="showContextMenu"
-    />
+    <vue-menu :elementId="'rightmenu'" :options="rightMenu.options" :ref="'rightMenu'"
+      @option-clicked="showContextMenu" />
 
-    <message
-      :phones="message.sendTo"
-      v-if="message.show"
-      @modal-closed="closeModal('message')"
-      @sent="messageSent"
-    />
+    <message :phones="message.sendTo" v-if="message.show" @modal-closed="closeModal('message')" @sent="messageSent" />
   </b-container>
 </template>
 <script>
@@ -245,6 +141,7 @@ export default {
     message: () =>
       import(/* webpackChunkName: "message" */ "../components/modals/message"),
   },
+
   data() {
     return {
       development: true,
@@ -301,12 +198,13 @@ export default {
         { key: "due", label: "Amount" },
       ],
       pagination: {
-        perPage: 20,
+        perPage: 30,
         currentPage: 1,
         totalRows: 1,
       },
     };
   },
+
   computed: {
     showPagination() {
       if (this.loading.request) return false;
@@ -342,13 +240,6 @@ export default {
     columns() {
       return this.fields.map((i) => i.label);
     },
-    totals() {
-      if (this.filteredData.length > 0)
-        return this.filteredData.reduce(
-          (a, b) => Number(a.due || a) + Number(b.due)
-        );
-      return 0;
-    },
     user() {
       return this.$store.getters.userDetails;
     },
@@ -362,6 +253,7 @@ export default {
       return this.user.role === "basic";
     },
   },
+
   mounted() {
     this.loadData();
     this.select.postColumns = this.columns;
@@ -620,13 +512,23 @@ export default {
       }
       this.filterByLocation();
     },
+
+    // To capitalize the first letter of each word in a string because the backend is case sensitive
+    toCapitalize(str) {
+      return str
+        .toLowerCase()
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+    },
     getUrl() {
       const offset =
         (this.pagination.currentPage - 1) * this.pagination.perPage;
       const limit = this.pagination.perPage;
+      const name = this.search.name ? this.toCapitalize(this.search.name) : "";
       if (this.isManager)
-        return `/properties?cell=${this.activeCell}&offset=${offset}&limit=${limit}`;
-      return `/properties?sector=${this.activeSector}&offset=${offset}&limit=${limit}`;
+        return `/properties?cell=${this.activeCell}&offset=${offset}&limit=${limit}&names=${name}`;
+      return `/properties?sector=${this.activeSector}&offset=${offset}&limit=${limit}&names=${name}`;
     },
     confirm(message) {
       return this.$bvModal.msgBoxConfirm(message, {
@@ -641,7 +543,7 @@ export default {
       });
     },
     searchProperties() {
-      console.log("searching");
+      this.loadData()
     },
   },
 };
