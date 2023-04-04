@@ -53,10 +53,10 @@ type TxResponse struct {
 }
 
 type PageMetadata struct {
-	Total       uint64
-	TotalAmount float64 `json:"amount"`
-	Offset      uint64
-	Limit       uint64
+	Total  uint64
+	Amount float64 `json:"amount,omitempty"`
+	Offset uint64
+	Limit  uint64
 }
 
 type Payment struct {
@@ -91,6 +91,18 @@ type Filters struct {
 	Limit    *uint64
 	Offset   *uint64
 }
+
+// Metric Filters
+type MetricFilters struct {
+	From    *string
+	To      *string
+	Sector  *string
+	Cell    *string
+	Village *string
+	Limit   *uint64
+	Offset  *uint64
+	Creds   *string
+}
 type Data struct {
 	Ref       string     `json:"ref,omitempty"`
 	Kind      string     `json:"kind,omitempty"`
@@ -101,6 +113,19 @@ type Data struct {
 	Created   *time.Time `json:"created_at,omitempty"`
 	Processed *time.Time `json:"processed_at,omitempty"`
 	Commited  *time.Time `json:"commited_at,omitempty"`
+}
+
+// Metrics reports
+type Transactions struct {
+	PageMetadata
+	Transactions []Transaction
+}
+type Transaction struct {
+	Sector       string  `json:"sector,omitempty"`
+	Cell         string  `json:"cell,omitempty"`
+	Village      string  `json:"village,omitempty"`
+	Transactions int64   `json:"transactions,omitempty"`
+	Amount       float64 `json:"amount,omitempty"`
 }
 
 // Validate validats a callback

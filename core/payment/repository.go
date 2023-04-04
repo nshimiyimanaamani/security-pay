@@ -19,4 +19,10 @@ type Repository interface {
 
 	// PaymentRequest generates all payments
 	List(context.Context, *Filters) (PaymentResponse, error)
+
+	//Returns Transactions Per Sector,cell,village
+	TodayTransaction(context.Context, *MetricFilters) (Transaction, error)
+
+	//Returns Transactions Per Sector,cell,village
+	ListDailyTransactions(context.Context, *MetricFilters) ([]Transactions, error)
 }

@@ -454,13 +454,176 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	page := payment.PaymentResponse{
 		Payments: payments,
 		PageMetadata: payment.PageMetadata{
-			Total:       total,
-			Offset:      *flts.Offset,
-			Limit:       *flts.Limit,
-			TotalAmount: total_amount,
+			Total:  total,
+			Offset: *flts.Offset,
+			Limit:  *flts.Limit,
+			Amount: total_amount,
 		},
 	}
 	return page, nil
+}
+
+func (repo *paymentStore) TodayTransaction(ctx context.Context, flts *payment.MetricFilters) (payment.Transaction, error) {
+	const op errors.Op = "store/postgres/paymentStore.ListTodaysTransactions"
+
+	tx, err := repo.BeginTx(ctx, nil)
+	if err != nil {
+		return payment.Transaction{}, errors.E(op, err)
+	}
+	defer tx.Rollback()
+
+	selectQuery := `
+	SELECT 
+		COUNT(*) AS total,
+		COALESCE(SUM(t.amount), 0) as amount
+	FROM 
+		transactions t
+	JOIN 
+		properties p ON t.madefor = p.id
+	WHERE  
+		DATE(t.created_at) = DATE(now())`
+
+	if flts.Sector != nil {
+		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
+	}
+	if flts.Village != nil {
+		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
+	}
+	if flts.Cell != nil {
+		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
+	}
+	if flts.Creds != nil {
+		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
+	}
+
+	selectQuery += ` GROUP BY DATE(t.created_at)`
+
+	rows, err := tx.Query(selectQuery)
+	if err != nil {
+		return payment.Transaction{}, errors.E(op, err)
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		var transaction payment.Transaction
+		err = rows.Scan(&transaction.Transactions, &transaction.Amount)
+		if err != nil {
+			return payment.Transaction{}, errors.E(op, err)
+		}
+
+		return transaction, tx.Commit()
+	}
+
+	return payment.Transaction{}, nil
+}
+
+// Implement the ListDailyTransactions
+func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payment.MetricFilters) ([]payment.Transactions, error) {
+	const op errors.Op = "store/postgres/paymentStore.ListDailyTransactions"
+
+	tx, err := repo.BeginTx(ctx, nil)
+	if err != nil {
+		return []payment.Transactions{}, errors.E(op, err)
+	}
+	defer tx.Rollback()
+
+	selectQuery := `
+	SELECT 
+
+		COUNT(*) AS successful_transactions,
+		COALESCE(SUM(t.amount), 0)
+	FROM 
+		transactions t
+	JOIN 
+		properties p ON t.madefor = p.id
+
+	WHERE 1=1 `
+
+	if flts.Sector != nil {
+		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
+	}
+	if flts.Village != nil {
+		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
+	}
+	if flts.Cell != nil {
+		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
+	}
+	if flts.From != nil {
+		selectQuery += fmt.Sprintf(" AND DATE(t.created_at) >= '%s'", *flts.From)
+	}
+	if flts.To != nil {
+		selectQuery += fmt.Sprintf(" AND DATE(t.created_at) <= '%s'", *flts.To)
+	}
+
+	if flts.Creds != nil {
+		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
+	}
+
+	selectQuery += ` GROUP BY  DATE(t.created_at)`
+
+	selectQuery += fmt.Sprintf(" OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
+
+	rows, err := tx.Query(selectQuery)
+	if err != nil {
+		return []payment.Transactions{}, errors.E(op, err)
+	}
+	defer rows.Close()
+
+	out := []payment.Transaction{}
+	for rows.Next() {
+		var transaction payment.Transaction
+		err = rows.Scan(&transaction.Transactions, &transaction.Amount)
+		if err != nil {
+			return []payment.Transactions{}, errors.E(op, err)
+		}
+
+		out = append(out, transaction)
+	}
+
+	if err = rows.Err(); err != nil {
+		return []payment.Transactions{}, errors.E(op, err)
+	}
+
+	// calculate total
+	selectQuery = `
+	SELECT
+		COUNT(*) 
+	FROM
+		transactions t
+	JOIN
+		properties p ON t.madefor = p.id
+	WHERE 1=1 `
+
+	if flts.Sector != nil {
+		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
+	}
+	if flts.Village != nil {
+		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
+	}
+	if flts.Cell != nil {
+		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
+	}
+
+	if flts.Creds != nil {
+		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
+	}
+
+	var total uint64
+	if err := tx.QueryRow(selectQuery).Scan(&total); err != nil {
+		return []payment.Transactions{}, errors.E(op, err, errors.KindUnexpected)
+	}
+	// return the transactionpage
+	return []payment.Transactions{
+		{
+			Transactions: out,
+			PageMetadata: payment.PageMetadata{
+				Total:  total,
+				Offset: *flts.Offset,
+				Limit:  *flts.Limit,
+			},
+		},
+	}, tx.Commit()
+
 }
 
 func formMessage(tx []*payment.TxRequest, prop *properties.Property) string {
