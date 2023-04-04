@@ -1,12 +1,28 @@
 <template>
   <b-container class="h-auto mw-100 agent-home">
     <b-row class="tab-buttons">
-      <b-button variant="info" :class="{'active':state.btn1}" @click="toggleClass('btn1')">Lists</b-button>
-      <b-button variant="info" :class="{'active':state.btn2}" @click="toggleClass('btn2')">Payments</b-button>
+      <b-button
+        variant="info"
+        :class="{ active: state.selectedBtn == 1 }"
+        @click="state.selectedBtn = 1"
+        >Lists</b-button
+      >
+      <b-button
+        variant="info"
+        :class="{ active: state.selectedBtn == 2 }"
+        @click="state.selectedBtn = 2"
+        >Payments</b-button
+      >
+      <b-button
+        variant="info"
+        :class="{ active: state.selectedBtn == 3 }"
+        @click="state.selectedBtn = 3"
+        >UnPaid</b-button
+      >
     </b-row>
     <hr />
     <transition-group name="fade" :duration="300">
-      <div v-show="state.btn1" key="lists">
+      <div v-if="state.selectedBtn == 1" key="lists">
         <b-row class="flex-nowrap m-0 my-2">
           <controller :user="user" v-on:refresh="key++" />
 
@@ -31,11 +47,19 @@
           </b-row>
         </transition>
         <b-row class="m-0">
-          <user-table @getInfo="getInfo" :user="user" :key="key" :searchItem="searchItem" />
+          <user-table
+            v-if="user"
+            :user="user"
+            :key="key"
+            :searchItem="searchItem"
+          />
         </b-row>
       </div>
-      <div v-show="state.btn2" key="payment">
-        <agent-payment-view :user="user" @getInfo="getInfo" :key="key" />
+      <div v-if="state.selectedBtn == 2" key="payment">
+        <agent-payment-view v-if="user" :user="user" :key="key" />
+      </div>
+      <div v-if="state.selectedBtn == 3" key="unpaid">
+        <agent-unpaid-view v-if="user" :user="user" :key="key" />
       </div>
     </transition-group>
   </b-container>
@@ -47,66 +71,51 @@ export default {
   components: {
     "user-table": () => import("./table.vue"),
     controller: () => import("./controllers.vue"),
-    "agent-payment-view": () => import("./agentPaymentView")
+    "agent-payment-view": () => import("./agentPaymentView"),
+    "agent-unpaid-view": () => import("./agentUnpaidView"),
   },
   data() {
     return {
       searchItem: "",
       state: {
-        btn1: true,
-        btn2: false,
-        search: false
+        selectedBtn: 1,
+        search: false,
       },
       user: null,
-      key: 0
+      key: 0,
     };
   },
   computed: {
     userDetails() {
       return this.$store.getters.userDetails;
-    }
+    },
   },
-  created() {
+  mounted() {
     this.getInfo();
   },
   methods: {
     getInfo() {
       this.axios
         .get("/accounts/agents/" + this.userDetails.username)
-        .then(res => {
-          this.user = { ...res.data };
-          console.log(this.user);
-          this.key++;
+        .then((res) => {
+          this.user = res.data;
         })
-        .catch(err => {
+        .catch((err) => {
           const error = err.response
             ? err.response.data.error || err.response.data
             : null;
           if (error) this.$snotify.error(error);
         });
     },
-    toggleClass(key) {
-      if (this.state[key] === false) {
-        Object.keys(this.state)
-          .filter(item => item !== key)
-          .map(item => {
-            this.state[item] = !this.state[item];
-          });
-
-        setTimeout(() => {
-          this.state[key] = !this.state[key];
-        }, 300);
-      }
-    },
     closeSearch() {
       this.state.search = false;
       this.searchItem = "";
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style lang='scss'>
+<style lang="scss">
 .agent-home {
   .search {
     input {
