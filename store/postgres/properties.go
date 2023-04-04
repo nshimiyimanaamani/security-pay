@@ -343,11 +343,20 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 		items = append(items, row)
 	}
 
-	q = `SELECT COUNT(*) , COALESCE(SUM(properties.due), 0)  FROM properties WHERE sector = $1 AND namespace=$2`
+	q = `SELECT 
+		COUNT(*),
+		COALESCE(SUM(properties.due), 0)
+	FROM 
+		properties
+	INNER JOIN
+		owners ON properties.owner=owners.id 
+	WHERE 
+		sector= $1 
+	AND namespace=$2 AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')`
 
 	var total uint64
 	var total_amount float64
-	if err := repo.QueryRow(q, sector, creds.Account).Scan(&total, &total_amount); err != nil {
+	if err := repo.QueryRow(q, sector, creds.Account, names).Scan(&total, &total_amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -427,11 +436,20 @@ func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, of
 		items = append(items, row)
 	}
 
-	q = `SELECT COUNT(*),COALESCE(SUM(properties.due), 0)  FROM properties WHERE cell = $1 AND namespace=$2`
+	q = `SELECT 
+			COUNT(*),
+			COALESCE(SUM(properties.due), 0)
+	    FROM 
+		    properties 
+		INNER JOIN
+			owners ON properties.owner=owners.id 
+	    WHERE 
+			cell = $1 
+	    AND namespace=$2 AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')`
 
 	var total uint64
 	var total_amount float64
-	if err := repo.QueryRow(q, cell, creds.Account).Scan(&total, &total_amount); err != nil {
+	if err := repo.QueryRow(q, cell, creds.Account, names).Scan(&total, &total_amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -472,9 +490,12 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 		INNER JOIN
 			owners ON properties.owner=owners.id 
 		WHERE 
-			properties.village = $1 AND properties.namespace=$2 
+			properties.village = $1 
+			AND properties.namespace=$2 
 			AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')
-		ORDER BY properties.id LIMIT $4 OFFSET $5
+		ORDER BY properties.id 
+		LIMIT $4 
+		OFFSET $5
 	`
 
 	var items = []properties.Property{}
@@ -514,11 +535,20 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 		items = append(items, row)
 	}
 
-	q = `SELECT COUNT(*),COALESCE(SUM(properties.due), 0) FROM properties WHERE village=$1 AND namespace=$2`
+	q = `SELECT 
+		COUNT(*),
+		COALESCE(SUM(properties.due), 0)
+	FROM 
+		properties 
+	INNER JOIN
+		owners ON properties.owner=owners.id 	
+	WHERE 
+		village = $1 
+	AND namespace=$2 AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')`
 
 	var total uint64
 	var total_amount float64
-	if err := repo.QueryRow(q, village, creds.Account).Scan(&total, &total_amount); err != nil {
+	if err := repo.QueryRow(q, village, creds.Account, names).Scan(&total, &total_amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
