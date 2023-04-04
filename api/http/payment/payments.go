@@ -115,7 +115,7 @@ func TodayTransactions(logger log.Entry, svc payment.Repository) http.Handler {
 			Limit:   &limit,
 		}
 
-		res, err := svc.ListTodaysTransactions(r.Context(), flt)
+		res, err := svc.TodayTransaction(r.Context(), flt)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)

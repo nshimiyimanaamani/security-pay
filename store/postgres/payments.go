@@ -463,12 +463,12 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	return page, nil
 }
 
-func (repo *paymentStore) ListTodaysTransactions(ctx context.Context, flts *payment.MetricFilters) ([]payment.Transaction, error) {
+func (repo *paymentStore) TodayTransaction(ctx context.Context, flts *payment.MetricFilters) (payment.Transaction, error) {
 	const op errors.Op = "store/postgres/paymentStore.ListTodaysTransactions"
 
 	tx, err := repo.BeginTx(ctx, nil)
 	if err != nil {
-		return []payment.Transaction{}, errors.E(op, err)
+		return payment.Transaction{}, errors.E(op, err)
 	}
 	defer tx.Rollback()
 
@@ -496,33 +496,25 @@ func (repo *paymentStore) ListTodaysTransactions(ctx context.Context, flts *paym
 		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
 	}
 
-	selectQuery += ` GROUP BY p.sector, p.village, p.cell`
-
-	selectQuery += fmt.Sprintf(" OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
+	selectQuery += ` GROUP BY DATE(t.created_at)`
 
 	rows, err := tx.Query(selectQuery)
 	if err != nil {
-		return []payment.Transaction{}, errors.E(op, err)
+		return payment.Transaction{}, errors.E(op, err)
 	}
 	defer rows.Close()
 
-	out := []payment.Transaction{}
-	for rows.Next() {
+	if rows.Next() {
 		var transaction payment.Transaction
 		err = rows.Scan(&transaction.Transactions, &transaction.Amount)
 		if err != nil {
-			return []payment.Transaction{}, errors.E(op, err)
+			return payment.Transaction{}, errors.E(op, err)
 		}
 
-		out = append(out, transaction)
+		return transaction, tx.Commit()
 	}
 
-	if err = rows.Err(); err != nil {
-		return []payment.Transaction{}, errors.E(op, err)
-	}
-
-	return out, tx.Commit()
-
+	return payment.Transaction{}, nil
 }
 
 // Implement the ListDailyTransactions
@@ -567,7 +559,7 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
 	}
 
-	selectQuery += ` GROUP BY  t.created_at`
+	selectQuery += ` GROUP BY  DATE(t.created_at)`
 
 	selectQuery += fmt.Sprintf(" OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
 
@@ -600,7 +592,7 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 		transactions t
 	JOIN
 		properties p ON t.madefor = p.id
-	WHERE DATE(t.created_at) = current_date`
+	WHERE 1=1 `
 
 	if flts.Sector != nil {
 		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
