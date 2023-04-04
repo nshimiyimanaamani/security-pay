@@ -74,3 +74,21 @@ func (repo *repositoryMock) List(ctx context.Context, flts *payment.Filters) (pa
 
 	return payment.PaymentResponse{}, errors.E(op, "not implemented", errors.KindUnexpected)
 }
+
+func (repo *repositoryMock) ListDailyTransactions(ctx context.Context, flts *payment.MetricFilters) ([]payment.Transactions, error) {
+	const op errors.Op = "core/payment/mocks/repositoryMock.ListDailyTransactions"
+
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	return []payment.Transactions{}, errors.E(op, "not implemented", errors.KindUnexpected)
+}
+
+func (repo *repositoryMock) TodayTransaction(ctx context.Context, flts *payment.MetricFilters) (payment.Transaction, error) {
+	const op errors.Op = "core/payment/mocks/repositoryMock.TodayTransaction"
+
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	return payment.Transaction{}, errors.E(op, "not implemented", errors.KindUnexpected)
+}

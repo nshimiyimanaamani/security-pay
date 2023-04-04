@@ -190,6 +190,8 @@ func ListBySector(lgger log.Entry, svc properties.Service) http.Handler {
 		ctx := r.Context()
 
 		vars := mux.Vars(r)
+		names := vars["names"]
+
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
 			err = parseErr(op, err)
@@ -205,8 +207,6 @@ func ListBySector(lgger log.Entry, svc properties.Service) http.Handler {
 			encodeErr(w, err)
 			return
 		}
-
-		names := vars["names"]
 
 		// creds := auth.CredentialsFromContext(ctx)
 

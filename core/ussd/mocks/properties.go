@@ -132,7 +132,7 @@ func (str *repository) RetrieveByOwner(ctx context.Context, owner string, offset
 	return page, nil
 }
 
-func (str *repository) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *repository) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64, name string) (properties.PropertyPage, error) {
 	const op errors.Op = "app/properties/mocks/repository.RetrieveBySector"
 
 	str.mu.Lock()
@@ -171,7 +171,7 @@ func (str *repository) RetrieveBySector(ctx context.Context, sector string, offs
 	return page, nil
 }
 
-func (str *repository) RetrieveByCell(ctx context.Context, cell string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *repository) RetrieveByCell(ctx context.Context, cell string, offset, limit uint64, name string) (properties.PropertyPage, error) {
 	const op errors.Op = "app/properties/mocks/repository.RetrieveByCell"
 
 	str.mu.Lock()
@@ -210,7 +210,7 @@ func (str *repository) RetrieveByCell(ctx context.Context, cell string, offset, 
 	return page, nil
 }
 
-func (str *repository) RetrieveByVillage(ctx context.Context, village string, offset, limit uint64) (properties.PropertyPage, error) {
+func (str *repository) RetrieveByVillage(ctx context.Context, village string, offset, limit uint64, name string) (properties.PropertyPage, error) {
 	const op errors.Op = "app/properties/mocks/repository.RetrieveByVillage"
 
 	str.mu.Lock()
