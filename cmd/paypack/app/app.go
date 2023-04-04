@@ -33,7 +33,7 @@ func Bootstrap(conf *config.Config) (http.Handler, error) {
 		return nil, err
 	}
 
-	logLvl, err := logrus.ParseLevel("info")
+	logLvl, err := logrus.ParseLevel(conf.LogLevel)
 	if err != nil {
 		return nil, err
 	}

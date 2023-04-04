@@ -322,9 +322,10 @@ func TestRetrieveByID(t *testing.T) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveByID"
 
 	cases := []struct {
-		desc string
-		id   string
-		err  error
+		desc  string
+		id    string
+		names string
+		err   error
 	}{
 		{
 			desc: "retrieve existing property",
@@ -420,6 +421,7 @@ func TestRetrieveByOwner(t *testing.T) {
 		limit  uint64
 		size   uint64
 		total  uint64
+		names  string
 	}{
 		"retrieve all properties with existing owner": {
 			owner:  owner.ID,
@@ -447,7 +449,7 @@ func TestRetrieveByOwner(t *testing.T) {
 	for desc, tc := range cases {
 		ctx := context.Background()
 		// ctx = auth.SetECredetialsInContext(ctx, &creds)
-		page, err := props.RetrieveByOwner(ctx, tc.owner, tc.offset, tc.limit)
+		page, err := props.RetrieveByOwner(ctx, tc.owner, tc.offset, tc.limit, tc.names)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
@@ -630,6 +632,7 @@ func TestRetrieveByCell(t *testing.T) {
 		limit  uint64
 		size   uint64
 		total  uint64
+		names  string
 	}{
 		"retrieve all properties with existing cell": {
 			cell:   cell,
@@ -657,7 +660,7 @@ func TestRetrieveByCell(t *testing.T) {
 	for desc, tc := range cases {
 		ctx := context.Background()
 		ctx = auth.SetECredetialsInContext(ctx, creds)
-		page, err := props.RetrieveByCell(ctx, tc.cell, tc.offset, tc.limit)
+		page, err := props.RetrieveByCell(ctx, tc.cell, tc.offset, tc.limit, tc.names)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))
@@ -736,6 +739,7 @@ func TestRetrieveByVillage(t *testing.T) {
 		limit   uint64
 		size    uint64
 		total   uint64
+		names   string
 	}{
 		"retrieve all properties with existing village": {
 			village: village,
@@ -763,7 +767,7 @@ func TestRetrieveByVillage(t *testing.T) {
 	for desc, tc := range cases {
 		ctx := context.Background()
 		ctx = auth.SetECredetialsInContext(ctx, creds)
-		page, err := props.RetrieveByVillage(ctx, tc.village, tc.offset, tc.limit)
+		page, err := props.RetrieveByVillage(ctx, tc.village, tc.offset, tc.limit, tc.names)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))

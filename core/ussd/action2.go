@@ -217,7 +217,7 @@ func (svc *service) action2_1(ctx context.Context, cmd *platypus.Command) (platy
 		}
 	}
 
-	page, err := svc.properties.RetrieveByOwner(ctx, owner.ID, 0, 10)
+	page, err := svc.properties.RetrieveByOwner(ctx, owner.ID, 0, 10, owner.Fname)
 	if err != nil {
 		return platypus.Result{Out: "Mwihagane habaye ikibazo muri sisiteme", Leaf: end}, errors.E(op, err)
 	}

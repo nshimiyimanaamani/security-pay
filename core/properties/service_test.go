@@ -191,6 +191,7 @@ func TestRetrieve(t *testing.T) {
 	cases := []struct {
 		desc     string
 		identity string
+		names    string
 		err      error
 	}{
 		{
@@ -280,6 +281,7 @@ func TestListByOwner(t *testing.T) {
 		offset uint64
 		limit  uint64
 		size   uint64
+		names  string
 		err    error
 	}{
 		{
@@ -318,7 +320,7 @@ func TestListByOwner(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		page, err := svc.ListByOwner(ctx, tc.owner, tc.offset, tc.limit)
+		page, err := svc.ListByOwner(ctx, tc.owner, tc.offset, tc.limit, tc.names)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
@@ -422,6 +424,7 @@ func TestListByCell(t *testing.T) {
 		offset uint64
 		limit  uint64
 		size   uint64
+		names  string
 		err    error
 	}{
 		{
@@ -460,7 +463,7 @@ func TestListByCell(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		page, err := svc.ListByCell(ctx, tc.cell, tc.offset, tc.limit)
+		page, err := svc.ListByCell(ctx, tc.cell, tc.offset, tc.limit, tc.names)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
@@ -493,6 +496,7 @@ func TestListByVillage(t *testing.T) {
 		offset  uint64
 		limit   uint64
 		size    uint64
+		names   string
 		err     error
 	}{
 		{
@@ -531,7 +535,7 @@ func TestListByVillage(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		page, err := svc.ListByVillage(ctx, tc.village, tc.offset, tc.limit)
+		page, err := svc.ListByVillage(ctx, tc.village, tc.offset, tc.limit, tc.names)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))

@@ -189,7 +189,7 @@ func (repo *propertiesStore) RetrieveByID(ctx context.Context, id string) (prope
 	return prt, nil
 }
 
-func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, offset, limit uint64) (properties.PropertyPage, error) {
+func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, offset, limit uint64, names string) (properties.PropertyPage, error) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveByOwner"
 
 	q := `SELECT 
@@ -214,7 +214,8 @@ func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, 
 			owners ON properties.owner=owners.id
 		WHERE 
 			properties.owner = $1
-		ORDER BY properties.id LIMIT $2 OFFSET $3
+			AND (owners.fname LIKE '%' || $2 || '%' OR owners.lname  LIKE '%' || $2 || '%')
+		ORDER BY properties.id LIMIT $3 OFFSET $4
 		
 	`
 
@@ -222,7 +223,7 @@ func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, 
 
 	var items = []properties.Property{}
 
-	rows, err := repo.Query(q, owner, limit, offset)
+	rows, err := repo.Query(q, owner, names, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -301,7 +302,7 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 			owners ON properties.owner=owners.id 
 		WHERE 
 			properties.sector = $1 AND properties.namespace=$2
-			AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname LIKE '%' || $3 || '%')
+			AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')
 		ORDER BY  properties.id LIMIT $4 OFFSET $5
 	`
 
@@ -363,7 +364,7 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 	return page, nil
 }
 
-func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, offset, limit uint64) (properties.PropertyPage, error) {
+func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, offset, limit uint64, names string) (properties.PropertyPage, error) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveByCell"
 
 	q := `
@@ -389,14 +390,15 @@ func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, of
 			owners ON properties.owner=owners.id 	
 		WHERE 
 			properties.cell = $1 AND properties.namespace=$2
-		ORDER BY properties.id LIMIT $3 OFFSET $4
+			AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')
+		ORDER BY properties.id LIMIT $4 OFFSET $5
 	`
 
 	var items = []properties.Property{}
 
 	creds := auth.CredentialsFromContext(ctx)
 
-	rows, err := repo.Query(q, cell, creds.Account, limit, offset)
+	rows, err := repo.Query(q, cell, creds.Account, names, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -446,7 +448,7 @@ func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, of
 	return page, nil
 }
 
-func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village string, offset, limit uint64) (properties.PropertyPage, error) {
+func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village string, offset, limit uint64, names string) (properties.PropertyPage, error) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveByVillage"
 
 	q := `
@@ -472,14 +474,15 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 			owners ON properties.owner=owners.id 
 		WHERE 
 			properties.village = $1 AND properties.namespace=$2 
-		ORDER BY properties.id LIMIT $3 OFFSET $4
+			AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')
+		ORDER BY properties.id LIMIT $4 OFFSET $5
 	`
 
 	var items = []properties.Property{}
 
 	creds := auth.CredentialsFromContext(ctx)
 
-	rows, err := repo.Query(q, village, creds.Account, limit, offset)
+	rows, err := repo.Query(q, village, creds.Account, names, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}

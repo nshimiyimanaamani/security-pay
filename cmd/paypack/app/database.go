@@ -13,7 +13,7 @@ import (
 func PostgresConnect(config *config.PostgresConfig) (*sql.DB, error) {
 	const op errors.Op = "app.PostgresConnect"
 
-	db, err := postgres.Connect("postgres://postgres:nkindi22@127.0.0.1:5432/paypack_db?sslmode=disable")
+	db, err := postgres.Connect(config.URL)
 	if err != nil {
 		return nil, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -24,7 +24,7 @@ func PostgresConnect(config *config.PostgresConfig) (*sql.DB, error) {
 func RedisConnect(config *config.RedisConfig) (*redis.Client, error) {
 	const op errors.Op = "app.RedisConnect"
 
-	opts, err := redis.ParseURL("redis://localhost:6379")
+	opts, err := redis.ParseURL(config.URL)
 	if err != nil {
 		return nil, errors.E(op, err, errors.KindUnexpected)
 	}

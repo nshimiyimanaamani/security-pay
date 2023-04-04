@@ -162,8 +162,9 @@ func ListByOwner(lgger log.Entry, svc properties.Service) http.Handler {
 		}
 
 		owner := vars["owner"]
+		names := vars["names"]
 
-		res, err := svc.ListByOwner(ctx, owner, offset, limit)
+		res, err := svc.ListByOwner(ctx, owner, offset, limit, names)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)
@@ -258,7 +259,9 @@ func ListByCell(lgger log.Entry, svc properties.Service) http.Handler {
 			return
 		}
 
-		res, err := svc.ListByCell(ctx, vars["cell"], offset, limit)
+		names := vars["names"]
+
+		res, err := svc.ListByCell(ctx, vars["cell"], offset, limit, names)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)
@@ -301,7 +304,9 @@ func ListByVillage(lgger log.Entry, svc properties.Service) http.Handler {
 			return
 		}
 
-		res, err := svc.ListByVillage(ctx, vars["village"], offset, limit)
+		names := vars["names"]
+
+		res, err := svc.ListByVillage(ctx, vars["village"], offset, limit, names)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)

@@ -29,16 +29,16 @@ func InitPaymentClient(ctx context.Context, cfg *config.Config) (payment.Client,
 		return nil, err
 	}
 
-	return fdi.New(cli, "8163b418-c3d7-11ed-9a56-dead64802bd2", "16423f218545d1cb49171764081c391eda39a3ee5e6b4b0d3255bfef95601890afd80709", cfg.GoEnv)
+	return fdi.New(cli, cfg.Payment.AppID, cfg.Payment.Secret, cfg.GoEnv)
 }
 
 // InitSMSBackend ...
 func InitSMSBackend(ctx context.Context, cfg *config.SMSConfig) (notifs.Backend, error) {
 	opts := &sms.Options{
-		URL:       "https://messaging.fdibiz.com/api/v1",
-		SenderID:  "PayPack",
-		AppID:     "228FCC98-027B-4BD4-84F5-D691E006B4E0",
-		AppSecret: "4F7FE03E-0E34-44C6-9B41-8D8A6DDD2473",
+		URL:       cfg.SmsURL,
+		SenderID:  cfg.SenderID,
+		AppID:     cfg.AppID,
+		AppSecret: cfg.Secret,
 	}
 	return sms.New(opts)
 
