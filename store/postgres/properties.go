@@ -275,7 +275,7 @@ func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, 
 	return page, nil
 }
 
-func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64) (properties.PropertyPage, error) {
+func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64, names string) (properties.PropertyPage, error) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveBySector"
 
 	q := `
@@ -301,14 +301,15 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 			owners ON properties.owner=owners.id 
 		WHERE 
 			properties.sector = $1 AND properties.namespace=$2
-		ORDER BY  properties.id LIMIT $3 OFFSET $4
+			AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')
+		ORDER BY  properties.id LIMIT $4 OFFSET $5
 	`
 
 	creds := auth.CredentialsFromContext(ctx)
 
 	var items = []properties.Property{}
 
-	rows, err := repo.Query(q, sector, creds.Account, limit, offset)
+	rows, err := repo.Query(q, sector, creds.Account, names, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -342,11 +343,20 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 		items = append(items, row)
 	}
 
-	q = `SELECT COUNT(*) , COALESCE(SUM(properties.due), 0)  FROM properties WHERE sector = $1 AND namespace=$2`
+	q = `SELECT 
+		COUNT(*),
+		COALESCE(SUM(properties.due), 0)
+	FROM 
+		properties
+	INNER JOIN
+		owners ON properties.owner=owners.id 
+	WHERE 
+		sector= $1 
+	AND namespace=$2 AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')`
 
 	var total uint64
 	var total_amount float64
-	if err := repo.QueryRow(q, sector, creds.Account).Scan(&total, &total_amount); err != nil {
+	if err := repo.QueryRow(q, sector, creds.Account, names).Scan(&total, &total_amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -362,7 +372,7 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 	return page, nil
 }
 
-func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, offset, limit uint64) (properties.PropertyPage, error) {
+func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, offset, limit uint64, names string) (properties.PropertyPage, error) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveByCell"
 
 	q := `
@@ -388,14 +398,15 @@ func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, of
 			owners ON properties.owner=owners.id 	
 		WHERE 
 			properties.cell = $1 AND properties.namespace=$2
-		ORDER BY properties.id LIMIT $3 OFFSET $4
+			AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')
+		ORDER BY properties.id LIMIT $4 OFFSET $5
 	`
 
 	var items = []properties.Property{}
 
 	creds := auth.CredentialsFromContext(ctx)
 
-	rows, err := repo.Query(q, cell, creds.Account, limit, offset)
+	rows, err := repo.Query(q, cell, creds.Account, names, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -425,11 +436,20 @@ func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, of
 		items = append(items, row)
 	}
 
-	q = `SELECT COUNT(*),COALESCE(SUM(properties.due), 0)  FROM properties WHERE cell = $1 AND namespace=$2`
+	q = `SELECT 
+			COUNT(*),
+			COALESCE(SUM(properties.due), 0)
+	    FROM 
+		    properties 
+		INNER JOIN
+			owners ON properties.owner=owners.id 
+	    WHERE 
+			cell = $1 
+	    AND namespace=$2 AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')`
 
 	var total uint64
 	var total_amount float64
-	if err := repo.QueryRow(q, cell, creds.Account).Scan(&total, &total_amount); err != nil {
+	if err := repo.QueryRow(q, cell, creds.Account, names).Scan(&total, &total_amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -445,7 +465,7 @@ func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, of
 	return page, nil
 }
 
-func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village string, offset, limit uint64) (properties.PropertyPage, error) {
+func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village string, offset, limit uint64, names string) (properties.PropertyPage, error) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveByVillage"
 
 	q := `
@@ -470,15 +490,19 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 		INNER JOIN
 			owners ON properties.owner=owners.id 
 		WHERE 
-			properties.village = $1 AND properties.namespace=$2 
-		ORDER BY properties.id LIMIT $3 OFFSET $4
+			properties.village = $1 
+			AND properties.namespace=$2 
+			AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')
+		ORDER BY properties.id 
+		LIMIT $4 
+		OFFSET $5
 	`
 
 	var items = []properties.Property{}
 
 	creds := auth.CredentialsFromContext(ctx)
 
-	rows, err := repo.Query(q, village, creds.Account, limit, offset)
+	rows, err := repo.Query(q, village, creds.Account, names, limit, offset)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -511,11 +535,20 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 		items = append(items, row)
 	}
 
-	q = `SELECT COUNT(*),COALESCE(SUM(properties.due), 0) FROM properties WHERE village=$1 AND namespace=$2`
+	q = `SELECT 
+		COUNT(*),
+		COALESCE(SUM(properties.due), 0)
+	FROM 
+		properties 
+	INNER JOIN
+		owners ON properties.owner=owners.id 	
+	WHERE 
+		village = $1 
+	AND namespace=$2 AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')`
 
 	var total uint64
 	var total_amount float64
-	if err := repo.QueryRow(q, village, creds.Account).Scan(&total, &total_amount); err != nil {
+	if err := repo.QueryRow(q, village, creds.Account, names).Scan(&total, &total_amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
