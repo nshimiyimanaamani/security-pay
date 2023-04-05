@@ -351,7 +351,7 @@
                     </template>
                   </b-select>
                 </b-form-group>
-                <b-form-group label="From Month">
+                <!-- <b-form-group label="From Month">
                   <div class="input-date">
                     <input type="date" v-model="object.frommonth" />
                   </div>
@@ -360,7 +360,7 @@
                   <div class="input-date">
                     <input type="date" v-model="object.tomonth" />
                   </div>
-                </b-form-group>
+                </b-form-group> -->
               </b-form>
             </b-dropdown-form>
             <b-dropdown-divider></b-dropdown-divider>
@@ -483,7 +483,7 @@
             <div class="card--body">
               <b-table
                 id="sector-reports"
-                :items="reports"
+                :items="dailyreports"
                 :fields="table.dailyfields"
                 :busy="state.busy.table1"
                 head-row-variant="secondary"
@@ -589,6 +589,7 @@ export default {
         },
       },
       reports: [],
+      dailyreports: [],
       table: {
         fields: [
           {
@@ -633,31 +634,31 @@ export default {
         dailyfields: [
           {
             key: "total",
-            label: "No of Houses",
+            label: "Cell",
             tdClass: "text-center",
             thClass: "text-center text-uppercase",
           },
           {
             key: "payed",
-            label: "No of Paid Houses",
+            label: "Vilage",
             tdClass: "text-center",
             thClass: "text-center text-uppercase",
           },
           {
             key: "payedAmount",
-            label: "Paid Amount",
+            label: "No Of House",
             tdClass: "text-right",
             thClass: "text-center text-uppercase",
           },
           {
             key: "pending",
-            label: "No of unpaid Houses",
+            label: "Amount",
             tdClass: "text-center",
             thClass: "text-center text-uppercase",
           },
           {
             key: "unpayedAmount",
-            label: "unpaid Amount",
+            label: "Date",
             tdClass: "text-right",
             thClass: "text-center text-uppercase",
           },
@@ -928,21 +929,62 @@ export default {
         this.isLoadingdata = false;
       }
     },
+    async getDailyReport() {
+      this.reportTitle = "Daily Report";
+      this.state.showReport = false;
+      this.isLoadingdata = true;
+      console.log("generate daily report");
+      this.loading = true;
+
+      this.from = this.object.frommonth;
+      this.to = this.object.tomonth;
+      try {
+        const { data } = await this.axios.get("payment/reports/today", {
+          params: {
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
+            offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
+            limit: this.pagination.perPage,
+            // from: this.from,
+            // to: this.to,
+          },
+        });
+        this.reportTitle = "Daily Report";
+        console.log("data", data);
+        var myObj = {};
+        myObj = data;
+        if (Object.keys(myObj).length === 0) {
+          console.log("Object is empty");
+          this.dailyreports = [];
+        } else {
+          this.dailyreports.push(myObj);
+          console.log("Object is not empty");
+        }
+        this.pagination.totalRows = data.Total;
+        // console.log("reports", this.reports);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.state.loading = false;
+        this.dropdownone = false;
+        this.state.showReport = false;
+        this.state.showReport2 = true;
+        this.isLoadingdata = false;
+      }
+    },
     pageChanged() {
       if (this.reportTitle == "All House Report") {
         this.getAllHouse();
       } else if (this.reportTitle == "Paid House Report") {
         this.getPaidHouse();
-      } else {
+      } else if (this.reportTitle == "Unpaid House Report") {
         this.getUnpaidHouse();
+      } else {
+        this.getDailyReport();
       }
     },
-    getDailyReport() {
-      this.reportTitle = "Daily Report";
-      this.state.showReport = false;
-      this.state.showReport2 = true;
-      console.log("hii");
-    },
+
     downloadReport() {
       console.log(this.reports);
       if (this.reports.length > 0) {
