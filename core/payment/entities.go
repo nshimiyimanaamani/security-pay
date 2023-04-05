@@ -128,6 +128,14 @@ type Transaction struct {
 	Amount       float64 `json:"amount,omitempty"`
 }
 
+type Summary struct {
+	Houses     int64      `json:"houses,omitempty"`
+	Amount     float64    `json:"amount,omitempty"`
+	Cell       string     `json:"cell,omitempty"`
+	Village    string     `json:"village,omitempty"`
+	Created_at *time.Time `json:"created_at,omitempty"`
+}
+
 // Validate validats a callback
 func (cb *Callback) Validate() error {
 	const op errors.Op = "core/payment/Callback.Validate"
