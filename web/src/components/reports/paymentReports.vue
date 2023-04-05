@@ -503,22 +503,7 @@
                 <template v-slot:cell(index)="data">
                   <article class="text-center">{{ data.index + 1 }}</article>
                 </template>
-                <!-- <template v-slot:custom-foot>
-                  <b-tr class="total">
-                    <b-td></b-td>
-                    <b-td></b-td>
-                    <b-td></b-td>
-                    <b-td></b-td>
-                    <b-td class="text-center py-3">
-                      <small
-                        ><strong style=""
-                          ><span style="color: #dc3545">Total </span>:
-                          {{ totalAmount }} Rwf</strong
-                        ></small
-                      >
-                    </b-td>
-                  </b-tr>
-                </template> -->
+               
               </b-table>
               <b-pagination
                 class="my-0"
@@ -633,31 +618,37 @@ export default {
         ],
         dailyfields: [
           {
-            key: "total",
+            key: "index",
+            label: "No",
+            tdClass: "",
+            thClass: " text-uppercase",
+          },
+          {
+            key: "cell",
             label: "Cell",
             tdClass: "text-center",
             thClass: "text-center text-uppercase",
           },
           {
-            key: "payed",
+            key: "village",
             label: "Vilage",
             tdClass: "text-center",
             thClass: "text-center text-uppercase",
           },
           {
-            key: "payedAmount",
+            key: "houses",
             label: "No Of House",
             tdClass: "text-right",
             thClass: "text-center text-uppercase",
           },
           {
-            key: "pending",
+            key: "amount",
             label: "Amount",
             tdClass: "text-center",
             thClass: "text-center text-uppercase",
           },
           {
-            key: "unpayedAmount",
+            key: "created_at",
             label: "Date",
             tdClass: "text-right",
             thClass: "text-center text-uppercase",
@@ -768,6 +759,7 @@ export default {
     },
     async getAllHouse() {
       this.state.showReport = false;
+      this.state.showReport2 = false;
       this.isLoading1 = true;
       this.isLoadingdata = true;
       this.reportTitle = "All House Report";
@@ -829,6 +821,7 @@ export default {
     },
     async getPaidHouse() {
       this.state.showReport = false;
+      this.state.showReport2 = false;
       this.isLoadingdata = true;
       this.reportTitle = "Paid House Report";
       console.log("generate paid house");
@@ -880,6 +873,7 @@ export default {
     },
     async getUnpaidHouse() {
       this.state.showReport = false;
+      this.state.showReport2 = false;
       this.isLoadingdata = true;
       this.reportTitle = " Unpaid House Report";
       console.log("generate unpaid house");
@@ -932,6 +926,7 @@ export default {
     async getDailyReport() {
       this.reportTitle = "Daily Report";
       this.state.showReport = false;
+      this.state.showReport2 = false;
       this.isLoadingdata = true;
       console.log("generate daily report");
       this.loading = true;
@@ -939,7 +934,7 @@ export default {
       this.from = this.object.frommonth;
       this.to = this.object.tomonth;
       try {
-        const { data } = await this.axios.get("payment/reports/today", {
+        const { data } = await this.axios.get("payment/summary/today", {
           params: {
             sector: this.form.select.sector || "",
             cell: this.form.select.cell || "",
@@ -952,15 +947,16 @@ export default {
         });
         this.reportTitle = "Daily Report";
         console.log("data", data);
+        this.dailyreports = data;
         var myObj = {};
-        myObj = data;
-        if (Object.keys(myObj).length === 0) {
-          console.log("Object is empty");
-          this.dailyreports = [];
-        } else {
-          this.dailyreports.push(myObj);
-          console.log("Object is not empty");
-        }
+        // myObj = data;
+        // if (Object.keys(myObj).length === 0) {
+        //   console.log("Object is empty");
+        //   this.dailyreports = [];
+        // } else {
+        //   this.dailyreports.push(myObj);
+        //   console.log("Object is not empty");
+        // }
         this.pagination.totalRows = data.Total;
         // console.log("reports", this.reports);
       } catch (error) {
