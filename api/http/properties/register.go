@@ -65,7 +65,7 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 
 	r.Handle(ListPRoute, authenticator(LogEntryHandler(ListBySector, opts))).
 		Methods(http.MethodGet).
-		Queries("sector", "{sector}", "offset", "{offset}", "limit", "{limit}", "names", "{names}")
+		Queries("sector", "{sector}", "offset", "{offset}", "limit", "{limit}", "names", "{names}", "phone", "{phone}")
 
 	r.Handle(ListPRoute, authenticator(LogEntryHandler(ListByVillage, opts))).
 		Methods(http.MethodGet).

@@ -20,12 +20,12 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 
 		vars := mux.Vars(r)
-		status := cast.CastToString((vars["status"]))
-		sector := cast.CastToString((vars["sector"]))
-		cell := cast.CastToString((vars["cell"]))
-		village := cast.CastToString((vars["village"]))
-		from := cast.CastToString((vars["from"]))
-		to := cast.CastToString((vars["to"]))
+		status := cast.StringPointer((vars["status"]))
+		sector := cast.StringPointer((vars["sector"]))
+		cell := cast.StringPointer((vars["cell"]))
+		village := cast.StringPointer((vars["village"]))
+		from := cast.StringPointer((vars["from"]))
+		to := cast.StringPointer((vars["to"]))
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
@@ -85,9 +85,9 @@ func TodayTransactions(logger log.Entry, svc payment.Repository) http.Handler {
 
 		vars := mux.Vars(r)
 
-		sector := cast.CastToString((vars["sector"]))
-		cell := cast.CastToString(vars["cell"])
-		village := cast.CastToString(vars["village"])
+		sector := cast.StringPointer((vars["sector"]))
+		cell := cast.StringPointer(vars["cell"])
+		village := cast.StringPointer(vars["village"])
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
@@ -141,11 +141,11 @@ func DailyTransactions(logger log.Entry, svc payment.Repository) http.Handler {
 
 		vars := mux.Vars(r)
 
-		sector := cast.CastToString((vars["sector"]))
-		cell := cast.CastToString(vars["cell"])
-		village := cast.CastToString(vars["village"])
-		from := cast.CastToString(vars["from"])
-		to := cast.CastToString(vars["to"])
+		sector := cast.StringPointer((vars["sector"]))
+		cell := cast.StringPointer(vars["cell"])
+		village := cast.StringPointer(vars["village"])
+		from := cast.StringPointer(vars["from"])
+		to := cast.StringPointer(vars["to"])
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {

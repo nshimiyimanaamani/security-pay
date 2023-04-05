@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
+	"github.com/rugwirobaker/paypack-backend/pkg/cast"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
 
@@ -146,6 +147,9 @@ func MListPropertyBySector(lgger log.Entry, svc properties.Service) http.Handler
 	f := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		vars := mux.Vars(r)
+		names := cast.StringPointer(vars["names"])
+		phone := cast.StringPointer(vars["phone"])
+		sector := cast.StringPointer(vars["sector"])
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
@@ -162,9 +166,15 @@ func MListPropertyBySector(lgger log.Entry, svc properties.Service) http.Handler
 			return
 		}
 
-		names := vars["names"]
+		flt := &properties.Filters{
+			Names:  names,
+			Phone:  phone,
+			Sector: sector,
+			Offset: cast.Uint64Pointer(offset),
+			Limit:  cast.Uint64Pointer(limit),
+		}
 
-		page, err := svc.ListBySector(ctx, vars["sector"], offset, limit, names)
+		page, err := svc.ListBySector(ctx, flt)
 
 		if err != nil {
 			lgger.SystemErr(err)

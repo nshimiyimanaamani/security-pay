@@ -20,6 +20,19 @@ type Property struct {
 	UpdatedAt  time.Time `json:"updated_at,omitempty"`
 }
 
+// Filters defines a filter for property search
+type Filters struct {
+	Owner     *string
+	Names     *string
+	Phone     *string
+	Sector    *string
+	Cell      *string
+	Village   *string
+	Namespace *string
+	Limit     *uint64
+	Offset    *uint64
+}
+
 // PropertyPage represents a list of transaction.
 type PropertyPage struct {
 	PageMetadata

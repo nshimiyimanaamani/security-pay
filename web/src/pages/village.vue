@@ -3,13 +3,7 @@
     <vue-title title="Paypack | Village" />
     <form class="location-selector" @submit.prevent="loadData">
       <b-form-group class="control">
-        <b-form-select
-          class="br-2"
-          v-model="select.cell"
-          v-if="!isManager"
-          :options="cellsOptions"
-          required
-        >
+        <b-form-select class="br-2" v-model="select.cell" v-if="!isManager" :options="cellsOptions" required>
           <template v-slot:first>
             <option :value="null" disabled>select cell</option>
           </template>
@@ -25,28 +19,23 @@
     <div class="village-container mw-100 mt-3">
       <div class="container-title">
         <i class="fa fa-th-large width-3"></i>
-        <h1 class="text-center">{{villageName}}</h1>
+        <h1 class="text-center">{{ villageName }}</h1>
         <div class="control">
-          <b-input
-            type="search"
-            size="sm"
-            class="left br-2 primary-font"
-            placeholder="search user..."
-            v-model="search.name"
-          />
+          <b-input type="search" size="sm" class="left br-2 primary-font" placeholder="search user..."
+            v-model="search.name" />
           <b-button :disabled="state.loading">Refresh</b-button>
         </div>
       </div>
       <b-card body-bg-variant="white" v-show="houses.length" class="border-top-0 village-body">
         <b-card-group columns>
-          <b-card body-bg-variant="white" no-body v-for="(house,index) in houses" :key="index">
+          <b-card body-bg-variant="white" no-body v-for="(house, index) in houses" :key="index">
             <user-card :house="house" :index="index" />
           </b-card>
         </b-card-group>
       </b-card>
       <section class="error" v-show="!houses.length">
         <div v-if="!state.loading" class="village-empty">
-          <p class="primary-font">No House found in {{villageName}} village</p>
+          <p class="primary-font">No House found in {{ villageName }} village</p>
         </div>
         <vue-load v-if="state.loading" class="primary-font" />
       </section>
@@ -149,7 +138,7 @@ export default {
       this.responseData = new Array();
       var total = await this.getTotal();
       this.axios
-        .get(`/properties?village=${this.villageName}&offset=0&limit=${total}`)
+        .get(`/properties?village=${this.villageName}&offset=0&limit=${total}&names=`)
         .then((res) => {
           this.responseData = res.data.Properties;
         })
@@ -166,7 +155,7 @@ export default {
     },
     getTotal() {
       return this.axios
-        .get(`/properties?village=${this.villageName}&offset=0&limit=0`)
+        .get(`/properties?village=${this.villageName}&offset=0&limit=0&names=`)
         .then((res) => {
           return res.data.Total;
         })

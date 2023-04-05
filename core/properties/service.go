@@ -41,7 +41,7 @@ type Service interface {
 
 	// ListBySector returns a lists of properties in the given sector
 	// withing the given range(offset, limit).
-	ListBySector(ctx context.Context, sector string, offset, limit uint64, names string) (PropertyPage, error)
+	ListBySector(ctx context.Context, flt *Filters) (PropertyPage, error)
 
 	// ListByCell returns a lists of properties in the given cell
 	// withing the given range(offset, limit).
@@ -137,10 +137,10 @@ func (svc *service) ListByRecorder(ctx context.Context, user string, offset, lim
 	return page, nil
 }
 
-func (svc *service) ListBySector(ctx context.Context, sector string, offset, limit uint64, names string) (PropertyPage, error) {
+func (svc *service) ListBySector(ctx context.Context, flt *Filters) (PropertyPage, error) {
 	const op errors.Op = "app/properties/service.ListBySector"
 
-	page, err := svc.repo.RetrieveBySector(ctx, sector, offset, limit, names)
+	page, err := svc.repo.RetrieveBySector(ctx, flt)
 	if err != nil {
 		return PropertyPage{}, errors.E(op, err)
 	}

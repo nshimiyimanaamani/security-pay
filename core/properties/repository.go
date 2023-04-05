@@ -24,7 +24,7 @@ type Repository interface {
 	RetrieveByRecorder(ctx context.Context, user string, offset, limit uint64) (PropertyPage, error)
 
 	// RetrieveBySector retrieves the subset of properties within a given Sector.
-	RetrieveBySector(ctx context.Context, sector string, offset, limit uint64, names string) (PropertyPage, error)
+	RetrieveBySector(ctx context.Context, flt *Filters) (PropertyPage, error)
 
 	// RetrieveByCell retrieves the subset of properteis within a given Cell.
 	RetrieveByCell(ctx context.Context, cell string, offset, limit uint64, names string) (PropertyPage, error)

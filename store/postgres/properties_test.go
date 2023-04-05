@@ -11,6 +11,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/core/users"
 	"github.com/rugwirobaker/paypack-backend/core/uuid"
+	"github.com/rugwirobaker/paypack-backend/pkg/cast"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
@@ -552,8 +553,16 @@ func TestRetrieveBySector(t *testing.T) {
 
 	for desc, tc := range cases {
 		ctx := context.Background()
+
+		flt := &properties.Filters{
+			Sector: cast.StringPointer(tc.sector),
+			Names:  cast.StringPointer(tc.names),
+			Offset: cast.Uint64Pointer(tc.offset),
+			Limit:  cast.Uint64Pointer(tc.limit),
+		}
+
 		ctx = auth.SetECredetialsInContext(ctx, creds)
-		page, err := props.RetrieveBySector(ctx, tc.sector, tc.offset, tc.limit, tc.names)
+		page, err := props.RetrieveBySector(ctx, flt)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.total, page.Total))

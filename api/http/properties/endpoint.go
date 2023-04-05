@@ -6,7 +6,9 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/rugwirobaker/paypack-backend/core/auth"
 	"github.com/rugwirobaker/paypack-backend/core/properties"
+	"github.com/rugwirobaker/paypack-backend/pkg/cast"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/rugwirobaker/paypack-backend/pkg/log"
 )
@@ -190,11 +192,13 @@ func ListBySector(lgger log.Entry, svc properties.Service) http.Handler {
 		ctx := r.Context()
 
 		vars := mux.Vars(r)
-		names := vars["names"]
+		names := cast.StringPointer(vars["names"])
+		phone := cast.StringPointer(vars["phone"])
+		sector := cast.StringPointer(vars["sector"])
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
 		if err != nil {
-			err = parseErr(op, err)
+			err = errors.E(op, err, "invalid offset value", errors.KindBadRequest)
 			lgger.SystemErr(err)
 			encodeErr(w, err)
 			return
@@ -202,10 +206,21 @@ func ListBySector(lgger log.Entry, svc properties.Service) http.Handler {
 
 		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
 		if err != nil {
-			err = parseErr(op, err)
+			err = errors.E(op, err, "invalid limit value", errors.KindBadRequest)
 			lgger.SystemErr(err)
 			encodeErr(w, err)
 			return
+		}
+
+		creds := auth.CredentialsFromContext(r.Context())
+
+		flt := &properties.Filters{
+			Names:     names,
+			Phone:     phone,
+			Sector:    sector,
+			Namespace: cast.StringPointer(creds.Account),
+			Offset:    cast.Uint64Pointer(offset),
+			Limit:     cast.Uint64Pointer(limit),
 		}
 
 		// creds := auth.CredentialsFromContext(ctx)
@@ -214,7 +229,7 @@ func ListBySector(lgger log.Entry, svc properties.Service) http.Handler {
 		// 	creds.Username, creds.Account, creds.Role,
 		// )
 
-		res, err := svc.ListBySector(ctx, vars["sector"], offset, limit, names)
+		res, err := svc.ListBySector(ctx, flt)
 		if err != nil {
 			err = parseErr(op, err)
 			lgger.SystemErr(err)

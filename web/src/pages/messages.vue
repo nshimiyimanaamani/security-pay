@@ -143,7 +143,7 @@ export default {
   methods: {
     async sendToSector() {
       this.state.sending = true;
-      let request = `/properties?sector=${this.activeSector}&offset=0&limit=`;
+      let request = `/properties?sector=${this.activeSector}&offset=0&limit=&names=&phone=`;
       let message = this.message;
       let recipients = await this.getPhoneArray(request);
       if (recipients) {
@@ -173,7 +173,7 @@ export default {
     async sendToCell() {
       this.state.sending = true;
       let cell = this.select.cell;
-      let request = `/properties?cell=${cell}&offset=0&limit=`;
+      let request = `/properties?cell=${cell}&offset=0&limit=&names=`;
       let message = this.message;
       let recipients = await this.getPhoneArray(request);
       if (recipients) {
@@ -203,7 +203,7 @@ export default {
     async sendToVillage() {
       this.state.sending = true;
       let village = this.select.village;
-      let request = `/properties?cell=${village}&offset=0&limit=`;
+      let request = `/properties?cell=${village}&offset=0&limit=&names=`;
       let message = this.message;
       let recipients = await this.getPhoneArray(request);
       if (recipients) {
