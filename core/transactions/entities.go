@@ -21,7 +21,7 @@ type Transaction struct {
 	Invoice      uint64    `json:"invoice,omitempty"`
 	Namespace    string    `json:"namespace,omitempty"`
 	DateRecorded time.Time `json:"date_recorded,omitempty"`
-	Paypack_fee  float64   `json:"paypack_fee,omitempty"`
+	Fees         float64   `json:"fee,omitempty"`
 }
 
 // PageMetadata contains page metadata that helps navigation.
@@ -30,6 +30,8 @@ type PageMetadata struct {
 	Offset uint64
 	Limit  uint64
 }
+
+const RateFee = 0.05
 
 // TransactionPage represents a list of transaction.
 type TransactionPage struct {

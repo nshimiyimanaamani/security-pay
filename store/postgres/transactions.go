@@ -123,7 +123,7 @@ func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, l
 
 	q := `
 	SELECT 
-		transactions.id, transactions.amount,transactions.amount * 0.05 as paypack_fee,transactions.method, transactions.madefor,
+		transactions.id, transactions.amount,transactions.method, transactions.madefor,
 		transactions.invoice, transactions.created_at, properties.sector, properties.cell, 
 		properties.village, owners.id, owners.fname, owners.lname
 	FROM 
@@ -152,12 +152,12 @@ func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, l
 		c := transactions.Transaction{}
 
 		if err := rows.Scan(
-			&c.ID, &c.Amount, &c.Paypack_fee, &c.Method, &c.MadeFor, &c.Invoice, &c.DateRecorded,
+			&c.ID, &c.Amount, &c.Method, &c.MadeFor, &c.Invoice, &c.DateRecorded,
 			&c.Sector, &c.Cell, &c.Village, &c.OwnerID, &c.OwneFname, &c.OwnerLname,
 		); err != nil {
 			return empty, errors.E(op, err, errors.KindUnexpected)
 		}
-
+		c.Fees = c.Amount * transactions.RateFee
 		items = append(items, c)
 	}
 
