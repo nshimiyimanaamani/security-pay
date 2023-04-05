@@ -8,17 +8,17 @@
           cols="12"
           class="text-white ml-auto py-2 text-overflow"
           style="font-size: 40px"
-        >RWF &nbsp;{{GrandTotal() | number}}</b-col>
-        
+          >RWF &nbsp;{{ GrandTotal() | number }}</b-col
+        >
       </b-row>
       <b-row class="text-white">
         <b-col md="3" cols="3" class="ml-auto">
-          <p class="text-overflow">Total {{selectedMonth}}</p>
-          <p>RWF {{MonthTotal() | number}}</p>
+          <p class="text-overflow">Total {{ selectedMonth }}</p>
+          <p>RWF {{ MonthTotal() | number }}</p>
         </b-col>
         <b-col md="3" cols="9" class="m-0">
           <p class="text-overflow">MTN MoMo</p>
-          <p>RWF {{mtnTotal() | number}}</p>
+          <p>RWF {{ mtnTotal() | number }}</p>
         </b-col>
       </b-row>
     </div>
@@ -27,21 +27,44 @@
         <h3>All Transactions</h3>
         <fieldset class="control">
           <div v-show="!loading">
-            <b-form-select class="br-2" v-model="select.year" :disabled="loading">
+            <b-form-select
+              class="br-2"
+              v-model="select.year"
+              :disabled="loading"
+            >
               <template v-slot:first>
                 <option :value="null" disabled>select year</option>
               </template>
-              <b-select-option v-for="year in YearsOptions" :key="year" :value="year">{{year}}</b-select-option>
+              <b-select-option
+                v-for="year in YearsOptions"
+                :key="year"
+                :value="year"
+                >{{ year }}</b-select-option
+              >
             </b-form-select>
-            <b-form-select class="br-2" v-model="select.month" :disabled="loading">
+            <b-form-select
+              class="br-2"
+              v-model="select.month"
+              :disabled="loading"
+            >
               <template v-slot:first>
                 <option :value="null" disabled>select month</option>
               </template>
-              <b-select-option v-for="(month,i) in MonthsOptions" :key="i" :value="i">{{month}}</b-select-option>
+              <b-select-option
+                v-for="(month, i) in MonthsOptions"
+                :key="i"
+                :value="i"
+                >{{ month }}</b-select-option
+              >
             </b-form-select>
           </div>
         </fieldset>
-        <b-button variant="info" @click="requestItems" :disabled="loading" class="br-2">
+        <b-button
+          variant="info"
+          @click="requestItems"
+          :disabled="loading"
+          class="br-2"
+        >
           Refresh
           <i class="fa fa-sync-alt" />
         </b-button>
@@ -61,18 +84,18 @@
         striped
       >
         <template v-slot:cell(method)="data">
-          <div :class="data.value=='momo-mtn-rw'? 'mtn' : data.value">
-            <span>{{data.value=='momo-mtn-rw'? 'mtn' : data.value}}</span>
+          <div :class="data.value == 'momo-mtn-rw' ? 'mtn' : data.value">
+            <span>{{ data.value == "momo-mtn-rw" ? "mtn" : data.value }}</span>
           </div>
         </template>
-        <template
-          v-slot:cell(owner_firstname)="data"
-        >{{data.item.owner_firstname +" "+data.item.owner_lastname}}</template>
+        <template v-slot:cell(owner_firstname)="data">{{
+          data.item.owner_firstname + " " + data.item.owner_lastname
+        }}</template>
         <template v-slot:cell(amount)="data">
-          <article>{{data.value | number}} Frw</article>
+          <article>{{ data.value | number }} Frw</article>
         </template>
         <template v-slot:cell(date_recorded)="data">
-          <article>{{data.value | date}}</article>
+          <article>{{ data.value | date }}</article>
         </template>
         <template v-slot:table-busy>
           <div class="table-loader">
@@ -81,11 +104,13 @@
           </div>
         </template>
         <template v-slot:empty>
-          <label
-            class="table-empty"
-            v-if="!no_data"
-          >No records of transactions for the month of {{selectedMonth}}!</label>
-          <label class="table-empty" v-else>No records of transactions found !</label>
+          <label class="table-empty" v-if="!no_data"
+            >No records of transactions for the month of
+            {{ selectedMonth }}!</label
+          >
+          <label class="table-empty" v-else
+            >No records of transactions found !</label
+          >
         </template>
       </b-table>
     </div>
@@ -158,9 +183,13 @@ export default {
     },
     shownData() {
       const { year, month } = this.select;
-      if (Object.keys(this.transactionData).length) return [];
+      if (Object.keys(this.transactionData).length < 1) return [];
       else {
-        return this.transactionData[year] ? this.transactionData[year][month] : [];
+        return this.transactionData[year]
+          ? this.transactionData[year][month]
+            ? this.transactionData[year][month]
+            : []
+          : [];
       }
     },
     MonthsOptions() {
@@ -208,11 +237,10 @@ export default {
     async requestItems() {
       this.loading = true;
       const total = await this.$getTotal("/transactions?offset=0&limit=0");
-      console.log("total",total);
+      console.log("total", total);
       this.axios
         .get("/transactions?offset=0&limit=" + total)
         .then((res) => {
-          this.transactionData = {};
           let DataToClean = res.data.Transactions;
           if (this.isManager) {
             DataToClean = DataToClean.filter(
@@ -225,10 +253,14 @@ export default {
             if (!this.transactionData[year]) this.transactionData[year] = {};
             if (!this.transactionData[year][month])
               this.transactionData[year][month] = [];
-            this.SortByMonth(this.transactionData, year, month, DataToClean, [
-              "date_recorded",
-            ]);
+            this.transactionData[year][month] = this.SortByMonth(
+              year,
+              month,
+              DataToClean,
+              ["date_recorded"]
+            );
           }
+          console.log("trans", this.transactionData);
         })
         .catch((err) => {
           console.log(err);
@@ -281,8 +313,8 @@ export default {
       });
       return obj;
     },
-    SortByMonth(o, year, month, array, key) {
-      o[year][month] = array.filter(
+    SortByMonth(year, month, array, key) {
+      return array.filter(
         (item) =>
           new Date(this.GetObjectValue(key, item)).getFullYear() === year &&
           new Date(this.GetObjectValue(key, item)).getMonth() === month
