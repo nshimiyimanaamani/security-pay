@@ -4,17 +4,19 @@
     <div class="totals primary-font">
       <b-row>
         <b-col
-          cols="6"
+          md="6"
+          cols="12"
           class="text-white ml-auto py-2 text-overflow"
           style="font-size: 40px"
         >RWF &nbsp;{{GrandTotal() | number}}</b-col>
+        
       </b-row>
       <b-row class="text-white">
-        <b-col cols="3" class="ml-auto">
+        <b-col md="3" cols="3" class="ml-auto">
           <p class="text-overflow">Total {{selectedMonth}}</p>
           <p>RWF {{MonthTotal() | number}}</p>
         </b-col>
-        <b-col cols="3" class="m-0">
+        <b-col md="3" cols="9" class="m-0">
           <p class="text-overflow">MTN MoMo</p>
           <p>RWF {{mtnTotal() | number}}</p>
         </b-col>
@@ -156,7 +158,7 @@ export default {
     },
     shownData() {
       const { year, month } = this.select;
-      if (Object.keys(this.transactionData).length < 1) return [];
+      if (Object.keys(this.transactionData).length) return [];
       else {
         return this.transactionData[year] ? this.transactionData[year][month] : [];
       }
@@ -206,7 +208,7 @@ export default {
     async requestItems() {
       this.loading = true;
       const total = await this.$getTotal("/transactions?offset=0&limit=0");
-      console.log(total);
+      console.log("total",total);
       this.axios
         .get("/transactions?offset=0&limit=" + total)
         .then((res) => {
