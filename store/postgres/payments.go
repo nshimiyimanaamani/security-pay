@@ -626,6 +626,70 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 
 }
 
+func (repo *paymentStore) SummaryTransactions(ctx context.Context, flts *payment.MetricFilters) ([]payment.SummaryResponse, error) {
+
+	const op errors.Op = "store/postgres/paymentStore.SummaryTransactions"
+
+	tx, err := repo.BeginTx(ctx, nil)
+	if err != nil {
+		return []payment.SummaryResponse{}, errors.E(op, err)
+	}
+	defer tx.Rollback()
+
+	selectQuery := `
+			SELECT
+		COUNT(properties.id) AS total_houses,
+		SUM(amount) AS amount,
+			cell,
+			village,
+		DATE(transactions.created_at) AS date
+		FROM transactions
+		INNER JOIN properties
+		ON transactions.madefor = properties.id
+		WHERE DATE(transactions.created_at) = DATE(now())
+		`
+
+	if flts.Sector != nil {
+		selectQuery += fmt.Sprintf(" AND sector = '%s'", *flts.Sector)
+	}
+	if flts.Village != nil {
+		selectQuery += fmt.Sprintf(" AND village = '%s'", *flts.Village)
+	}
+	if flts.Cell != nil {
+		selectQuery += fmt.Sprintf(" AND cell = '%s'", *flts.Cell)
+	}
+
+	if flts.Creds != nil {
+		selectQuery += fmt.Sprintf(" AND transactions.namespace = '%s'", *flts.Creds)
+	}
+
+	selectQuery += ` GROUP BY cell,village,DATE(transactions.created_at)`
+
+	rows, err := tx.Query(selectQuery)
+	if err != nil {
+		return []payment.SummaryResponse{}, errors.E(op, err)
+	}
+	defer rows.Close()
+
+	out := []payment.SummaryResponse{}
+	for rows.Next() {
+		var transaction payment.SummaryResponse
+		err = rows.Scan(&transaction.Houses, &transaction.Amount, &transaction.Cell, &transaction.Village, &transaction.Created_at)
+		if err != nil {
+			return []payment.SummaryResponse{}, errors.E(op, err)
+		}
+
+		out = append(out, transaction)
+	}
+
+	if err = rows.Err(); err != nil {
+		return []payment.SummaryResponse{}, errors.E(op, err)
+	}
+
+	return out, tx.Commit()
+
+}
+
 func formMessage(tx []*payment.TxRequest, prop *properties.Property) string {
 
 	const header = "Murakoze kwishyura umusanzu w' isuku"
