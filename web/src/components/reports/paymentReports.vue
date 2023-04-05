@@ -302,6 +302,76 @@
           </b-dropdown>
           <!-- <b-button variant="info" @click="getAllHouse">Generate All House Report</b-button> -->
         </div>
+        <div>
+          <b-dropdown
+            v-model="dropdownone"
+            text="Generate Daily Report"
+            ref="dropdown"
+            class="m-2"
+            variant="info"
+            :busy="isLoading1"
+          >
+            <b-dropdown-form style="width: 230px">
+              <b-form class="accountForm">
+                <b-form-group label="Sector:">
+                  <b-form-select
+                    class="br-2"
+                    v-model="form.select.sector"
+                    :options="sectorOptions"
+                    required
+                  >
+                    <template v-slot:first>
+                      <option :value="null" disabled>select sector</option>
+                    </template>
+                  </b-form-select>
+                </b-form-group>
+
+                <b-form-group label="Cell:">
+                  <b-form-select
+                    class="br-2"
+                    v-model="form.select.cell"
+                    :options="cellOptions"
+                    required
+                  >
+                    <template v-slot:first>
+                      <option :value="null" disabled>select cell</option>
+                    </template>
+                  </b-form-select>
+                </b-form-group>
+
+                <b-form-group label="Village:">
+                  <b-select
+                    v-model="form.select.village"
+                    :options="villageOptions"
+                    class="br-2"
+                    required
+                  >
+                    <template v-slot:first>
+                      <option :value="null" disabled>select village</option>
+                    </template>
+                  </b-select>
+                </b-form-group>
+                <b-form-group label="From Month">
+                  <div class="input-date">
+                    <input type="date" v-model="object.frommonth" />
+                  </div>
+                </b-form-group>
+                <b-form-group label="To Month">
+                  <div class="input-date">
+                    <input type="date" v-model="object.tomonth" />
+                  </div>
+                </b-form-group>
+              </b-form>
+            </b-dropdown-form>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-item no-hover no-active>
+              <b-button variant="info" block @click="getDailyReport"
+                >Generate</b-button
+              >
+            </b-dropdown-item>
+          </b-dropdown>
+          <!-- <b-button variant="info" @click="getAllHouse">Generate All House Report</b-button> -->
+        </div>
       </b-row>
       <b-row class="my-4"></b-row>
 
@@ -312,7 +382,7 @@
           >
         </b-col>
       </b-row>
-      <b-row no-gutters>
+      <b-row v-if="state.showReport" no-gutters>
         <b-collapse
           id="sectorreport-collapse"
           class="w-100"
@@ -373,10 +443,99 @@
                   </b-tr>
                 </template>
               </b-table>
+              <b-pagination
+                class="my-0"
+                align="center"
+                v-if="showPagination"
+                :per-page="pagination.perPage"
+                v-model="pagination.currentPage"
+                :total-rows="pagination.totalRows"
+                @input="pageChanged"
+              ></b-pagination>
             </div>
           </div>
         </b-collapse>
       </b-row>
+
+      <!-- dailyreporttable -->
+
+      <b-row v-else no-gutters>
+        <b-collapse
+          id="sectorreport-collapse"
+          class="w-100"
+          v-model="state.showReport2"
+        >
+          <div class="reports-card">
+            <b-row no-gutters class="mb-2 justify-content-end">
+              <!-- <b-badge variant="secondary" class="p-2 fsize-sm"
+                >Report Date: &nbsp; {{ state.reportsDate }}
+                </b-badge> -->
+              <b-form-group>
+                <b-form-input
+                  required
+                  v-model="search"
+                  placeholder="Search Here..."
+                  class="br-2"
+                />
+              </b-form-group>
+            </b-row>
+            <h5 class="bg-dark">{{ reportTitle }}</h5>
+            <div class="card--body">
+              <b-table
+                id="sector-reports"
+                :items="reports"
+                :fields="table.dailyfields"
+                :busy="state.busy.table1"
+                head-row-variant="secondary"
+                :filter="search"
+                small
+                bordered
+                hover
+                responsive
+                show-empty
+              >
+                <template v-slot:table-busy>
+                  <vue-load label="Generating..." class="p-3" />
+                </template>
+                <template v-slot:empty>{{
+                  state.error.table1 || "No data available to display"
+                }}</template>
+                <template v-slot:cell(index)="data">
+                  <article class="text-center">{{ data.index + 1 }}</article>
+                </template>
+                <!-- <template v-slot:custom-foot>
+                  <b-tr class="total">
+                    <b-td></b-td>
+                    <b-td></b-td>
+                    <b-td></b-td>
+                    <b-td></b-td>
+                    <b-td class="text-center py-3">
+                      <small
+                        ><strong style=""
+                          ><span style="color: #dc3545">Total </span>:
+                          {{ totalAmount }} Rwf</strong
+                        ></small
+                      >
+                    </b-td>
+                  </b-tr>
+                </template> -->
+              </b-table>
+              <b-pagination
+                class="my-0"
+                align="center"
+                v-if="showPagination"
+                :per-page="pagination.perPage"
+                v-model="pagination.currentPage"
+                :total-rows="pagination.totalRows"
+                @input="pageChanged"
+              ></b-pagination>
+            </div>
+          </div>
+        </b-collapse>
+      </b-row>
+
+      <!-- dailyreporttable -->
+
       <b-row v-if="showDownload" class="py-3 justify-content-end" no-gutters>
         <b-button @click="downloadReport" variant="info" class="downloadBtn">
           <i class="fa fa-download mr-1" />Download Report
@@ -418,6 +577,7 @@ export default {
         tableLoad: false,
         changing: false,
         showReport: false,
+        showReport2: false,
         reportsDate: null,
         busy: {
           table1: false,
@@ -440,6 +600,7 @@ export default {
           {
             key: "fname",
             label: "Full Name",
+            formatter: (value, key, item) => `${item.fname} ${item.lname}`,
             tdClass: "",
             thClass: " text-uppercase",
           },
@@ -469,6 +630,43 @@ export default {
           //   thClass: "text-center text-uppercase"
           // }
         ],
+        dailyfields: [
+          {
+            key: "total",
+            label: "No of Houses",
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase",
+          },
+          {
+            key: "payed",
+            label: "No of Paid Houses",
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase",
+          },
+          {
+            key: "payedAmount",
+            label: "Paid Amount",
+            tdClass: "text-right",
+            thClass: "text-center text-uppercase",
+          },
+          {
+            key: "pending",
+            label: "No of unpaid Houses",
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase",
+          },
+          {
+            key: "unpayedAmount",
+            label: "unpaid Amount",
+            tdClass: "text-right",
+            thClass: "text-center text-uppercase",
+          },
+        ],
+      },
+      pagination: {
+        perPage: 20,
+        currentPage: 1,
+        totalRows: 1,
       },
     };
   },
@@ -529,6 +727,11 @@ export default {
     random() {
       return Math.floor(Math.random() * 101);
     },
+    showPagination() {
+      if (this.isLoadingdata) return false;
+      // if (this.pagination.totalRows < this.pagination.perPage) return false;
+      return true;
+    },
   },
   watch: {
     "form.select.sector"() {
@@ -554,19 +757,30 @@ export default {
       }
     },
   },
+  created() {
+    this.getCurrentMonth();
+    this.getAllHouse();
+  },
   methods: {
+    getCurrentMonth() {
+      this.object.month = new Date().getMonth() + 1;
+    },
     async getAllHouse() {
       this.state.showReport = false;
       this.isLoading1 = true;
       this.isLoadingdata = true;
-      this.reportTitle = " All House Report";
+      this.reportTitle = "All House Report";
       console.log("generate all house");
       this.loading = true;
       const yearString = this.object.year;
       var monthString = this.object.month;
       const yearDate = new Date(`${yearString}-${monthString}-01`);
-      const nextMonth = new Date(yearString, monthString + 1, 1);
-      const lastDayOfMonth = new Date(nextMonth - 1);
+      const today = new Date();
+      const lastDayOfMonth = new Date(
+        today.getFullYear(),
+        today.getMonth() + 1,
+        0
+      );
       this.from = yearDate;
       this.to = lastDayOfMonth;
       // if (this.object.frommonth == null && this.object.tomonth == null) {
@@ -584,8 +798,8 @@ export default {
             sector: this.form.select.sector || "",
             cell: this.form.select.cell || "",
             village: this.form.select.village || "",
-            offset: 0,
-            limit: 0,
+            offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
+            limit: this.pagination.perPage,
             from: this.from,
             to: this.to,
           },
@@ -600,6 +814,8 @@ export default {
         // custrow.amount = data.amount
         // this.reports.push(custrow);
         this.totalAmount = data.amount;
+        this.pagination.totalRows = data.Total;
+
         // console.log("report all houses", this.reports);
       } catch (error) {
         console.log(error);
@@ -613,14 +829,18 @@ export default {
     async getPaidHouse() {
       this.state.showReport = false;
       this.isLoadingdata = true;
-      this.reportTitle = " Paid House Report";
+      this.reportTitle = "Paid House Report";
       console.log("generate paid house");
       this.loading = true;
       const yearString = this.object.year;
       var monthString = this.object.month;
       const yearDate = new Date(`${yearString}-${monthString}-01`);
-      const nextMonth = new Date(yearString, monthString + 1, 1);
-      const lastDayOfMonth = new Date(nextMonth - 1);
+      const today = new Date();
+      const lastDayOfMonth = new Date(
+        today.getFullYear(),
+        today.getMonth() + 1,
+        0
+      );
       this.from = yearDate;
       this.to = lastDayOfMonth;
       try {
@@ -630,8 +850,8 @@ export default {
             sector: this.form.select.sector || "",
             cell: this.form.select.cell || "",
             village: this.form.select.village || "",
-            offset: 0,
-            limit: 0,
+            offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
+            limit: this.pagination.perPage,
             from: this.from,
             to: this.to,
           },
@@ -646,6 +866,7 @@ export default {
         // custrow.amount = data.amount
         // this.reports.push(custrow);
         this.totalAmount = data.amount;
+        this.pagination.totalRows = data.Total;
         // console.log("reports", this.reports);
       } catch (error) {
         console.log(error);
@@ -665,8 +886,12 @@ export default {
       const yearString = this.object.year;
       var monthString = this.object.month;
       const yearDate = new Date(`${yearString}-${monthString}-01`);
-      const nextMonth = new Date(yearString, monthString + 1, 1);
-      const lastDayOfMonth = new Date(nextMonth - 1);
+      const today = new Date();
+      const lastDayOfMonth = new Date(
+        today.getFullYear(),
+        today.getMonth() + 1,
+        0
+      );
       this.from = yearDate;
       this.to = lastDayOfMonth;
       try {
@@ -676,14 +901,14 @@ export default {
             sector: this.form.select.sector || "",
             cell: this.form.select.cell || "",
             village: this.form.select.village || "",
-            offset: 0,
-            limit: 0,
+            offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
+            limit: this.pagination.perPage,
             from: this.from,
             to: this.to,
           },
         });
         // this.accountant = data;
-        this.reportTitle = "Generate Unpaid House Report";
+        this.reportTitle = "Unpaid House Report";
         this.reports = data.Payments;
         // const custrow = {};
         // custrow.fname = "Total Amount"
@@ -692,6 +917,7 @@ export default {
         // custrow.amount = data.amount
         // this.reports.push(custrow);
         this.totalAmount = data.amount;
+        this.pagination.totalRows = data.Total;
         // console.log("reports", this.reports);
       } catch (error) {
         console.log(error);
@@ -701,6 +927,21 @@ export default {
         this.state.showReport = true;
         this.isLoadingdata = false;
       }
+    },
+    pageChanged() {
+      if (this.reportTitle == "All House Report") {
+        this.getAllHouse();
+      } else if (this.reportTitle == "Paid House Report") {
+        this.getPaidHouse();
+      } else {
+        this.getUnpaidHouse();
+      }
+    },
+    getDailyReport() {
+      this.reportTitle = "Daily Report";
+      this.state.showReport = false;
+      this.state.showReport2 = true;
+      console.log("hii");
     },
     downloadReport() {
       console.log(this.reports);
