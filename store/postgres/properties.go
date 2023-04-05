@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	//"github.com/lib/pq"
 	"github.com/lib/pq"
@@ -258,8 +259,8 @@ func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, 
 	q = `SELECT COUNT(*),COALESCE(SUM(properties.due), 0)  FROM properties WHERE owner = $1`
 
 	var total uint64
-	var total_amount float64
-	if err := repo.QueryRow(q, owner).Scan(&total, &total_amount); err != nil {
+	var amount float64
+	if err := repo.QueryRow(q, owner).Scan(&total, &amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -269,16 +270,22 @@ func (repo *propertiesStore) RetrieveByOwner(ctx context.Context, owner string, 
 			Total:  total,
 			Offset: offset,
 			Limit:  limit,
-			Amount: total_amount,
+			Amount: amount,
 		},
 	}
 	return page, nil
 }
 
-func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64, names string) (properties.PropertyPage, error) {
+func (repo *propertiesStore) RetrieveBySector(ctx context.Context, flts *properties.Filters) (properties.PropertyPage, error) {
 	const op errors.Op = "store/postgres/propertiesStore.RetrieveBySector"
 
-	q := `
+	tx, err := repo.BeginTx(ctx, nil)
+	if err != nil {
+		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
+	}
+	defer tx.Rollback()
+
+	selectQuery := `
 		SELECT 
 			properties.id, 
 			properties.sector, 
@@ -299,17 +306,29 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 			properties
 		INNER JOIN
 			owners ON properties.owner=owners.id 
-		WHERE 
-			properties.sector = $1 AND properties.namespace=$2
-			AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')
-		ORDER BY  properties.id LIMIT $4 OFFSET $5
+		WHERE  1=1
 	`
 
-	creds := auth.CredentialsFromContext(ctx)
+	if flts.Namespace != nil {
+		selectQuery += fmt.Sprintf(" AND properties.namespace='%s'", *flts.Namespace)
+	}
 
+	if flts.Sector != nil {
+		selectQuery += fmt.Sprintf(" AND properties.sector='%s'", *flts.Sector)
+	}
+
+	if flts.Phone != nil {
+		selectQuery += fmt.Sprintf(" AND owners.phone='%s'", *flts.Phone)
+	}
+
+	if flts.Names != nil {
+		selectQuery += fmt.Sprintf(" AND (owners.fname LIKE '%%%s%%' OR owners.lname LIKE '%%%s%%') ", *flts.Names, *flts.Names)
+	}
+
+	selectQuery += fmt.Sprintf(" ORDER BY  properties.id LIMIT %d OFFSET %d", *flts.Limit, *flts.Offset)
 	var items = []properties.Property{}
 
-	rows, err := repo.Query(q, sector, creds.Account, names, limit, offset)
+	rows, err := tx.QueryContext(ctx, selectQuery)
 	if err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -343,20 +362,37 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 		items = append(items, row)
 	}
 
-	q = `SELECT 
+	countQuery := `SELECT 
 		COUNT(*),
-		COALESCE(SUM(properties.due), 0)
+		COALESCE(SUM(properties.due), 0.0)
 	FROM 
 		properties
 	INNER JOIN
 		owners ON properties.owner=owners.id 
-	WHERE 
-		sector= $1 
-	AND namespace=$2 AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')`
+	WHERE 1=1 `
 
-	var total uint64
-	var total_amount float64
-	if err := repo.QueryRow(q, sector, creds.Account, names).Scan(&total, &total_amount); err != nil {
+	if flts.Phone != nil {
+		countQuery += fmt.Sprintf(" AND owners.phone='%s'", *flts.Phone)
+	}
+
+	if flts.Sector != nil {
+		countQuery += fmt.Sprintf(" AND properties.sector='%s'", *flts.Sector)
+	}
+
+	if flts.Namespace != nil {
+		countQuery += fmt.Sprintf(" AND properties.namespace='%s'", *flts.Namespace)
+	}
+
+	if flts.Names != nil {
+		countQuery += fmt.Sprintf(" AND (owners.fname LIKE '%%%s%%' OR owners.lname LIKE '%%%s%%') ", *flts.Names, *flts.Names)
+	}
+
+	var (
+		total  uint64
+		amount float64
+	)
+
+	if err := tx.QueryRowContext(ctx, countQuery).Scan(&total, &amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -364,12 +400,12 @@ func (repo *propertiesStore) RetrieveBySector(ctx context.Context, sector string
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
 			Total:  total,
-			Offset: offset,
-			Limit:  limit,
-			Amount: total_amount,
+			Offset: *flts.Offset,
+			Limit:  *flts.Limit,
+			Amount: amount,
 		},
 	}
-	return page, nil
+	return page, tx.Commit()
 }
 
 func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, offset, limit uint64, names string) (properties.PropertyPage, error) {
@@ -448,8 +484,8 @@ func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, of
 	    AND namespace=$2 AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')`
 
 	var total uint64
-	var total_amount float64
-	if err := repo.QueryRow(q, cell, creds.Account, names).Scan(&total, &total_amount); err != nil {
+	var amount float64
+	if err := repo.QueryRow(q, cell, creds.Account, names).Scan(&total, &amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -459,7 +495,7 @@ func (repo *propertiesStore) RetrieveByCell(ctx context.Context, cell string, of
 			Total:  total,
 			Offset: offset,
 			Limit:  limit,
-			Amount: total_amount,
+			Amount: amount,
 		},
 	}
 	return page, nil
@@ -547,8 +583,8 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 	AND namespace=$2 AND (owners.fname LIKE '%' || $3 || '%' OR owners.lname  LIKE '%' || $3 || '%')`
 
 	var total uint64
-	var total_amount float64
-	if err := repo.QueryRow(q, village, creds.Account, names).Scan(&total, &total_amount); err != nil {
+	var amount float64
+	if err := repo.QueryRow(q, village, creds.Account, names).Scan(&total, &amount); err != nil {
 		return properties.PropertyPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
@@ -558,7 +594,7 @@ func (repo *propertiesStore) RetrieveByVillage(ctx context.Context, village stri
 			Total:  total,
 			Offset: offset,
 			Limit:  limit,
-			Amount: total_amount,
+			Amount: amount,
 		},
 	}
 	return page, nil

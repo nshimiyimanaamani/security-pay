@@ -50,6 +50,13 @@
         <b-button variant="danger" class="br-2" @click.prevent="clearFilter">Reset</b-button>
       </b-dropdown>
 
+      <div class="d-inline-flex mr-2">
+        <b-form-input placeholder="search phone..." class="br-2 primary-font" type="search" v-model="search.phone"
+          @keypress.enter="searchPropertiesByPhone"></b-form-input>
+        <b-button variant="info" class="ml-2 br-2" @click="searchPropertiesByPhone">
+          <i class="fa fa-sync-alt" :class="{ 'fa-spin': loading.request }"></i>
+        </b-button>
+      </div>
       <div class="ml-2">
         <b-form-input placeholder="search user..." class="br-2 primary-font" type="search" v-model="search.name"
           @keypress.enter="searchProperties"></b-form-input>
@@ -176,7 +183,10 @@ export default {
         sendTo: [],
         show: false,
       },
-      search: { name: "" },
+      search: {
+        name: "",
+        phone: "",
+      },
       select: {
         sector: null,
         cell: null,
@@ -527,8 +537,8 @@ export default {
       const limit = this.pagination.perPage;
       const name = this.search.name ? this.toCapitalize(this.search.name) : "";
       if (this.isManager)
-        return `/properties?cell=${this.activeCell}&offset=${offset}&limit=${limit}&names=${name}`;
-      return `/properties?sector=${this.activeSector}&offset=${offset}&limit=${limit}&names=${name}`;
+        return `/properties?cell=${this.activeCell}&offset=${offset}&limit=${limit}&names=${name}&phone=${this.search.phone}`;
+      return `/properties?sector=${this.activeSector}&offset=${offset}&limit=${limit}&names=${name}&phone=${this.search.phone}`;
     },
     confirm(message) {
       return this.$bvModal.msgBoxConfirm(message, {
@@ -543,6 +553,9 @@ export default {
       });
     },
     searchProperties() {
+      this.loadData()
+    },
+    searchPropertiesByPhone() {
       this.loadData()
     },
   },

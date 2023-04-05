@@ -1,22 +1,10 @@
 <template>
-  <b-table
-    small
-    striped
-    bordered
-    hover
-    responsive
-    show-empty
-    :busy="state.loading"
-    :items="shownItems"
-    :fields="table.fields"
-    :sort-by.sync="table.sortBy"
-  >
+  <b-table small striped bordered hover responsive show-empty :busy="state.loading" :items="shownItems"
+    :fields="table.fields" :sort-by.sync="table.sortBy">
     <template v-slot:cell(index)="data">
       <article class="text-center">{{ data.index + 1 }}</article>
     </template>
-    <template v-slot:cell(due)="data"
-      >{{ Number(data.item.due).toLocaleString() }} Rwf</template
-    >
+    <template v-slot:cell(due)="data">{{ Number(data.item.due).toLocaleString() }} Rwf</template>
     <template v-slot:cell(owner)="data">
       {{ data.item.owner.fname + " " + data.item.owner.lname }}
     </template>
@@ -28,14 +16,8 @@
     <template v-slot:custom-foot>
       <b-tr class="total">
         <b-td colspan="10">
-          <b-pagination
-            class="my-0"
-            align="center"
-            :per-page="pagination.perPage"
-            v-model="pagination.page"
-            :total-rows="pagination.total"
-            @input="loadData"
-          ></b-pagination>
+          <b-pagination class="my-0" align="center" :per-page="pagination.perPage" v-model="pagination.page"
+            :total-rows="pagination.total" @input="loadData"></b-pagination>
         </b-td>
       </b-tr>
     </template>
@@ -92,7 +74,7 @@ export default {
             .toLowerCase()
             .includes(this.searchItem.toLowerCase());
         });
-      } else [];
+      } else[];
     },
     offset() {
       return (this.pagination.page - 1) * this.pagination.perPage;
@@ -108,7 +90,7 @@ export default {
       this.state.loading = true;
       this.axios
         .get(
-          `/properties?village=${this.user.village}&offset=${this.offset}&limit=${this.pagination.perPage}`
+          `/properties?village=${this.user.village}&offset=${this.offset}&limit=${this.pagination.perPage}&names=`
         )
         .then((res) => {
           this.table.items = res.data.Properties.filter(
@@ -133,6 +115,7 @@ export default {
 <style lang="scss">
 .table {
   min-width: max-content;
+
   thead,
   tbody {
     font-size: 14px;

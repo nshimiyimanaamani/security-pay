@@ -9,6 +9,7 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/core/properties/mocks"
 	"github.com/rugwirobaker/paypack-backend/core/uuid"
+	"github.com/rugwirobaker/paypack-backend/pkg/cast"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -301,7 +302,7 @@ func TestListByOwner(t *testing.T) {
 			err:    nil,
 		},
 		{
-			desc: "	list empty set",
+			desc:   "	list empty set",
 			owner:  owner.ID,
 			offset: n + 1,
 			limit:  n,
@@ -358,6 +359,7 @@ func TestListBySector(t *testing.T) {
 		{
 			desc:   "list all properties",
 			sector: property.Address.Sector,
+			names:  "John Doe",
 			offset: 0,
 			limit:  n,
 			size:   n,
@@ -365,6 +367,7 @@ func TestListBySector(t *testing.T) {
 		},
 		{
 			desc:   "list half of the properties",
+			names:  "John Doe",
 			sector: property.Address.Sector,
 			offset: n / 2,
 			limit:  n,
@@ -372,7 +375,7 @@ func TestListBySector(t *testing.T) {
 			err:    nil,
 		},
 		{
-			desc: "	list empty set",
+			desc:   "	list empty set",
 			sector: property.Address.Sector,
 			offset: n + 1,
 			limit:  n,
@@ -391,7 +394,15 @@ func TestListBySector(t *testing.T) {
 
 	for _, tc := range cases {
 		ctx := context.Background()
-		page, err := svc.ListBySector(ctx, tc.sector, tc.offset, tc.limit, tc.names)
+
+		flt := &properties.Filters{
+			Sector: cast.StringPointer(tc.sector),
+			Names:  cast.StringPointer(tc.names),
+			Offset: cast.Uint64Pointer(tc.offset),
+			Limit:  cast.Uint64Pointer(tc.limit),
+		}
+
+		page, err := svc.ListBySector(ctx, flt)
 		size := uint64(len(page.Properties))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected '%v' got '%v'\n", tc.desc, tc.err, err))
@@ -444,7 +455,7 @@ func TestListByCell(t *testing.T) {
 			err:    nil,
 		},
 		{
-			desc: "	list empty set",
+			desc:   "	list empty set",
 			cell:   property.Address.Cell,
 			offset: n + 1,
 			limit:  n,
@@ -516,7 +527,7 @@ func TestListByVillage(t *testing.T) {
 			err:     nil,
 		},
 		{
-			desc: "	list empty set",
+			desc:    "	list empty set",
 			village: property.Address.Village,
 			offset:  n + 1,
 			limit:   n,
@@ -587,7 +598,7 @@ func TestListByRecorder(t *testing.T) {
 			err:    nil,
 		},
 		{
-			desc: "	list empty set",
+			desc:   "	list empty set",
 			user:   property.RecordedBy,
 			offset: n + 1,
 			limit:  n,

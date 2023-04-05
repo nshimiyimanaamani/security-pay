@@ -132,7 +132,7 @@ func (str *repository) RetrieveByOwner(ctx context.Context, owner string, offset
 	return page, nil
 }
 
-func (str *repository) RetrieveBySector(ctx context.Context, sector string, offset, limit uint64, names string) (properties.PropertyPage, error) {
+func (str *repository) RetrieveBySector(ctx context.Context, flts *properties.Filters) (properties.PropertyPage, error) {
 	const op errors.Op = "app/properties/mocks/repository.RetrieveBySector"
 
 	str.mu.Lock()
@@ -140,17 +140,17 @@ func (str *repository) RetrieveBySector(ctx context.Context, sector string, offs
 
 	items := make([]properties.Property, 0)
 
-	if offset < 0 || limit <= 0 {
+	if *flts.Offset < 0 || *flts.Limit <= 0 {
 		return properties.PropertyPage{}, nil
 	}
 
-	first := uint64(offset) + 1
-	last := first + uint64(limit)
+	first := uint64(*flts.Offset) + 1
+	last := first + uint64(*flts.Limit)
 
 	//check whether the property belongs to a given owner
 	for _, v := range str.properties {
 		id, _ := strconv.ParseUint(v.ID, 10, 64)
-		if v.Address.Sector == sector && id >= first && id < last {
+		if v.Address.Sector == *flts.Sector && id >= first && id < last {
 			items = append(items, v)
 		}
 	}
@@ -163,8 +163,8 @@ func (str *repository) RetrieveBySector(ctx context.Context, sector string, offs
 		Properties: items,
 		PageMetadata: properties.PageMetadata{
 			Total:  str.counter,
-			Offset: offset,
-			Limit:  limit,
+			Offset: *flts.Offset,
+			Limit:  *flts.Limit,
 		},
 	}
 
