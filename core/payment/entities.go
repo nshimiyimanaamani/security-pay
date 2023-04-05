@@ -128,7 +128,7 @@ type Transaction struct {
 	Amount       float64 `json:"amount,omitempty"`
 }
 
-type SummaryResponse struct {
+type Summary struct {
 	Houses     int64      `json:"houses,omitempty"`
 	Amount     float64    `json:"amount,omitempty"`
 	Cell       string     `json:"cell,omitempty"`

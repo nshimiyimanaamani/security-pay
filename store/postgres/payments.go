@@ -596,13 +596,13 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 
 }
 
-func (repo *paymentStore) SummaryTransactions(ctx context.Context, flts *payment.MetricFilters) ([]payment.SummaryResponse, error) {
+func (repo *paymentStore) TodaySummary(ctx context.Context, flts *payment.MetricFilters) (payment.Summary, error) {
 
 	const op errors.Op = "store/postgres/paymentStore.SummaryTransactions"
 
 	tx, err := repo.BeginTx(ctx, nil)
 	if err != nil {
-		return []payment.SummaryResponse{}, errors.E(op, err)
+		return payment.Summary{}, errors.E(op, err)
 	}
 	defer tx.Rollback()
 
@@ -637,26 +637,21 @@ func (repo *paymentStore) SummaryTransactions(ctx context.Context, flts *payment
 
 	rows, err := tx.Query(selectQuery)
 	if err != nil {
-		return []payment.SummaryResponse{}, errors.E(op, err)
+		return payment.Summary{}, errors.E(op, err)
 	}
 	defer rows.Close()
 
-	out := []payment.SummaryResponse{}
-	for rows.Next() {
-		var transaction payment.SummaryResponse
+	if rows.Next() {
+		var transaction payment.Summary
 		err = rows.Scan(&transaction.Houses, &transaction.Amount, &transaction.Cell, &transaction.Village, &transaction.Created_at)
 		if err != nil {
-			return []payment.SummaryResponse{}, errors.E(op, err)
+			return payment.Summary{}, errors.E(op, err)
 		}
 
-		out = append(out, transaction)
+		return transaction, tx.Commit()
 	}
 
-	if err = rows.Err(); err != nil {
-		return []payment.SummaryResponse{}, errors.E(op, err)
-	}
-
-	return out, tx.Commit()
+	return payment.Summary{}, nil
 
 }
 

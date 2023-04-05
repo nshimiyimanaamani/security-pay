@@ -194,7 +194,7 @@ func DailyTransactions(logger log.Entry, svc payment.Repository) http.Handler {
 }
 
 // make summary transaction
-func SummaryTransactions(logger log.Entry, svc payment.Repository) http.Handler {
+func TodaySummary(logger log.Entry, svc payment.Repository) http.Handler {
 
 	const op errors.Op = "api/http/payment/SummaryTransactions"
 
@@ -202,9 +202,9 @@ func SummaryTransactions(logger log.Entry, svc payment.Repository) http.Handler 
 
 		vars := mux.Vars(r)
 
-		sector := cast.CastToString((vars["sector"]))
-		cell := cast.CastToString(vars["cell"])
-		village := cast.CastToString(vars["village"])
+		sector := cast.StringPointer((vars["sector"]))
+		cell := cast.StringPointer(vars["cell"])
+		village := cast.StringPointer(vars["village"])
 
 		creds := auth.CredentialsFromContext(r.Context())
 		flt := &payment.MetricFilters{
@@ -215,7 +215,7 @@ func SummaryTransactions(logger log.Entry, svc payment.Repository) http.Handler 
 			Creds:   &creds.Account,
 		}
 
-		res, err := svc.SummaryTransactions(r.Context(), flt)
+		res, err := svc.TodaySummary(r.Context(), flt)
 		if err != nil {
 			err = errors.E(op, err)
 			logger.SystemErr(err)
