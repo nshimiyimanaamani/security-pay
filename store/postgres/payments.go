@@ -616,9 +616,13 @@ func (repo *paymentStore) TodaySummary(ctx context.Context, flts *payment.Metric
 		FROM transactions
 		INNER JOIN properties
 		ON transactions.madefor = properties.id
-		WHERE DATE(transactions.created_at) = DATE(now())
+		WHERE 1=1
 		`
-
+	if flts.Date != nil {
+		selectQuery += fmt.Sprintf(" AND DATE(transactions.created_at) = '%s'", *flts.Date)
+	} else {
+		selectQuery += "AND DATE(transactions.created_at) = DATE(now())"
+	}
 	if flts.Sector != nil {
 		selectQuery += fmt.Sprintf(" AND sector = '%s'", *flts.Sector)
 	}

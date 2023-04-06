@@ -205,6 +205,7 @@ func TodaySummary(logger log.Entry, svc payment.Repository) http.Handler {
 		sector := cast.StringPointer((vars["sector"]))
 		cell := cast.StringPointer(vars["cell"])
 		village := cast.StringPointer(vars["village"])
+		date := cast.StringPointer((vars["date"]))
 
 		creds := auth.CredentialsFromContext(r.Context())
 		flt := &payment.MetricFilters{
@@ -212,6 +213,7 @@ func TodaySummary(logger log.Entry, svc payment.Repository) http.Handler {
 			Sector:  sector,
 			Cell:    cell,
 			Village: village,
+			Date:    date,
 			Creds:   &creds.Account,
 		}
 

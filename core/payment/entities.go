@@ -102,6 +102,7 @@ type MetricFilters struct {
 	Limit   *uint64
 	Offset  *uint64
 	Creds   *string
+	Date    *string
 }
 type Data struct {
 	Ref       string     `json:"ref,omitempty"`
