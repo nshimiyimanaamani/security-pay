@@ -3,8 +3,12 @@
     <vue-title title="Paypack | Transactions" />
     <div class="totals primary-font">
       <b-row>
-        <b-col cols="6" class="text-white ml-auto py-2 text-overflow" style="font-size: 40px">RWF &nbsp;{{ GrandTotal() |
-          number }}</b-col>
+        <b-col
+          cols="6"
+          class="text-white ml-auto py-2 text-overflow"
+          style="font-size: 40px"
+          >RWF &nbsp;{{ GrandTotal() | number }}</b-col
+        >
       </b-row>
       <b-row class="text-white">
         <b-col cols="3" class="ml-auto">
@@ -22,34 +26,72 @@
         <h3>All Transactions</h3>
         <fieldset class="control">
           <div v-show="!loading">
-            <b-form-select class="br-2" v-model="select.year" :disabled="loading">
+            <b-form-select
+              class="br-2"
+              v-model="select.year"
+              :disabled="loading"
+            >
               <template v-slot:first>
                 <option :value="null" disabled>select year</option>
               </template>
-              <b-select-option v-for="year in YearsOptions" :key="year" :value="year">{{ year }}</b-select-option>
+              <b-select-option
+                v-for="year in YearsOptions"
+                :key="year"
+                :value="year"
+                >{{ year }}</b-select-option
+              >
             </b-form-select>
-            <b-form-select class="br-2" v-model="select.month" :disabled="loading">
+            <b-form-select
+              class="br-2"
+              v-model="select.month"
+              :disabled="loading"
+            >
               <template v-slot:first>
                 <option :value="null" disabled>select month</option>
               </template>
-              <b-select-option v-for="(month, i) in MonthsOptions" :key="i" :value="i">{{ month }}</b-select-option>
+              <b-select-option
+                v-for="(month, i) in MonthsOptions"
+                :key="i"
+                :value="i"
+                >{{ month }}</b-select-option
+              >
             </b-form-select>
           </div>
         </fieldset>
-        <b-button variant="info" @click="requestItems" :disabled="loading" class="br-2">
+        <b-button
+          variant="info"
+          @click="requestItems"
+          :disabled="loading"
+          class="br-2"
+        >
           Refresh
           <i class="fa fa-sync-alt" />
         </b-button>
       </header>
-      <b-table :items="shownData" :fields="table.fields" :busy="loading" head-variant="light" table-class="bg-white"
-        thead-class="primary-font" tbody-class="secondary-font" show-empty responsive bordered hover striped>
+      <b-table
+        :items="shownData"
+        :fields="table.fields"
+        :busy="loading"
+        head-variant="light"
+        table-class="bg-white"
+        thead-class="primary-font"
+        tbody-class="secondary-font"
+        show-empty
+        responsive
+        bordered
+        hover
+        striped
+      >
         <template v-slot:cell(method)="data">
           <div :class="data.value == 'momo-mtn-rw' ? 'mtn' : data.value">
-            <span>{{ data.value == 'momo-mtn-rw' ? 'mtn' : data.value }}</span>
+            <span>{{ data.value == "momo-mtn-rw" ? "mtn" : data.value }}</span>
           </div>
         </template>
         <template v-slot:cell(owner_firstname)="data">
-          {{ data.item.owner_firstname + " " + data.item.owner_lastname }}</template>
+          {{
+            data.item.owner_firstname + " " + data.item.owner_lastname
+          }}</template
+        >
         <template v-slot:cell(amount)="data">
           <article>{{ data.value | number }} Frw</article>
         </template>
@@ -63,11 +105,33 @@
           </div>
         </template>
         <template v-slot:empty>
-          <label class="table-empty" v-if="!no_data">No records of transactions for the month of
-            {{ selectedMonth }}!</label>
-          <label class="table-empty" v-else>No records of transactions found !</label>
+          <label class="table-empty" v-if="!no_data"
+            >No records of transactions for the month of
+            {{ selectedMonth }}!</label
+          >
+          <label class="table-empty" v-else
+            >No records of transactions found !</label
+          >
         </template>
       </b-table>
+      <div class="d-flex justify-content-end">
+        <div>
+          <p class="d-flex justify-content-between">
+            <strong>Amount  </strong>
+            <span class="ml-5"> {{ totalMonth | number }} Rwf</span>
+          </p>
+          <br />
+          <p class="d-flex justify-content-between">
+            <strong>Fee  </strong>
+             <span> {{ totalFee | number }} Rwf</span>
+          </p>
+          <hr />
+          <p class="d-flex justify-content-between">
+            <strong></strong>
+            <span> {{ (totalMonth - totalFee) | number }} Rwf</span>
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -81,6 +145,8 @@ export default {
   data() {
     return {
       loading: false,
+      totalFee: 0,
+      totalMonth: 0,
       transactionData: {},
       table: {
         fields: [
@@ -105,6 +171,13 @@ export default {
           {
             key: "amount",
             label: "Amount",
+            sortable: true,
+            thClass: "text-right",
+            tdClass: "text-right",
+          },
+          {
+            key: "fee",
+            label: "Fee",
             sortable: true,
             thClass: "text-right",
             tdClass: "text-right",
@@ -140,9 +213,12 @@ export default {
       const { year, month } = this.select;
       if (Object.keys(this.transactionData).length < 1) return [];
       else {
-        return this.transactionData[year] ? this.transactionData[year][month] : [];
+        return this.transactionData[year]
+          ? this.transactionData[year][month]
+          : [];
       }
     },
+
     MonthsOptions() {
       return this.$store.getters.getMonths.sort(
         (a, b) => a.date_recorded - b.date_recorded
@@ -209,6 +285,7 @@ export default {
               "date_recorded",
             ]);
           }
+          this.getPercentage();
         })
         .catch((err) => {
           console.log(err);
@@ -245,6 +322,14 @@ export default {
         return 0;
       }
     },
+    FeeTotal() {
+      if (this.shownData.length < 1) return 0;
+      try {
+        return this.shownData.reduce((a, b) => Number(a) + Number(b.fee), 0);
+      } catch {
+        return 0;
+      }
+    },
     mtnTotal() {
       // console.log(this.shownData);
       if (this.shownData.length < 1) return 0;
@@ -268,6 +353,12 @@ export default {
           new Date(this.GetObjectValue(key, item)).getFullYear() === year &&
           new Date(this.GetObjectValue(key, item)).getMonth() === month
       );
+    },
+    getPercentage() {
+      for (let i = 0; i < this.shownData.length; i++) {
+        this.totalMonth += this.shownData[i].amount;
+        this.totalFee += this.shownData[i].fee;
+      }
     },
   },
 };
