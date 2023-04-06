@@ -262,6 +262,8 @@ export default {
   },
   methods: {
     async requestItems() {
+      this.totalMonth = 0;
+      this.totalFee = 0;
       this.loading = true;
       const total = await this.$getTotal("/transactions?offset=0&limit=0");
       console.log(total);
