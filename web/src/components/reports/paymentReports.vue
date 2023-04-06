@@ -503,7 +503,22 @@
                 <template v-slot:cell(index)="data">
                   <article class="text-center">{{ data.index + 1 }}</article>
                 </template>
-               
+                <template v-slot:custom-foot>
+                  <b-tr class="total">
+                    <b-td></b-td>
+                    <b-td></b-td>
+                    <b-td></b-td>
+                    <b-td></b-td>
+                    <b-td class="text-center py-3">
+                      <small
+                        ><strong style=""
+                          ><span style="color: #dc3545">Total </span>:
+                          {{ dailyTotal }} Rwf</strong
+                        ></small
+                      >
+                    </b-td>
+                  </b-tr>
+                </template>
               </b-table>
               <b-pagination
                 class="my-0"
@@ -541,6 +556,7 @@ export default {
       isLoadingdata: false,
       reportTitle: "",
       totalAmount: 0,
+      dailyTotal: 0,
       search: "",
       form: {
         select: {
@@ -949,14 +965,10 @@ export default {
         console.log("data", data);
         this.dailyreports = data;
         var myObj = {};
-        // myObj = data;
-        // if (Object.keys(myObj).length === 0) {
-        //   console.log("Object is empty");
-        //   this.dailyreports = [];
-        // } else {
-        //   this.dailyreports.push(myObj);
-        //   console.log("Object is not empty");
-        // }
+        for (let i = 0; i < data.length; i++) {
+          
+          this.dailyTotal += data[i].amount;
+        }
         this.pagination.totalRows = data.Total;
         // console.log("reports", this.reports);
       } catch (error) {
