@@ -115,18 +115,18 @@
         </template>
       </b-table>
       <div class="d-flex justify-content-end">
-        <div>
-          <p class="d-flex justify-content-between">
+        <div style="">
+          <p class="d-flex justify-content-between" style="font-size:18px">
             <strong>Amount  </strong>
             <span class="ml-5"> {{ totalMonth | number }} Rwf</span>
           </p>
           <br />
-          <p class="d-flex justify-content-between">
+          <p class="d-flex justify-content-between" style="font-size:18px">
             <strong>Fee  </strong>
              <span> {{ totalFee | number }} Rwf</span>
           </p>
           <hr />
-          <p class="d-flex justify-content-between">
+          <p class="d-flex justify-content-between" style="font-size:18px">
             <strong></strong>
             <span> {{ (totalMonth - totalFee) | number }} Rwf</span>
           </p>
