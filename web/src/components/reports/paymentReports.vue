@@ -426,6 +426,9 @@
                 <template v-slot:cell(index)="data">
                   <article class="text-center">{{ data.index + 1 }}</article>
                 </template>
+                 <template v-slot:cell(amount)="data">
+                  <article class="text-center">{{ data.item.amount | number }}</article>
+                </template>
                 <template v-slot:custom-foot>
                   <b-tr class="total">
                     <b-td></b-td>
@@ -436,7 +439,7 @@
                       <small
                         ><strong style=""
                           ><span style="color: #dc3545">Total </span>:
-                          {{ totalAmount }} Rwf</strong
+                          {{ totalAmount | number }} Rwf</strong
                         ></small
                       >
                     </b-td>
@@ -816,7 +819,7 @@ export default {
       this.isLoading1 = true;
       this.isLoadingdata = true;
       this.reportTitle = "All House Report";
-      console.log("generate all house");
+      // console.log("generate all house");
       this.loading = true;
       const yearString = this.object.year;
       var monthString = this.object.month;
@@ -877,7 +880,7 @@ export default {
       this.state.showReport2 = false;
       this.isLoadingdata = true;
       this.reportTitle = "Paid House Report";
-      console.log("generate paid house");
+      // console.log("generate paid house");
       this.loading = true;
       const yearString = this.object.year;
       var monthString = this.object.month;
@@ -929,7 +932,7 @@ export default {
       this.state.showReport2 = false;
       this.isLoadingdata = true;
       this.reportTitle = " Unpaid House Report";
-      console.log("generate unpaid house");
+      // console.log("generate unpaid house");
       this.loading = true;
       const yearString = this.object.year;
       var monthString = this.object.month;
@@ -982,7 +985,7 @@ export default {
       this.state.showReport2 = false;
       this.dailyTotal = 0
       this.isLoadingdata = true;
-      console.log("generate daily report");
+      // console.log("generate daily report");
       this.loading = true;
 
       this.from = this.object.frommonth;
@@ -1005,9 +1008,8 @@ export default {
         else {
           this.reportTitle = ` Daily Report Of  ${this.form.select.sector}`;
         }
-        console.log("data", data);
+        // console.log("data", data);
         this.dailyreports = data;
-        var myObj = {};
         for (let i = 0; i < data.length; i++) {
           
           this.dailyTotal += data[i].amount;
@@ -1037,7 +1039,7 @@ export default {
     },
 
     downloadReport() {
-      console.log(this.reports);
+      // console.log(this.reports);
       if (this.reports.length > 0) {
         const data = {
           config: {
@@ -1094,7 +1096,7 @@ export default {
       }
     },
     downloadDailyReport() {
-      console.log(this.dailyreports);
+      // console.log(this.dailyreports);
       if (this.dailyreports.length > 0) {
         const data = {
           config: {
