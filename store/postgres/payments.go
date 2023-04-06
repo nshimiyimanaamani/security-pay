@@ -500,8 +500,9 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 	selectQuery := `
 	SELECT 
 
-		COUNT(*) AS successful_transactions,
+		COUNT(p.id) AS successful_transactions,
 		COALESCE(SUM(t.amount), 0)
+		DATE(t.created_at) as date
 	FROM 
 		transactions t
 	JOIN 
@@ -542,7 +543,7 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 	out := []payment.Transaction{}
 	for rows.Next() {
 		var transaction payment.Transaction
-		err = rows.Scan(&transaction.Transactions, &transaction.Amount)
+		err = rows.Scan(&transaction.Transactions, &transaction.Amount, &transaction.Date)
 		if err != nil {
 			return []payment.Transactions{}, errors.E(op, err)
 		}
