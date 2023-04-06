@@ -339,7 +339,7 @@
                   </b-form-select>
                 </b-form-group>
 
-                <b-form-group label="Village:">
+                <!-- <b-form-group label="Village:">
                   <b-select
                     v-model="form.select.village"
                     :options="villageOptions"
@@ -350,7 +350,7 @@
                       <option :value="null" disabled>select village</option>
                     </template>
                   </b-select>
-                </b-form-group>
+                </b-form-group> -->
                 <!-- <b-form-group label="From Month">
                   <div class="input-date">
                     <input type="date" v-model="object.frommonth" />
@@ -503,6 +503,12 @@
                 <template v-slot:cell(index)="data">
                   <article class="text-center">{{ data.index + 1 }}</article>
                 </template>
+                <template v-slot:cell(created_at)="data">
+                  <article class="text-center">{{ data.item.created_at | date }}</article>
+                </template>
+                <template v-slot:cell(amount)="data">
+                  <article class="text-center">{{ data.item.amount | number }}</article>
+                </template>
                 <template v-slot:custom-foot>
                   <b-tr class="total">
                     <b-td></b-td>
@@ -513,10 +519,11 @@
                       <small
                         ><strong style=""
                           ><span style="color: #dc3545">Total </span>:
-                          {{ dailyTotal }} Rwf</strong
+                          {{ dailyTotal | number }} Rwf</strong
                         ></small
                       >
                     </b-td>
+                    <b-td></b-td>
                   </b-tr>
                 </template>
               </b-table>
@@ -538,6 +545,11 @@
 
       <b-row v-if="showDownload" class="py-3 justify-content-end" no-gutters>
         <b-button @click="downloadReport" variant="info" class="downloadBtn">
+          <i class="fa fa-download mr-1" />Download Report
+        </b-button>
+      </b-row>
+      <b-row v-if="showDownload2" class="py-3 justify-content-end" no-gutters>
+        <b-button @click="downloadDailyReport" variant="info" class="downloadBtn">
           <i class="fa fa-download mr-1" />Download Report
         </b-button>
       </b-row>
@@ -717,6 +729,10 @@ export default {
       if (this.reports == null || !this.state.showReport) return false;
       return true;
     },
+    showDownload2() {
+      if (this.dailyreports == null || !this.state.showReport2) return false;
+      return true;
+    },
     currentYear() {
       this.object.year = new Date().getFullYear();
       return new Date().getFullYear();
@@ -762,6 +778,27 @@ export default {
             });
           }
         }
+      }
+    },
+  },
+  filters: {
+    number: (num) => {
+      return Number(num).toLocaleString();
+    },
+    date: (date) => {
+      try {
+        return date.slice(0, 10);
+        const o = new Date(date);
+        return new Intl.DateTimeFormat("en-US", {
+          hour12: false,
+          year: "numeric",
+          month: "long",
+          day: "2-digit",
+          hour: "numeric",
+          minute: "numeric",
+        }).format(o);
+      } catch {
+        return date.replace("T", " ").replace("Z", "");
       }
     },
   },
@@ -943,6 +980,7 @@ export default {
       this.reportTitle = "Daily Report";
       this.state.showReport = false;
       this.state.showReport2 = false;
+      this.dailyTotal = 0
       this.isLoadingdata = true;
       console.log("generate daily report");
       this.loading = true;
@@ -961,7 +999,12 @@ export default {
             // to: this.to,
           },
         });
-        this.reportTitle = "Daily Report";
+        if(this.form.select.cell != null) {
+          this.reportTitle = ` Daily Report Of  ${this.form.select.cell}`;
+        }
+        else {
+          this.reportTitle = ` Daily Report Of  ${this.form.select.sector}`;
+        }
         console.log("data", data);
         this.dailyreports = data;
         var myObj = {};
@@ -1044,6 +1087,44 @@ export default {
                 // { header: `Unpaid Amount`, dataKey: "unpayedAmount" },
               ],
               BODY: this.reports,
+            },
+          ],
+        };
+        download(data);
+      }
+    },
+    downloadDailyReport() {
+      console.log(this.dailyreports);
+      if (this.dailyreports.length > 0) {
+        const data = {
+          config: {
+            TITLE: String(` ${this.reportTitle}`).toUpperCase(),
+            name: `${this.reportTitle} `,
+            // date: this.object.month,
+          },
+          data: [
+            
+            {
+              COLUMNS: [
+                
+                {
+                  header: `Cell`,
+                  dataKey: "cell",
+                },
+                {
+                  header: `Village`,
+                  dataKey: "village",
+                },
+                { header: `No Of Houses`, dataKey: "houses" },
+                { header: `Amount`, dataKey: "amount" },
+                { header: `Date`, dataKey: "created_at" },
+                // {
+                //   header: `No of Unpaid Properties`,
+                //   dataKey: "pending",
+                // },
+                // { header: `Unpaid Amount`, dataKey: "unpayedAmount" },
+              ],
+              BODY: this.dailyreports,
             },
           ],
         };
