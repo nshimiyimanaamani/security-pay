@@ -162,6 +162,12 @@ func DailyTransactions(logger log.Entry, svc payment.Repository) http.Handler {
 			encodeErr(w, err)
 			return
 		}
+
+		if (cast.Uint64Pointer(offset) == nil || cast.Uint64Pointer(limit) == nil) || (offset == 0 && limit == 0) {
+			offset = *cast.Uint64Pointer(0)
+			limit = *cast.Uint64Pointer(20)
+		}
+
 		creds := auth.CredentialsFromContext(r.Context())
 		flt := &payment.MetricFilters{
 

@@ -130,6 +130,10 @@ type Transaction struct {
 	Date         string  `json:"date,omitempty"`
 }
 
+type Summaries struct {
+	Summaries []Summary `json:"summaries"`
+}
+
 type Summary struct {
 	Houses     int64      `json:"houses,omitempty"`
 	Amount     float64    `json:"amount,omitempty"`

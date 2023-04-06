@@ -501,7 +501,7 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 	SELECT 
 
 		COUNT(p.id) AS successful_transactions,
-		COALESCE(SUM(t.amount), 0)
+		COALESCE(SUM(t.amount), 0),
 		DATE(t.created_at) as date
 	FROM 
 		transactions t
@@ -549,6 +549,7 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 		}
 
 		out = append(out, transaction)
+
 	}
 
 	if err = rows.Err(); err != nil {
@@ -597,13 +598,13 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 
 }
 
-func (repo *paymentStore) TodaySummary(ctx context.Context, flts *payment.MetricFilters) ([]payment.Summary, error) {
+func (repo *paymentStore) TodaySummary(ctx context.Context, flts *payment.MetricFilters) (payment.Summaries, error) {
 
 	const op errors.Op = "store/postgres/paymentStore.TodaySummary"
 
 	tx, err := repo.BeginTx(ctx, nil)
 	if err != nil {
-		return []payment.Summary{}, errors.E(op, err)
+		return payment.Summaries{}, errors.E(op, err)
 	}
 	defer tx.Rollback()
 
@@ -642,19 +643,19 @@ func (repo *paymentStore) TodaySummary(ctx context.Context, flts *payment.Metric
 
 	rows, err := tx.Query(selectQuery)
 	if err != nil {
-		return []payment.Summary{}, errors.E(op, err)
+		return payment.Summaries{}, errors.E(op, err)
 	}
 	defer rows.Close()
-	out := []payment.Summary{}
-	for rows.Next() {
 
+	out := payment.Summaries{}
+	for rows.Next() {
 		var transaction payment.Summary
 		err = rows.Scan(&transaction.Houses, &transaction.Amount, &transaction.Cell, &transaction.Village, &transaction.Created_at)
 		if err != nil {
-			return []payment.Summary{}, errors.E(op, err)
+			return payment.Summaries{}, errors.E(op, err)
 		}
 
-		out = append(out, transaction)
+		out.Summaries = append(out.Summaries, transaction)
 	}
 
 	return out, tx.Commit()
