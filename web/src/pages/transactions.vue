@@ -116,17 +116,17 @@
       </b-table>
       <div class="d-flex justify-content-end">
         <div style="">
-          <p class="d-flex justify-content-between" style="font-size:18px">
-            <strong>Amount  </strong>
+          <p class="d-flex justify-content-between" style="font-size: 18px">
+            <strong>Amount </strong>
             <span class="ml-5"> {{ totalMonth | number }} Rwf</span>
           </p>
           <br />
-          <p class="d-flex justify-content-between" style="font-size:18px">
-            <strong>Fee  </strong>
-             <span> {{ totalFee | number }} Rwf</span>
+          <p class="d-flex justify-content-between" style="font-size: 18px">
+            <strong>Fee </strong>
+            <span> {{ totalFee | number }} Rwf</span>
           </p>
           <hr />
-          <p class="d-flex justify-content-between" style="font-size:18px">
+          <p class="d-flex justify-content-between" style="font-size: 18px">
             <strong></strong>
             <span> {{ (totalMonth - totalFee) | number }} Rwf</span>
           </p>
@@ -213,9 +213,18 @@ export default {
       const { year, month } = this.select;
       if (Object.keys(this.transactionData).length < 1) return [];
       else {
-        return this.transactionData[year]
+        const Data = this.transactionData[year]
           ? this.transactionData[year][month]
           : [];
+        // this.getPercentage();
+        this.totalMonth = 0;
+        this.totalFee = 0;
+        for (let i = 0; i < Data.length; i++) {
+          this.totalMonth += Data[i].amount;
+          this.totalFee += Data[i].fee;
+        }
+
+        return Data;
       }
     },
 
@@ -357,10 +366,13 @@ export default {
       );
     },
     getPercentage() {
-      for (let i = 0; i < this.shownData.length; i++) {
-        this.totalMonth += this.shownData[i].amount;
-        this.totalFee += this.shownData[i].fee;
-      }
+      // console.log("hello");
+      // this.totalMonth = 0;
+      // this.totalFee = 0;
+      // for (let i = 0; i < this.shownData.length; i++) {
+      //   this.totalMonth += this.shownData[i].amount;
+      //   this.totalFee += this.shownData[i].fee;
+      // }
     },
   },
 };
