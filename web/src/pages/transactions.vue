@@ -118,12 +118,12 @@
         <div style="">
           <p class="d-flex justify-content-between" style="font-size: 18px">
             <strong>Amount </strong>
-            <span class="ml-5"> {{ totalMonth | number }} Rwf</span>
+            <span class="ml-5"> {{ MonthTotal() | number }} Rwf</span>
           </p>
           <br />
           <p class="d-flex justify-content-between" style="font-size: 18px">
             <strong>Fee </strong>
-            <span> {{ totalFee | number }} Rwf</span>
+            <span> {{ FeeTotal() | number }} Rwf</span>
           </p>
           <hr />
           <p class="d-flex justify-content-between" style="font-size: 18px">
