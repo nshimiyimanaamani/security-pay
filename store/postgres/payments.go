@@ -576,9 +576,17 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
 	}
 
+	if flts.From != nil {
+		selectQuery += fmt.Sprintf(" AND DATE(t.created_at) >= '%s'", *flts.From)
+	}
+	if flts.To != nil {
+		selectQuery += fmt.Sprintf(" AND DATE(t.created_at) <= '%s'", *flts.To)
+	}
+
 	if flts.Creds != nil {
 		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
 	}
+	selectQuery += ` GROUP BY  DATE(t.created_at)`
 
 	var total uint64
 	if err := tx.QueryRow(selectQuery).Scan(&total); err != nil {
