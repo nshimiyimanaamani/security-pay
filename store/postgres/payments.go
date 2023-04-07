@@ -534,7 +534,7 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 
 	selectQuery += fmt.Sprintf(" OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
 
-	rows, err := tx.Query(selectQuery)
+	rows, err := tx.QueryContext(ctx, selectQuery)
 	if err != nil {
 		return payment.Transactions{}, errors.E(op, err)
 	}
@@ -557,9 +557,9 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 	}
 
 	// calculate total
-	selectQuery = `
+	countQuery := `
 	SELECT
-		COUNT(p.id) 
+		COUNT(p.id) OVER() AS total
 	FROM
 		transactions t
 	JOIN
@@ -567,29 +567,29 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 	WHERE 1=1 `
 
 	if flts.Sector != nil {
-		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
+		countQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
 	}
 	if flts.Village != nil {
-		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
+		countQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
 	}
 	if flts.Cell != nil {
-		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
+		countQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
 	}
 
 	if flts.From != nil {
-		selectQuery += fmt.Sprintf(" AND DATE(t.created_at) >= '%s'", *flts.From)
+		countQuery += fmt.Sprintf(" AND DATE(t.created_at) >= '%s'", *flts.From)
 	}
 	if flts.To != nil {
-		selectQuery += fmt.Sprintf(" AND DATE(t.created_at) <= '%s'", *flts.To)
+		countQuery += fmt.Sprintf(" AND DATE(t.created_at) <= '%s'", *flts.To)
 	}
 
 	if flts.Creds != nil {
-		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
+		countQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
 	}
-	selectQuery += ` GROUP BY  DATE(t.created_at)`
+	countQuery += ` GROUP BY  DATE(t.created_at), p.id`
 
 	var total uint64
-	if err := tx.QueryRow(selectQuery).Scan(&total); err != nil {
+	if err := tx.QueryRowContext(ctx, countQuery).Scan(&total); err != nil {
 		return payment.Transactions{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	// return the transactionpage
