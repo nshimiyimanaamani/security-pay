@@ -488,12 +488,12 @@ func (repo *paymentStore) TodayTransaction(ctx context.Context, flts *payment.Me
 }
 
 // Implement the ListDailyTransactions
-func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payment.MetricFilters) ([]payment.Transactions, error) {
+func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payment.MetricFilters) (payment.Transactions, error) {
 	const op errors.Op = "store/postgres/paymentStore.ListDailyTransactions"
 
 	tx, err := repo.BeginTx(ctx, nil)
 	if err != nil {
-		return []payment.Transactions{}, errors.E(op, err)
+		return payment.Transactions{}, errors.E(op, err)
 	}
 	defer tx.Rollback()
 
@@ -536,7 +536,7 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 
 	rows, err := tx.Query(selectQuery)
 	if err != nil {
-		return []payment.Transactions{}, errors.E(op, err)
+		return payment.Transactions{}, errors.E(op, err)
 	}
 	defer rows.Close()
 
@@ -545,7 +545,7 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 		var transaction payment.Transaction
 		err = rows.Scan(&transaction.Transactions, &transaction.Amount, &transaction.Date)
 		if err != nil {
-			return []payment.Transactions{}, errors.E(op, err)
+			return payment.Transactions{}, errors.E(op, err)
 		}
 
 		out = append(out, transaction)
@@ -553,7 +553,7 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 	}
 
 	if err = rows.Err(); err != nil {
-		return []payment.Transactions{}, errors.E(op, err)
+		return payment.Transactions{}, errors.E(op, err)
 	}
 
 	// calculate total
@@ -582,20 +582,19 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 
 	var total uint64
 	if err := tx.QueryRow(selectQuery).Scan(&total); err != nil {
-		return []payment.Transactions{}, errors.E(op, err, errors.KindUnexpected)
+		return payment.Transactions{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	// return the transactionpage
-	return []payment.Transactions{
-		{
-			Transactions: out,
-			PageMetadata: payment.PageMetadata{
-				Total:  total,
-				Offset: *flts.Offset,
-				Limit:  *flts.Limit,
-			},
+	resp := payment.Transactions{
+		Transactions: out,
+		PageMetadata: payment.PageMetadata{
+			Total:  total,
+			Offset: *flts.Offset,
+			Limit:  *flts.Limit,
 		},
-	}, tx.Commit()
+	}
 
+	return resp, tx.Commit()
 }
 
 func (repo *paymentStore) TodaySummary(ctx context.Context, flts *payment.MetricFilters) (payment.Summaries, error) {

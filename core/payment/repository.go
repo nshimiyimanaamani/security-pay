@@ -24,7 +24,7 @@ type Repository interface {
 	TodayTransaction(context.Context, *MetricFilters) (Transaction, error)
 
 	//Returns Transactions Per Sector,cell,village
-	ListDailyTransactions(context.Context, *MetricFilters) ([]Transactions, error)
+	ListDailyTransactions(context.Context, *MetricFilters) (Transactions, error)
 
 	//Returns Transactions Per Sector,cell,village
 	TodaySummary(context.Context, *MetricFilters) (Summaries, error)
