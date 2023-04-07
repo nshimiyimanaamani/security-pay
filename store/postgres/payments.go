@@ -559,7 +559,7 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 	// calculate total
 	selectQuery = `
 	SELECT
-		COUNT(*) 
+		COUNT(p.id) 
 	FROM
 		transactions t
 	JOIN
@@ -647,7 +647,7 @@ func (repo *paymentStore) TodaySummary(ctx context.Context, flts *payment.Metric
 	}
 	defer rows.Close()
 
-	out := payment.Summaries{}
+	items := []payment.Summary{}
 	for rows.Next() {
 		var transaction payment.Summary
 		err = rows.Scan(&transaction.Houses, &transaction.Amount, &transaction.Cell, &transaction.Village, &transaction.Created_at)
@@ -655,7 +655,10 @@ func (repo *paymentStore) TodaySummary(ctx context.Context, flts *payment.Metric
 			return payment.Summaries{}, errors.E(op, err)
 		}
 
-		out.Summaries = append(out.Summaries, transaction)
+		items = append(items, transaction)
+	}
+	out := payment.Summaries{
+		Summaries: items,
 	}
 
 	return out, tx.Commit()
