@@ -6,7 +6,11 @@
         <h5 class="text-center mb-1">ADD PROPERTY</h5>
         <i class="fa fa-times" @click="$emit('closeModal')" />
       </header>
-      <b-form @submit.prevent="search_user" @reset="resetModal" class="modal-body p-4">
+      <b-form
+        @submit.prevent="search_user"
+        @reset="resetModal"
+        class="modal-body p-4"
+      >
         <b-form-group
           id="input-group-1"
           label="First Name:"
@@ -34,7 +38,11 @@
             placeholder="Last name"
           ></b-form-input>
         </b-form-group>
-        <b-form-group id="input-group-3" label="Phone Number" label-for="input-3">
+        <b-form-group
+          id="input-group-3"
+          label="Phone Number"
+          label-for="input-3"
+        >
           <b-form-input
             id="input-3"
             v-model="form.phone"
@@ -45,10 +53,17 @@
             class="br-2"
             placeholder="Phone number"
           ></b-form-input>
-          <b-form-invalid-feedback :state="checkNumber">Please use a valid Phone number!</b-form-invalid-feedback>
+          <b-form-invalid-feedback :state="checkNumber"
+            >Please use a valid Phone number!</b-form-invalid-feedback
+          >
         </b-form-group>
         <!-- second Modal -->
-        <b-form-group id="input-group-4" label-for="range-1" v-show="state.switch" class>
+        <b-form-group
+          id="input-group-4"
+          label-for="range-1"
+          v-show="state.switch"
+          class
+        >
           <template v-slot:label>
             <b-row class="m-0 align-items-center">
               Due:
@@ -73,7 +88,11 @@
             class="pt-2 pr-2 pb-4"
           >
             <template v-slot:label="{ active, value }">
-              <div :class="['vue-slider-mark-label', 'custom-label', { active }]">{{ value/1000 }}K</div>
+              <div
+                :class="['vue-slider-mark-label', 'custom-label', { active }]"
+              >
+                {{ value / 1000 }}K
+              </div>
             </template>
           </vue-slider>
         </b-form-group>
@@ -82,11 +101,20 @@
             v-model="form.occupied"
             :options="occupiedOptions"
             name="radios-stacked"
-            :state="occupied?true:false"
+            :state="occupied ? true : false"
           ></b-form-radio-group>
         </b-form-group>
-        <b-form-group id="input-group-5" label="Cell:" label-for="input-4" v-show="state.switch">
-          <b-form-select v-model="address.cell" :options="cellOptions" class="br-2">
+        <b-form-group
+          id="input-group-5"
+          label="Cell:"
+          label-for="input-4"
+          v-show="state.switch"
+        >
+          <b-form-select
+            v-model="address.cell"
+            :options="cellOptions"
+            class="br-2"
+          >
             <template v-slot:first>
               <option :value="null" disabled>select a cell</option>
             </template>
@@ -99,19 +127,25 @@
           v-show="state.switch"
           class="mb-3"
         >
-          <b-form-select v-model="address.village" :options="villageOptions" class="br-2">
+          <b-form-select
+            v-model="address.village"
+            :options="villageOptions"
+            class="br-2"
+          >
             <template v-slot:first>
               <option :value="null" disabled>select a village</option>
             </template>
           </b-form-select>
         </b-form-group>
         <b-form-group class="mb-0 mt-4">
-          <b-button :disabled="!clickable" type="submit" variant="info" class="br-2">
-            {{state.adding ? btnContent+'ing' : btnContent}}
-            <i
-              v-if="state.adding"
-              class="fa fa-spinner fa-spin"
-            />
+          <b-button
+            :disabled="!clickable"
+            type="submit"
+            variant="info"
+            class="br-2"
+          >
+            {{ state.adding ? btnContent + "ing" : btnContent }}
+            <i v-if="state.adding" class="fa fa-spinner fa-spin" />
             <i v-if="!state.adding" class="fa fa-search" />
           </b-button>
           <b-button type="reset" class="br-2" variant="danger">cancel</b-button>
@@ -173,8 +207,21 @@ export default {
       if (cell) return this.$villages(province, district, sector, cell);
       return [];
     },
+
     checkNumber() {
-      return this.form.phone ? this.$isPhoneNumber(this.form.phone) : null;
+      // return this.form.phone ? this.$isPhoneNumber(this.form.phone) : null;
+      const re = /^(\+?25)?(078|073|072|079)\d{7}$/;
+      if(this.form.phone) {
+        if (!re.test(this.form.phone)) {
+        return false;
+        return errors.format;
+      }
+      return true;
+      }
+      else {
+        return null;
+      }
+      
     },
     userDetails() {
       console.log(this.$store.getters.userDetails);
