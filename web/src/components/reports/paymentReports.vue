@@ -317,7 +317,14 @@
                     <b-td></b-td>
                     <b-td></b-td>
                     <b-td></b-td>
-                    <b-td></b-td>
+                    <b-td class="text-center py-3">
+                      <small
+                        ><strong style=""
+                          ><span style="color: #dc3545">Total </span>:
+                          {{ houseTotal | number }} Houses</strong
+                        ></small
+                      >
+                    </b-td>
                     <b-td class="text-center py-3">
                       <small><strong style=""><span style="color: #dc3545">Total </span>:
                           {{ dailyTotal | number }} Rwf</strong></small>
@@ -361,6 +368,7 @@ export default {
       reportTitle: "",
       totalAmount: 0,
       dailyTotal: 0,
+      houseTotal: 0,
       search: "",
       form: {
         select: {
@@ -797,11 +805,12 @@ export default {
         else {
           this.reportTitle = ` Daily Report Of  ${this.form.select.sector}`;
         }
-        // console.log("data", data.summaries);
-        this.dailyreports = data.summaries;
-        for (let i = 0; i < data.summaries.length; i++) {
-
-          this.dailyTotal += data.summaries[i].amount;
+        // console.log("data", data);
+        this.dailyreports = data;
+        for (let i = 0; i < data.length; i++) {
+          
+          this.dailyTotal += data[i].amount;
+          this.houseTotal += data[i].houses
         }
         // this.pagination.totalRows = data.Total;
         // console.log("reports", this.reports);

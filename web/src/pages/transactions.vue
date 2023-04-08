@@ -9,6 +9,7 @@
           style="font-size: 40px"
           >RWF &nbsp;{{ GrandTotal() | number }}</b-col
         >
+        <b-col cols="6" md="1"></b-col>
       </b-row>
       <b-row class="text-white">
         <b-col cols="3" class="ml-auto">
@@ -19,11 +20,13 @@
           <p class="text-overflow">MTN MoMo</p>
           <p>RWF {{ mtnTotal() | number }}</p>
         </b-col>
+        <b-col cols="6" md="1"></b-col>
       </b-row>
     </div>
-    <div class="transaction-table max-width bg-light">
+    <div class="transaction-table  bg-light">
       <header class="primary-font mb-3 table-header">
         <h3>All Transactions</h3>
+        
         <fieldset class="control">
           <div v-show="!loading">
             <b-form-select
