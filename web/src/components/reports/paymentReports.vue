@@ -4,23 +4,12 @@
     <div class="tabBody">
       <b-row class="m-0 buttons">
         <div>
-          <b-dropdown
-            v-model="dropdownone"
-            text="Generate All House Report"
-            ref="dropdown"
-            class="m-2"
-            variant="info"
-            :busy="isLoading1"
-          >
+          <b-dropdown v-model="dropdownone" text="Generate All House Report" ref="dropdown" class="m-2" variant="info"
+            :busy="isLoading1">
             <b-dropdown-form style="width: 230px">
               <b-form class="accountForm">
                 <b-form-group label="Sector:">
-                  <b-form-select
-                    class="br-2"
-                    v-model="form.select.sector"
-                    :options="sectorOptions"
-                    required
-                  >
+                  <b-form-select class="br-2" v-model="form.select.sector" :options="sectorOptions" required>
                     <template v-slot:first>
                       <option :value="null" disabled>select sector</option>
                     </template>
@@ -28,12 +17,7 @@
                 </b-form-group>
 
                 <b-form-group label="Cell:">
-                  <b-form-select
-                    class="br-2"
-                    v-model="form.select.cell"
-                    :options="cellOptions"
-                    required
-                  >
+                  <b-form-select class="br-2" v-model="form.select.cell" :options="cellOptions" required>
                     <template v-slot:first>
                       <option :value="null" disabled>select cell</option>
                     </template>
@@ -41,12 +25,7 @@
                 </b-form-group>
 
                 <b-form-group label="Village:">
-                  <b-select
-                    v-model="form.select.village"
-                    :options="villageOptions"
-                    class="br-2"
-                    required
-                  >
+                  <b-select v-model="form.select.village" :options="villageOptions" class="br-2" required>
                     <template v-slot:first>
                       <option :value="null" disabled>select village</option>
                     </template>
@@ -62,36 +41,16 @@
                     <input type="date" v-model="object.tomonth" />
                   </div>
                 </b-form-group> -->
-                <b-form-group
-                  label="Year"
-                  :label-for="'dropdown-year_' + random"
-                >
-                  <b-form-select
-                    :id="'dropdown-year_' + random"
-                    v-model="object.year"
-                    class="bg-light"
-                    size="sm"
-                  >
-                    <option
-                      v-for="(year, i) in currentYear - 2019"
-                      :value="currentYear - i"
-                      :key="`year` + year"
-                    >
+                <b-form-group label="Year" :label-for="'dropdown-year_' + random">
+                  <b-form-select :id="'dropdown-year_' + random" v-model="object.year" class="bg-light" size="sm">
+                    <option v-for="(year, i) in currentYear - 2019" :value="currentYear - i" :key="`year` + year">
                       {{ currentYear - i }}
                     </option>
                   </b-form-select>
                 </b-form-group>
 
-                <b-form-group
-                  label="Month"
-                  :label-for="'dropdown-month_' + random"
-                >
-                  <b-form-select
-                    :id="'dropdown-month' + random"
-                    v-model="object.month"
-                    class="bg-light"
-                    size="sm"
-                  >
+                <b-form-group label="Month" :label-for="'dropdown-month_' + random">
+                  <b-form-select :id="'dropdown-month' + random" v-model="object.month" class="bg-light" size="sm">
                     <option v-for="i in 12" :value="i" :key="`month` + i">
                       {{ months[i - 1] }}
                     </option>
@@ -101,9 +60,7 @@
             </b-dropdown-form>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item no-hover no-active>
-              <b-button variant="info" block @click="getAllHouse"
-                >Generate</b-button
-              >
+              <b-button variant="info" block @click="getAllHouse">Generate</b-button>
             </b-dropdown-item>
           </b-dropdown>
           <!-- <b-button variant="info" @click="getAllHouse">Generate All House Report</b-button> -->
@@ -112,22 +69,11 @@
           <b-button variant="info">Generate Paid House Report</b-button>
         </div> -->
         <div>
-          <b-dropdown
-            v-model="dropdownone"
-            text="Generate Paid House Report"
-            ref="dropdown"
-            class="m-2"
-            variant="info"
-          >
+          <b-dropdown v-model="dropdownone" text="Generate Paid House Report" ref="dropdown" class="m-2" variant="info">
             <b-dropdown-form style="width: 248px">
               <b-form class="accountForm">
                 <b-form-group label="Sector:">
-                  <b-form-select
-                    class="br-2"
-                    v-model="form.select.sector"
-                    :options="sectorOptions"
-                    required
-                  >
+                  <b-form-select class="br-2" v-model="form.select.sector" :options="sectorOptions" required>
                     <template v-slot:first>
                       <option :value="null" disabled>select sector</option>
                     </template>
@@ -135,12 +81,7 @@
                 </b-form-group>
 
                 <b-form-group label="Cell:">
-                  <b-form-select
-                    class="br-2"
-                    v-model="form.select.cell"
-                    :options="cellOptions"
-                    required
-                  >
+                  <b-form-select class="br-2" v-model="form.select.cell" :options="cellOptions" required>
                     <template v-slot:first>
                       <option :value="null" disabled>select cell</option>
                     </template>
@@ -148,47 +89,22 @@
                 </b-form-group>
 
                 <b-form-group label="Village:">
-                  <b-select
-                    v-model="form.select.village"
-                    :options="villageOptions"
-                    class="br-2"
-                    required
-                  >
+                  <b-select v-model="form.select.village" :options="villageOptions" class="br-2" required>
                     <template v-slot:first>
                       <option :value="null" disabled>select village</option>
                     </template>
                   </b-select>
                 </b-form-group>
-                <b-form-group
-                  label="Year"
-                  :label-for="'dropdown-year_' + random"
-                >
-                  <b-form-select
-                    :id="'dropdown-year_' + random"
-                    v-model="object.year"
-                    class="bg-light"
-                    size="sm"
-                  >
-                    <option
-                      v-for="(year, i) in currentYear - 2019"
-                      :value="currentYear - i"
-                      :key="`year` + year"
-                    >
+                <b-form-group label="Year" :label-for="'dropdown-year_' + random">
+                  <b-form-select :id="'dropdown-year_' + random" v-model="object.year" class="bg-light" size="sm">
+                    <option v-for="(year, i) in currentYear - 2019" :value="currentYear - i" :key="`year` + year">
                       {{ currentYear - i }}
                     </option>
                   </b-form-select>
                 </b-form-group>
 
-                <b-form-group
-                  label="Month"
-                  :label-for="'dropdown-month_' + random"
-                >
-                  <b-form-select
-                    :id="'dropdown-month' + random"
-                    v-model="object.month"
-                    class="bg-light"
-                    size="sm"
-                  >
+                <b-form-group label="Month" :label-for="'dropdown-month_' + random">
+                  <b-form-select :id="'dropdown-month' + random" v-model="object.month" class="bg-light" size="sm">
                     <option v-for="i in 12" :value="i" :key="`month` + i">
                       {{ months[i - 1] }}
                     </option>
@@ -198,9 +114,7 @@
             </b-dropdown-form>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item no-hover no-active>
-              <b-button variant="info" block @click="getPaidHouse"
-                >Generate</b-button
-              >
+              <b-button variant="info" block @click="getPaidHouse">Generate</b-button>
             </b-dropdown-item>
           </b-dropdown>
           <!-- <b-button variant="info" @click="getAllHouse">Generate All House Report</b-button> -->
@@ -209,22 +123,11 @@
           <b-button variant="info">Generate Unpaid House Report</b-button>
         </div> -->
         <div>
-          <b-dropdown
-            v-model="dropdownone"
-            text="Generate Unpaid House Report"
-            ref="dropdown"
-            class="m-2"
-            variant="info"
-          >
+          <b-dropdown v-model="dropdownone" text="Generate Unpaid House Report" ref="dropdown" class="m-2" variant="info">
             <b-dropdown-form style="width: 270px">
               <b-form class="accountForm">
                 <b-form-group label="Sector:">
-                  <b-form-select
-                    class="br-2"
-                    v-model="form.select.sector"
-                    :options="sectorOptions"
-                    required
-                  >
+                  <b-form-select class="br-2" v-model="form.select.sector" :options="sectorOptions" required>
                     <template v-slot:first>
                       <option :value="null" disabled>select sector</option>
                     </template>
@@ -232,12 +135,7 @@
                 </b-form-group>
 
                 <b-form-group label="Cell:">
-                  <b-form-select
-                    class="br-2"
-                    v-model="form.select.cell"
-                    :options="cellOptions"
-                    required
-                  >
+                  <b-form-select class="br-2" v-model="form.select.cell" :options="cellOptions" required>
                     <template v-slot:first>
                       <option :value="null" disabled>select cell</option>
                     </template>
@@ -245,47 +143,22 @@
                 </b-form-group>
 
                 <b-form-group label="Village:">
-                  <b-select
-                    v-model="form.select.village"
-                    :options="villageOptions"
-                    class="br-2"
-                    required
-                  >
+                  <b-select v-model="form.select.village" :options="villageOptions" class="br-2" required>
                     <template v-slot:first>
                       <option :value="null" disabled>select village</option>
                     </template>
                   </b-select>
                 </b-form-group>
-                <b-form-group
-                  label="Year"
-                  :label-for="'dropdown-year_' + random"
-                >
-                  <b-form-select
-                    :id="'dropdown-year_' + random"
-                    v-model="object.year"
-                    class="bg-light"
-                    size="sm"
-                  >
-                    <option
-                      v-for="(year, i) in currentYear - 2019"
-                      :value="currentYear - i"
-                      :key="`year` + year"
-                    >
+                <b-form-group label="Year" :label-for="'dropdown-year_' + random">
+                  <b-form-select :id="'dropdown-year_' + random" v-model="object.year" class="bg-light" size="sm">
+                    <option v-for="(year, i) in currentYear - 2019" :value="currentYear - i" :key="`year` + year">
                       {{ currentYear - i }}
                     </option>
                   </b-form-select>
                 </b-form-group>
 
-                <b-form-group
-                  label="Month"
-                  :label-for="'dropdown-month_' + random"
-                >
-                  <b-form-select
-                    :id="'dropdown-month' + random"
-                    v-model="object.month"
-                    class="bg-light"
-                    size="sm"
-                  >
+                <b-form-group label="Month" :label-for="'dropdown-month_' + random">
+                  <b-form-select :id="'dropdown-month' + random" v-model="object.month" class="bg-light" size="sm">
                     <option v-for="i in 12" :value="i" :key="`month` + i">
                       {{ months[i - 1] }}
                     </option>
@@ -295,31 +168,18 @@
             </b-dropdown-form>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item no-hover no-active>
-              <b-button variant="info" block @click="getUnpaidHouse"
-                >Generate</b-button
-              >
+              <b-button variant="info" block @click="getUnpaidHouse">Generate</b-button>
             </b-dropdown-item>
           </b-dropdown>
           <!-- <b-button variant="info" @click="getAllHouse">Generate All House Report</b-button> -->
         </div>
         <div>
-          <b-dropdown
-            v-model="dropdownone"
-            text="Generate Daily Report"
-            ref="dropdown"
-            class="m-2"
-            variant="info"
-            :busy="isLoading1"
-          >
+          <b-dropdown v-model="dropdownone" text="Generate Daily Report" ref="dropdown" class="m-2" variant="info"
+            :busy="isLoading1">
             <b-dropdown-form style="width: 230px">
               <b-form class="accountForm">
                 <b-form-group label="Sector:">
-                  <b-form-select
-                    class="br-2"
-                    v-model="form.select.sector"
-                    :options="sectorOptions"
-                    required
-                  >
+                  <b-form-select class="br-2" v-model="form.select.sector" :options="sectorOptions" required>
                     <template v-slot:first>
                       <option :value="null" disabled>select sector</option>
                     </template>
@@ -327,12 +187,7 @@
                 </b-form-group>
 
                 <b-form-group label="Cell:">
-                  <b-form-select
-                    class="br-2"
-                    v-model="form.select.cell"
-                    :options="cellOptions"
-                    required
-                  >
+                  <b-form-select class="br-2" v-model="form.select.cell" :options="cellOptions" required>
                     <template v-slot:first>
                       <option :value="null" disabled>select cell</option>
                     </template>
@@ -365,9 +220,7 @@
             </b-dropdown-form>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item no-hover no-active>
-              <b-button variant="info" block @click="getDailyReport"
-                >Generate</b-button
-              >
+              <b-button variant="info" block @click="getDailyReport">Generate</b-button>
             </b-dropdown-item>
           </b-dropdown>
           <!-- <b-button variant="info" @click="getAllHouse">Generate All House Report</b-button> -->
@@ -377,46 +230,24 @@
 
       <b-row justify="center" style="margin: auto !important">
         <b-col class="text-center">
-          <b-spinner v-if="isLoadingdata" label="Loading..."
-            >Loading Data</b-spinner
-          >
+          <b-spinner v-if="isLoadingdata" label="Loading...">Loading Data</b-spinner>
         </b-col>
       </b-row>
       <b-row v-if="state.showReport" no-gutters>
-        <b-collapse
-          id="sectorreport-collapse"
-          class="w-100"
-          v-model="state.showReport"
-        >
+        <b-collapse id="sectorreport-collapse" class="w-100" v-model="state.showReport">
           <div class="reports-card">
             <b-row no-gutters class="mb-2 justify-content-end">
               <!-- <b-badge variant="secondary" class="p-2 fsize-sm"
                 >Report Date: &nbsp; {{ state.reportsDate }}
                 </b-badge> -->
               <b-form-group>
-                <b-form-input
-                  required
-                  v-model="search"
-                  placeholder="Search Here..."
-                  class="br-2"
-                />
+                <b-form-input required v-model="search" placeholder="Search Here..." class="br-2" />
               </b-form-group>
             </b-row>
             <h5 class="bg-dark">{{ reportTitle }}</h5>
             <div class="card--body">
-              <b-table
-                id="sector-reports"
-                :items="reports"
-                :fields="table.fields"
-                :busy="state.busy.table1"
-                head-row-variant="secondary"
-                :filter="search"
-                small
-                bordered
-                hover
-                responsive
-                show-empty
-              >
+              <b-table id="sector-reports" :items="reports" :fields="table.fields" :busy="state.busy.table1"
+                head-row-variant="secondary" :filter="search" small bordered hover responsive show-empty>
                 <template v-slot:table-busy>
                   <vue-load label="Generating..." class="p-3" />
                 </template>
@@ -426,7 +257,7 @@
                 <template v-slot:cell(index)="data">
                   <article class="text-center">{{ data.index + 1 }}</article>
                 </template>
-                 <template v-slot:cell(amount)="data">
+                <template v-slot:cell(amount)="data">
                   <article class="text-center">{{ data.item.amount | number }}</article>
                 </template>
                 <template v-slot:custom-foot>
@@ -436,25 +267,14 @@
                     <b-td></b-td>
                     <b-td></b-td>
                     <b-td class="text-center py-3">
-                      <small
-                        ><strong style=""
-                          ><span style="color: #dc3545">Total </span>:
-                          {{ totalAmount | number }} Rwf</strong
-                        ></small
-                      >
+                      <small><strong style=""><span style="color: #dc3545">Total </span>:
+                          {{ totalAmount | number }} Rwf</strong></small>
                     </b-td>
                   </b-tr>
                 </template>
               </b-table>
-              <b-pagination
-                class="my-0"
-                align="center"
-                v-if="showPagination"
-                :per-page="pagination.perPage"
-                v-model="pagination.currentPage"
-                :total-rows="pagination.totalRows"
-                @input="pageChanged"
-              ></b-pagination>
+              <b-pagination class="my-0" align="center" v-if="showPagination" :per-page="pagination.perPage"
+                v-model="pagination.currentPage" :total-rows="pagination.totalRows" @input="pageChanged"></b-pagination>
             </div>
           </div>
         </b-collapse>
@@ -463,40 +283,20 @@
       <!-- dailyreporttable -->
 
       <b-row v-else no-gutters>
-        <b-collapse
-          id="sectorreport-collapse"
-          class="w-100"
-          v-model="state.showReport2"
-        >
+        <b-collapse id="sectorreport-collapse" class="w-100" v-model="state.showReport2">
           <div class="reports-card">
             <b-row no-gutters class="mb-2 justify-content-end">
               <!-- <b-badge variant="secondary" class="p-2 fsize-sm"
                 >Report Date: &nbsp; {{ state.reportsDate }}
                 </b-badge> -->
               <b-form-group>
-                <b-form-input
-                  required
-                  v-model="search"
-                  placeholder="Search Here..."
-                  class="br-2"
-                />
+                <b-form-input required v-model="search" placeholder="Search Here..." class="br-2" />
               </b-form-group>
             </b-row>
             <h5 class="bg-dark">{{ reportTitle }}</h5>
             <div class="card--body">
-              <b-table
-                id="sector-reports"
-                :items="dailyreports"
-                :fields="table.dailyfields"
-                :busy="state.busy.table1"
-                head-row-variant="secondary"
-                :filter="search"
-                small
-                bordered
-                hover
-                responsive
-                show-empty
-              >
+              <b-table id="sector-reports" :items="dailyreports" :fields="table.dailyfields" :busy="state.busy.table1"
+                head-row-variant="secondary" :filter="search" small bordered hover responsive show-empty>
                 <template v-slot:table-busy>
                   <vue-load label="Generating..." class="p-3" />
                 </template>
@@ -519,26 +319,15 @@
                     <b-td></b-td>
                     <b-td></b-td>
                     <b-td class="text-center py-3">
-                      <small
-                        ><strong style=""
-                          ><span style="color: #dc3545">Total </span>:
-                          {{ dailyTotal | number }} Rwf</strong
-                        ></small
-                      >
+                      <small><strong style=""><span style="color: #dc3545">Total </span>:
+                          {{ dailyTotal | number }} Rwf</strong></small>
                     </b-td>
                     <b-td></b-td>
                   </b-tr>
                 </template>
               </b-table>
-              <b-pagination
-                class="my-0"
-                align="center"
-                v-if="showPagination"
-                :per-page="pagination.perPage"
-                v-model="pagination.currentPage"
-                :total-rows="pagination.totalRows"
-                @input="pageChanged"
-              ></b-pagination>
+              <b-pagination class="my-0" align="center" v-if="showPagination" :per-page="pagination.perPage"
+                v-model="pagination.currentPage" :total-rows="pagination.totalRows" @input="pageChanged"></b-pagination>
             </div>
           </div>
         </b-collapse>
@@ -998,23 +787,23 @@ export default {
             village: this.form.select.village || "",
             offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
             limit: this.pagination.perPage,
-            // from: this.from,
+            date: "",
             // to: this.to,
           },
         });
-        if(this.form.select.cell != null) {
+        if (this.form.select.cell != null) {
           this.reportTitle = ` Daily Report Of  ${this.form.select.cell}`;
         }
         else {
           this.reportTitle = ` Daily Report Of  ${this.form.select.sector}`;
         }
-        // console.log("data", data);
-        this.dailyreports = data;
-        for (let i = 0; i < data.length; i++) {
-          
-          this.dailyTotal += data[i].amount;
+        // console.log("data", data.summaries);
+        this.dailyreports = data.summaries;
+        for (let i = 0; i < data.summaries.length; i++) {
+
+          this.dailyTotal += data.summaries[i].amount;
         }
-        this.pagination.totalRows = data.Total;
+        // this.pagination.totalRows = data.Total;
         // console.log("reports", this.reports);
       } catch (error) {
         console.log(error);
@@ -1105,10 +894,10 @@ export default {
             // date: this.object.month,
           },
           data: [
-            
+
             {
               COLUMNS: [
-                
+
                 {
                   header: `Cell`,
                   dataKey: "cell",
@@ -1139,27 +928,30 @@ export default {
 
 <style lang="scss">
 #payment-reports {
-  & > header {
+  &>header {
     text-align: center;
     font-size: 1.3rem;
     font-weight: bold;
     color: #384950;
   }
+
   .buttons {
     display: grid;
     grid-gap: 1rem;
     grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
 
-    & > button {
+    &>button {
       padding: 0.7rem 1rem;
     }
   }
 }
+
 .input-date {
   border: 1px solid #7f898d;
   color: #212529;
   padding: 3px 5px;
 }
+
 .total {
   background: #b8daff;
   margin: 0 2px;

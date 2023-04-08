@@ -190,7 +190,7 @@ func (svc service) BulkPull(ctx context.Context, payment *TxRequest, month int) 
 	}
 
 	if err := svc.repository.BulkSave(ctx, payments); err != nil {
-		failed.Message = "Mwihangane habaye ikibazo muri sisiteme mwongere mukanya"
+		failed.Message = "Mwihangane habaye ikibazo muri sisiteme mwongere mukanya ntimeze kwishyura"
 		return failed, errors.E(op, err)
 	}
 

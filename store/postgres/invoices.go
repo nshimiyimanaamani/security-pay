@@ -425,48 +425,45 @@ func (repo *invoiceRepository) Generate(ctx context.Context, property string, am
 			DATE_TRUNC('month', created_at) = DATE_TRUNC('month', CURRENT_DATE)
 	`
 
-	invoice := new(invoices.Invoice)
-	if err := tx.QueryRow(
+	current := new(invoices.Invoice)
+	if err := tx.QueryRowContext(
+		ctx,
 		selectQuery,
 		property,
 	).Scan(
-		&invoice.ID,
-		&invoice.Amount,
-		&invoice.Property,
-		&invoice.Status,
-		&invoice.CreatedAt,
-		&invoice.UpdatedAt,
+		&current.ID,
+		&current.Amount,
+		&current.Property,
+		&current.Status,
+		&current.CreatedAt,
+		&current.UpdatedAt,
 	); err != nil {
 		return nil, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	m := months
-	if invoice.Status == invoices.Pending {
-		out = append(out, invoice)
+	if current.Status == invoices.Pending {
+		out = append(out, current)
 		m--
 	}
 
-	insertQuery := `
-		INSERT INTO invoices 
-			(amount, property, status, created_at, updated_at)
+	if m == 0 {
+		return out, nil
+	}
+
+	datas := make([]*invoices.Invoice, 0)
+
+	generateQuery := `
 		SELECT
 			$1::numeric, 
 			$2::text,
 			'pending', 
 			DATE_TRUNC('month', CURRENT_DATE) + interval '1 month' * s.a, 
 			DATE_TRUNC('month', CURRENT_DATE) + interval '1 month' * s.a
-		FROM 
+		FROM
 			generate_series(1, $3::int) s(a)
-		ON CONFLICT DO NOTHING RETURNING 
-			id, 
-			amount, 
-			property, 
-			status, 
-			created_at, 
-			updated_at
 	`
-
-	rows, err := tx.Query(insertQuery, amount/months, property, m)
+	rows, err := tx.QueryContext(ctx, generateQuery, amount/months, property, m)
 	if err != nil {
 		pqErr, ok := err.(*pq.Error)
 		if ok && errInvalid == pqErr.Code.Name() {
@@ -477,19 +474,82 @@ func (repo *invoiceRepository) Generate(ctx context.Context, property string, am
 	defer rows.Close()
 
 	for rows.Next() {
-		invoice := new(invoices.Invoice)
+		item := new(invoices.Invoice)
 		err := rows.Scan(
+			&item.Amount,
+			&item.Property,
+			&item.Status,
+			&item.CreatedAt,
+			&item.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.E(op, err, errors.KindUnexpected)
+		}
+		datas = append(datas, item)
+	}
+
+	for _, item := range datas {
+		selectQuery := `
+			SELECT
+				id, amount, property, status, created_at, updated_at
+			FROM
+				invoices
+			WHERE
+				property=$1
+			AND
+			  DATE_TRUNC('month', created_at) = DATE_TRUNC('month', $2::timestamp)
+		`
+
+		invoice := new(invoices.Invoice)
+		if err := tx.QueryRowContext(
+			ctx,
+			selectQuery,
+			item.Property,
+			item.CreatedAt,
+		).Scan(
 			&invoice.ID,
 			&invoice.Amount,
 			&invoice.Property,
 			&invoice.Status,
 			&invoice.CreatedAt,
 			&invoice.UpdatedAt,
-		)
-		if err != nil {
-			return nil, errors.E(op, err, errors.KindUnexpected)
+		); err != nil {
+			if err == sql.ErrNoRows {
+				insertTxQuery := `
+					INSERT INTO invoices
+						(amount, property, status, created_at, updated_at)
+					VALUES
+						($1, $2, $3, $4, $5)
+					RETURNING
+						id, amount, property, status, created_at, updated_at
+				`
+
+				if err := tx.QueryRowContext(
+					ctx,
+					insertTxQuery,
+					item.Amount,
+					item.Property,
+					item.Status,
+					item.CreatedAt,
+					item.UpdatedAt,
+				).Scan(
+					&invoice.ID,
+					&invoice.Amount,
+					&invoice.Property,
+					&invoice.Status,
+					&invoice.CreatedAt,
+					&invoice.UpdatedAt,
+				); err != nil {
+					return nil, errors.E(op, err, errors.KindUnexpected)
+				}
+			} else {
+				return nil, errors.E(op, err, errors.KindUnexpected)
+			}
 		}
-		out = append(out, invoice)
+
+		if invoice.Status == invoices.Pending {
+			out = append(out, invoice)
+		}
 	}
 
 	return out, tx.Commit()
