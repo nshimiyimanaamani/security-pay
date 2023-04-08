@@ -6,11 +6,17 @@
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
+      @media screen and (max-width:678px) {
+        flex-direction: column;
+      }
       h3 {
         font-size: 1.4rem;
         text-transform: uppercase;
         margin: 0;
         flex: 1;
+       @media screen and(max-width:678px) {
+        padding-bottom: 20px ;
+       }
       }
       fieldset > div {
         margin: 0;
@@ -63,6 +69,9 @@
     background: #017db3;
     width: 100%;
     padding: 15px;
+    @media screen and (max-width:678px) {
+      height: fit-content;
+    }
   }
   .container .pulse {
     margin: 25px auto;
