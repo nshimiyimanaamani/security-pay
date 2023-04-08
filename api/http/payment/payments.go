@@ -162,6 +162,12 @@ func DailyTransactions(logger log.Entry, svc payment.Repository) http.Handler {
 			encodeErr(w, err)
 			return
 		}
+
+		if (cast.Uint64Pointer(offset) == nil || cast.Uint64Pointer(limit) == nil) || (offset == 0 && limit == 0) {
+			offset = *cast.Uint64Pointer(0)
+			limit = *cast.Uint64Pointer(20)
+		}
+
 		creds := auth.CredentialsFromContext(r.Context())
 		flt := &payment.MetricFilters{
 
@@ -205,6 +211,7 @@ func TodaySummary(logger log.Entry, svc payment.Repository) http.Handler {
 		sector := cast.StringPointer((vars["sector"]))
 		cell := cast.StringPointer(vars["cell"])
 		village := cast.StringPointer(vars["village"])
+		date := cast.StringPointer((vars["date"]))
 
 		creds := auth.CredentialsFromContext(r.Context())
 		flt := &payment.MetricFilters{
@@ -212,6 +219,7 @@ func TodaySummary(logger log.Entry, svc payment.Repository) http.Handler {
 			Sector:  sector,
 			Cell:    cell,
 			Village: village,
+			Date:    date,
 			Creds:   &creds.Account,
 		}
 

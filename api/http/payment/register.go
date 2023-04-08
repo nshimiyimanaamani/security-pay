@@ -74,5 +74,5 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 		Queries("sector", "{sector}", "cell", "{cell}", "village", "{village}", "from", "{from}", "to", "{to}", "limit", "{limit}", "offset", "{offset}")
 
 	r.Handle(TodaySummaryRoute, authenticator(RepoLogEntryHandler(TodaySummary, opts))).Methods(http.MethodGet).
-		Queries("sector", "{sector}", "cell", "{cell}", "village", "{village}")
+		Queries("sector", "{sector}", "cell", "{cell}", "village", "{village}", "date", "{date}")
 }

@@ -488,20 +488,21 @@ func (repo *paymentStore) TodayTransaction(ctx context.Context, flts *payment.Me
 }
 
 // Implement the ListDailyTransactions
-func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payment.MetricFilters) ([]payment.Transactions, error) {
+func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payment.MetricFilters) (payment.Transactions, error) {
 	const op errors.Op = "store/postgres/paymentStore.ListDailyTransactions"
 
 	tx, err := repo.BeginTx(ctx, nil)
 	if err != nil {
-		return []payment.Transactions{}, errors.E(op, err)
+		return payment.Transactions{}, errors.E(op, err)
 	}
 	defer tx.Rollback()
 
 	selectQuery := `
 	SELECT 
 
-		COUNT(*) AS successful_transactions,
-		COALESCE(SUM(t.amount), 0)
+		COUNT(p.id) AS successful_transactions,
+		COALESCE(SUM(t.amount), 0),
+		DATE(t.created_at) as date
 	FROM 
 		transactions t
 	JOIN 
@@ -533,31 +534,32 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 
 	selectQuery += fmt.Sprintf(" OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
 
-	rows, err := tx.Query(selectQuery)
+	rows, err := tx.QueryContext(ctx, selectQuery)
 	if err != nil {
-		return []payment.Transactions{}, errors.E(op, err)
+		return payment.Transactions{}, errors.E(op, err)
 	}
 	defer rows.Close()
 
 	out := []payment.Transaction{}
 	for rows.Next() {
 		var transaction payment.Transaction
-		err = rows.Scan(&transaction.Transactions, &transaction.Amount)
+		err = rows.Scan(&transaction.Transactions, &transaction.Amount, &transaction.Date)
 		if err != nil {
-			return []payment.Transactions{}, errors.E(op, err)
+			return payment.Transactions{}, errors.E(op, err)
 		}
 
 		out = append(out, transaction)
+
 	}
 
 	if err = rows.Err(); err != nil {
-		return []payment.Transactions{}, errors.E(op, err)
+		return payment.Transactions{}, errors.E(op, err)
 	}
 
 	// calculate total
-	selectQuery = `
+	countQuery := `
 	SELECT
-		COUNT(*) 
+		COUNT(p.id) OVER() AS total
 	FROM
 		transactions t
 	JOIN
@@ -565,44 +567,51 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 	WHERE 1=1 `
 
 	if flts.Sector != nil {
-		selectQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
+		countQuery += fmt.Sprintf(" AND p.sector = '%s'", *flts.Sector)
 	}
 	if flts.Village != nil {
-		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
+		countQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
 	}
 	if flts.Cell != nil {
-		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
+		countQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
+	}
+
+	if flts.From != nil {
+		countQuery += fmt.Sprintf(" AND DATE(t.created_at) >= '%s'", *flts.From)
+	}
+	if flts.To != nil {
+		countQuery += fmt.Sprintf(" AND DATE(t.created_at) <= '%s'", *flts.To)
 	}
 
 	if flts.Creds != nil {
-		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
+		countQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
 	}
+	countQuery += ` GROUP BY  DATE(t.created_at), p.id`
 
 	var total uint64
-	if err := tx.QueryRow(selectQuery).Scan(&total); err != nil {
-		return []payment.Transactions{}, errors.E(op, err, errors.KindUnexpected)
+	if err := tx.QueryRowContext(ctx, countQuery).Scan(&total); err != nil {
+		return payment.Transactions{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	// return the transactionpage
-	return []payment.Transactions{
-		{
-			Transactions: out,
-			PageMetadata: payment.PageMetadata{
-				Total:  total,
-				Offset: *flts.Offset,
-				Limit:  *flts.Limit,
-			},
+	resp := payment.Transactions{
+		Transactions: out,
+		PageMetadata: payment.PageMetadata{
+			Total:  total,
+			Offset: *flts.Offset,
+			Limit:  *flts.Limit,
 		},
-	}, tx.Commit()
+	}
 
+	return resp, tx.Commit()
 }
 
-func (repo *paymentStore) TodaySummary(ctx context.Context, flts *payment.MetricFilters) ([]payment.Summary, error) {
+func (repo *paymentStore) TodaySummary(ctx context.Context, flts *payment.MetricFilters) (payment.Summaries, error) {
 
 	const op errors.Op = "store/postgres/paymentStore.TodaySummary"
 
 	tx, err := repo.BeginTx(ctx, nil)
 	if err != nil {
-		return []payment.Summary{}, errors.E(op, err)
+		return payment.Summaries{}, errors.E(op, err)
 	}
 	defer tx.Rollback()
 
@@ -616,9 +625,13 @@ func (repo *paymentStore) TodaySummary(ctx context.Context, flts *payment.Metric
 		FROM transactions
 		INNER JOIN properties
 		ON transactions.madefor = properties.id
-		WHERE DATE(transactions.created_at) = DATE(now())
+		WHERE 1=1
 		`
-
+	if flts.Date != nil {
+		selectQuery += fmt.Sprintf(" AND DATE(transactions.created_at) = '%s'", *flts.Date)
+	} else {
+		selectQuery += "AND DATE(transactions.created_at) = DATE(now())"
+	}
 	if flts.Sector != nil {
 		selectQuery += fmt.Sprintf(" AND sector = '%s'", *flts.Sector)
 	}
@@ -637,19 +650,22 @@ func (repo *paymentStore) TodaySummary(ctx context.Context, flts *payment.Metric
 
 	rows, err := tx.Query(selectQuery)
 	if err != nil {
-		return []payment.Summary{}, errors.E(op, err)
+		return payment.Summaries{}, errors.E(op, err)
 	}
 	defer rows.Close()
-	out := []payment.Summary{}
-	for rows.Next() {
 
+	items := []payment.Summary{}
+	for rows.Next() {
 		var transaction payment.Summary
 		err = rows.Scan(&transaction.Houses, &transaction.Amount, &transaction.Cell, &transaction.Village, &transaction.Created_at)
 		if err != nil {
-			return []payment.Summary{}, errors.E(op, err)
+			return payment.Summaries{}, errors.E(op, err)
 		}
 
-		out = append(out, transaction)
+		items = append(items, transaction)
+	}
+	out := payment.Summaries{
+		Summaries: items,
 	}
 
 	return out, tx.Commit()

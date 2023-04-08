@@ -102,6 +102,7 @@ type MetricFilters struct {
 	Limit   *uint64
 	Offset  *uint64
 	Creds   *string
+	Date    *string
 }
 type Data struct {
 	Ref       string     `json:"ref,omitempty"`
@@ -126,6 +127,11 @@ type Transaction struct {
 	Village      string  `json:"village,omitempty"`
 	Transactions int64   `json:"transactions,omitempty"`
 	Amount       float64 `json:"amount,omitempty"`
+	Date         string  `json:"date,omitempty"`
+}
+
+type Summaries struct {
+	Summaries []Summary `json:"summaries"`
 }
 
 type Summary struct {
