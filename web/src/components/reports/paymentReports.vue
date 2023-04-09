@@ -206,12 +206,12 @@
                     </template>
                   </b-select>
                 </b-form-group> -->
-                <!-- <b-form-group label="From Month">
+                <b-form-group label="Select Date:">
                   <div class="input-date">
                     <input type="date" v-model="object.frommonth" />
                   </div>
                 </b-form-group>
-                <b-form-group label="To Month">
+                <!-- <b-form-group label="To Month">
                   <div class="input-date">
                     <input type="date" v-model="object.tomonth" />
                   </div>
@@ -333,8 +333,8 @@
                   </b-tr>
                 </template>
               </b-table>
-              <b-pagination class="my-0" align="center" v-if="showPagination" :per-page="pagination.perPage"
-                v-model="pagination.currentPage" :total-rows="pagination.totalRows" @input="pageChanged"></b-pagination>
+              <!-- <b-pagination class="my-0" align="center" v-if="showPagination" :per-page="pagination.perPage"
+                v-model="pagination.currentPage" :total-rows="pagination.totalRows" @input="pageChanged"></b-pagination> -->
             </div>
           </div>
         </b-collapse>
@@ -378,7 +378,7 @@ export default {
         },
       },
       object: {
-        frommonth: null,
+        frommonth: "",
         tomonth: null,
         year: null,
         month: null,
@@ -795,7 +795,7 @@ export default {
             village: this.form.select.village || "",
             offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
             limit: this.pagination.perPage,
-            date: "",
+            date: this.object.frommonth,
             // to: this.to,
           },
         });
@@ -806,11 +806,13 @@ export default {
           this.reportTitle = ` Daily Report Of  ${this.form.select.sector}`;
         }
         // console.log("data", data);
-        this.dailyreports = data;
-        for (let i = 0; i < data.length; i++) {
+        this.dailyTotal = 0;
+        this.houseTotal = 0;
+        this.dailyreports = data.summaries;
+        for (let i = 0; i < data.summaries.length; i++) {
           
-          this.dailyTotal += data[i].amount;
-          this.houseTotal += data[i].houses
+          this.dailyTotal += data.summaries[i].amount;
+          this.houseTotal += data.summaries[i].houses
         }
         // this.pagination.totalRows = data.Total;
         // console.log("reports", this.reports);
