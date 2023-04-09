@@ -3,8 +3,11 @@
     <header class="tabTitle">Payment Reports</header>
     <div class="tabBody">
       <b-row class="m-0 buttons">
-        <div>
-          <b-dropdown v-model="dropdownone" text="Generate All House Report" ref="dropdown" class="m-2" variant="info"
+       
+       
+        
+        <!-- <div>
+          <b-dropdown v-model="dropdownone" text="Generate Daily Report" ref="dropdown" class="m-2" variant="info"
             :busy="isLoading1">
             <b-dropdown-form style="width: 230px">
               <b-form class="accountForm">
@@ -25,155 +28,36 @@
                 </b-form-group>
 
                 <b-form-group label="Village:">
-                  <b-select v-model="form.select.village" :options="villageOptions" class="br-2" required>
+                  <b-select
+                    v-model="form.select.village"
+                    :options="villageOptions"
+                    class="br-2"
+                    required
+                  >
                     <template v-slot:first>
                       <option :value="null" disabled>select village</option>
                     </template>
                   </b-select>
                 </b-form-group>
-                <!-- <b-form-group label="From Month">
+                <b-form-group label="Select Date:">
                   <div class="input-date">
                     <input type="date" v-model="object.frommonth" />
                   </div>
-                </b-form-group> -->
-                <!-- <b-form-group label="To Month">
+                </b-form-group>
+                <b-form-group label="To Month">
                   <div class="input-date">
                     <input type="date" v-model="object.tomonth" />
                   </div>
-                </b-form-group> -->
-                <b-form-group label="Year" :label-for="'dropdown-year_' + random">
-                  <b-form-select :id="'dropdown-year_' + random" v-model="object.year" class="bg-light" size="sm">
-                    <option v-for="(year, i) in currentYear - 2019" :value="currentYear - i" :key="`year` + year">
-                      {{ currentYear - i }}
-                    </option>
-                  </b-form-select>
-                </b-form-group>
-
-                <b-form-group label="Month" :label-for="'dropdown-month_' + random">
-                  <b-form-select :id="'dropdown-month' + random" v-model="object.month" class="bg-light" size="sm">
-                    <option v-for="i in 12" :value="i" :key="`month` + i">
-                      {{ months[i - 1] }}
-                    </option>
-                  </b-form-select>
                 </b-form-group>
               </b-form>
             </b-dropdown-form>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item no-hover no-active>
-              <b-button variant="info" block @click="getAllHouse">Generate</b-button>
+              <b-button variant="info" block @click="getDailyReport">Generate</b-button>
             </b-dropdown-item>
           </b-dropdown>
-          <!-- <b-button variant="info" @click="getAllHouse">Generate All House Report</b-button> -->
-        </div>
-        <!-- <div>
-          <b-button variant="info">Generate Paid House Report</b-button>
+          <b-button variant="info" @click="getAllTransactions">Generate All House Report</b-button>
         </div> -->
-        <div>
-          <b-dropdown v-model="dropdownone" text="Generate Paid House Report" ref="dropdown" class="m-2" variant="info">
-            <b-dropdown-form style="width: 248px">
-              <b-form class="accountForm">
-                <b-form-group label="Sector:">
-                  <b-form-select class="br-2" v-model="form.select.sector" :options="sectorOptions" required>
-                    <template v-slot:first>
-                      <option :value="null" disabled>select sector</option>
-                    </template>
-                  </b-form-select>
-                </b-form-group>
-
-                <b-form-group label="Cell:">
-                  <b-form-select class="br-2" v-model="form.select.cell" :options="cellOptions" required>
-                    <template v-slot:first>
-                      <option :value="null" disabled>select cell</option>
-                    </template>
-                  </b-form-select>
-                </b-form-group>
-
-                <b-form-group label="Village:">
-                  <b-select v-model="form.select.village" :options="villageOptions" class="br-2" required>
-                    <template v-slot:first>
-                      <option :value="null" disabled>select village</option>
-                    </template>
-                  </b-select>
-                </b-form-group>
-                <b-form-group label="Year" :label-for="'dropdown-year_' + random">
-                  <b-form-select :id="'dropdown-year_' + random" v-model="object.year" class="bg-light" size="sm">
-                    <option v-for="(year, i) in currentYear - 2019" :value="currentYear - i" :key="`year` + year">
-                      {{ currentYear - i }}
-                    </option>
-                  </b-form-select>
-                </b-form-group>
-
-                <b-form-group label="Month" :label-for="'dropdown-month_' + random">
-                  <b-form-select :id="'dropdown-month' + random" v-model="object.month" class="bg-light" size="sm">
-                    <option v-for="i in 12" :value="i" :key="`month` + i">
-                      {{ months[i - 1] }}
-                    </option>
-                  </b-form-select>
-                </b-form-group>
-              </b-form>
-            </b-dropdown-form>
-            <b-dropdown-divider></b-dropdown-divider>
-            <b-dropdown-item no-hover no-active>
-              <b-button variant="info" block @click="getPaidHouse">Generate</b-button>
-            </b-dropdown-item>
-          </b-dropdown>
-          <!-- <b-button variant="info" @click="getAllHouse">Generate All House Report</b-button> -->
-        </div>
-        <!-- <div>
-          <b-button variant="info">Generate Unpaid House Report</b-button>
-        </div> -->
-        <div>
-          <b-dropdown v-model="dropdownone" text="Generate Unpaid House Report" ref="dropdown" class="m-2" variant="info">
-            <b-dropdown-form style="width: 270px">
-              <b-form class="accountForm">
-                <b-form-group label="Sector:">
-                  <b-form-select class="br-2" v-model="form.select.sector" :options="sectorOptions" required>
-                    <template v-slot:first>
-                      <option :value="null" disabled>select sector</option>
-                    </template>
-                  </b-form-select>
-                </b-form-group>
-
-                <b-form-group label="Cell:">
-                  <b-form-select class="br-2" v-model="form.select.cell" :options="cellOptions" required>
-                    <template v-slot:first>
-                      <option :value="null" disabled>select cell</option>
-                    </template>
-                  </b-form-select>
-                </b-form-group>
-
-                <b-form-group label="Village:">
-                  <b-select v-model="form.select.village" :options="villageOptions" class="br-2" required>
-                    <template v-slot:first>
-                      <option :value="null" disabled>select village</option>
-                    </template>
-                  </b-select>
-                </b-form-group>
-                <b-form-group label="Year" :label-for="'dropdown-year_' + random">
-                  <b-form-select :id="'dropdown-year_' + random" v-model="object.year" class="bg-light" size="sm">
-                    <option v-for="(year, i) in currentYear - 2019" :value="currentYear - i" :key="`year` + year">
-                      {{ currentYear - i }}
-                    </option>
-                  </b-form-select>
-                </b-form-group>
-
-                <b-form-group label="Month" :label-for="'dropdown-month_' + random">
-                  <b-form-select :id="'dropdown-month' + random" v-model="object.month" class="bg-light" size="sm">
-                    <option v-for="i in 12" :value="i" :key="`month` + i">
-                      {{ months[i - 1] }}
-                    </option>
-                  </b-form-select>
-                </b-form-group>
-              </b-form>
-            </b-dropdown-form>
-            <b-dropdown-divider></b-dropdown-divider>
-            <b-dropdown-item no-hover no-active>
-              <b-button variant="info" block @click="getUnpaidHouse">Generate</b-button>
-            </b-dropdown-item>
-          </b-dropdown>
-          <!-- <b-button variant="info" @click="getAllHouse">Generate All House Report</b-button> -->
-        </div>
-        
       </b-row>
       <b-row class="my-4"></b-row>
 
@@ -189,6 +73,9 @@
               <!-- <b-badge variant="secondary" class="p-2 fsize-sm"
                 >Report Date: &nbsp; {{ state.reportsDate }}
                 </b-badge> -->
+                <!-- <b-form-group>
+                  <b-button variant="info" @click="getAllTransactions">Refresh</b-button>
+                </b-form-group> -->
               <b-form-group>
                 <b-form-input required v-model="search" placeholder="Search Here..." class="br-2" />
               </b-form-group>
@@ -209,16 +96,18 @@
                 <template v-slot:cell(amount)="data">
                   <article class="text-center">{{ data.item.amount | number }}</article>
                 </template>
+                <template v-slot:cell(date)="data">
+                  <article class="text-center" style="cursor: pointer;color:#0275d8;" @click="getToday(data)" v-b-tooltip.hover title="more details">{{ data.item.date | date }}</article>
+                </template>
                 <template v-slot:custom-foot>
                   <b-tr class="total">
-                    <b-td></b-td>
-                    <b-td></b-td>
                     <b-td></b-td>
                     <b-td></b-td>
                     <b-td class="text-center py-3">
                       <small><strong style=""><span style="color: #dc3545">Total </span>:
                           {{ totalAmount | number }} Rwf</strong></small>
                     </b-td>
+                    <b-td></b-td>
                   </b-tr>
                 </template>
               </b-table>
@@ -234,10 +123,13 @@
       <b-row v-else no-gutters>
         <b-collapse id="sectorreport-collapse" class="w-100" v-model="state.showReport2">
           <div class="reports-card">
-            <b-row no-gutters class="mb-2 justify-content-end">
+            <b-row no-gutters class="mb-2 justify-content-between">
               <!-- <b-badge variant="secondary" class="p-2 fsize-sm"
                 >Report Date: &nbsp; {{ state.reportsDate }}
                 </b-badge> -->
+                <b-form-group>
+                  <b-button variant="info" @click="getAllTransactions">All Transactions</b-button>
+                </b-form-group>
               <b-form-group>
                 <b-form-input required v-model="search" placeholder="Search Here..." class="br-2" />
               </b-form-group>
@@ -279,6 +171,7 @@
                           {{ dailyTotal | number }} Rwf</strong></small>
                     </b-td>
                     <b-td></b-td>
+                    
                   </b-tr>
                 </template>
               </b-table>
@@ -357,41 +250,30 @@ export default {
           {
             key: "index",
             label: "No",
-            tdClass: "",
-            thClass: " text-uppercase",
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase",
           },
           {
-            key: "fname",
-            label: "Full Name",
-            formatter: (value, key, item) => `${item.fname} ${item.lname}`,
-            tdClass: "",
-            thClass: " text-uppercase",
+            key: "transactions",
+            label: "Transactions",
+            // formatter: (value, key, item) => `${item.fname} ${item.lname}`,
+            tdClass: "text-center",
+            thClass: "text-center text-uppercase",
           },
 
-          {
-            key: "phone",
-            label: "Phone",
-            tdClass: "text-center",
-            thClass: "text-center text-uppercase",
-          },
-          {
-            key: "property_id",
-            label: "Property",
-            tdClass: "text-center",
-            thClass: "text-center text-uppercase",
-          },
+         
           {
             key: "amount",
             label: "Amount",
             tdClass: "text-center",
             thClass: "text-center text-uppercase",
           },
-          // {
-          //   key: "unpayedAmount",
-          //   label: "unpaid Amount",
-          //   tdClass: "text-right",
-          //   thClass: "text-center text-uppercase"
-          // }
+          {
+            key: "date",
+            label: "Date",
+            tdClass: "text-right",
+            thClass: "text-center text-uppercase"
+          }
         ],
         dailyfields: [
           {
@@ -553,41 +435,22 @@ export default {
   },
   created() {
     this.getCurrentMonth();
-    this.getAllHouse();
+    this.getAllTransactions();
   },
   methods: {
     getCurrentMonth() {
       this.object.month = new Date().getMonth() + 1;
     },
-    async getAllHouse() {
+    async getAllTransactions() {
       this.state.showReport = false;
       this.state.showReport2 = false;
       this.isLoading1 = true;
       this.isLoadingdata = true;
-      this.reportTitle = "All House Report";
-      // console.log("generate all house");
-      this.loading = true;
-      const yearString = this.object.year;
-      var monthString = this.object.month;
-      const yearDate = new Date(`${yearString}-${monthString}-01`);
-      const today = new Date();
-      const lastDayOfMonth = new Date(
-        today.getFullYear(),
-        today.getMonth() + 1,
-        0
-      );
-      this.from = yearDate;
-      this.to = lastDayOfMonth;
-      // if (this.object.frommonth == null && this.object.tomonth == null) {
-      //   const currentDate = new Date();
-      //   this.from = currentDate;
-      //   this.to = currentDate;
-      // } else {
-      //   this.from = this.object.frommonth;
-      //   this.to = this.object.tomonth;
-      // }
+      this.reportTitle = "All transactions";
+    
+     
       try {
-        const { data } = await this.axios.get("payment/reports", {
+        const { data } = await this.axios.get("payment/reports/daily", {
           params: {
             status: "",
             sector: this.form.select.sector || "",
@@ -595,136 +458,30 @@ export default {
             village: this.form.select.village || "",
             offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
             limit: this.pagination.perPage,
-            from: this.from,
-            to: this.to,
+            from: "",
+            to: "",
           },
         });
         // this.accountant = data;
-
-        this.reports = data.Payments;
-        // const custrow = {};
-        // custrow.fname = "Total Amount"
-        // custrow.name = ""
-        // custrow.name = ""
-        // custrow.amount = data.amount
-        // this.reports.push(custrow);
-        this.totalAmount = data.amount;
+        console.log("data",data);
+        this.reports = data.Transactions;
+        this.totalAmount = 0;
+        for (let i = 0; i < data.Transactions.length; i++) {
+          
+          this.totalAmount += data.Transactions[i].amount;
+        }
         this.pagination.totalRows = data.Total;
-
-        // console.log("report all houses", this.reports);
       } catch (error) {
         console.log(error);
       } finally {
         this.state.loading = false;
         this.dropdownone = false;
         this.state.showReport = true;
+        this.state.showReport2 = false;
         this.isLoadingdata = false;
       }
     },
-    async getPaidHouse() {
-      this.state.showReport = false;
-      this.state.showReport2 = false;
-      this.isLoadingdata = true;
-      this.reportTitle = "Paid House Report";
-      // console.log("generate paid house");
-      this.loading = true;
-      const yearString = this.object.year;
-      var monthString = this.object.month;
-      const yearDate = new Date(`${yearString}-${monthString}-01`);
-      const today = new Date();
-      const lastDayOfMonth = new Date(
-        today.getFullYear(),
-        today.getMonth() + 1,
-        0
-      );
-      this.from = yearDate;
-      this.to = lastDayOfMonth;
-      try {
-        const { data } = await this.axios.get("payment/reports", {
-          params: {
-            status: "payed",
-            sector: this.form.select.sector || "",
-            cell: this.form.select.cell || "",
-            village: this.form.select.village || "",
-            offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
-            limit: this.pagination.perPage,
-            from: this.from,
-            to: this.to,
-          },
-        });
-        // this.accountant = data;
-
-        this.reports = data.Payments;
-        // const custrow = {};
-        // custrow.fname = "Total Amount"
-        // custrow.name = ""
-        // custrow.name = ""
-        // custrow.amount = data.amount
-        // this.reports.push(custrow);
-        this.totalAmount = data.amount;
-        this.pagination.totalRows = data.Total;
-        // console.log("reports", this.reports);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        this.state.loading = false;
-        this.dropdownone = false;
-        this.state.showReport = true;
-        this.isLoadingdata = false;
-      }
-    },
-    async getUnpaidHouse() {
-      this.state.showReport = false;
-      this.state.showReport2 = false;
-      this.isLoadingdata = true;
-      this.reportTitle = " Unpaid House Report";
-      // console.log("generate unpaid house");
-      this.loading = true;
-      const yearString = this.object.year;
-      var monthString = this.object.month;
-      const yearDate = new Date(`${yearString}-${monthString}-01`);
-      const today = new Date();
-      const lastDayOfMonth = new Date(
-        today.getFullYear(),
-        today.getMonth() + 1,
-        0
-      );
-      this.from = yearDate;
-      this.to = lastDayOfMonth;
-      try {
-        const { data } = await this.axios.get("payment/reports", {
-          params: {
-            status: "pending",
-            sector: this.form.select.sector || "",
-            cell: this.form.select.cell || "",
-            village: this.form.select.village || "",
-            offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
-            limit: this.pagination.perPage,
-            from: this.from,
-            to: this.to,
-          },
-        });
-        // this.accountant = data;
-        this.reportTitle = "Unpaid House Report";
-        this.reports = data.Payments;
-        // const custrow = {};
-        // custrow.fname = "Total Amount"
-        // custrow.name = ""
-        // custrow.name = ""
-        // custrow.amount = data.amount
-        // this.reports.push(custrow);
-        this.totalAmount = data.amount;
-        this.pagination.totalRows = data.Total;
-        // console.log("reports", this.reports);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        this.state.loading = false;
-        this.dropdownone = false;
-        this.state.showReport = true;
-        this.isLoadingdata = false;
-      }
-    },
+    
     async getDailyReport() {
       this.reportTitle = "Daily Report";
       this.state.showReport = false;
@@ -775,13 +532,54 @@ export default {
         this.isLoadingdata = false;
       }
     },
+    async getToday(item) {
+      // console.log("item", item);
+       this.reportTitle = "Daily Report";
+      this.state.showReport = false;
+      this.state.showReport2 = false;
+      this.dailyTotal = 0
+      this.isLoadingdata = true;
+      // console.log("generate daily report");
+      this.loading = true;
+
+      
+      try {
+        const { data } = await this.axios.get("payment/summary/today", {
+          params: {
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
+            offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
+            limit: this.pagination.perPage,
+            date: item.item.date,
+            // to: this.to,
+          },
+        });
+          this.reportTitle = ` Daily Report On ${item.item.date.slice(0, 10)}`;
+        // console.log("data", data);
+        this.dailyTotal = 0;
+        this.houseTotal = 0;
+        this.dailyreports = data.summaries;
+        for (let i = 0; i < data.summaries.length; i++) {
+          
+          this.dailyTotal += data.summaries[i].amount;
+          this.houseTotal += data.summaries[i].houses
+        }
+        // this.pagination.totalRows = data.Total;
+        // console.log("reports", this.reports);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.state.loading = false;
+        this.dropdownone = false;
+        this.state.showReport = false;
+        this.state.showReport2 = true;
+        this.isLoadingdata = false;
+      }
+    },
     pageChanged() {
-      if (this.reportTitle == "All House Report") {
-        this.getAllHouse();
-      } else if (this.reportTitle == "Paid House Report") {
-        this.getPaidHouse();
-      } else if (this.reportTitle == "Unpaid House Report") {
-        this.getUnpaidHouse();
+      if (this.reportTitle == "All transactions") {
+        this.getAllTransactions();
       } else {
         this.getDailyReport();
       }
@@ -819,18 +617,12 @@ export default {
             {
               COLUMNS: [
                 {
-                  header: `First Name`,
-                  dataKey: "fname",
+                  header: `Transactions`,
+                  dataKey: "transactions",
                 },
-                {
-                  header: `Last Name`,
-                  dataKey: "lname",
-                },
-                {
-                  header: `Phone`,
-                  dataKey: "phone",
-                },
+                
                 { header: `Amount`, dataKey: "amount" },
+                { header: `Date`, dataKey: "date" },
                 // {
                 //   header: `No of Unpaid Properties`,
                 //   dataKey: "pending",
