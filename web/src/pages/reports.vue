@@ -29,6 +29,9 @@
         <b-tab title="HOUSE REPORTS">
           <house-reports />
         </b-tab>
+        <b-tab title="SUMMARY REPORTS">
+          <summary-report />
+        </b-tab>
         <!-- <b-tab title="DAILY REPORTS">
           <daily-reports />
         </b-tab>-->
@@ -44,6 +47,7 @@ import cellReports from "../components/reports/cellReports";
 import villageReports from "../components/reports/villageReports";
 import houseReports from "../components/reports/houseReports";
 import dailyReports from "../components/reports/dailyReports";
+import summaryReport from "../components/reports/summaryReport";
 export default {
   name: "reports",
   components: {
@@ -52,7 +56,8 @@ export default {
     "cell-reports": cellReports,
     "village-reports": villageReports,
     "house-reports": houseReports,
-    "daily-reports": dailyReports
+    "daily-reports": dailyReports,
+    "summary-report": summaryReport
   },
   data() {
     return {};
