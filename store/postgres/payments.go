@@ -528,7 +528,7 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
 	}
 
-	selectQuery += ` GROUP BY  DATE(t.created_at), t.created_at`
+	selectQuery += ` GROUP BY  DATE(t.created_at)`
 
 	selectQuery += ` ORDER BY DATE(t.created_at) DESC`
 
