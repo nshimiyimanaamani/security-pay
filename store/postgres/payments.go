@@ -530,7 +530,7 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 
 	selectQuery += ` GROUP BY  DATE(t.created_at), t.created_at`
 
-	selectQuery += ` ORDER BY t.created_at DESC`
+	selectQuery += ` ORDER BY DATE(t.created_at) DESC`
 
 	selectQuery += fmt.Sprintf(" OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
 
