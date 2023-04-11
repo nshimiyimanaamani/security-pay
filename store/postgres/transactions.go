@@ -135,7 +135,7 @@ func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, l
 	WHERE
 		transactions.namespace=$1 
 	AND
-		properties.recorded_by=$4
+	
 	ORDER BY transactions.id LIMIT $2 OFFSET $3
 	`
 	empty := transactions.TransactionPage{}
