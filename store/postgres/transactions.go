@@ -134,6 +134,8 @@ func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, l
 		owners ON transactions.madeby=owners.id 
 	WHERE
 		transactions.namespace=$1 
+	AND
+		properties.recorded_by=$4
 	ORDER BY transactions.id LIMIT $2 OFFSET $3
 	`
 	empty := transactions.TransactionPage{}
@@ -141,8 +143,13 @@ func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, l
 	var items = []transactions.Transaction{}
 
 	creds := auth.CredentialsFromContext(ctx)
+	
+	if creds.Role == "min" {
+		q += `AND properties.recorded_by=$4`
+	}
 
-	rows, err := repo.Query(q, creds.Account, limit, offset)
+
+	rows, err := repo.Query(q, creds.Account, limit, offset,creds.Username)
 	if err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
