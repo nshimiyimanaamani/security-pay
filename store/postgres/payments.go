@@ -360,7 +360,9 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
 	}
 
-	selectQuery += fmt.Sprintf(" AND p.namespace = '%s'", *flts.Namespace)
+	if flts.Namespace != nil {
+		selectQuery += fmt.Sprintf(" AND p.namespace = '%s'", *flts.Namespace)
+	}
 	
 
 	
@@ -419,7 +421,9 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	}
 
 	// return data by the namespace
-	selectQuery += fmt.Sprintf(" AND p.namespace = '%s'", *flts.Namespace)
+	if flts.Namespace != nil {
+		selectQuery += fmt.Sprintf(" AND p.namespace = '%s'", *flts.Namespace)
+	}
 	
 
 	var (
