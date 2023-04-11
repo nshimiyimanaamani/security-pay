@@ -66,6 +66,28 @@
             {{ data.value.includes("mtn") ? "mtn" : data.value }}
           </article>
         </template>
+        <template v-slot:custom-foot>
+          <b-tr class="total">
+            <b-td></b-td>
+            <b-td></b-td>
+            <b-td></b-td>
+            <b-td></b-td>
+            <b-td></b-td>
+            <b-td></b-td>
+            <b-td></b-td>
+            <b-td></b-td>
+            <b-td></b-td>
+
+            <b-td class="py-2">
+              <small
+                ><strong style=""
+                  ><span style="color: #dc3545">Total </span>:
+                  {{ totalAmount | number }} Rwf</strong
+                ></small
+              >
+            </b-td>
+          </b-tr>
+        </template>
         <template v-slot:table-busy>
           <div class="text-center my-2">
             <loader />
@@ -93,6 +115,7 @@ export default {
         search: false,
         loading: false,
       },
+      totalAmount: 0,
       date: {
         year: new Date().getFullYear(),
         month: new Date().getMonth() + 1,
@@ -146,7 +169,8 @@ export default {
       if (this.user.village) {
         this.axios
           .get(
-            `/transactions?offset=${this.offset}&limit=${this.pagination.perPage}`
+            `/transactions?offset=${this.offset}&limit=10000`
+            // `/transactions?offset=${this.offset}&limit=${this.pagination.perPage}`
           )
           .then((res) => {
             let filteredItems = res.data.Transactions;
@@ -166,6 +190,10 @@ export default {
               );
             }
             this.table.items = filteredItems;
+            this.totalAmount = 0;
+            for (let i = 0; i < this.table.items.length; i++) {
+              this.totalAmount += this.table.items[i].amount;
+            }
           })
           .catch((err) => {
             console.log(err, err.response);
