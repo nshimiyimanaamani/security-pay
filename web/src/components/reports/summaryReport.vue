@@ -2,32 +2,186 @@
   <div id="payment-reports">
     <header class="tabTitle">Payment Reports</header>
     <div class="tabBody">
-      <b-row class="m-0 buttons">
-       
-       
-        
-        <!-- <div>
-          <b-dropdown v-model="dropdownone" text="Generate Daily Report" ref="dropdown" class="m-2" variant="info"
-            :busy="isLoading1">
-            <b-dropdown-form style="width: 230px">
-              <b-form class="accountForm">
-                <b-form-group label="Sector:">
-                  <b-form-select class="br-2" v-model="form.select.sector" :options="sectorOptions" required>
-                    <template v-slot:first>
-                      <option :value="null" disabled>select sector</option>
-                    </template>
-                  </b-form-select>
-                </b-form-group>
+      <b-row class="m-0 buttons"> </b-row>
+      <b-row class="my-4"></b-row>
 
-                <b-form-group label="Cell:">
-                  <b-form-select class="br-2" v-model="form.select.cell" :options="cellOptions" required>
-                    <template v-slot:first>
-                      <option :value="null" disabled>select cell</option>
-                    </template>
-                  </b-form-select>
-                </b-form-group>
+      <b-row justify="center" style="margin: auto !important">
+        <b-col class="text-center">
+          <b-spinner v-if="isLoadingdata" label="Loading..."
+            >Loading Data</b-spinner
+          >
+        </b-col>
+      </b-row>
+      <b-row v-if="state.showReport" no-gutters>
+        <b-collapse
+          id="sectorreport-collapse"
+          class="w-100"
+          v-model="state.showReport"
+        >
+          <div class="reports-card">
+            <b-row no-gutters class="mb-2 justify-content-end">
+              <!-- <b-badge variant="secondary" class="p-2 fsize-sm"
+                >Report Date: &nbsp; {{ state.reportsDate }}
+                </b-badge> -->
+              <!-- <b-form-group>
+                  <b-button variant="info" @click="getAllTransactions">Refresh</b-button>
+                </b-form-group> -->
+              <b-form-group>
+                <b-form-input
+                  required
+                  v-model="search"
+                  placeholder="Search Here..."
+                  class="br-2"
+                />
+              </b-form-group>
+            </b-row>
+            <h5 class="bg-dark">{{ reportTitle }}</h5>
+            <div class="card--body">
+              <b-table
+                id="sector-reports"
+                :items="reports"
+                :fields="table.fields"
+                :busy="state.busy.table1"
+                head-row-variant="secondary"
+                :filter="search"
+                small
+                bordered
+                hover
+                responsive
+                show-empty
+              >
+                <template v-slot:table-busy>
+                  <vue-load label="Generating..." class="p-3" />
+                </template>
+                <template v-slot:empty>{{
+                  state.error.table1 || "No data available to display"
+                }}</template>
+                <template v-slot:cell(index)="data">
+                  <article class="text-center">{{ data.index + 1 }}</article>
+                </template>
+                <template v-slot:cell(amount)="data">
+                  <article class="text-center">
+                    {{ data.item.amount | number }}
+                  </article>
+                </template>
+                <template v-slot:cell(date)="data">
+                  <article
+                    class="text-center"
+                    style="cursor: pointer; color: #0275d8"
+                    @click="saveDate(data)"
+                    v-b-tooltip.hover
+                    title="more details"
+                  >
+                    {{ data.item.date | date }}
+                  </article>
+                </template>
+                <template v-slot:custom-foot>
+                  <b-tr class="total">
+                    <b-td></b-td>
+                    <b-td></b-td>
+                    <b-td class="text-center py-3">
+                      <small
+                        ><strong style=""
+                          ><span style="color: #dc3545">Total </span>:
+                          {{ totalAmount | number }} Rwf</strong
+                        ></small
+                      >
+                    </b-td>
+                    <b-td></b-td>
+                  </b-tr>
+                </template>
+              </b-table>
+              <b-pagination
+                class="my-0"
+                align="center"
+                v-if="showPagination"
+                :per-page="pagination.perPage"
+                v-model="pagination.currentPage"
+                :total-rows="pagination.totalRows"
+                @input="pageChanged"
+              ></b-pagination>
+            </div>
+          </div>
+        </b-collapse>
+      </b-row>
 
-                <b-form-group label="Village:">
+      <!-- dailyreporttable -->
+
+      <b-row v-else no-gutters>
+        <b-collapse
+          id="sectorreport-collapse"
+          class="w-100"
+          v-model="state.showReport2"
+        >
+          <div class="reports-card">
+            <b-row no-gutters class="mb-2 justify-content-between">
+              <!-- <b-badge variant="secondary" class="p-2 fsize-sm"
+                >Report Date: &nbsp; {{ state.reportsDate }}
+                </b-badge> -->
+
+              <div class="d-flex">
+                <b-form-group>
+                  <b-button
+                    variant="dark"
+                    @click="getAllTransactions"
+                    style="margin-top: 7px"
+                    >Back</b-button
+                  >
+                </b-form-group>
+                <b-dropdown
+                  v-model="dropdownone"
+                  text="Filter"
+                  ref="dropdown"
+                  class="m-2"
+                  variant="info"
+                  style="height: 35px !important"
+                  :busy="isLoading1"
+                >
+                  <b-dropdown-form style="width: 200px">
+                    <b-form class="accountForm">
+                      <b-form-group label="Sector:">
+                        <b-form-select
+                          class="br-2"
+                          v-model="form.select.sector"
+                          :options="sectorOptions"
+                          required
+                        >
+                          <template v-slot:first>
+                            <option :value="null" disabled>
+                              select sector
+                            </option>
+                          </template>
+                        </b-form-select>
+                      </b-form-group>
+
+                      <b-form-group label="Cell:">
+                        <b-form-select
+                          class="br-2"
+                          v-model="form.select.cell"
+                          :options="cellOptions"
+                          required
+                        >
+                          <template v-slot:first>
+                            <option :value="null" disabled>select cell</option>
+                          </template>
+                        </b-form-select>
+                      </b-form-group>
+                      <b-form-group label="Village:">
+                        <b-select
+                          v-model="form.select.village"
+                          :options="villageOptions"
+                          class="br-2"
+                          required
+                        >
+                          <template v-slot:first>
+                            <option :value="null" disabled>
+                              select village
+                            </option>
+                          </template>
+                        </b-select>
+                      </b-form-group>
+
+                      <!-- <b-form-group label="Village:">
                   <b-select
                     v-model="form.select.village"
                     :options="villageOptions"
@@ -48,96 +202,47 @@
                   <div class="input-date">
                     <input type="date" v-model="object.tomonth" />
                   </div>
-                </b-form-group>
-              </b-form>
-            </b-dropdown-form>
-            <b-dropdown-divider></b-dropdown-divider>
-            <b-dropdown-item no-hover no-active>
-              <b-button variant="info" block @click="getDailyReport">Generate</b-button>
-            </b-dropdown-item>
-          </b-dropdown>
-          <b-button variant="info" @click="getAllTransactions">Generate All House Report</b-button>
-        </div> -->
-      </b-row>
-      <b-row class="my-4"></b-row>
-
-      <b-row justify="center" style="margin: auto !important">
-        <b-col class="text-center">
-          <b-spinner v-if="isLoadingdata" label="Loading...">Loading Data</b-spinner>
-        </b-col>
-      </b-row>
-      <b-row v-if="state.showReport" no-gutters>
-        <b-collapse id="sectorreport-collapse" class="w-100" v-model="state.showReport">
-          <div class="reports-card">
-            <b-row no-gutters class="mb-2 justify-content-end">
-              <!-- <b-badge variant="secondary" class="p-2 fsize-sm"
-                >Report Date: &nbsp; {{ state.reportsDate }}
-                </b-badge> -->
-                <!-- <b-form-group>
-                  <b-button variant="info" @click="getAllTransactions">Refresh</b-button>
                 </b-form-group> -->
+                    </b-form>
+                  </b-dropdown-form>
+                  <b-dropdown-divider></b-dropdown-divider>
+                  <b-dropdown-item no-hover no-active>
+                    <b-button variant="info" block @click="getToday"
+                      >Filter</b-button
+                    >
+                    <!-- <b-button v-if="form.select.sector != null" variant="dark" block @click="clearFilter"
+                      >Clear Filter</b-button
+                    > -->
+                  </b-dropdown-item>
+                </b-dropdown>
+                <!-- <b-button variant="info" @click="getAllTransactions">Generate All House Report</b-button> -->
+              </div>
+
               <b-form-group>
-                <b-form-input required v-model="search" placeholder="Search Here..." class="br-2" />
+                <b-form-input
+                  required
+                  v-model="search"
+                  placeholder="Search Here..."
+                  class="br-2"
+                  style="margin-top: 7px"
+                />
               </b-form-group>
             </b-row>
             <h5 class="bg-dark">{{ reportTitle }}</h5>
             <div class="card--body">
-              <b-table id="sector-reports" :items="reports" :fields="table.fields" :busy="state.busy.table1"
-                head-row-variant="secondary" :filter="search" small bordered hover responsive show-empty>
-                <template v-slot:table-busy>
-                  <vue-load label="Generating..." class="p-3" />
-                </template>
-                <template v-slot:empty>{{
-                  state.error.table1 || "No data available to display"
-                }}</template>
-                <template v-slot:cell(index)="data">
-                  <article class="text-center">{{ data.index + 1 }}</article>
-                </template>
-                <template v-slot:cell(amount)="data">
-                  <article class="text-center">{{ data.item.amount | number }}</article>
-                </template>
-                <template v-slot:cell(date)="data">
-                  <article class="text-center" style="cursor: pointer;color:#0275d8;" @click="getToday(data)" v-b-tooltip.hover title="more details">{{ data.item.date | date }}</article>
-                </template>
-                <template v-slot:custom-foot>
-                  <b-tr class="total">
-                    <b-td></b-td>
-                    <b-td></b-td>
-                    <b-td class="text-center py-3">
-                      <small><strong style=""><span style="color: #dc3545">Total </span>:
-                          {{ totalAmount | number }} Rwf</strong></small>
-                    </b-td>
-                    <b-td></b-td>
-                  </b-tr>
-                </template>
-              </b-table>
-              <b-pagination class="my-0" align="center" v-if="showPagination" :per-page="pagination.perPage"
-                v-model="pagination.currentPage" :total-rows="pagination.totalRows" @input="pageChanged"></b-pagination>
-            </div>
-          </div>
-        </b-collapse>
-      </b-row>
-
-      <!-- dailyreporttable -->
-
-      <b-row v-else no-gutters>
-        <b-collapse id="sectorreport-collapse" class="w-100" v-model="state.showReport2">
-          <div class="reports-card">
-            <b-row no-gutters class="mb-2 justify-content-between">
-              <!-- <b-badge variant="secondary" class="p-2 fsize-sm"
-                >Report Date: &nbsp; {{ state.reportsDate }}
-                </b-badge> -->
-                <b-form-group>
-                  <b-button variant="info" @click="getAllTransactions">All Transactions</b-button>
-                </b-form-group>
-              <b-form-group>
-                <b-form-input required v-model="search" placeholder="Search Here..." class="br-2" />
-              </b-form-group>
-            </b-row>
-            <h5 class="bg-dark">{{ reportTitle }}</h5>
-            <div class="card--body">
-              <b-table id="sector-reports" :items="dailyreports" :fields="table.dailyfields" :busy="state.busy.table1"
-                head-row-variant="secondary" :filter="search" small bordered hover responsive show-empty>
+              <b-table
+                id="sector-reports"
+                :items="dailyreports"
+                :fields="table.dailyfields"
+                :busy="state.busy.table1"
+                head-row-variant="secondary"
+                :filter="search"
+                small
+                bordered
+                hover
+                responsive
+                show-empty
+              >
                 <template v-slot:table-busy>
                   <vue-load label="Generating..." class="p-3" />
                 </template>
@@ -148,13 +253,17 @@
                   <article class="text-center">{{ data.index + 1 }}</article>
                 </template>
                 <template v-slot:cell(created_at)="data">
-                  <article class="text-center">{{ data.item.created_at | date }}</article>
+                  <article class="text-center">
+                    {{ data.item.created_at | date }}
+                  </article>
                 </template>
                 <template v-slot:cell(amount)="data">
-                  <article class="text-center">{{ data.item.amount | number }}</article>
+                  <article class="text-center">
+                    {{ data.item.amount | number }}
+                  </article>
                 </template>
                 <template v-slot:custom-foot>
-                  <b-tr class="total">
+                  <b-tr class="total" id="myrow">
                     <b-td></b-td>
                     <b-td></b-td>
                     <b-td></b-td>
@@ -167,11 +276,14 @@
                       >
                     </b-td>
                     <b-td class="text-center py-3">
-                      <small><strong style=""><span style="color: #dc3545">Total </span>:
-                          {{ dailyTotal | number }} Rwf</strong></small>
+                      <small
+                        ><strong style=""
+                          ><span style="color: #dc3545">Total </span>:
+                          {{ dailyTotal | number }} Rwf</strong
+                        ></small
+                      >
                     </b-td>
                     <b-td></b-td>
-                    
                   </b-tr>
                 </template>
               </b-table>
@@ -190,7 +302,11 @@
         </b-button>
       </b-row>
       <b-row v-if="showDownload2" class="py-3 justify-content-end" no-gutters>
-        <b-button @click="downloadDailyReport" variant="info" class="downloadBtn">
+        <b-button
+          @click="downloadDailyReport"
+          variant="info"
+          class="downloadBtn"
+        >
           <i class="fa fa-download mr-1" />Download Report
         </b-button>
       </b-row>
@@ -245,6 +361,7 @@ export default {
       },
       reports: [],
       dailyreports: [],
+      currentDay: null,
       table: {
         fields: [
           {
@@ -261,7 +378,6 @@ export default {
             thClass: "text-center text-uppercase",
           },
 
-         
           {
             key: "amount",
             label: "Amount",
@@ -272,8 +388,8 @@ export default {
             key: "date",
             label: "Date",
             tdClass: "text-right",
-            thClass: "text-center text-uppercase"
-          }
+            thClass: "text-center text-uppercase",
+          },
         ],
         dailyfields: [
           {
@@ -291,13 +407,13 @@ export default {
           {
             key: "village",
             label: "Vilage",
-            tdClass: "text-center",
+            // tdClass: "text-center",
             thClass: "text-center text-uppercase",
           },
           {
             key: "houses",
             label: "No Of House",
-            tdClass: "text-right",
+            tdClass: "text-center",
             thClass: "text-center text-uppercase",
           },
           {
@@ -306,12 +422,12 @@ export default {
             tdClass: "text-center",
             thClass: "text-center text-uppercase",
           },
-          {
-            key: "created_at",
-            label: "Date",
-            tdClass: "text-right",
-            thClass: "text-center text-uppercase",
-          },
+          // {
+          //   key: "created_at",
+          //   label: "Date",
+          //   tdClass: "text-right",
+          //   thClass: "text-center text-uppercase",
+          // },
         ],
       },
       pagination: {
@@ -447,8 +563,7 @@ export default {
       this.isLoading1 = true;
       this.isLoadingdata = true;
       this.reportTitle = "All transactions";
-    
-     
+
       try {
         const { data } = await this.axios.get("payment/reports/daily", {
           params: {
@@ -462,12 +577,16 @@ export default {
             to: "",
           },
         });
-        // this.accountant = data;
-        console.log("data",data);
-        this.reports = data.Transactions;
+        // Filter the array to only include objects with valid date strings
+        let filteredData = data.Transactions.filter((item) =>
+          Date.parse(item.date)
+        );
+
+        // Sort the filtered array in descending order of dates
+        filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
+        this.reports = filteredData;
         this.totalAmount = 0;
         for (let i = 0; i < data.Transactions.length; i++) {
-          
           this.totalAmount += data.Transactions[i].amount;
         }
         this.pagination.totalRows = data.Total;
@@ -481,12 +600,12 @@ export default {
         this.isLoadingdata = false;
       }
     },
-    
+
     async getDailyReport() {
       this.reportTitle = "Daily Report";
       this.state.showReport = false;
       this.state.showReport2 = false;
-      this.dailyTotal = 0
+      this.dailyTotal = 0;
       this.isLoadingdata = true;
       // console.log("generate daily report");
       this.loading = true;
@@ -507,8 +626,7 @@ export default {
         });
         if (this.form.select.cell != null) {
           this.reportTitle = ` Daily Report Of  ${this.form.select.cell}`;
-        }
-        else {
+        } else {
           this.reportTitle = ` Daily Report Of  ${this.form.select.sector}`;
         }
         // console.log("data", data);
@@ -516,9 +634,8 @@ export default {
         this.houseTotal = 0;
         this.dailyreports = data.summaries;
         for (let i = 0; i < data.summaries.length; i++) {
-          
           this.dailyTotal += data.summaries[i].amount;
-          this.houseTotal += data.summaries[i].houses
+          this.houseTotal += data.summaries[i].houses;
         }
         // this.pagination.totalRows = data.Total;
         // console.log("reports", this.reports);
@@ -532,17 +649,28 @@ export default {
         this.isLoadingdata = false;
       }
     },
-    async getToday(item) {
+    saveDate(item) {
+      this.currentDay = item.item.date;
+      this.form.select.sector = null
+      this.form.select.cell = null
+      this.form.select.village = null
+      this.getToday();
+    },
+    clearFilter() {
+      this.form.select.sector = null
+      this.form.select.cell = null
+      this.form.select.village = null
+      this.getToday();
+    },
+    async getToday() {
       // console.log("item", item);
-       this.reportTitle = "Daily Report";
       this.state.showReport = false;
       this.state.showReport2 = false;
-      this.dailyTotal = 0
+      this.dailyTotal = 0;
       this.isLoadingdata = true;
       // console.log("generate daily report");
       this.loading = true;
 
-      
       try {
         const { data } = await this.axios.get("payment/summary/today", {
           params: {
@@ -551,19 +679,24 @@ export default {
             village: this.form.select.village || "",
             offset: (this.pagination.currentPage - 1) * this.pagination.perPage,
             limit: this.pagination.perPage,
-            date: item.item.date,
+            date: this.currentDay,
             // to: this.to,
           },
         });
-          this.reportTitle = ` Daily Report On ${item.item.date.slice(0, 10)}`;
+        if (this.form.select.cell == null) {
+          this.reportTitle = ` Daily Report On ${this.currentDay.slice(0, 10)}`;
+        } else {
+          this.reportTitle = `${
+            this.form.select.cell
+          } Daily Report On ${this.currentDay.slice(0, 10)}`;
+        }
         // console.log("data", data);
         this.dailyTotal = 0;
         this.houseTotal = 0;
         this.dailyreports = data.summaries;
         for (let i = 0; i < data.summaries.length; i++) {
-          
           this.dailyTotal += data.summaries[i].amount;
-          this.houseTotal += data.summaries[i].houses
+          this.houseTotal += data.summaries[i].houses;
         }
         // this.pagination.totalRows = data.Total;
         // console.log("reports", this.reports);
@@ -619,8 +752,9 @@ export default {
                 {
                   header: `Transactions`,
                   dataKey: "transactions",
+                  tdClass: "text-center",
                 },
-                
+
                 { header: `Amount`, dataKey: "amount" },
                 { header: `Date`, dataKey: "date" },
                 // {
@@ -629,7 +763,14 @@ export default {
                 // },
                 // { header: `Unpaid Amount`, dataKey: "unpayedAmount" },
               ],
-              BODY: this.reports,
+              BODY: [
+                ...this.reports,
+                {
+                  transactions: "",
+                  amount: `Total: ${this.totalAmount} Rwf`,
+                  date: "",
+                },
+              ],
             },
           ],
         };
@@ -642,14 +783,14 @@ export default {
         const data = {
           config: {
             TITLE: String(` ${this.reportTitle}`).toUpperCase(),
+            FOOTER: 100,
             name: `${this.reportTitle} `,
+            // TOTAL: "100 rwf",
             // date: this.object.month,
           },
           data: [
-
             {
               COLUMNS: [
-
                 {
                   header: `Cell`,
                   dataKey: "cell",
@@ -660,14 +801,22 @@ export default {
                 },
                 { header: `No Of Houses`, dataKey: "houses" },
                 { header: `Amount`, dataKey: "amount" },
-                { header: `Date`, dataKey: "created_at" },
+                // { header: `Date`, dataKey: `created_at.slice(0, 10)` },
                 // {
                 //   header: `No of Unpaid Properties`,
                 //   dataKey: "pending",
                 // },
                 // { header: `Unpaid Amount`, dataKey: "unpayedAmount" },
               ],
-              BODY: this.dailyreports,
+              BODY: [
+                ...this.dailyreports,
+                {
+                  cell: "",
+                  village: "",
+                  houses: `Total: ${this.houseTotal} houses`,
+                  amount: `Total: ${this.dailyTotal} Rwf`,
+                },
+              ],
             },
           ],
         };
@@ -680,7 +829,7 @@ export default {
 
 <style lang="scss">
 #payment-reports {
-  &>header {
+  & > header {
     text-align: center;
     font-size: 1.3rem;
     font-weight: bold;
@@ -692,7 +841,7 @@ export default {
     grid-gap: 1rem;
     grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
 
-    &>button {
+    & > button {
       padding: 0.7rem 1rem;
     }
   }
