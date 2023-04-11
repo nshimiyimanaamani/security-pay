@@ -499,7 +499,7 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 
 	selectQuery := `
 	SELECT 
-		COUNT(p.id) AS successful_transactions,
+		COUNT(p.id) AS transactions,
 		COALESCE(SUM(t.amount), 0),
 		DATE(t.created_at) as date
 	FROM 
