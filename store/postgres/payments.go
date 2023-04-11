@@ -335,6 +335,7 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 			i.property = p.id
 		WHERE 1 = 1
 	`
+	// get creds
 
 	if flts.Status != nil {
 		selectQuery += fmt.Sprintf(" AND i.status = '%s'", *flts.Status)
@@ -358,6 +359,11 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	if flts.Village != nil {
 		selectQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
 	}
+
+	selectQuery += fmt.Sprintf(" AND p.namespace = '%s'", *flts.Namespace)
+	
+
+	
 
 	selectQuery += fmt.Sprintf(" ORDER BY i.created_at DESC OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
 	rows, err := tx.QueryContext(ctx, selectQuery)
@@ -411,6 +417,10 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	if flts.Village != nil {
 		countQuery += fmt.Sprintf(" AND p.village = '%s'", *flts.Village)
 	}
+
+	// return data by the namespace
+	selectQuery += fmt.Sprintf(" AND p.namespace = '%s'", *flts.Namespace)
+	
 
 	var (
 		total  uint64

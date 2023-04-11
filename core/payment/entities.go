@@ -86,6 +86,7 @@ type Filters struct {
 	Cell     *string
 	District *string
 	Month    *int64
+	Namespace   *string
 	From     *string
 	To       *string
 	Limit    *uint64

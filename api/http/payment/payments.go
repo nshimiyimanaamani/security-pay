@@ -48,6 +48,7 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 			offset = *cast.Uint64Pointer(0)
 			limit = *cast.Uint64Pointer(20)
 		}
+		creds := auth.CredentialsFromContext(r.Context())
 
 		flt := &payment.Filters{
 			Status:  status,
@@ -55,6 +56,7 @@ func PaymentReports(logger log.Entry, svc payment.Repository) http.Handler {
 			Cell:    cell,
 			Village: village,
 			From:    from,
+			Namespace: &creds.Account,
 			To:      to,
 			Offset:  &offset,
 			Limit:   &limit,
