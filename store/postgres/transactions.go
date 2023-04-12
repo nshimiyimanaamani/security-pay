@@ -139,9 +139,8 @@ func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, l
 	var items = []transactions.Transaction{}
 
 	creds := auth.CredentialsFromContext(ctx)
-	
-	
-if creds.Role == "min" {
+
+	if creds.Role == "min" {
 		q += `AND properties.recorded_by=$4`
 	}
 
@@ -190,7 +189,7 @@ if creds.Role == "min" {
 	var total uint64
 	if creds.Role == "min" {
 
-		if err := repo.QueryRow(q, creds.Account,creds.Username).Scan(&total); err != nil {
+		if err := repo.QueryRow(q, creds.Account, creds.Username).Scan(&total); err != nil {
 			return empty, errors.E(op, err, errors.KindUnexpected)
 		}
 	} else {
@@ -198,8 +197,6 @@ if creds.Role == "min" {
 			return empty, errors.E(op, err, errors.KindUnexpected)
 		}
 	}
-
-	
 
 	page := transactions.TransactionPage{
 		Transactions: items,

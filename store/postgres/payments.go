@@ -472,8 +472,8 @@ func (repo *paymentStore) TodayTransaction(ctx context.Context, flts *payment.Me
 	if flts.Cell != nil {
 		selectQuery += fmt.Sprintf(" AND p.cell = '%s'", *flts.Cell)
 	}
-	if flts.Creds != nil {
-		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
+	if flts.Namespace != nil {
+		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Namespace)
 	}
 
 	selectQuery += ` GROUP BY DATE(t.created_at)`
@@ -534,8 +534,8 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 		selectQuery += fmt.Sprintf(" AND DATE(t.created_at) <= '%s'", *flts.To)
 	}
 
-	if flts.Creds != nil {
-		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
+	if flts.Namespace != nil {
+		selectQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Namespace)
 	}
 
 	selectQuery += ` GROUP BY  DATE(t.created_at)`
@@ -593,8 +593,8 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 		countQuery += fmt.Sprintf(" AND DATE(t.created_at) <= '%s'", *flts.To)
 	}
 
-	if flts.Creds != nil {
-		countQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
+	if flts.Namespace != nil {
+		countQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Namespace)
 	}
 	countQuery += ` GROUP BY  DATE(t.created_at)`
 
@@ -652,8 +652,8 @@ func (repo *paymentStore) TodaySummary(ctx context.Context, flts *payment.Metric
 		selectQuery += fmt.Sprintf(" AND cell = '%s'", *flts.Cell)
 	}
 
-	if flts.Creds != nil {
-		selectQuery += fmt.Sprintf(" AND transactions.namespace = '%s'", *flts.Creds)
+	if flts.Namespace != nil {
+		selectQuery += fmt.Sprintf(" AND transactions.namespace = '%s'", *flts.Namespace)
 	}
 
 	selectQuery += ` GROUP BY cell,village,DATE(transactions.created_at)`
@@ -713,12 +713,15 @@ func (repo *paymentStore) UnpaidHouses(ctx context.Context, flts *payment.Metric
 	if flts.Username != nil {
 		selectQuery += fmt.Sprintf(" AND p.recorded_by = '%s'", *flts.Username)
 	}
-	if flts.Creds != nil {
-		selectQuery += fmt.Sprintf(" AND p.namespace = '%s'", *flts.Creds)
+	if flts.Namespace != nil {
+		selectQuery += fmt.Sprintf(" AND p.namespace = '%s'", *flts.Namespace)
+	}
+
+	if flts.Month != nil {
+		selectQuery += fmt.Sprintf(" AND EXTRACT(MONTH FROM i.created_at) = %d", *flts.Month)
 	}
 
 	selectQuery += fmt.Sprintf(" ORDER BY i.created_at DESC OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
-
 	rows, err := tx.QueryContext(ctx, selectQuery)
 	if err != nil {
 		return payment.PaymentResponse{}, errors.E(op, err)
@@ -751,8 +754,11 @@ func (repo *paymentStore) UnpaidHouses(ctx context.Context, flts *payment.Metric
 	if flts.Username != nil {
 		countQuery += fmt.Sprintf(" AND p.recorded_by = '%s'", *flts.Username)
 	}
-	if flts.Creds != nil {
-		countQuery += fmt.Sprintf(" AND p.namespace = '%s'", *flts.Creds)
+	if flts.Namespace != nil {
+		countQuery += fmt.Sprintf(" AND p.namespace = '%s'", *flts.Namespace)
+	}
+	if flts.Month != nil {
+		countQuery += fmt.Sprintf(" AND EXTRACT(MONTH FROM i.created_at) = %d", *flts.Month)
 	}
 
 	var (

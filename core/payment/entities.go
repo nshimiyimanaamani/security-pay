@@ -98,16 +98,17 @@ type Filters struct {
 
 // Metric Filters
 type MetricFilters struct {
-	From     *string
-	To       *string
-	Sector   *string
-	Cell     *string
-	Village  *string
-	Limit    *uint64
-	Offset   *uint64
-	Creds    *string
-	Date     *string
-	Username *string
+	From      *string
+	To        *string
+	Sector    *string
+	Cell      *string
+	Village   *string
+	Limit     *uint64
+	Offset    *uint64
+	Namespace *string
+	Date      *string
+	Username  *string
+	Month     *uint64
 }
 type Data struct {
 	Ref       string     `json:"ref,omitempty"`
