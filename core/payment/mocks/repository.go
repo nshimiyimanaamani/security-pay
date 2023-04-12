@@ -101,3 +101,12 @@ func (repo *repositoryMock) TodaySummary(ctx context.Context, flts *payment.Metr
 
 	return payment.Summaries{}, errors.E(op, "not implemented", errors.KindUnexpected)
 }
+
+func (repo *repositoryMock) UnpaidHouses(ctx context.Context, flts *payment.MetricFilters) (payment.PaymentResponse, error) {
+	const op errors.Op = "core/payment/mocks/repositoryMock.UnpaidHouses"
+
+	repo.mu.Lock()
+	defer repo.mu.Unlock()
+
+	return payment.PaymentResponse{}, errors.E(op, "not implemented", errors.KindUnexpected)
+}

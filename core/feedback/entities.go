@@ -1,10 +1,10 @@
 package feedback
 
 import (
+	"regexp"
 	"time"
 
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/ttacon/libphonenumber"
 )
 
 // Message ...
@@ -34,10 +34,11 @@ func (msg *Message) Validate() error {
 		return errors.E(op, "invalid message: missing creator", errors.KindBadRequest)
 	}
 
-	num, _ := libphonenumber.Parse(msg.Creator, "RW")
-	if !libphonenumber.IsValidNumberForRegion(num, "RW") {
-		return errors.E(op, "invalid message: invalid phone number", errors.KindBadRequest)
+	var phoneRegex = `^(\+?25)?(078|079|073|072)\d{7}$`
+	if !regexp.MustCompile(phoneRegex).MatchString(msg.Creator) {
+		return errors.E(op, "invalid phone number provided", errors.KindBadRequest)
 	}
+
 	return nil
 }
 

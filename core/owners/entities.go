@@ -2,8 +2,7 @@ package owners
 
 import (
 	"errors"
-
-	"github.com/ttacon/libphonenumber"
+	"regexp"
 )
 
 // Sentinel Errors
@@ -40,9 +39,10 @@ func (own *Owner) Validate() error {
 		return ErrInvalidEntity
 	}
 
-	num, _ := libphonenumber.Parse(own.Phone, "RW")
-	if !libphonenumber.IsValidNumberForRegion(num, "RW") {
+	var phoneRegex = `^(\+?25)?(078|079|073|072)\d{7}$`
+	if !regexp.MustCompile(phoneRegex).MatchString(own.Phone) {
 		return errors.New("invalid phone number provided")
 	}
+
 	return nil
 }
