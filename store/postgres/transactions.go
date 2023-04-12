@@ -117,7 +117,6 @@ func (repo *transactionsStore) RetrieveByID(ctx context.Context, id string) (tra
 	}
 	return tx, nil
 }
-
 func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, limit uint64) (transactions.TransactionPage, error) {
 	const op errors.Op = "store/postgres/transactionsRepository.RetrieveAll"
 
@@ -134,15 +133,28 @@ func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, l
 		owners ON transactions.madeby=owners.id 
 	WHERE
 		transactions.namespace=$1 
-	ORDER BY transactions.id LIMIT $2 OFFSET $3
 	`
 	empty := transactions.TransactionPage{}
 
 	var items = []transactions.Transaction{}
 
 	creds := auth.CredentialsFromContext(ctx)
+	
+	if creds.Role == "min" {
+		q += `AND properties.recorded_by=$4`
+	}
 
-	rows, err := repo.Query(q, creds.Account, limit, offset)
+	q += `ORDER BY transactions.id LIMIT $2 OFFSET $3`
+
+	var rows *sql.Rows
+	var err error
+
+	if creds.Role == "min" {
+		rows, err = repo.Query(q, creds.Account, limit, offset, creds.Username)
+	} else {
+		rows, err = repo.Query(q, creds.Account, limit, offset)
+	}
+
 	if err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
