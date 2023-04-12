@@ -3,6 +3,7 @@ package payment
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/paypack-backend/api/http/encoding"
@@ -252,22 +253,17 @@ func UnpaidHouses(logger log.Entry, svc payment.Repository) http.Handler {
 
 		vars := mux.Vars(r)
 
-		var month *uint64
-
-		monthParam := vars["month"]
-		if monthParam != "" {
-			monthValue, err := strconv.ParseUint(monthParam, 10, 64)
-			if err != nil {
-				err = errors.E(op, err, "invalid month value", errors.KindBadRequest)
-				logger.SystemErr(err)
-				encodeErr(w, err)
-				return
-			}
-			month = &monthValue
+		if vars["month"] == "" {
+			now := time.Now()
+			vars["month"] = strconv.Itoa(int(now.Month()))
 		}
 
-		if month == nil || *month == 0 {
-			month = nil
+		month, err := strconv.Atoi(vars["month"])
+		if err != nil {
+			err = errors.E(op, err, "invalid month value", errors.KindBadRequest)
+			logger.SystemErr(err)
+			encodeErr(w, err)
+			return
 		}
 
 		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
@@ -298,7 +294,7 @@ func UnpaidHouses(logger log.Entry, svc payment.Repository) http.Handler {
 			Limit:     &limit,
 			Username:  &creds.Username,
 			Namespace: &creds.Account,
-			Month:     month,
+			Month:     cast.Uint64Pointer(uint64(month)),
 		}
 
 		res, err := svc.UnpaidHouses(r.Context(), flt)
