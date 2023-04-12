@@ -513,15 +513,13 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 
 	selectQuery := `
 	SELECT 
-
-		COUNT(p.id) AS successful_transactions,
+		COUNT(p.id) AS transactions,
 		COALESCE(SUM(t.amount), 0),
 		DATE(t.created_at) as date
 	FROM 
 		transactions t
 	JOIN 
 		properties p ON t.madefor = p.id
-
 	WHERE 1=1 `
 
 	if flts.Sector != nil {
@@ -545,6 +543,8 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 	}
 
 	selectQuery += ` GROUP BY  DATE(t.created_at)`
+
+	selectQuery += ` ORDER BY DATE(t.created_at) DESC`
 
 	selectQuery += fmt.Sprintf(" OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
 
@@ -572,8 +572,8 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 
 	// calculate total
 	countQuery := `
-	SELECT
-		COUNT(p.id) OVER() AS total
+		SELECT
+		COUNT(*) OVER() AS total
 	FROM
 		transactions t
 	JOIN
@@ -600,7 +600,7 @@ func (repo *paymentStore) ListDailyTransactions(ctx context.Context, flts *payme
 	if flts.Creds != nil {
 		countQuery += fmt.Sprintf(" AND t.namespace = '%s'", *flts.Creds)
 	}
-	countQuery += ` GROUP BY  DATE(t.created_at), p.id`
+	countQuery += ` GROUP BY  DATE(t.created_at)`
 
 	var total uint64
 	if err := tx.QueryRowContext(ctx, countQuery).Scan(&total); err != nil {
