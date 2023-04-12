@@ -11,4 +11,5 @@ const (
 	TodayTransactionRoutes  = "/payment/reports/today"
 	DailyTransactionsRoutes = "/payment/reports/daily"
 	TodaySummaryRoute       = "/payment/summary/today"
+	UnpaidHousesRoute      	="/payment/unpaid"
 )

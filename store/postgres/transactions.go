@@ -140,7 +140,8 @@ func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, l
 
 	creds := auth.CredentialsFromContext(ctx)
 	
-	if creds.Role == "min" {
+	
+if creds.Role == "min" {
 		q += `AND properties.recorded_by=$4`
 	}
 
@@ -154,7 +155,6 @@ func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, l
 	} else {
 		rows, err = repo.Query(q, creds.Account, limit, offset)
 	}
-
 	if err != nil {
 		return empty, errors.E(op, err, errors.KindUnexpected)
 	}
@@ -173,12 +173,33 @@ func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, l
 		items = append(items, c)
 	}
 
-	q = `SELECT COUNT(*) FROM transactions WHERE namespace=$1`
-
-	var total uint64
-	if err := repo.QueryRow(q, creds.Account).Scan(&total); err != nil {
-		return empty, errors.E(op, err, errors.KindUnexpected)
+	q = `SELECT 
+		count(transactions.id) as total
+	FROM 
+		transactions
+	INNER JOIN 
+		properties ON transactions.madefor=properties.id
+	INNER JOIN 
+		owners ON transactions.madeby=owners.id 
+	WHERE
+		transactions.namespace=$1
+		`
+	if creds.Role == "min" {
+		q += `AND properties.recorded_by=$2`
 	}
+	var total uint64
+	if creds.Role == "min" {
+
+		if err := repo.QueryRow(q, creds.Account,creds.Username).Scan(&total); err != nil {
+			return empty, errors.E(op, err, errors.KindUnexpected)
+		}
+	} else {
+		if err := repo.QueryRow(q, creds.Account).Scan(&total); err != nil {
+			return empty, errors.E(op, err, errors.KindUnexpected)
+		}
+	}
+
+	
 
 	page := transactions.TransactionPage{
 		Transactions: items,

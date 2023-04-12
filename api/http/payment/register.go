@@ -75,4 +75,7 @@ func RegisterHandlers(r *mux.Router, opts *HandlerOpts) {
 
 	r.Handle(TodaySummaryRoute, authenticator(RepoLogEntryHandler(TodaySummary, opts))).Methods(http.MethodGet).
 		Queries("sector", "{sector}", "cell", "{cell}", "village", "{village}", "date", "{date}")
+
+	r.Handle(UnpaidHousesRoute,authenticator(RepoLogEntryHandler(UnpaidHouses,opts))).Methods(http.MethodGet).
+		Queries("limit", "{limit}", "offset", "{offset}")
 }

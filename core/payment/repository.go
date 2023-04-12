@@ -28,4 +28,6 @@ type Repository interface {
 
 	//Returns Transactions Per Sector,cell,village
 	TodaySummary(context.Context, *MetricFilters) (Summaries, error)
+	// returns unpaid houses
+	UnpaidHouses(context.Context, *MetricFilters) (PaymentResponse, error)
 }

@@ -242,3 +242,61 @@ func TodaySummary(logger log.Entry, svc payment.Repository) http.Handler {
 	}
 	return http.HandlerFunc(f)
 }
+
+// Unpaid houses
+func UnpaidHouses(logger log.Entry, svc payment.Repository) http.Handler {
+	
+	const op errors.Op = "api/http/payment/UnpaidHouses"
+
+	f := func(w http.ResponseWriter, r *http.Request) {
+
+		vars := mux.Vars(r)
+
+		offset, err := strconv.ParseUint(vars["offset"], 10, 32)
+		if err != nil {
+			err = errors.E(op, err, "invalid offset value", errors.KindBadRequest)
+			logger.SystemErr(err)
+			encodeErr(w, err)
+			return
+		}
+
+		limit, err := strconv.ParseUint(vars["limit"], 10, 32)
+		if err != nil {
+			err = errors.E(op, err, "invalid limit value", errors.KindBadRequest)
+			logger.SystemErr(err)
+			encodeErr(w, err)
+			return
+		}
+
+		if (cast.Uint64Pointer(offset) == nil || cast.Uint64Pointer(limit) == nil) || (offset == 0 && limit == 0) {
+			offset = *cast.Uint64Pointer(0)
+			limit = *cast.Uint64Pointer(20)
+		}
+
+		creds := auth.CredentialsFromContext(r.Context())
+		flt := &payment.MetricFilters{
+
+		
+			Offset:  &offset,
+			Limit:   &limit,
+			Username: &creds.Username,
+			Creds:   &creds.Account,
+		}
+
+		res, err := svc.UnpaidHouses(r.Context(), flt)
+		if err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(err)
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
+
+		if err := encoding.Encode(w, http.StatusOK, res); err != nil {
+			err = errors.E(op, err)
+			logger.SystemErr(errors.E(op, err))
+			encoding.EncodeError(w, errors.Kind(err), err)
+			return
+		}
+	}
+	return http.HandlerFunc(f)
+}

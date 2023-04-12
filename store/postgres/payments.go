@@ -363,9 +363,6 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	if flts.Namespace != nil {
 		selectQuery += fmt.Sprintf(" AND p.namespace = '%s'", *flts.Namespace)
 	}
-	
-
-	
 
 	selectQuery += fmt.Sprintf(" ORDER BY i.created_at DESC OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
 	rows, err := tx.QueryContext(ctx, selectQuery)
@@ -424,7 +421,6 @@ func (repo *paymentStore) List(ctx context.Context, flts *payment.Filters) (paym
 	if flts.Namespace != nil {
 		selectQuery += fmt.Sprintf(" AND p.namespace = '%s'", *flts.Namespace)
 	}
-	
 
 	var (
 		total  uint64
@@ -686,6 +682,100 @@ func (repo *paymentStore) TodaySummary(ctx context.Context, flts *payment.Metric
 
 }
 
+// UnpaidHouses
+func (repo *paymentStore) UnpaidHouses(ctx context.Context, flts *payment.MetricFilters) (payment.PaymentResponse, error) {
+	const op errors.Op = "store/postgres/paymentStore.UnpaidHouses"
+	tx, err := repo.BeginTx(ctx, nil)
+	if err != nil {
+		return payment.PaymentResponse{}, errors.E(op, err)
+	}
+	defer tx.Rollback()
+
+	selectQuery := `SELECT 
+			o.id,
+			o.fname, 
+			o.lname,
+			o.phone,
+			i.property,
+			i.amount,
+			p.sector,
+			p.village,
+			p.cell
+			
+		FROM 
+			owners o
+		JOIN properties p 
+			ON p.owner = o.id
+		JOIN invoices i ON 
+			i.property = p.id
+		WHERE i.status = 'pending'
+	`
+	if flts.Username != nil {
+		selectQuery += fmt.Sprintf(" AND p.recorded_by = '%s'", *flts.Username)
+	}
+	if flts.Creds != nil {
+		selectQuery += fmt.Sprintf(" AND p.namespace = '%s'", *flts.Creds)
+	}
+
+	selectQuery += fmt.Sprintf(" ORDER BY i.created_at DESC OFFSET %d LIMIT %d", *flts.Offset, *flts.Limit)
+
+	rows, err := tx.QueryContext(ctx, selectQuery)
+	if err != nil {
+		return payment.PaymentResponse{}, errors.E(op, err)
+	}
+	defer rows.Close()
+	var payments = []payment.Payment{}
+
+	for rows.Next() {
+		pmt := payment.Payment{}
+		err := rows.Scan(
+			&pmt.ID,
+			&pmt.Fname,
+			&pmt.Lname,
+			&pmt.Phone,
+			&pmt.PropertyID,
+			&pmt.Amount,
+			&pmt.Sector,
+			&pmt.Village,
+			&pmt.Cell,
+		)
+		if err != nil {
+			return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)
+		}
+		payments = append(payments, pmt)
+	}
+	countQuery := `SELECT COUNT(*), COALESCE(SUM(i.amount), 0.0) FROM invoices i JOIN properties p ON i.property = p.id`
+	countQuery += " WHERE i.status = 'pending'"
+
+	// check on from date
+	if flts.Username != nil {
+		countQuery += fmt.Sprintf(" AND p.recorded_by = '%s'", *flts.Username)
+	}
+	if flts.Creds != nil {
+		countQuery += fmt.Sprintf(" AND p.namespace = '%s'", *flts.Creds)
+	}
+
+	var (
+		total  uint64
+		amount float64
+	)
+
+	if err := repo.QueryRow(countQuery).Scan(&total, &amount); err != nil {
+		return payment.PaymentResponse{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	page := payment.PaymentResponse{
+		Payments: payments,
+		PageMetadata: payment.PageMetadata{
+			Total:  total,
+			Offset: *flts.Offset,
+			Limit:  *flts.Limit,
+			Amount: amount,
+		},
+	}
+	return page, nil
+
+}
 func formMessage(tx []*payment.TxRequest, prop *properties.Property) string {
 
 	const header = "Murakoze kwishyura umusanzu w' isuku"

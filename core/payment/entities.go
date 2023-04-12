@@ -66,6 +66,9 @@ type Payment struct {
 	Phone      string `json:"phone,omitempty"`
 	PropertyID string `json:"property_id,omitempty"`
 	Amount     string `json:"amount,omitempty"`
+	Village    string `json:"village,omitempty"`
+	Cell       string `json:"cell,omitempty"`
+	Sector     string `json:"sector,omitempty"`
 }
 type PaymentResponse struct {
 	PageMetadata
@@ -80,30 +83,31 @@ type Callback struct {
 
 // Filters ...
 type Filters struct {
-	Status   *string
-	Sector   *string
-	Village  *string
-	Cell     *string
-	District *string
-	Month    *int64
-	Namespace   *string
-	From     *string
-	To       *string
-	Limit    *uint64
-	Offset   *uint64
+	Status    *string
+	Sector    *string
+	Village   *string
+	Cell      *string
+	District  *string
+	Month     *int64
+	Namespace *string
+	From      *string
+	To        *string
+	Limit     *uint64
+	Offset    *uint64
 }
 
 // Metric Filters
 type MetricFilters struct {
-	From    *string
-	To      *string
-	Sector  *string
-	Cell    *string
-	Village *string
-	Limit   *uint64
-	Offset  *uint64
-	Creds   *string
-	Date    *string
+	From     *string
+	To       *string
+	Sector   *string
+	Cell     *string
+	Village  *string
+	Limit    *uint64
+	Offset   *uint64
+	Creds    *string
+	Date     *string
+	Username *string
 }
 type Data struct {
 	Ref       string     `json:"ref,omitempty"`
