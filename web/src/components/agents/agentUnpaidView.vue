@@ -101,14 +101,14 @@ export default {
         items: null,
         fields: [
           { key: "index", label: "NO" },
-          { key: "owner", label: "Name", sortable: true },
-          { key: "madefor", label: "House Code", sortable: false },
-          { key: "year", label: "Year", sortable: true },
-          { key: "month", label: "Month", sortable: true },
+          { key: "fname", label: "Name", sortable: true,formatter: (value, key, item) => `${item.fname} ${item.lname}`, },
+          { key: "property_id", label: "House Code", sortable: false },
+          // { key: "year", label: "Year", sortable: true },
+          // { key: "month", label: "Month", sortable: true },
           { key: "sector", label: "Sector", sortable: true },
           { key: "cell", label: "Cell", sortable: true },
           { key: "village", label: "Village", sortable: true },
-          { key: "method", label: "Method", sortable: true },
+          // { key: "method", label: "Method", sortable: true },
           { key: "amount", label: "Amount", sortable: false },
         ],
         sortBy: "owner",
@@ -146,27 +146,30 @@ export default {
       if (this.user.village) {
         this.axios
           .get(
-            `/transactions?offset=${this.offset}&limit=${this.pagination.perPage}`
+            `/payment/unpaid?offset=${this.offset}&limit=${this.pagination.perPage}&month=${this.date.month}`
           )
           .then((res) => {
-            let filteredItems = res.data.Transactions;
+            
+            let filteredItems = res.data.Payments;
+            console.log("res", filteredItems);
+          
             if (this.user.village) {
               filteredItems = filteredItems.filter(
                 (item) => item.village === this.user.village
               );
             }
-            if (this.date.year) {
-              filteredItems = filteredItems.filter(
-                (item) =>
-                  new Date(item.date_recorded).getFullYear() === this.date.year
-              );
-            }
-            if (this.date.month) {
-              filteredItems = filteredItems.filter(
-                (item) =>
-                  new Date(item.date_recorded).getMonth() + 1 == this.date.month
-              );
-            }
+            // if (this.date.year) {
+            //   filteredItems = filteredItems.filter(
+            //     (item) =>
+            //       new Date(item.date_recorded).getFullYear() === this.date.year
+            //   );
+            // }
+            // if (this.date.month) {
+            //   filteredItems = filteredItems.filter(
+            //     (item) =>
+            //       new Date(item.date_recorded).getMonth() + 1 == this.date.month
+            //   );
+            // }
             this.table.items = filteredItems;
           })
           .catch((err) => {
