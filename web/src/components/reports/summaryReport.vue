@@ -750,6 +750,11 @@ export default {
             {
               COLUMNS: [
                 {
+                  header:"No",
+                  dataKey:"index",
+                  tdClass: "text-center",
+                },
+                {
                   header: `Transactions`,
                   dataKey: "transactions",
                   tdClass: "text-center",
@@ -763,14 +768,27 @@ export default {
                 // },
                 // { header: `Unpaid Amount`, dataKey: "unpayedAmount" },
               ],
-              BODY: [
-                ...this.reports,
-                {
+              BODY: this.reports
+                .map((report,index) => ({
+                  index: index + 1,
+                  transactions: report.transactions,
+                  amount: report.amount | this.number,
+                  date:report.date.slice(0,10)
+                }))
+                .concat({
+                  index: "",
                   transactions: "",
                   amount: `Total: ${this.totalAmount} Rwf`,
-                  date: "",
-                },
-              ],
+                  date:""
+                }),
+              // BODY: [
+              //   ...this.reports,
+              //   {
+              //     transactions: "",
+              //     amount: `Total: ${this.totalAmount} Rwf`,
+              //     date: "",
+              //   },
+              // ],
             },
           ],
         };
@@ -792,6 +810,10 @@ export default {
             {
               COLUMNS: [
                 {
+                  header:"No",
+                  dataKey:"index"
+                },
+                {
                   header: `Cell`,
                   dataKey: "cell",
                 },
@@ -808,15 +830,30 @@ export default {
                 // },
                 // { header: `Unpaid Amount`, dataKey: "unpayedAmount" },
               ],
-              BODY: [
-                ...this.dailyreports,
-                {
+              BODY: this.dailyreports
+                .map((report,index) => ({
+                  index: index + 1,
+                  cell: report.cell,
+                  village: report.village,
+                  houses: report.houses,
+                  amount: report.amount,
+                }))
+                .concat({
+                  index:"",
                   cell: "",
                   village: "",
                   houses: `Total: ${this.houseTotal} houses`,
                   amount: `Total: ${this.dailyTotal} Rwf`,
-                },
-              ],
+                }),
+              // BODY: [
+              //   ...this.dailyreports,
+              //   {
+              //     cell: "",
+              //     village: "",
+              //     houses: `Total: ${this.houseTotal} houses`,
+              //     amount: `Total: ${this.dailyTotal} Rwf`,
+              //   },
+              // ],
             },
           ],
         };

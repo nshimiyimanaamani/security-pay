@@ -510,6 +510,7 @@ export default {
       isLoading1: false,
       isLoadingdata: false,
       reportTitle: "",
+      pageTitle:"",
       totalAmount: 0,
       dailyTotal: 0,
       houseTotal: 0,
@@ -547,6 +548,7 @@ export default {
       },
       reports: [],
       dailyreports: [],
+      totalProperties:"",
       table: {
         fields: [
           {
@@ -759,7 +761,8 @@ export default {
       this.state.showReport2 = false;
       this.isLoading1 = true;
       this.isLoadingdata = true;
-      this.reportTitle = "All House Report";
+      this.pageTitle = "All House Report"
+      this.reportTitle = `All House Report ${this.form.select.village || this.form.select.cell || this.form.select.sector || ""}`;
       // console.log("generate all house");
       this.loading = true;
       const yearString = this.object.year;
@@ -795,7 +798,8 @@ export default {
           },
         });
         // this.accountant = data;
-
+        // console.log("check to",data.Total);
+        this.totalProperties = data.Total
         this.reports = data.Payments;
         // const custrow = {};
         // custrow.fname = "Total Amount"
@@ -820,7 +824,8 @@ export default {
       this.state.showReport = false;
       this.state.showReport2 = false;
       this.isLoadingdata = true;
-      this.reportTitle = "Paid House Report";
+      this.pageTitle = "Paid House Report"
+      this.reportTitle = `Paid House Report ${this.form.select.village || this.form.select.cell || this.form.select.sector || ""}`;
       // console.log("generate paid house");
       this.loading = true;
       const yearString = this.object.year;
@@ -872,8 +877,9 @@ export default {
       this.state.showReport = false;
       this.state.showReport2 = false;
       this.isLoadingdata = true;
-      this.reportTitle = " Unpaid House Report";
-      // console.log("generate unpaid house");
+      this.pageTitle = "Unpaid House Report"
+      this.reportTitle = ` Unpaid House Report ${this.form.select.village || this.form.select.cell || this.form.select.sector || ""}`;
+      // console.log("title",this.reportTitle);
       this.loading = true;
       const yearString = this.object.year;
       var monthString = this.object.month;
@@ -900,7 +906,6 @@ export default {
           },
         });
         // this.accountant = data;
-        this.reportTitle = "Unpaid House Report";
         this.reports = data.Payments;
         // const custrow = {};
         // custrow.fname = "Total Amount"
@@ -969,20 +974,84 @@ export default {
       }
     },
     pageChanged() {
-      if (this.reportTitle == "All House Report") {
+      if (this.pageTitle == "All House Report") {
         this.getAllHouse();
-      } else if (this.reportTitle == "Paid House Report") {
+      } else if (this.pageTitle == "Paid House Report") {
         this.getPaidHouse();
-      } else if (this.reportTitle == "Unpaid House Report") {
+      } else if (this.pageTitle == "Unpaid House Report") {
         this.getUnpaidHouse();
       } else {
         this.getDailyReport();
       }
     },
 
-    downloadReport() {
+    async downloadReport() {
       // console.log(this.reports);
-      if (this.reports.length > 0) {
+      let reports = [];
+      if (this.pageTitle == "All House Report") {
+        // this.getAllHouse();
+        try {
+          const { data } = await this.axios.get("payment/reports", {
+          params: {
+            status: "",
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
+            offset: 0,
+            limit: this.totalProperties,
+            from: this.from,
+            to: this.to,
+          },
+        });
+        
+        reports = data.Payments
+        } catch (error) {
+          console.log("error");
+        }
+      } else if (this.pageTitle == "Paid House Report") {
+        // this.getPaidHouse();
+        try {
+          const { data } = await this.axios.get("payment/reports", {
+          params: {
+            status: "payed",
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
+            offset: 0,
+            limit: this.totalProperties,
+            from: this.from,
+            to: this.to,
+          },
+        });
+        
+        reports = data.Payments
+        } catch (error) {
+          console.log("error");
+        }
+      } else if (this.pageTitle == "Unpaid House Report") {
+        try {
+          const { data } = await this.axios.get("payment/reports", {
+          params: {
+            status: "pending",
+            sector: this.form.select.sector || "",
+            cell: this.form.select.cell || "",
+            village: this.form.select.village || "",
+            offset: 0,
+            limit: this.totalProperties,
+            from: this.from,
+            to: this.to,
+          },
+        });
+        
+        reports = data.Payments
+        } catch (error) {
+          console.log("error");
+        }
+      } else {
+        // this.getDailyReport();
+      }
+      
+      if (reports.length > 0) {
         const data = {
           config: {
             TITLE: String(` ${this.reportTitle}`).toUpperCase(),
@@ -1012,6 +1081,10 @@ export default {
             {
               COLUMNS: [
                 {
+                  header:`No`,
+                  dataKey:`index`
+                },
+                {
                   header: `Names`,
                   dataKey: `name`,
                 },
@@ -1038,14 +1111,16 @@ export default {
                 // },
                 // { header: `Unpaid Amount`, dataKey: "unpayedAmount" },
               ],
-              BODY: this.reports
-                .map((report) => ({
+              BODY: reports
+                .map((report,index) => ({
+                  index: index + 1,
                   name: `${report.fname} ${report.lname}`,
                   phone: report.phone,
                   property_id: report.property_id,
-                  amount: report.amount,
+                  amount: report.amount | this.number,
                 }))
                 .concat({
+                  index: "",
                   name: "",
                   phone: "",
                   property_id: "",
