@@ -829,8 +829,7 @@ func formMessage(tx []*payment.TxRequest, prop *properties.Property) string {
 
 func timestamp() string {
 	now := time.Now()
-	location, _ := time.LoadLocation("Africa/Kigali")
-	at := now.In(time.FixedZone("CAT", 2*60*60)).In(location)
+	at := clock.TimeIn(now.Local().UTC(), clock.EAST)
 	return clock.Format(at, clock.LayoutCustom)
 }
 
