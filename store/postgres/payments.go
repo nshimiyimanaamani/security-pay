@@ -14,6 +14,8 @@ import (
 	"github.com/rugwirobaker/paypack-backend/core/properties"
 	"github.com/rugwirobaker/paypack-backend/pkg/clock"
 	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"golang.org/x/sync/errgroup"
 )
 
 var _ (payment.Repository) = (*paymentStore)(nil)
@@ -227,18 +229,28 @@ func (repo *paymentStore) Update(ctx context.Context, status string, payments []
 	}
 
 	if status == "successful" {
-		go func() error {
+		g := errgroup.Group{}
+		g.Go(func() error {
 			_, err := repo.sms.Send(ctx,
 				notifs.Notification{
 					Sender:     property.Namespace,
 					Recipients: []string{property.Owner.Phone},
 					Message:    formMessage(payments, property)},
 			)
+
 			if err != nil {
-				return errors.E(op, err, errors.KindUnexpected)
+				return err
 			}
+
+			log.NoOpLogger().Infof("sms sent to %s successful", property.Owner.Phone)
+
 			return nil
-		}()
+		})
+
+		if err := g.Wait(); err != nil {
+			return errors.E(op, err, errors.KindUnexpected)
+		}
+
 	}
 
 	return tx.Commit()
@@ -295,8 +307,6 @@ func (repo *paymentStore) BulkSave(ctx context.Context, payments []*payment.TxRe
 		args...,
 	)
 	if err != nil {
-		fmt.Println("insert payment err", err)
-		fmt.Println("insert payment input", payments)
 		pqErr, ok := err.(*pq.Error)
 		if ok {
 			switch pqErr.Code.Name() {
@@ -818,7 +828,9 @@ func formMessage(tx []*payment.TxRequest, prop *properties.Property) string {
 }
 
 func timestamp() string {
-	at := clock.TimeIn(time.Now(), clock.EAST)
+	now := time.Now()
+	location, _ := time.LoadLocation("Africa/Kigali")
+	at := now.In(time.FixedZone("CAT", 2*60*60)).In(location)
 	return clock.Format(at, clock.LayoutCustom)
 }
 
