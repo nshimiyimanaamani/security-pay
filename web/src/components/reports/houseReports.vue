@@ -3,80 +3,71 @@
     <header class="tabTitle">House Report</header>
     <div class="tabBody">
       <b-row class="controls" no-gutters>
-        <b-input
-          v-model="houseId"
-          placeholder="Enter House ID..."
-          class="text-uppercase mt-3 br-2"
-        />
-        <b-button
-          variant="info"
-          :disabled="houseId ? false : true"
-          class="my-4 br-2"
-          @click="generate"
-        >Generate House Report</b-button>
+        <b-input v-model="houseId" placeholder="Enter House ID..." class="text-uppercase mt-3 br-2" />
+        <b-button variant="info" :disabled="houseId ? false : true" class="my-4 br-2" @click="generate">Generate House
+          Report</b-button>
         <vue-load v-if="state.generating" label="Generating..." />
       </b-row>
       <b-row class="justify-content-center text-capitalize" no-gutters>
         <b-collapse id="housereport-collapse" v-model="state.showReport" class="w-100">
           <b-table-simple hover bordered small caption-top responsive v-if="showUserDetails">
-            <caption>Details of {{userDetails.names || 'user'}}:</caption>
+            <caption>Details of {{ userDetails.names || 'user' }}:</caption>
             <b-tbody>
               <b-tr>
                 <b-th>Names</b-th>
-                <b-td>{{userDetails.names}}</b-td>
+                <b-td>{{ userDetails.names }}</b-td>
               </b-tr>
               <b-tr>
                 <b-th>Phone Number</b-th>
-                <b-td>{{userDetails.phone_number}}</b-td>
+                <b-td>{{ userDetails.phone_number }}</b-td>
               </b-tr>
               <b-tr>
                 <b-th>House ID</b-th>
-                <b-td>{{userDetails.house_id}}</b-td>
+                <b-td>{{ userDetails.house_id }}</b-td>
               </b-tr>
               <b-tr>
                 <b-th>Location</b-th>
-                <b-td>{{userDetails.location}}</b-td>
+                <b-td>{{ userDetails.location }}</b-td>
               </b-tr>
               <b-tr>
                 <b-th>Amount</b-th>
-                <b-td>{{userDetails.amount}}</b-td>
+                <b-td>{{ userDetails.amount }}</b-td>
               </b-tr>
               <b-tr>
                 <b-th>For Rent</b-th>
-                <b-td>{{userDetails.forRent}}</b-td>
+                <b-td>{{ userDetails.forRent }}</b-td>
               </b-tr>
               <b-tr>
                 <b-th>Registered by</b-th>
-                <b-td style="text-transform: none;">{{userDetails.recorded_by}}</b-td>
+                <b-td style="text-transform: none;">{{ userDetails.recorded_by }}</b-td>
               </b-tr>
               <b-tr>
                 <b-th>Registered on</b-th>
-                <b-td>{{userDetails.created_at}}</b-td>
+                <b-td>{{ userDetails.created_at }}</b-td>
               </b-tr>
             </b-tbody>
           </b-table-simple>
-          <b-table-simple
-            hover
-            bordered
-            small
-            caption-top
-            responsive
-            v-if="paymentDetails.length > 0"
-          >
-            <caption>Payment History of {{userDetails.names || 'user'}}:</caption>
+          <b-table-simple hover bordered small caption-top responsive v-if="paymentDetails.length > 0">
+            <caption>Payment History of {{ userDetails.names || 'user' }}:</caption>
             <b-tbody>
               <b-tr>
                 <b-th>Month</b-th>
                 <b-td>Status</b-td>
               </b-tr>
-              <b-tr v-for="(item,index) in paymentDetails" :key="index">
-                <b-th>{{item.created_at}}</b-th>
-                <b-td>{{item.status}}</b-td>
+              <b-tr v-for="(item, index) in paymentDetails" :key="index">
+                <b-th>{{ item.created_at }}</b-th>
+                <b-td :title="item.status == 'Paid' ? 'Paid On ' + item.updated_at : 'Not Yet Paid'"
+                  class="cursor-pointer">
+                  {{ item.status }}
+                  <small v-if="item.status == 'Paid'" style="text-size: 0.8em !important">
+                    ({{ item.updated_at }})
+                  </small>
+                </b-td>
               </b-tr>
             </b-tbody>
           </b-table-simple>
           <div v-else class="w-100 d-flex justify-content-center align-items-center p-5 bg-light">
-            <p>{{state.error || 'Oops, something went wrong!'}}</p>
+            <p>{{ state.error || 'Oops, something went wrong!' }}</p>
           </div>
         </b-collapse>
       </b-row>
@@ -251,12 +242,13 @@ export default {
 
 <style lang='scss'>
 #house-report {
-  & > header {
+  &>header {
     text-align: center;
     font-size: 1.3rem;
     font-weight: bold;
     color: #384950;
   }
+
   .controls {
     display: flex;
     flex-direction: column;
