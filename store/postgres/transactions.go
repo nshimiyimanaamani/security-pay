@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/lib/pq"
 	"github.com/rugwirobaker/paypack-backend/core/auth"
@@ -120,7 +121,13 @@ func (repo *transactionsStore) RetrieveByID(ctx context.Context, id string) (tra
 func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, limit uint64) (transactions.TransactionPage, error) {
 	const op errors.Op = "store/postgres/transactionsRepository.RetrieveAll"
 
-	q := `
+	txn, err := repo.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return transactions.TransactionPage{}, errors.E(op, err, errors.KindUnexpected)
+	}
+	defer txn.Rollback()
+
+	selectQuery := `
 	SELECT 
 		transactions.id, transactions.amount,transactions.method, transactions.madefor,
 		transactions.invoice, transactions.created_at, properties.sector, properties.cell, 
@@ -132,47 +139,62 @@ func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, l
 	INNER JOIN 
 		owners ON transactions.madeby=owners.id 
 	WHERE
-		transactions.namespace=$1 
+		1 = 1
 	`
-	empty := transactions.TransactionPage{}
-
-	var items = []transactions.Transaction{}
-
 	creds := auth.CredentialsFromContext(ctx)
 
-	if creds.Role == "min" {
-		q += `AND properties.recorded_by=$4`
-	}
-
-	q += `ORDER BY transactions.id LIMIT $2 OFFSET $3`
-
-	var rows *sql.Rows
-	var err error
+	selectQuery += fmt.Sprintf(" AND transactions.namespace='%s'", creds.Account)
 
 	if creds.Role == "min" {
-		rows, err = repo.Query(q, creds.Account, limit, offset, creds.Username)
-	} else {
-		rows, err = repo.Query(q, creds.Account, limit, offset)
+		var cell, sector, village string
+		err := txn.QueryRow(`
+			SELECT
+				cell, sector, village
+			FROM
+				agents
+			WHERE
+			   telephone=$1
+		`, creds.Username).Scan(&cell, &sector, &village)
+		if err != nil {
+			return transactions.TransactionPage{}, errors.E(op, err, errors.KindUnexpected)
+		}
+		selectQuery += fmt.Sprintf(" AND properties.sector='%s' AND properties.cell='%s' AND properties.village='%s'", sector, cell, village)
 	}
+
+	selectQuery += fmt.Sprintf(" ORDER BY transactions.created_at DESC LIMIT %d OFFSET %d", limit, offset)
+
+	rows, err := txn.QueryContext(ctx, selectQuery)
 	if err != nil {
-		return empty, errors.E(op, err, errors.KindUnexpected)
+		return transactions.TransactionPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 	defer rows.Close()
 
-	for rows.Next() {
-		c := transactions.Transaction{}
+	out := []transactions.Transaction{}
 
-		if err := rows.Scan(
-			&c.ID, &c.Amount, &c.Method, &c.MadeFor, &c.Invoice, &c.DateRecorded,
-			&c.Sector, &c.Cell, &c.Village, &c.OwnerID, &c.OwneFname, &c.OwnerLname,
-		); err != nil {
-			return empty, errors.E(op, err, errors.KindUnexpected)
+	for rows.Next() {
+		tx := transactions.Transaction{}
+		err := rows.Scan(
+			&tx.ID,
+			&tx.Amount,
+			&tx.Method,
+			&tx.MadeFor,
+			&tx.Invoice,
+			&tx.DateRecorded,
+			&tx.Sector,
+			&tx.Cell,
+			&tx.Village,
+			&tx.OwnerID,
+			&tx.OwneFname,
+			&tx.OwnerLname,
+		)
+		if err != nil {
+			return transactions.TransactionPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
-		c.Fees = c.Amount * transactions.RateFee
-		items = append(items, c)
+		tx.Fees = tx.Amount * transactions.RateFee
+		out = append(out, tx)
 	}
 
-	q = `SELECT 
+	countQuery := `SELECT 
 		count(transactions.id) as total
 	FROM 
 		transactions
@@ -181,32 +203,41 @@ func (repo *transactionsStore) RetrieveAll(ctx context.Context, offset uint64, l
 	INNER JOIN 
 		owners ON transactions.madeby=owners.id 
 	WHERE
-		transactions.namespace=$1
+		1 = 1
 		`
-	if creds.Role == "min" {
-		q += `AND properties.recorded_by=$2`
-	}
-	var total uint64
-	if creds.Role == "min" {
 
-		if err := repo.QueryRow(q, creds.Account, creds.Username).Scan(&total); err != nil {
-			return empty, errors.E(op, err, errors.KindUnexpected)
+	countQuery += fmt.Sprintf(" AND transactions.namespace='%s'", creds.Account)
+
+	if creds.Role == "min" {
+		var cell, sector, village string
+		err := txn.QueryRow(`
+			SELECT
+				cell, sector, village
+			FROM
+				agents
+			WHERE
+			   telephone=$1
+		`, creds.Username).Scan(&cell, &sector, &village)
+		if err != nil {
+			return transactions.TransactionPage{}, errors.E(op, err, errors.KindUnexpected)
 		}
-	} else {
-		if err := repo.QueryRow(q, creds.Account).Scan(&total); err != nil {
-			return empty, errors.E(op, err, errors.KindUnexpected)
-		}
+		countQuery += fmt.Sprintf(" AND properties.sector='%s' AND properties.cell='%s' AND properties.village='%s'", sector, cell, village)
+	}
+
+	var total uint64
+	if err := txn.QueryRowContext(ctx, countQuery).Scan(&total); err != nil {
+		return transactions.TransactionPage{}, errors.E(op, err, errors.KindUnexpected)
 	}
 
 	page := transactions.TransactionPage{
-		Transactions: items,
+		Transactions: out,
 		PageMetadata: transactions.PageMetadata{
 			Total:  total,
 			Offset: offset,
 			Limit:  limit,
 		},
 	}
-	return page, nil
+	return page, txn.Commit()
 }
 
 func (repo *transactionsStore) RetrieveByProperty(ctx context.Context, property string, offset, limit uint64) (transactions.TransactionPage, error) {
