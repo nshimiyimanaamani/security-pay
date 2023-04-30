@@ -311,7 +311,7 @@ func (svc *service) Action1_1_1_2_2_Input_1(ctx context.Context, cmd *platypus.C
 	return platypus.Result{Out: fmt.Sprintf(success, monthVal, monthVal*int(property.Due)), Leaf: true}, nil
 }
 
-// For paying ibirarane ukoresheje number yanditse kunzu
+// For paying ibirarane ukoresheje number yanditse kunzu for option 1
 func (svc *service) Action1_1_1_1_3(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
 	const op errors.Op = "core/ussd/service.Action1_1_1_1_3"
 
@@ -345,7 +345,7 @@ func (svc *service) Action1_1_1_1_3(ctx context.Context, cmd *platypus.Command) 
 
 	if len(invoices.Invoices) > 0 {
 		if invoices.Total == 1 {
-			out = fmt.Sprintf("%s cyukwezi kumwe kwa %d bingana na:%f (RWF)\n 1. kwemeza kwishyura", out, invoices.Invoices[0].CreatedAt.Month(), invoices.Invoices[0].Amount)
+			out = fmt.Sprintf("%s cyukwezi kumwe kwa %d bingana na:%d (RWF)\n 1. kwemeza kwishyura", out, invoices.Invoices[0].CreatedAt.Month(), int(invoices.Invoices[0].Amount))
 		} else {
 			var amount int64
 			for _, invoice := range invoices.Invoices {

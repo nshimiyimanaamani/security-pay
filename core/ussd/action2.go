@@ -229,6 +229,164 @@ func (svc *service) action2_1(ctx context.Context, cmd *platypus.Command) (platy
 	return platypus.Result{Out: PrintProperties(success, page), Leaf: end}, nil
 }
 
+// For paying ibirarane for option 2
+func (svc *service) Action2_phone_house_prev(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
+	const op errors.Op = "core/ussd/service.Action2_phone_house_prev"
+
+	var out = "Ungiye kwishyura ikirarane"
+	const fail = "Mwongere mugerageze mukanya habaye ikibazo"
+
+	params := platypus.ParamsFromContext(ctx)
+
+	leaf, err := params.GetBool("isleaf")
+	if err != nil {
+		return platypus.Result{Out: fail, Leaf: true}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	var property properties.Property
+
+	property.ID, err = params.GetString("id")
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	phone, err := params.GetString("phone")
+	if err != nil {
+		return platypus.Result{Out: "Nta nimero ya telefoni mwashyizemo", Leaf: true}, errors.E(op, err, errors.KindNotFound)
+	}
+
+	// check if the entered input is number and check the corresponding property
+	property.ID, err = svc.matchProperty(ctx, property.ID, phone)
+	if err != nil {
+		return platypus.Result{Out: fail, Leaf: true}, errors.E(op, err)
+	}
+
+	invoices, err := svc.invoice.Unpaid(ctx, property.ID)
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err)
+	}
+
+	if len(invoices.Invoices) == 0 {
+		return platypus.Result{Out: "Ntabirarane mufite bibanditseho", Leaf: true}, nil
+	}
+
+	if len(invoices.Invoices) > 0 {
+		if invoices.Total == 1 {
+			out = fmt.Sprintf("%s cyukwezi kumwe kwa %d bingana na:%d (RWF)\n 1. kwemeza kwishyura", out, invoices.Invoices[0].CreatedAt.Month(), int64(invoices.Invoices[0].Amount))
+		} else {
+			var amount int64
+			for _, invoice := range invoices.Invoices {
+				amount += int64(invoice.Amount)
+			}
+			out = fmt.Sprintf("%s cyamezi %d bigana na:%d (RWF)\n 1. kwemeza kwishyura", out, invoices.Total, amount)
+		}
+	}
+
+	return platypus.Result{Out: out, Leaf: leaf}, nil
+}
+
+// Confirm payment for ibirarane for option 2 ku inimero ya telefoni yanditse kunzu
+// For kwishyura ibirarane ukoresheje number yanditse kunzu
+func (svc *service) Action2_phone_house_1_1(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
+	const op errors.Op = "core/ussd/service.Action2_phone_house_1_1"
+
+	var out = "Murakoze gukoresha serivisi za paypack"
+	const fail = "Mwongere mugerageze mukanya habaye ikibazo"
+
+	params := platypus.ParamsFromContext(ctx)
+
+	leaf, err := params.GetBool("isleaf")
+	if err != nil {
+		return platypus.Result{Out: fail, Leaf: true}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	var property properties.Property
+
+	property.ID, err = params.GetString("id")
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	phone, err := params.GetString("phone")
+	if err != nil {
+		return platypus.Result{Out: "Nta nimero ya telefoni mwashyizemo", Leaf: true}, errors.E(op, err, errors.KindNotFound)
+	}
+
+	// check if the entered input is number and check the corresponding property
+	property.ID, err = svc.matchProperty(ctx, property.ID, phone)
+	if err != nil {
+		return platypus.Result{Out: fail, Leaf: true}, errors.E(op, err)
+	}
+
+	invoices, err := svc.invoice.Unpaid(ctx, property.ID)
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err)
+	}
+
+	property, err = svc.properties.RetrieveByID(ctx, property.ID)
+	if err != nil {
+		return platypus.Result{Out: fail, Leaf: true}, errors.E(op, err)
+	}
+
+	status, err := svc.CreditPay(ctx, property, property.Owner.Phone, invoices.Invoices)
+	if err != nil {
+		return platypus.Result{Out: status, Leaf: true}, errors.E(op, err)
+	}
+
+	return platypus.Result{Out: out, Leaf: leaf}, nil
+}
+
+// Confirm payment for ibirarane for option 2 ku nimero ya telefoni uri gukoresha
+// For kwishyura ibirarane ukoresheje number yanditse kunzu
+func (svc *service) Action2_phone_house_2_1(ctx context.Context, cmd *platypus.Command) (platypus.Result, error) {
+	const op errors.Op = "core/ussd/service.Action2_phone_house_2_1"
+
+	var out = "Murakoze gukoresha serivisi za paypack"
+	const fail = "Mwongere mugerageze mukanya habaye ikibazo"
+
+	params := platypus.ParamsFromContext(ctx)
+
+	leaf, err := params.GetBool("isleaf")
+	if err != nil {
+		return platypus.Result{Out: fail, Leaf: true}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	var property properties.Property
+
+	property.ID, err = params.GetString("id")
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err, errors.KindUnexpected)
+	}
+
+	phone, err := params.GetString("phone")
+	if err != nil {
+		return platypus.Result{Out: "Nta nimero ya telefoni mwashyizemo", Leaf: true}, errors.E(op, err, errors.KindNotFound)
+	}
+
+	// check if the entered input is number and check the corresponding property
+	property.ID, err = svc.matchProperty(ctx, property.ID, phone)
+	if err != nil {
+		return platypus.Result{Out: fail, Leaf: true}, errors.E(op, err)
+	}
+
+	invoices, err := svc.invoice.Unpaid(ctx, property.ID)
+	if err != nil {
+		return platypus.Result{}, errors.E(op, err)
+	}
+
+	property, err = svc.properties.RetrieveByID(ctx, property.ID)
+	if err != nil {
+		return platypus.Result{Out: fail, Leaf: true}, errors.E(op, err)
+	}
+
+	status, err := svc.CreditPay(ctx, property, cmd.Phone, invoices.Invoices)
+	if err != nil {
+		return platypus.Result{Out: status, Leaf: true}, errors.E(op, err)
+	}
+
+	return platypus.Result{Out: out, Leaf: leaf}, nil
+}
+
 // PrintProperties ...
 func PrintProperties(static string, page properties.PropertyPage) string {
 	var buf bytes.Buffer

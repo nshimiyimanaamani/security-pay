@@ -73,7 +73,15 @@ func register(prefix string, svc *service, mux *platypus.Mux) *platypus.Mux {
 	mux.Handle(prefix+"*1*:id*2", platypus.HandlerFunc(svc.ActionPreview), platypus.TrimTrailHash)
 	mux.Handle(prefix+"*1*:id", platypus.HandlerFunc(svc.Action1_1), platypus.TrimTrailHash)
 
-	//Kwishyura ubanje kwinjizamo nimore ya telefoni wishyura ukoresheje nimero uri gukoresha
+	//Kwishyura ikirarane ubanje kwinjiza nimeoro ariko wishyurira ku nimero uri gukoresha for option 2
+	mux.Handle(prefix+"*2*:phone*:id*2*3*1#", platypus.HandlerFunc(svc.Action2_phone_house_2_1), nil)
+	mux.Handle(prefix+"*2*:phone*:id*2*3", platypus.HandlerFunc(svc.Action2_phone_house_prev), platypus.TrimTrailHash)
+
+	//Kwishyura ikirarane ubanje kwinjiza nimeoro ariko wishyurira ku inimero inzu yanditseho for option 2
+	mux.Handle(prefix+"*2*:phone*:id*1*3*1#", platypus.HandlerFunc(svc.Action2_phone_house_1_1), nil)
+	mux.Handle(prefix+"*2*:phone*:id*1*3", platypus.HandlerFunc(svc.Action2_phone_house_prev), platypus.TrimTrailHash)
+
+	//Kwishyura ubanje kwinjizamo nimore ya telefoni wishyura ukoresheje nimero uri gukoresha ariko wishyura amezi menshi
 	mux.Handle(prefix+"*2*:phone*:id*2*2*:input*1#", platypus.HandlerFunc(svc.Action1_1_1_2_2_Input_1), nil)
 	mux.Handle(prefix+"*2*:phone*:id*2*2*:input", platypus.HandlerFunc(svc.Action1_1_1_1_2_Input), platypus.TrimTrailHash)
 	mux.Handle(prefix+"*2*:phone*:id*2*2", platypus.HandlerFunc(svc.Action1_1_1_1_2), platypus.TrimTrailHash)
@@ -107,11 +115,11 @@ func register(prefix string, svc *service, mux *platypus.Mux) *platypus.Mux {
 	mux.Handle(prefix+"*1*:id*2*2*:input", platypus.HandlerFunc(svc.Action1_1_1_1_2_Input), platypus.TrimTrailHash)
 	mux.Handle(prefix+"*1*:id*2*2", platypus.HandlerFunc(svc.Action1_1_1_1_2), platypus.TrimTrailHash)
 
-	//Kwishyura ikirarane ukoresheje nimero inzu yanditseho
+	//Kwishyura ikirarane ukoresheje nimero inzu yanditseho for option 1 ukoresheje nimero inzu yanditseho
 	mux.Handle(prefix+"*1*:id*1*3*1#", platypus.HandlerFunc(svc.Action1_1_1_1_3_1), nil)
 	mux.Handle(prefix+"*1*:id*1*3", platypus.HandlerFunc(svc.Action1_1_1_1_3), platypus.TrimTrailHash)
 
-	//Kwishyura ikirarane ukoresheje nimero uri gukoresha
+	//Kwishyura ikirarane ukoresheje nimero uri gukoresha for option 1 ukoresheje nimero uri gukoresha
 	mux.Handle(prefix+"*1*:id*2*3", platypus.HandlerFunc(svc.Action1_1_1_1_3), platypus.TrimTrailHash)
 	mux.Handle(prefix+"*1*:id*2*3*1#", platypus.HandlerFunc(svc.Action1_1_1_2_3_1), nil)
 	return mux
@@ -174,6 +182,8 @@ func (svc *service) BulkPay(ctx context.Context, p properties.Property, phone st
 // credit payment initiation
 func (svc *service) CreditPay(ctx context.Context, p properties.Property, phone string, invoices []invoices.Invoice) (string, error) {
 
+	const op errors.Op = "core/ussd/service.CreditPay"
+
 	phone = strings.TrimPrefix(phone, "25")
 	phone = strings.TrimPrefix(phone, "+25")
 
@@ -182,6 +192,10 @@ func (svc *service) CreditPay(ctx context.Context, p properties.Property, phone 
 		MSISDN: phone,
 		Amount: p.Due,
 		Method: SelectMethod(phone),
+	}
+
+	if len(invoices) == 0 {
+		return "Ntabirarane mufite bibanditseho", errors.E(op, "no unpaid invoices found", errors.KindNotFound)
 	}
 
 	status, err := svc.payment.CreditPull(ctx, tx, invoices)
