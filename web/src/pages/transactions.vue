@@ -222,7 +222,7 @@ export default {
         // this.getPercentage();
         this.totalMonth = 0;
         this.totalFee = 0;
-        for (let i = 0; i < Data.length; i++) {
+        for (let i = 0; i < Data && Data.length; i++) {
           this.totalMonth += Data[i].amount;
           this.totalFee += Data[i].fee;
         }
@@ -278,7 +278,6 @@ export default {
       this.totalFee = 0;
       this.loading = true;
       const total = await this.$getTotal("/transactions?offset=0&limit=0");
-      console.log(total);
       this.axios
         .get("/transactions?offset=0&limit=" + total)
         .then((res) => {
@@ -302,7 +301,6 @@ export default {
           this.getPercentage();
         })
         .catch((err) => {
-          console.log(err);
           this.table.items = [];
           const error = err.response
             ? err.response.data.error || err.response.data
@@ -329,7 +327,7 @@ export default {
       }
     },
     MonthTotal() {
-      if (this.shownData.length < 1) return 0;
+      if (this.shownData && this.shownData.length < 1) return 0;
       try {
         return this.shownData.reduce((a, b) => Number(a) + Number(b.amount), 0);
       } catch {
@@ -337,7 +335,7 @@ export default {
       }
     },
     FeeTotal() {
-      if (this.shownData.length < 1) return 0;
+      if (this.shownData && this.shownData.length < 1) return 0;
       try {
         return this.shownData.reduce((a, b) => Number(a) + Number(b.fee), 0);
       } catch {
@@ -346,7 +344,7 @@ export default {
     },
     mtnTotal() {
       // console.log(this.shownData);
-      if (this.shownData.length < 1) return 0;
+      if (this.shownData && this.shownData.length < 1) return 0;
       try {
         return this.shownData
           .filter((data) => data.method.includes("mtn"))
