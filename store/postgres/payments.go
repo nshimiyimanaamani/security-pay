@@ -82,20 +82,21 @@ func (repo *paymentStore) Find(ctx context.Context, id string) ([]*payment.TxReq
 
 	query := `
 		SELECT 
-			id, 
-			ref,
-			amount, 
-			msisdn, 
-			status,
-			method, 
-			invoice, 
-			property,
-			confirmed,
-			created_at,
-			updated_at
+			p.id, 
+			p.ref,
+			p.amount, 
+			p.msisdn, 
+			p.status,
+			p.method, 
+			p.invoice, 
+			p.property,
+			p.confirmed,
+			p.created_at,
+			p.updated_at,
+			i.created_at
 		FROM 
-			payments
-		WHERE ref=$1
+			payments p INNER JOIN invoices i ON p.invoice=i.id
+		WHERE p.ref=$1
 	`
 	out := make([]*payment.TxRequest, 0)
 
@@ -119,6 +120,7 @@ func (repo *paymentStore) Find(ctx context.Context, id string) ([]*payment.TxReq
 			&trns.Confirmed,
 			&trns.CreatedAt,
 			&trns.UpdatedAt,
+			&trns.PayedDate,
 		)
 		if err != nil {
 			pqErr, ok := err.(*pq.Error)
@@ -808,7 +810,7 @@ func formMessage(tx []*payment.TxRequest, prop *properties.Property) string {
 	if len(tx) > 1 {
 		month = fmt.Sprintf("Wishyuriye Amezi %d\n", len(tx))
 	} else {
-		month = fmt.Sprintf("Wishyuriye Ukwezi kwa: %d\n", int(tx[0].CreatedAt.Month()))
+		month = fmt.Sprintf("Wishyuriye Ukwezi kwa: %d\n", int(tx[0].PayedDate.Month()))
 	}
 
 	var buf bytes.Buffer

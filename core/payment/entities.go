@@ -179,6 +179,7 @@ type TxRequest struct {
 	Confirmed bool      `json:"confirmed,omitempty"`
 	CreatedAt time.Time `json:"recorded_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	PayedDate time.Time `json:"payed_invoice,omitempty"`
 }
 
 // Confirm payment
