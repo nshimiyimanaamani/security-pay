@@ -21,17 +21,23 @@ kill_timeout = 2
   MAIN_RATE_LIMITER_TOKENS = 400
   AUTH_RATE_LIMITER_TOKENS = 350
 
+
 [processes]
   web = "/bin/paypack"
   worker = "/bin/worker"
 
 [[services]]
-  protocol = "tcp"
   internal_port = 8080
+  protocol = "tcp"
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 0
   processes = ["web"]
+
+  # [services.concurrency]
+  #   hard_limit = 30
+  #   soft_limit = 25
+  #   type = "connections"
 
   [[services.ports]]
     handlers = ["http"]
@@ -40,3 +46,16 @@ kill_timeout = 2
   [[services.ports]]
     handlers = ["tls", "http"]
     port = 443
+
+
+
+   [[services.http_checks]]
+    interval = 10000
+    grace_period = 20000
+    method = "get"
+    path = "/api/healthz"
+    protocol = "http"
+    timeout = 2000
+    [services.http_checks.headers]
+
+
