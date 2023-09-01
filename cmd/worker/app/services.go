@@ -3,9 +3,9 @@ package app
 import (
 	"database/sql"
 
-	"github.com/rugwirobaker/paypack-backend/core/archiver"
-	"github.com/rugwirobaker/paypack-backend/core/auditor"
-	"github.com/rugwirobaker/paypack-backend/store/postgres"
+	"github.com/nshimiyimanaamani/paypack-backend/core/archiver"
+	"github.com/nshimiyimanaamani/paypack-backend/core/auditor"
+	"github.com/nshimiyimanaamani/paypack-backend/store/postgres"
 )
 
 // Services ....

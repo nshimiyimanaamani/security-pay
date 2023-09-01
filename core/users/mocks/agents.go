@@ -3,8 +3,8 @@ package mocks
 import (
 	"context"
 
-	"github.com/rugwirobaker/paypack-backend/core/users"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/users"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 func (repo *userRepository) SaveAgent(ctx context.Context, user users.Agent) (users.Agent, error) {

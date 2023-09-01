@@ -1,9 +1,9 @@
 package executor
 
 import (
-	"github.com/rugwirobaker/paypack-backend/pkg/ussd"
-	"github.com/rugwirobaker/paypack-backend/pkg/ussd/action"
-	"github.com/rugwirobaker/paypack-backend/pkg/ussd/command"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/ussd"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/ussd/action"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/ussd/command"
 )
 
 // Executor ...

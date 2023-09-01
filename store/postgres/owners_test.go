@@ -10,11 +10,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/rugwirobaker/paypack-backend/core/accounts"
-	"github.com/rugwirobaker/paypack-backend/core/owners"
-	"github.com/rugwirobaker/paypack-backend/core/uuid"
+	"github.com/nshimiyimanaamani/paypack-backend/core/accounts"
+	"github.com/nshimiyimanaamani/paypack-backend/core/owners"
+	"github.com/nshimiyimanaamani/paypack-backend/core/uuid"
 
-	"github.com/rugwirobaker/paypack-backend/store/postgres"
+	"github.com/nshimiyimanaamani/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
 )
 

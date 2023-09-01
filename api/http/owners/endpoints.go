@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/core/owners"
-	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/nshimiyimanaamani/paypack-backend/core/owners"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/log"
 )
 
 // Register handles owner registration

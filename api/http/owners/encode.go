@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rugwirobaker/paypack-backend/core/owners"
+	"github.com/nshimiyimanaamani/paypack-backend/core/owners"
 )
 
 var (
@@ -16,7 +16,7 @@ var (
 	errUnsupportedContentType = errors.New("unsupported content type")
 )
 
-//EncodeResponse encoded the application response to the http ts
+// EncodeResponse encoded the application response to the http ts
 func EncodeResponse(w http.ResponseWriter, code int, response interface{}) error {
 	w.Header().Set("Content-Type", contentType)
 
@@ -24,7 +24,7 @@ func EncodeResponse(w http.ResponseWriter, code int, response interface{}) error
 	return json.NewEncoder(w).Encode(response)
 }
 
-//EncodeError encodes the application error to the http api
+// EncodeError encodes the application error to the http api
 func EncodeError(w http.ResponseWriter, err error) {
 	w.Header().Set("Content-Type", contentType)
 
@@ -64,7 +64,7 @@ func EncodeError(w http.ResponseWriter, err error) {
 	json.NewEncoder(w).Encode(errMessage)
 }
 
-//CheckContentType middleware checks content typ
+// CheckContentType middleware checks content typ
 func CheckContentType(r *http.Request) error {
 	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
 		//logger.Warn("Invalid or missing content type.")

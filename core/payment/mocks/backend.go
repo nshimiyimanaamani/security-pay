@@ -3,8 +3,8 @@ package mocks
 import (
 	"context"
 
-	"github.com/rugwirobaker/paypack-backend/core/payment"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/payment"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 var _ (payment.Client) = (*backendMock)(nil)

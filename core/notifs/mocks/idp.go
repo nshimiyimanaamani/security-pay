@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/rugwirobaker/paypack-backend/core/identity"
+	"github.com/nshimiyimanaamani/paypack-backend/core/identity"
 )
 
 var _ identity.Provider = (*identityProviderMock)(nil)

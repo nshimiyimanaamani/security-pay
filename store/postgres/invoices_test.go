@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rugwirobaker/paypack-backend/core/accounts"
-	"github.com/rugwirobaker/paypack-backend/core/invoices"
-	"github.com/rugwirobaker/paypack-backend/core/nanoid"
-	"github.com/rugwirobaker/paypack-backend/core/properties"
-	"github.com/rugwirobaker/paypack-backend/core/users"
-	"github.com/rugwirobaker/paypack-backend/core/uuid"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/rugwirobaker/paypack-backend/store/postgres"
+	"github.com/nshimiyimanaamani/paypack-backend/core/accounts"
+	"github.com/nshimiyimanaamani/paypack-backend/core/invoices"
+	"github.com/nshimiyimanaamani/paypack-backend/core/nanoid"
+	"github.com/nshimiyimanaamani/paypack-backend/core/properties"
+	"github.com/nshimiyimanaamani/paypack-backend/core/users"
+	"github.com/nshimiyimanaamani/paypack-backend/core/uuid"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/store/postgres"
 	"github.com/stretchr/testify/assert"
 )
 

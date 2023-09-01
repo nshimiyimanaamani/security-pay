@@ -1,7 +1,7 @@
 package nova
 
 // import (
-// 	"github.com/rugwirobaker/paypack-backend/core/payment"
+// 	"github.com/nshimiyimanaamani/paypack-backend/core/payment"
 // )
 
 // // messages

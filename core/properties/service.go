@@ -3,8 +3,8 @@ package properties
 import (
 	"context"
 
-	"github.com/rugwirobaker/paypack-backend/core/identity"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/identity"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 // nanoid settings

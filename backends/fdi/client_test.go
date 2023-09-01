@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/nshimiyimanaamani/paypack-backend/backends/fdi"
+	"github.com/nshimiyimanaamani/paypack-backend/core/payment"
+	"github.com/nshimiyimanaamani/paypack-backend/core/uuid"
 	"github.com/quarksgroup/paypack-go/paypack/api"
-	"github.com/rugwirobaker/paypack-backend/backends/fdi"
-	"github.com/rugwirobaker/paypack-backend/core/payment"
-	"github.com/rugwirobaker/paypack-backend/core/uuid"
 	"github.com/stretchr/testify/assert"
 )
 

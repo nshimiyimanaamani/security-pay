@@ -10,7 +10,7 @@ import (
 	"github.com/ory/dockertest"
 	// _ "github.com/lib/pq" // required driver for postgres access
 
-	"github.com/rugwirobaker/paypack-backend/store/postgres"
+	"github.com/nshimiyimanaamani/paypack-backend/store/postgres"
 )
 
 var db *sql.DB

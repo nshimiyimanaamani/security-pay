@@ -6,14 +6,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rugwirobaker/paypack-backend/core/identity"
-	"github.com/rugwirobaker/paypack-backend/core/invoices"
-	"github.com/rugwirobaker/paypack-backend/core/owners"
-	"github.com/rugwirobaker/paypack-backend/core/payment"
-	"github.com/rugwirobaker/paypack-backend/core/properties"
-	"github.com/rugwirobaker/paypack-backend/core/users"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/rugwirobaker/paypack-backend/pkg/platypus"
+	"github.com/nshimiyimanaamani/paypack-backend/core/identity"
+	"github.com/nshimiyimanaamani/paypack-backend/core/invoices"
+	"github.com/nshimiyimanaamani/paypack-backend/core/owners"
+	"github.com/nshimiyimanaamani/paypack-backend/core/payment"
+	"github.com/nshimiyimanaamani/paypack-backend/core/properties"
+	"github.com/nshimiyimanaamani/paypack-backend/core/users"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/platypus"
 )
 
 // Service is the ussd service interface definition.

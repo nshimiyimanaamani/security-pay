@@ -2,7 +2,7 @@ package owners
 
 import "context"
 
-import "github.com/rugwirobaker/paypack-backend/core/identity"
+import "github.com/nshimiyimanaamani/paypack-backend/core/identity"
 
 // Service defines the owners module usecases
 type Service interface {

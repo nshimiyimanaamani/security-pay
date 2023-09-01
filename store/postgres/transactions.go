@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	"github.com/lib/pq"
-	"github.com/rugwirobaker/paypack-backend/core/auth"
-	"github.com/rugwirobaker/paypack-backend/core/transactions"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/auth"
+	"github.com/nshimiyimanaamani/paypack-backend/core/transactions"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 var _ (transactions.Repository) = (*transactionsStore)(nil)

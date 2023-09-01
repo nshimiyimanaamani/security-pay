@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/rugwirobaker/paypack-backend/core/scheduler"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/scheduler"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 var _ (scheduler.Counter) = (*auditableCounter)(nil)

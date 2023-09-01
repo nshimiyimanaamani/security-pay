@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/rugwirobaker/paypack-backend/core/owners"
+	"github.com/nshimiyimanaamani/paypack-backend/core/owners"
 )
 
 var _ (owners.Repository) = (*ownerRepoMock)(nil)

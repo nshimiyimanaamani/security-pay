@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/core/metrics"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/nshimiyimanaamani/paypack-backend/core/metrics"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/log"
 )
 
 // SectorPayRatio handles requests for the ratio payed/unpayed(pending) for a sector.

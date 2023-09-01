@@ -3,10 +3,10 @@ package mocks
 import (
 	"context"
 
-	"github.com/rugwirobaker/paypack-backend/core/invoices"
-	"github.com/rugwirobaker/paypack-backend/core/payment"
-	"github.com/rugwirobaker/paypack-backend/core/uuid"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/invoices"
+	"github.com/nshimiyimanaamani/paypack-backend/core/payment"
+	"github.com/nshimiyimanaamani/paypack-backend/core/uuid"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 type paymentMock struct{}

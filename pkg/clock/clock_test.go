@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/clock"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/clock"
 	"github.com/stretchr/testify/assert"
 )
 

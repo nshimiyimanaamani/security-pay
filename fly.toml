@@ -1,6 +1,6 @@
 # fly.toml file generated for paypack-umutekano on 2023-03-10T17:58:12+02:00
 
-app = "paypack-umutekano"
+app = "security-wage"
 
 kill_signal = "SIGINT"
 kill_timeout = 2

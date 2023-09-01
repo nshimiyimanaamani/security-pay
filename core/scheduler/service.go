@@ -3,8 +3,8 @@ package scheduler
 import (
 	"context"
 
-	"github.com/rugwirobaker/paypack-backend/core/invoices"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/invoices"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 // Service exposes the scheduler use casea

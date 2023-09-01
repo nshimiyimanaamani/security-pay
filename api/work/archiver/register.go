@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/hibiken/asynq"
-	"github.com/rugwirobaker/paypack-backend/core/archiver"
-	"github.com/rugwirobaker/paypack-backend/core/auditor"
-	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/nshimiyimanaamani/paypack-backend/core/archiver"
+	"github.com/nshimiyimanaamani/paypack-backend/core/auditor"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/log"
 )
 
 // LogEntryHandler pulls a log entry from the request context. Thanks to the

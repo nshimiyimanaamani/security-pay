@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rugwirobaker/paypack-backend/core/invoices"
-	"github.com/rugwirobaker/paypack-backend/core/invoices/mocks"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/invoices"
+	"github.com/nshimiyimanaamani/paypack-backend/core/invoices/mocks"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 

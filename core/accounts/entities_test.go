@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rugwirobaker/paypack-backend/core/accounts"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/accounts"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -1,6 +1,6 @@
 package auth
 
-import "github.com/rugwirobaker/paypack-backend/pkg/errors"
+import "github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 
 // Role represents user access level
 type Role string

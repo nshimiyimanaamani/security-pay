@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/api/http/encoding"
-	"github.com/rugwirobaker/paypack-backend/core/scheduler"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/nshimiyimanaamani/paypack-backend/api/http/encoding"
+	"github.com/nshimiyimanaamani/paypack-backend/core/scheduler"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/log"
 )
 
 // Schedule task

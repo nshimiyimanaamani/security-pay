@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/nshimiyimanaamani/paypack-backend/core/notifs"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 	"github.com/quarksgroup/sms-client/fdi"
-	"github.com/rugwirobaker/paypack-backend/core/notifs"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
 )
 
 // Timeout sets the default client timeout

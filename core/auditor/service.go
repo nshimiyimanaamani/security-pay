@@ -3,8 +3,8 @@ package auditor
 import (
 	"context"
 
-	batch "github.com/rugwirobaker/paypack-backend/pkg/batcher"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	batch "github.com/nshimiyimanaamani/paypack-backend/pkg/batcher"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 // Service ...

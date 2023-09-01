@@ -3,7 +3,7 @@ package notifs
 import (
 	"time"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 // Notification represents sms details

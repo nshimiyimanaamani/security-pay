@@ -3,7 +3,7 @@ package users
 import (
 	"context"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 func (svc *service) RegisterManager(ctx context.Context, user Manager) (Manager, error) {

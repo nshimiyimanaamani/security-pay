@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/rugwirobaker/paypack-backend/pkg/config"
-	"github.com/rugwirobaker/paypack-backend/pkg/tasks/queue"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/config"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/tasks/queue"
 )
 
 // InitQueue ...

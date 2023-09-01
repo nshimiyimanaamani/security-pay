@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/ussd"
-	"github.com/rugwirobaker/paypack-backend/pkg/ussd/command"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/ussd"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/ussd/command"
 )
 
 var _ Action = (*Base)(nil)

@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"database/sql"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 func seedDB(db *sql.DB) error {

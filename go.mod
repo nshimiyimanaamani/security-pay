@@ -1,4 +1,4 @@
-module github.com/rugwirobaker/paypack-backend
+module github.com/nshimiyimanaamani/paypack-backend
 
 go 1.16
 

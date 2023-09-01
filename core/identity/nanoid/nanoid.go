@@ -2,7 +2,7 @@ package nanoid
 
 import (
 	gonanoid "github.com/matoous/go-nanoid"
-	"github.com/rugwirobaker/paypack-backend/core/identity"
+	"github.com/nshimiyimanaamani/paypack-backend/core/identity"
 )
 
 // nanoid settings

@@ -1,7 +1,7 @@
 package uuid
 
 import (
-	"github.com/rugwirobaker/paypack-backend/core/identity"
+	"github.com/nshimiyimanaamani/paypack-backend/core/identity"
 	uuid "github.com/satori/go.uuid"
 )
 

@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/rugwirobaker/paypack-backend/core/properties"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/properties"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 var _ (properties.Repository) = (*propertyRepository)(nil)

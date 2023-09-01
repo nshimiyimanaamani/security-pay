@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rugwirobaker/paypack-backend/core/notifs"
-	"github.com/rugwirobaker/paypack-backend/core/notifs/mocks"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/notifs"
+	"github.com/nshimiyimanaamani/paypack-backend/core/notifs/mocks"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -136,7 +136,7 @@ func TestList(t *testing.T) {
 			err:    nil,
 		},
 		{
-			desc: "	list empty set",
+			desc:   "	list empty set",
 			nspace: namespace,
 			offset: n + 1,
 			limit:  n,

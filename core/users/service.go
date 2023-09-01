@@ -3,8 +3,8 @@ package users
 import (
 	"context"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/encrypt"
-	"github.com/rugwirobaker/paypack-backend/pkg/passwords"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/encrypt"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/passwords"
 )
 
 // Service defines users usecases

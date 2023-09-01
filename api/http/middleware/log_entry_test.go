@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/log"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )

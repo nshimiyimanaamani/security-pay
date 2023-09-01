@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/api/http/encoding"
-	"github.com/rugwirobaker/paypack-backend/core/auth"
-	"github.com/rugwirobaker/paypack-backend/core/payment"
-	"github.com/rugwirobaker/paypack-backend/pkg/cast"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/nshimiyimanaamani/paypack-backend/api/http/encoding"
+	"github.com/nshimiyimanaamani/paypack-backend/core/auth"
+	"github.com/nshimiyimanaamani/paypack-backend/core/payment"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/cast"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/log"
 )
 
 // PaymentReports returns the reports about paid and unpaid

@@ -4,13 +4,13 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/nshimiyimanaamani/paypack-backend/backends/fdi"
+	"github.com/nshimiyimanaamani/paypack-backend/backends/sms"
+	"github.com/nshimiyimanaamani/paypack-backend/core/notifs"
+	"github.com/nshimiyimanaamani/paypack-backend/core/payment"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/config"
 	"github.com/quarksgroup/paypack-go/paypack/api"
 	"github.com/quarksgroup/paypack-go/paypack/transport/oauth"
-	"github.com/rugwirobaker/paypack-backend/backends/fdi"
-	"github.com/rugwirobaker/paypack-backend/backends/sms"
-	"github.com/rugwirobaker/paypack-backend/core/notifs"
-	"github.com/rugwirobaker/paypack-backend/core/payment"
-	"github.com/rugwirobaker/paypack-backend/pkg/config"
 )
 
 // InitPaymentClient initialises the payment gateway

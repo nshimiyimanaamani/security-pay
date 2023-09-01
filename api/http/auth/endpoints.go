@@ -3,9 +3,9 @@ package auth
 import (
 	"net/http"
 
-	"github.com/rugwirobaker/paypack-backend/core/auth"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/nshimiyimanaamani/paypack-backend/core/auth"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/log"
 )
 
 // Login handles user login

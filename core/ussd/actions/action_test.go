@@ -3,9 +3,9 @@ package actions
 import (
 	"testing"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/ussd/action"
-	"github.com/rugwirobaker/paypack-backend/pkg/ussd/command"
-	"github.com/rugwirobaker/paypack-backend/pkg/ussd/executor"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/ussd/action"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/ussd/command"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/ussd/executor"
 )
 
 func newExecutor(root action.Action) executor.Executor {

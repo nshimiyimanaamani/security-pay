@@ -1,11 +1,11 @@
 package app
 
 import (
-	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/log"
 
 	"github.com/hibiken/asynq"
-	"github.com/rugwirobaker/paypack-backend/api/work/archiver"
-	"github.com/rugwirobaker/paypack-backend/api/work/auditor"
+	"github.com/nshimiyimanaamani/paypack-backend/api/work/archiver"
+	"github.com/nshimiyimanaamani/paypack-backend/api/work/auditor"
 )
 
 // HandlerOptions ...
@@ -20,14 +20,14 @@ func ProvideHandlerOptions(services *Services, lggr *log.Logger) *HandlerOptions
 		Logger:  lggr,
 		Service: services.Auditor,
 	}
-	archive:=&archiver.HandlerOpts{
-		Logger: lggr,
+	archive := &archiver.HandlerOpts{
+		Logger:  lggr,
 		Service: services.Archiver,
 	}
 
 	return &HandlerOptions{
 		ArchiveOptions: archive,
-		AuditOptions: audit,
+		AuditOptions:   audit,
 	}
 }
 

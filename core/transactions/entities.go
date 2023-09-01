@@ -3,7 +3,7 @@ package transactions
 import (
 	"time"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 // Transaction defines a payment made for a property(i.e house).

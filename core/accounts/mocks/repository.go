@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/rugwirobaker/paypack-backend/core/accounts"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/accounts"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 var _ (accounts.Repository) = (*repositoryMock)(nil)

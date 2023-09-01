@@ -3,10 +3,10 @@ package auth
 import (
 	"context"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/encrypt"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/rugwirobaker/paypack-backend/pkg/passwords"
-	"github.com/rugwirobaker/paypack-backend/pkg/passwords/plain"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/encrypt"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/passwords"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/passwords/plain"
 )
 
 var _ (Service) = (*service)(nil)

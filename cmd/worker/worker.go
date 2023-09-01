@@ -7,10 +7,10 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/rugwirobaker/paypack-backend/cmd/worker/app"
-	"github.com/rugwirobaker/paypack-backend/pkg/build"
-	"github.com/rugwirobaker/paypack-backend/pkg/config"
-	"github.com/rugwirobaker/paypack-backend/pkg/tasks/worker"
+	"github.com/nshimiyimanaamani/paypack-backend/cmd/worker/app"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/build"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/config"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/tasks/worker"
 )
 
 var vers = flag.Bool("version", false, "Print version information and exit")

@@ -3,7 +3,7 @@ package users
 import (
 	"time"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 // Role represents user access level

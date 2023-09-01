@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/rugwirobaker/paypack-backend/core/notifs"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/notifs"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 type mockSmsRepository struct {

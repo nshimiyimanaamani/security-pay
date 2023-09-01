@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/api/http/middleware"
-	"github.com/rugwirobaker/paypack-backend/core/auth"
-	"github.com/rugwirobaker/paypack-backend/core/metrics"
-	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/nshimiyimanaamani/paypack-backend/api/http/middleware"
+	"github.com/nshimiyimanaamani/paypack-backend/core/auth"
+	"github.com/nshimiyimanaamani/paypack-backend/core/metrics"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/log"
 )
 
 // ProtocolHandler adapts the feedback service into an http.handler

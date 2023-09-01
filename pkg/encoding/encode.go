@@ -3,7 +3,7 @@ package encoding
 import (
 	"context"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 	"github.com/vmihailenco/msgpack/v4"
 )
 

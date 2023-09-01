@@ -5,8 +5,8 @@ import (
 	"database/sql"
 
 	"github.com/lib/pq"
-	"github.com/rugwirobaker/paypack-backend/core/notifs"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/notifs"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 var _ notifs.Repository = (*notifsRepo)(nil)

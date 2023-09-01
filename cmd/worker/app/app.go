@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/hibiken/asynq"
-	"github.com/rugwirobaker/paypack-backend/pkg/config"
-	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/config"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/log"
 	"github.com/sirupsen/logrus"
 )
 

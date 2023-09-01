@@ -1,6 +1,6 @@
 package accounts
 
-import "github.com/rugwirobaker/paypack-backend/pkg/errors"
+import "github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 
 import "time"
 

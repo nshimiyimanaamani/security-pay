@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/core/auth"
-	"github.com/rugwirobaker/paypack-backend/core/auth/mocks"
-	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/nshimiyimanaamani/paypack-backend/core/auth"
+	"github.com/nshimiyimanaamani/paypack-backend/core/auth/mocks"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

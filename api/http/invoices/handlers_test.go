@@ -13,10 +13,10 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 
-	endpoints "github.com/rugwirobaker/paypack-backend/api/http/invoices"
-	"github.com/rugwirobaker/paypack-backend/core/invoices"
-	"github.com/rugwirobaker/paypack-backend/core/invoices/mocks"
-	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	endpoints "github.com/nshimiyimanaamani/paypack-backend/api/http/invoices"
+	"github.com/nshimiyimanaamani/paypack-backend/core/invoices"
+	"github.com/nshimiyimanaamani/paypack-backend/core/invoices/mocks"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/log"
 )
 
 var creation = time.Now()

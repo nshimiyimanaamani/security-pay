@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/rugwirobaker/paypack-backend/core/archiver"
-	"github.com/rugwirobaker/paypack-backend/core/auditor"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/archiver"
+	"github.com/nshimiyimanaamani/paypack-backend/core/auditor"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 var _ (archiver.Executor) = (*Executor)(nil)

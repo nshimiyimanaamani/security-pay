@@ -3,7 +3,7 @@ package postgres
 import (
 	"database/sql"
 
-	"github.com/rugwirobaker/paypack-backend/core/users"
+	"github.com/nshimiyimanaamani/paypack-backend/core/users"
 )
 
 var _ (users.Repository) = (*userRepository)(nil)

@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rugwirobaker/paypack-backend/core/identity"
-	"github.com/rugwirobaker/paypack-backend/core/invoices"
-	"github.com/rugwirobaker/paypack-backend/core/notifs"
-	"github.com/rugwirobaker/paypack-backend/core/owners"
-	"github.com/rugwirobaker/paypack-backend/core/properties"
-	"github.com/rugwirobaker/paypack-backend/core/transactions"
-	"github.com/rugwirobaker/paypack-backend/pkg/clock"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/identity"
+	"github.com/nshimiyimanaamani/paypack-backend/core/invoices"
+	"github.com/nshimiyimanaamani/paypack-backend/core/notifs"
+	"github.com/nshimiyimanaamani/paypack-backend/core/owners"
+	"github.com/nshimiyimanaamani/paypack-backend/core/properties"
+	"github.com/nshimiyimanaamani/paypack-backend/core/transactions"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/clock"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 )
 

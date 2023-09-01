@@ -3,7 +3,7 @@ package version
 import (
 	"net/http"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/build"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/build"
 )
 
 // Build returns paypack build information

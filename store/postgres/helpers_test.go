@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rugwirobaker/paypack-backend/core/accounts"
-	"github.com/rugwirobaker/paypack-backend/core/invoices"
-	"github.com/rugwirobaker/paypack-backend/core/payment"
-	"github.com/rugwirobaker/paypack-backend/core/properties"
-	"github.com/rugwirobaker/paypack-backend/core/transactions"
-	"github.com/rugwirobaker/paypack-backend/core/users"
+	"github.com/nshimiyimanaamani/paypack-backend/core/accounts"
+	"github.com/nshimiyimanaamani/paypack-backend/core/invoices"
+	"github.com/nshimiyimanaamani/paypack-backend/core/payment"
+	"github.com/nshimiyimanaamani/paypack-backend/core/properties"
+	"github.com/nshimiyimanaamani/paypack-backend/core/transactions"
+	"github.com/nshimiyimanaamani/paypack-backend/core/users"
 	"github.com/stretchr/testify/require"
 )
 

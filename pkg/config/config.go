@@ -5,7 +5,7 @@ import (
 
 	validate "github.com/go-playground/validator/v10"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 // Config contains application wide config

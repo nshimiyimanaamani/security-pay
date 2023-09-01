@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/paypack-backend/core/ussd"
-	"github.com/rugwirobaker/paypack-backend/pkg/log"
+	"github.com/nshimiyimanaamani/paypack-backend/core/ussd"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/log"
 )
 
 // ProtocolHandler adapts the ussd service into an http.handler

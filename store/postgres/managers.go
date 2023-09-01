@@ -5,9 +5,9 @@ import (
 	"database/sql"
 
 	"github.com/lib/pq"
-	"github.com/rugwirobaker/paypack-backend/core/auth"
-	"github.com/rugwirobaker/paypack-backend/core/users"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/auth"
+	"github.com/nshimiyimanaamani/paypack-backend/core/users"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 func (repo *userRepository) SaveManager(ctx context.Context, user users.Manager) (users.Manager, error) {

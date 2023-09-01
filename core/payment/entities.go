@@ -3,7 +3,7 @@ package payment
 import (
 	"time"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 // TxExpiration is the time it takes for a non confirmed treansaction to expire

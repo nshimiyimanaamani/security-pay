@@ -3,7 +3,7 @@ package metrics
 import (
 	"context"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 // Service exposes metrics usecases

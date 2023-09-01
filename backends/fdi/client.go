@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/nshimiyimanaamani/paypack-backend/core/payment"
 	"github.com/quarksgroup/paypack-go/paypack"
 	"github.com/quarksgroup/paypack-go/paypack/api"
-	"github.com/rugwirobaker/paypack-backend/core/payment"
 )
 
 // Timeout sets the default client timeout

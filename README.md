@@ -61,7 +61,7 @@ Other directories:
 
  check the endpoint documentantion detials at
 
- <https://github.com/rugwirobaker/paypack-backend/blob/master/docs.md>>
+ <https://github.com/nshimiyimanaamani/paypack-backend/blob/master/docs.md>>
 
  or check out the postman collection for paypack api:
 

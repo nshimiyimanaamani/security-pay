@@ -15,10 +15,10 @@ package users_test
 // 	"testing"
 
 // 	"github.com/gorilla/mux"
-// 	endpoints "github.com/rugwirobaker/paypack-backend/api/http/users"
-// 	"github.com/rugwirobaker/paypack-backend/core/users"
-// 	"github.com/rugwirobaker/paypack-backend/core/users/mocks"
-// 	"github.com/rugwirobaker/paypack-backend/pkg/log"
+// 	endpoints "github.com/nshimiyimanaamani/paypack-backend/api/http/users"
+// 	"github.com/nshimiyimanaamani/paypack-backend/core/users"
+// 	"github.com/nshimiyimanaamani/paypack-backend/core/users/mocks"
+// 	"github.com/nshimiyimanaamani/paypack-backend/pkg/log"
 // 	"github.com/stretchr/testify/assert"
 // )
 

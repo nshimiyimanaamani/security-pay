@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rugwirobaker/paypack-backend/core/owners"
-	"github.com/rugwirobaker/paypack-backend/core/owners/mocks"
+	"github.com/nshimiyimanaamani/paypack-backend/core/owners"
+	"github.com/nshimiyimanaamani/paypack-backend/core/owners/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -179,7 +179,7 @@ func TestListOwners(t *testing.T) {
 			err:    nil,
 		},
 		{
-			desc: "	list empty set",
+			desc:   "	list empty set",
 			offset: n + 1,
 			limit:  n,
 			size:   0,

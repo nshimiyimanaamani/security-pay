@@ -11,9 +11,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/rugwirobaker/paypack-backend/cmd/paypack/app"
-	"github.com/rugwirobaker/paypack-backend/pkg/build"
-	"github.com/rugwirobaker/paypack-backend/pkg/config"
+	"github.com/nshimiyimanaamani/paypack-backend/cmd/paypack/app"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/build"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/config"
 )
 
 var vers = flag.Bool("version", false, "Print version information and exit")

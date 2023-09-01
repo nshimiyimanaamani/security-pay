@@ -5,8 +5,8 @@ import (
 	"database/sql"
 
 	"github.com/lib/pq"
-	"github.com/rugwirobaker/paypack-backend/core/metrics"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/metrics"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 type statsRepository struct {

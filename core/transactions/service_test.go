@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rugwirobaker/paypack-backend/core/transactions"
-	"github.com/rugwirobaker/paypack-backend/core/transactions/mocks"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/transactions"
+	"github.com/nshimiyimanaamani/paypack-backend/core/transactions/mocks"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -116,7 +116,7 @@ func TestListTransactions(t *testing.T) {
 		err    error
 	}{
 		{
-			desc: "	list empty set",
+			desc:   "	list empty set",
 			offset: n + 1,
 			limit:  n,
 			size:   0,

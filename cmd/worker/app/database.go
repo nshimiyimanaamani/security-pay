@@ -3,9 +3,9 @@ package app
 import (
 	"database/sql"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/config"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/rugwirobaker/paypack-backend/store/postgres"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/config"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/store/postgres"
 )
 
 // PostgresConnect returns a sql.DB connection to postgres

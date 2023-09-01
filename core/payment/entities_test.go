@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rugwirobaker/paypack-backend/core/identity/uuid"
-	"github.com/rugwirobaker/paypack-backend/core/nanoid"
-	"github.com/rugwirobaker/paypack-backend/core/payment"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/identity/uuid"
+	"github.com/nshimiyimanaamani/paypack-backend/core/nanoid"
+	"github.com/nshimiyimanaamani/paypack-backend/core/payment"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 

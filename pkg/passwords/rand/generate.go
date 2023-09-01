@@ -5,8 +5,8 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
-	"github.com/rugwirobaker/paypack-backend/pkg/passwords"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/passwords"
 )
 
 const length int = 8

@@ -20,13 +20,13 @@ COPY --from=static  /app/web/dist ./web/dist/
 ARG VERSION="unset"
 RUN DATE="$(date -u +%Y-%m-%d-%H:%M:%S-%Z)" \ 
     VERSION="$(git rev-parse --short HEAD)" \
-    LDFLAGS="-X github.com/rugwirobaker/paypack-backend/pkg/build.version=$VERSION -X github.com/quarksgroup/paypack-engine/pkg/build.buildDate=$DATE" \
+    LDFLAGS="-X github.com/nshimiyimanaamani/paypack-backend/pkg/build.version=$VERSION -X github.com/quarksgroup/paypack-engine/pkg/build.buildDate=$DATE" \
     CGO_ENABLED=0 go build -ldflags=$LDFLAGS -o /bin/paypack ./cmd/paypack
 
 ARG VERSION="unset"
 RUN DATE="$(date -u +%Y-%m-%d-%H:%M:%S-%Z)" \ 
     VERSION="$(git rev-parse --short HEAD)" \
-    LDFLAGS="-X github.com/rugwirobaker/paypack-backend/pkg/build.version=$VERSION -X github.com/quarksgroup/paypack-engine/pkg/build.buildDate=$DATE" \
+    LDFLAGS="-X github.com/nshimiyimanaamani/paypack-backend/pkg/build.version=$VERSION -X github.com/quarksgroup/paypack-engine/pkg/build.buildDate=$DATE" \
     CGO_ENABLED=0 go build -ldflags=$LDFLAGS -o /bin/worker ./cmd/worker
 
 FROM scratch

@@ -3,7 +3,7 @@ FROM golang:${GOLANG_VERSION} AS builder
 
 LABEL MAINTAINER="rugwirobaker@gmail.com"
 
-WORKDIR $GOPATH/src/github.com/rugwirobaker/paypack-backend
+WORKDIR $GOPATH/src/github.com/nshimiyimanaamani/paypack-backend
 
 COPY go.mod go.sum ./
 

@@ -3,8 +3,8 @@ package mocks
 import (
 	"context"
 
-	"github.com/rugwirobaker/paypack-backend/core/notifs"
-	"github.com/rugwirobaker/paypack-backend/pkg/errors"
+	"github.com/nshimiyimanaamani/paypack-backend/core/notifs"
+	"github.com/nshimiyimanaamani/paypack-backend/pkg/errors"
 )
 
 type mockSmsBackend struct{}
